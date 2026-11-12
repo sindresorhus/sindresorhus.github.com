@@ -2,7 +2,7 @@
 title: 'How to Sort a List in Shortcuts on iPhone and Mac'
 description: 'Sort a list of text or numbers in the Shortcuts app, ascending or descending, with the Sort List action of the free Actions app.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'actions'
 ]

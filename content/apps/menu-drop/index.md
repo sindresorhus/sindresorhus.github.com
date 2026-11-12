@@ -1,12 +1,14 @@
 ---
 title: 'Menu Drop'
 subtitle: 'Quick AirDrop sharing in your menu bar'
+description: 'AirDrop files, folders, links, and text from your Mac simply by dragging them onto the app’s menu bar icon.'
 publicationDate: 2025-10-17
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 6754022187
+hasNoNetworkAccess: true
 nonAppStoreVersion: {
 	version: '1.0.1'
 	macOS: 26
@@ -49,10 +51,6 @@ Rich text content is converted to plain text. Rich-text files are sent as files.
 - You can drag and drop a URL directly from the Safari address bar to the menu bar icon.
 - Select a URL and either drop it on the menu bar icon or copy it and use Share from Clipboard to open it on your iOS device.
 
-### Privacy
-
-The app is built without internet permissions (no network entitlement), so macOS prevents it from connecting to the internet even if it wanted to.
-
 ## Frequently Asked Questions {#faq}
 
 ### Dragging onto the menu bar icon opens Mission Control on macOS 27 {#dragging-onto-the-menu-bar-icon-opens-mission-control-on-macos-27}
@@ -76,6 +74,7 @@ AirDrop device discovery is up to the system. Ensure AirDrop is enabled, both de
 This just triggers the AirDrop picker with the dragged files. It has no control over how AirDrop works.
 
 ### Why use this instead of AirDrop in the Share popover? {#why-use-this-instead-of-airdrop-in-the-share-popover}
+<!-- @faq.compares Share popover -->
 
 Speed. Drag straight to the menu bar.
 

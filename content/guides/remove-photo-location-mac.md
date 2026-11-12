@@ -20,7 +20,7 @@ apps: [
 1. Select the photos in Finder, right-click, and choose “Remove Location Metadata” or “Remove All Metadata”.
 }
 
-The items only show for JPEG, HEIC, PNG, and TIFF images that have the metadata. Supercharge puts a copy of each original image in the Trash, so you can get it back. “Remove All Metadata” keeps the orientation, so the photo does not turn.
+The items work for JPEG, HEIC, PNG, and TIFF images that have the metadata. Supercharge puts a copy of each original image in the Trash, so you can get it back. “Remove All Metadata” keeps the orientation, so the photo does not turn.
 
 The right-click items cannot show in synced folders, like iCloud Drive and Dropbox. Move the photos to another folder first.
 
@@ -32,4 +32,4 @@ The right-click items cannot show in synced folders, like iCloud Drive and Dropb
 1. Click “Remove Location Info”, and save the photo.
 }
 
-Preview removes the location from one photo at a time. In the Photos app, you can hide the location of photos: select them, and choose “Image › Location › Hide Location”. Supercharge is faster for many photos, and also removes the other metadata.
+Preview removes the location from one photo at a time. In the Photos app, you can hide the location of photos: select them, and choose “Image › Location › Hide Location”. Supercharge is faster for many photos, and also removes the other metadata. [How to remove all metadata without an app.](remove-photo-metadata-mac.md)

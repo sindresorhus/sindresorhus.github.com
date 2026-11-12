@@ -420,16 +420,23 @@ public struct MarkdownDocument: Sendable {
 
 		public let moreLink: MoreLink?
 
+		/**
+		HTML after the sections and the ``moreLink``, like a line that says where to ask what the sections do not answer. The content after the last heading is the content of its section, so the Markdown cannot add it. It renders with the document, so the document collects the styles of its components, like a style on an element.
+		*/
+		public let footerHTML: (@Sendable () -> String)?
+
 		public init(
 			level: HeadingLevel,
 			startHeadingID: ElementID? = nil,
 			name: String? = nil,
-			moreLink: MoreLink? = nil
+			moreLink: MoreLink? = nil,
+			footerHTML: (@Sendable () -> String)? = nil
 		) {
 			self.level = level
 			self.startHeadingID = startHeadingID
 			self.name = name
 			self.moreLink = moreLink
+			self.footerHTML = footerHTML
 		}
 	}
 

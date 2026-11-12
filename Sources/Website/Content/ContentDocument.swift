@@ -15,9 +15,9 @@ protocol ContentDocument: ContentEntry where Frontmatter: DocumentFrontmatter {
 	static var pageRoute: RoutePath { get }
 
 	/**
-	The root keys the formatter orders. Empty preserves authored order.
+	The document's own root keys, in formatting order. Keys from another frontmatter model are not accepted. Empty preserves authored order.
 	*/
-	static var formattingKeys: [any CodingKey] { get }
+	static var formattingKeys: [Frontmatter.CodingKeys] { get }
 
 	/**
 	The path of the page of a file, by its slug, like `/dato` for `dato`.
@@ -123,7 +123,7 @@ extension ContentDocument {
 		decodedFile.frontmatter
 	}
 
-	static var formattingKeys: [any CodingKey] {
+	static var formattingKeys: [Frontmatter.CodingKeys] {
 		[]
 	}
 
@@ -326,6 +326,13 @@ extension RoutePath {
 
 extension MarkdownFile {
 	/**
+	The page that a link of the file goes to, like `/dato` for `../apps/dato/index.md#faq`, or `nil` for a link to another site, and for a link that is not valid, which the build already reported.
+	*/
+	func linkedPagePath(_ destination: String, project: Project) -> RoutePath? {
+		(try? resolvingLink(destination, project: project)).flatMap { try? LinkDestination(validating: $0) }?.sitePath
+	}
+
+	/**
 	A link in the file, with a link to another content file, like `dato.md` or `../pages/about.md`, as the path of its page, and a link to a file of its page bundle, like `screenshot.png`, as the path of the published file. Other links stay as they are, and every link is checked as a ``LinkDestination``, except a relative link without an extension, like `donate`, which the browser resolves, as ``LinkDestination`` has no relative case. So a malformed URL or a path with `.` or `..` is an error, and so is a relative link with a file extension to a file that does not exist, like a typo in a file name.
 	*/
 	func resolvingLink(_ destination: String, project: Project) throws(ContentError) -> String {
@@ -365,10 +372,37 @@ extension MarkdownFile {
 			target.isFile,
 			let route = RoutePath(contentFile: target, project: project)
 		else {
-			throw ContentError(reason: "The link `\(destination)` goes to a content file that does not exist.")
+			throw ContentError(reason: "The link `\(destination)` goes to a content file that does not exist.\(closestContentLink(to: path, target: target).map { " Did you mean `\($0)`?" } ?? "")")
 		}
 
 		return try "\(route.description)\(fragment)".checkedAsLink
+	}
+
+	/**
+	The link to the content file that is the closest to the target of a link that does not exist, for a “Did you mean …?” of a typo in a long slug, like `transcribe-audio-to-text-mac.md` for `transcribe-audio-to-text.md`: a Markdown file next to the target, or for a link to the `index.md` of a page bundle, a page bundle next to its folder, like `../apps/dato/index.md` for `../apps/datto/index.md`. `nil` when the target exists or no name is close.
+	*/
+	private func closestContentLink(to path: String, target: URL) -> String? {
+		guard !target.isFile else {
+			return nil
+		}
+
+		let isBundle = target.lastPathComponent == "index.md"
+		let misspelled = isBundle ? target.deletingLastPathComponent() : target
+		let ending = isBundle ? "/index.md" : ""
+		let names = if isBundle {
+			misspelled.deletingLastPathComponent().directories.filter { $0.appending(path: "index.md").isFile }.map(\.lastPathComponent)
+		} else {
+			misspelled.deletingLastPathComponent().files.filter { $0.pathExtension == "md" }.map(\.lastPathComponent)
+		}
+
+		guard
+			path.hasSuffix(misspelled.lastPathComponent + ending),
+			let name = misspelled.lastPathComponent.closest(in: names)
+		else {
+			return nil
+		}
+
+		return String(path.dropLast(misspelled.lastPathComponent.count + ending.count)) + name + ending
 	}
 }
 

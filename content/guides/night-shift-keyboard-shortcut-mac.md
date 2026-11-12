@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	macOS has no keyboard shortcut for Night Shift. In the “Shortcuts” settings of [Supercharge](../apps/supercharge/index.md), set a shortcut for “Night Shift”, and press it to turn the warm colors on and off. Without an app, click Control Center in the menu bar, click the arrow next to “Display”, and click “Night Shift”.
+	macOS has no keyboard shortcut for Night Shift. In the “Shortcuts” settings of [Supercharge](../apps/supercharge/index.md), set a shortcut for “Night Shift”, and press it to turn the warm colors on and off. Without an app, click Control Center in the menu bar, click “Display”, and click “Night Shift”.
 }
 
 ## With Supercharge
@@ -20,11 +20,11 @@ apps: [
 1. Press the shortcut to turn Night Shift on. Press it again to turn it off.
 }
 
-This is good when you work with colors, like photos or a design, and must see the real colors for a moment. Night Shift does not work on some displays that are not from Apple.
+This is good when you work with colors, like photos or a design, and must see the real colors for a moment. On an external display, how well Night Shift works depends on the display. [True Tone can have a shortcut too.](true-tone-keyboard-shortcut-mac.md)
 
 ## Without an app
 
-- **Control Center:** Click Control Center in the menu bar, click the arrow next to “Display”, and click “Night Shift”.
+- **Control Center:** Click Control Center in the menu bar, click “Display”, and click “Night Shift”.
 - **Schedule:** Open “System Settings › Displays”, click “Night Shift…”, and choose “Sunset to Sunrise” or your own times in “Schedule”.
 
 [Apple’s instructions.](https://support.apple.com/102191) The schedule is enough for most people. A keyboard shortcut is for when you turn Night Shift off and on during the evening.

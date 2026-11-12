@@ -34,9 +34,9 @@ Writing replaces everything on the tag. When a tag has a web, email, or phone UR
 To run a shortcut when your iPhone scans a tag, you do not need to write it:
 
 @Steps {
-1. In the Shortcuts app, tap “Automation”, and tap the add button.
-1. Choose “NFC”, tap “Scan”, and hold the iPhone near the tag.
-1. Choose the shortcut to run.
+1. In the Shortcuts app, tap the shortcut to run, or make a new one.
+1. Tap “Edit”, then “Automation”, and choose “NFC”. Tap “Scan”, and hold the iPhone near the tag.
+1. To run the shortcut without asking, tap “Edit”, then the Info button, tap “Privacy”, and turn on “Allow Running When Locked”.
 }
 
 [Apple’s instructions.](https://support.apple.com/guide/shortcuts/add-automations-apdfbdbd7123/ios) This is enough when you only want a tag that runs a shortcut on your own iPhone. Writing the tag is for a tag that other phones can use too, like a link to a website or a Wi-Fi page.

@@ -4,7 +4,7 @@ import SiteKit
 import SOML
 
 /**
-A sale that runs on the day of the build: a `@Scheduled` block with a `sale` name that its page shows now, like the Black Friday block of the discounts page. The page of each app that the block links to shows a note about it (``AppPage``), so the dates and the apps of a sale are only written in the block. The block links to an app with a site path, like `/dato`, a link to its content file, or its product on Gumroad. A relative link to the page, like `../dato`, does not count.
+A sale that runs on the day of the build: a `@Scheduled` block with a `sale` name that its page shows now, like the Black Friday block of the discounts page. The page of each paid and active app that the block links to shows a note about it (``AppPage``), so the dates and the apps of a sale are only written in the block. The block links to an app with a site path, like `/dato`, a link to its content file, or its product on Gumroad. A relative link to the page, like `../dato`, does not count. A free or archived app gets no note, also when the block links to it, like in “also see the free [Week Number](/week-number)”.
 */
 struct Sale {
 	/**
@@ -25,24 +25,22 @@ struct Sale {
 	let linkedPaths: Set<RoutePath>
 
 	/**
-	The other links of the block, like the Gumroad link of an app with the code of the sale.
+	The products on Gumroad that the block links to, like the link of an app with the code of the sale (``GumroadProductID/init(productURL:)``).
 	*/
-	let externalLinks: [String]
+	let gumroadProducts: Set<GumroadProductID>
 
 	/**
-	Whether the block links to the page of the app, or to its product on Gumroad, like `https://sindresorhus.gumroad.com/l/supercharge/BLACKFRIDAY`.
+	Whether the app is paid and active, and the block links to its page, or to its product on Gumroad, like `https://sindresorhus.gumroad.com/l/supercharge/BLACKFRIDAY`.
 	*/
 	func includes(_ app: App) -> Bool {
-		if linkedPaths.contains(app.path) {
-			return true
-		}
-
-		guard let product = app.purchase.gumroad?.id.url.absoluteString else {
+		guard
+			app.isPaid,
+			app.isActive
+		else {
 			return false
 		}
 
-		// The product link can have a code or a query after it.
-		return externalLinks.contains { $0 == product || $0.hasPrefix("\(product)/") || $0.hasPrefix("\(product)?") }
+		return linkedPaths.contains(app.path) || app.purchase.gumroad.map { gumroadProducts.contains($0.id) } == true
 	}
 }
 
@@ -60,8 +58,7 @@ extension MarkdownPage {
 		return visibleDocument.blockDirectives.compactMap { directive -> Sale? in
 			// The build already reported invalid arguments.
 			guard
-				directive.siteName == .scheduled,
-				let arguments = try? directive.arguments(as: ScheduledArguments.self),
+				let arguments = directive.scheduled,
 				let name = arguments.sale
 			else {
 				return nil
@@ -70,23 +67,14 @@ extension MarkdownPage {
 			let destinations = directive.descendants(of: Markdown.Link.self).compactMap(\.destination)
 
 			// A link to another content file, like `../../apps/dato/index.md`, is the path of its page.
-			let linkedPaths = destinations.compactMap { destination -> RoutePath? in
-				guard
-					let resolved = try? file.resolvingLink(destination, project: project),
-					case .path(let path, _, _)? = try? LinkDestination(validating: resolved)
-				else {
-					return nil
-				}
-
-				return path
-			}
+			let linkedPaths = destinations.compactMap { file.linkedPagePath($0, project: project) }
 
 			return Sale(
 				name: name,
 				lastDay: arguments.until.date,
 				page: path,
 				linkedPaths: Set(linkedPaths),
-				externalLinks: destinations.filter { $0.hasPrefix("https://") }
+				gumroadProducts: Set(destinations.compactMap { URL(string: $0).flatMap(GumroadProductID.init(productURL:)) })
 			)
 		}
 	}
@@ -100,8 +88,8 @@ private struct ScheduledContentRewriter: MarkupRewriter {
 
 	mutating func visitBlockDirective(_ directive: BlockDirective) -> (any Markup)? {
 		if
-			directive.siteName == .scheduled,
-			(try? directive.arguments(as: ScheduledArguments.self))?.contains(today) != true
+			let arguments = directive.scheduled,
+			!arguments.contains(today)
 		{
 			return nil
 		}

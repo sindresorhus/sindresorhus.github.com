@@ -8,6 +8,7 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 1632827132
+hasNoNetworkAccess: true
 sharedQuestions: [
 	'suggested-filenames'
 	'menu-bar-icons'
@@ -56,6 +57,10 @@ Check your hair and lighting before a video call. Open the app to see your Macâ€
 
 - Press the ++Return++ or ++Space++ key while showing the camera feed to take a photo.
 - Press ++Command+Plus++ to zoom in, ++Command+-++ to zoom out, and ++Command+0++ to reset the zoom.
+- Press ++Command+C++ to take a photo and copy it, and ++Command+S++ to take a photo and choose where to save it.
+- Press ++Shift+Command+H++ to flip the image horizontally, and ++Shift+Command+V++ to flip it vertically. Each camera keeps its own flip.
+- Press ++Command+1++, ++Command+2++, and so on, to switch between cameras.
+- Press ++Control+Command+T++ to keep the window on top, and ++Option+Command+T++ to show or hide the title bar.
 - Press the ++Option++ key while resizing the window to resize from the center (this works with any app).
 
 ## Frequently Asked Questions {#faq}
@@ -75,6 +80,7 @@ I donâ€™t plan to add that. I plan to make a separate app specifically for showi
 Yes, when in menu bar mode.
 
 ### How is this better than Photo Booth? {#photo-booth}
+<!-- @faq.compares Photo Booth -->
 
 - Optional access from the menu bar, with a keyboard shortcut to show and hide it.
 - Higher quality camera output.
@@ -89,6 +95,7 @@ Yes, when in menu bar mode.
 - Made by an indie developer that listens to users.
 
 ### How is this different from Hand Mirror? {#hand-mirror}
+<!-- @faq.compares Hand Mirror -->
 
 Hand Mirror is a great app, and it is free. Its paid upgrade, Hand Mirror Plus, adds features like a microphone level check, window masks, and Polaroid-style photos. If you want those, use Hand Mirror.
 
@@ -100,6 +107,7 @@ Camera Preview has all its features in one purchase, with a focus on a camera wi
 - Show the camera and change the zoom from Shortcuts.
 
 ### How is this better than QuickTime? {#quicktime}
+<!-- @faq.compares QuickTime -->
 
 - Shows the camera faster. One click instead of multiple.
 - Optional access from the menu bar, with a keyboard shortcut to show and hide it.

@@ -31,6 +31,8 @@ Quickly open websites, launch apps, and run shortcuts directly from your Lock Sc
 
 For example, open google.com, launch TikTok, or run a shortcut to play a random music playlist.
 
+When a widget runs a shortcut, the Shortcuts app opens to run it, as apps cannot run shortcuts in the background on iOS. Add the “Go to Home Screen” action at the end of the shortcut to leave the Shortcuts app when the shortcut is done.
+
 Here are [some more ideas](https://github.com/bhagyas/app-urls) of what you could open.
 
 <!-- **For macOS, it's only available for Apple silicon Macs.** -->
@@ -56,10 +58,12 @@ Write the app name exactly as it shows on the Home Screen. Use the “Open App�
 Sure. I’m happy to consider requests. [Send it here.](/feedback?product=Quick%20Launch&referrer=Website-FAQ)
 
 ### How does it compare to other similar Lock Screen launchers? {#how-does-it-compare-to-other-similar-lock-screen-launchers}
+<!-- @faq.compares Other launchers -->
 
 It can open any app, not just from a predefined list, and it has more icon choices.
 
 ### How is this different from the Lock Screen controls? {#how-is-this-different-from-the-lock-screen-controls}
+<!-- @faq.compares Lock Screen controls -->
 
 You can replace the flashlight and camera buttons at the bottom of the Lock Screen with controls, like “Open App” or a shortcut. If two buttons are enough for you, use them.
 

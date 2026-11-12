@@ -1,12 +1,14 @@
 ---
 title: 'Week Number'
 subtitle: 'The current week number in your menu bar'
+description: 'Always know which week it is, in your Mac menu bar. Useful if your work or school plans by week number.'
 publicationDate: 2024-05-19
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 6502579523
+hasNoNetworkAccess: true
 nonAppStoreVersion: {
 	version: '1.3.0'
 	macOS: 26

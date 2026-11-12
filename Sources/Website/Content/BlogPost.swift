@@ -25,7 +25,7 @@ struct BlogPost: ContentDocument {
 	/**
 	The root frontmatter order follows the declarations, with status first and related facts together. Missing properties stay absent.
 	*/
-	static var formattingKeys: [any CodingKey] {
+	static var formattingKeys: [Frontmatter.CodingKeys] {
 		Frontmatter.CodingKeys.allCases
 	}
 

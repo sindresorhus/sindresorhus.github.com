@@ -7,6 +7,8 @@ on:
   schedule:
     # Every night at 00:37 UTC, for new App Store data and releases. Not on the full hour, when GitHub delays and drops more scheduled runs.
     - cron: '37 0 * * *'
+    # A second run, as GitHub sometimes drops a scheduled run. When the first run deployed, and the data did not change since, the site is the same, so the compare step skips the deploy.
+    - cron: '37 4 * * *'
 
 # A new run on `main` waits instead of cancelling the earlier run, as that could stop a deploy before the Cloudflare cache is purged.
 concurrency:
@@ -73,7 +75,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: echo "count=$(gh run list --workflow ci.yml --commit "$GITHUB_SHA" --event push --status success --limit 1 --json databaseId --jq length || echo 0)" >> "$GITHUB_OUTPUT"
-      # The tests use Swift Testing only, so the XCTest runner is skipped.
+      - uses: actions/setup-node@v7
+        if: steps.tested.outputs.count != '1'
+        with:
+          node-version: '26'
+          package-manager-cache: false
+      - name: Install the script type checker
+        if: steps.tested.outputs.count != '1'
+        run: npm ci --ignore-scripts
+      # The tests use Swift Testing only, so the XCTest runner is skipped. ScriptTypeTests generates the script's DOM and enum types from Swift and checks the actual JavaScript with TypeScript.
       - name: Test
         if: steps.tested.outputs.count != '1'
         run: swift test --skip-build --disable-xctest

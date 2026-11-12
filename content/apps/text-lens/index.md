@@ -9,6 +9,7 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6743369285
+hasNoNetworkAccess: true
 sharedQuestions: [
 	'menu-bar-icons'
 ]
@@ -89,7 +90,7 @@ Copy the text you cannot select, in images, videos, PDFs, presentations, or anyw
 
 #### Privacy
 
-Everything is done locally on your device. Nothing leaves your device. The app is not even able to connect to the internet due to self-imposed restrictions that are enforced by macOS (no network entitlement).
+Everything is done locally on your device. Nothing leaves your device.
 
 ## Tips
 
@@ -97,6 +98,7 @@ Everything is done locally on your device. Nothing leaves your device. The app i
 
 - When in capturing mode, simply click again to exit. You could also press ++Esc++.
 - Right-click menu bar icon to capture.
+- Select an image file in Finder, or an image in another app, right-click, and choose “Services › Capture via Text Lens” to get the text, QR codes, and barcodes in the image.
 
 ### Capture and search the web
 
@@ -136,6 +138,7 @@ defaults write ~/Library/Group\ Containers/group.com.apple.replayd/ScreenCapture
 Some apps block screen capture at the system level, for example DRM-protected video and Citrix Workspace. macOS then returns a blank image instead of their content, so there is no text to extract. This affects everything on macOS, including the built-in screenshot tool, and cannot be worked around by any app.
 
 ### How is this different from macOS built-in Live Text? {#how-is-this-different-from-macos-built-in-live-text}
+<!-- @faq.compares Live Text -->
 
 While macOS Live Text works well for images and photos in supported apps, Text Lens works everywhere on your screen. You can capture text from videos, webpages, presentations, or any app, even when Live Text is not available. Text Lens also works with non-image content like UI elements and rendered text that Live Text can’t detect.
 
@@ -165,10 +168,11 @@ You can help it in two ways:
 - In “Settings › General”, set the “Primary language” to the language of the text.
 
 ### I already own Supercharge. Does this offer any benefits over its similar feature? {#supercharge}
+<!-- @faq.compares Supercharge -->
 
 Compared to the similar feature in [Supercharge](/supercharge):
 
-- Capture by simply clicking the menu bar icon
+- Capture with one click on the menu bar icon
 - Extract text from images on clipboard or files
 - Extract text directly from photo taken with iPhone/iPad camera
 - Drag and drop images onto menu bar icon to extract text
@@ -176,10 +180,11 @@ Compared to the similar feature in [Supercharge](/supercharge):
 	- Enables doing multiple captures and copy as a single text
 
 ### How does this compare to TextSniper? {#textsniper}
+<!-- @faq.compares TextSniper -->
 
 This app’s advantages:
 - Universal capture: Extract text, QR codes, and barcodes with a single action
-- Capture by simply clicking the menu bar icon
+- Capture with one click on the menu bar icon
 - Extract text from clipboard and files
 - Drag and drop images onto the menu bar icon to extract text
 - Can show captured text in a window with the ability to edit

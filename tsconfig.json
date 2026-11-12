@@ -1,0 +1,27 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"lib": ["ESNext", "DOM"],
+		"types": [],
+		"allowJs": true,
+		"checkJs": false,
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true,
+		"noEmit": true,
+		"paths": {
+			"/scripts/dom.js": ["./public/scripts/dom.js"],
+			"/scripts/element-contracts.js": ["./.build/script-types.d.ts"]
+		}
+	},
+	"files": [
+		"public/scripts/dom.js",
+		"Sources/Website/Components/Scripts/LiveFact.js",
+		"Sources/Website/Components/Scripts/CopyButton.js",
+		"Sources/Website/Components/Scripts/AwakeStatus.js",
+		"Sources/Website/Components/Scripts/ShareButton.js",
+		"Sources/Website/Components/Scripts/OverflowMenu.js"
+	]
+}

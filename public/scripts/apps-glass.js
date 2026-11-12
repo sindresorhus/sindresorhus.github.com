@@ -1,5 +1,5 @@
 // The liquid glass behind the title of the apps page, drawn with WebGL: soft fields in the colors of the featured apps, seen through slowly moving frosted glass. It pauses while it is off screen or the tab is hidden. Without WebGL, and for visitors who prefer reduced motion, the canvas keeps its still gradient (`AppsPage`), which looks almost like a still frame of the glass, so the page does not start WebGL for nothing.
-import {prefersReducedMotion} from '/scripts/dom.js';
+import {finePointer, prefersReducedMotion} from '/scripts/dom.js';
 import {startShader} from '/scripts/webgl.js';
 
 const canvas = document.querySelector('#apps-glass');
@@ -125,7 +125,6 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 	canvas.dataset.state = 'drawing';
 
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
-	const finePointerQuery = matchMedia('(hover: hover) and (pointer: fine)');
 
 	// The glass is soft, so half the CSS pixels in each direction is enough, and it saves battery. The browser scales it up smoothly.
 	const scale = 0.5;
@@ -143,7 +142,7 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 	const header = canvas.parentElement;
 
 	header.addEventListener('pointermove', event => {
-		if (!finePointerQuery.matches) {
+		if (!finePointer.matches) {
 			return;
 		}
 

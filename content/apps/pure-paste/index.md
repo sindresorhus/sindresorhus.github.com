@@ -1,6 +1,7 @@
 ---
 title: 'Pure Paste'
 subtitle: 'Paste as plain text by default'
+description: 'Copy text from a web page or a document on your Mac, and paste it without the fonts, colors, and links.'
 publicationDate: 2022-03-02
 platforms: [
 	'macOS'
@@ -8,6 +9,7 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 1611378436
+hasNoNetworkAccess: true
 sharedQuestions: [
 	'backup-settings'
 	'tracking-parameters'
@@ -77,8 +79,10 @@ Rich text copied from a different device will not have its formatting cleared be
 ## Tips
 
 - Right-click the menu bar icon to toggle the “Automatically clear formatting” setting.
+- Hold ++Option++ while you click the menu bar icon to see which app the last copied item came from. Choose “Exclude App” to stop clearing the formatting of what you copy in that app.
 - When “Automatically clear formatting” is off, set the “Copy and clear formatting” keyboard shortcut in the settings to copy and clear formatting in one step.
 - When “Automatically clear formatting” is off, set the “Clear formatting” keyboard shortcut in the settings to clear the formatting of the text on the clipboard without pasting it.
+- In the Shortcuts app, “Clear Clipboard Formatting” clears the formatting of the text on the clipboard, and “Remove Tracking Parameters from URLs” removes the tracking parameters from the links that you give it, without the clipboard. “Get Pure Paste Settings” and “Change Pure Paste Settings” get and change a setting.
 
 ## Frequently Asked Questions {#faq}
 
@@ -110,6 +114,11 @@ You may also have disabled the “Show menu bar icon” setting, which hides the
 - If you have “Preserve links” enabled, try disabling it. When links are preserved, all styling is cleared but the clipboard remains rich text. Some apps restyle rich text anyway.
 - Verify that Pure Paste actually cleared formatting by using my [Pasteboard Viewer](/pasteboard-viewer). If you see the item `com.sindresorhus.Pure-Paste.hasRun` in the sidebar, Pure Paste worked. Any remaining formatting is added by the app you paste into. Some apps do this even for plain text.
 - [More troubleshooting steps…](/apps/faq#app-problem)
+
+### How is it different from Maccy? {#maccy}
+<!-- @faq.compares Maccy -->
+
+Maccy is an open-source clipboard history app. It can paste an item from its history without formatting. Pure Paste keeps no history. It clears the formatting as you copy, so ++Command+V++ pastes plain text in all apps. It can also keep links and remove tracking parameters. You can use both, but [read this first](#pure-paste-conflicts-with-my-clipboard-manager).
 
 ### Pure Paste conflicts with my clipboard manager {#pure-paste-conflicts-with-my-clipboard-manager}
 

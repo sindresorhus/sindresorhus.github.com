@@ -22,7 +22,7 @@ public struct Publisher: Sendable {
 	/**
 	Publishes the routes and a sitemap of the pages that are in it. Returns what it published, for the checks of the site (``PublishedSite``).
 
-	Throws if two routes or a route and a public file are written to the same file, if a file answers the URL of a page before the page's own file, if the output directory is unsafe or a checkout, or if a route fails to render.
+	Throws if two routes or a route and a public file are written to the same file, if a file answers the URL of a page before the page's own file, if the output directory is unsafe, a checkout, or has files but is not a build of the site, or if a route fails to render.
 	*/
 	@discardableResult
 	public func publish(_ routes: [Route]) async throws(PublishingError) -> PublishedSite {
@@ -44,6 +44,7 @@ public struct Publisher: Sendable {
 		// The old files are removed first. Otherwise, on a case-insensitive disk, a file renamed from `Logo.png` to `logo.png` would be seen as unchanged, and then removed as `Logo.png`.
 		let publicFilePaths = Set(publicFiles.map(\.outputFile))
 		let publishedFiles = publicFilePaths.union(routes.map(\.outputFile))
+		try checkOutputIsBuild(publishing: publishedFiles)
 		try wrappingFileSystemErrors {
 			try removeFiles(except: publishedFiles)
 			try copy(publicFiles)
@@ -165,6 +166,22 @@ public struct Publisher: Sendable {
 		// The files of the checkout that did not change are removed, so the history and the other branches would be lost.
 		guard !output.appending(path: ".git").exists else {
 			throw PublishingError.repositoryOutput(output)
+		}
+	}
+
+	/**
+	The files of the output directory that the site does not publish are removed, so a directory with files must be a build of the site: one of its files is a file that the site publishes, like `robots.txt`. A wrong `--output`, like `Sources` or the desktop, would otherwise lose all its files. An empty directory passes, and so does the directory of a build that failed after it copied the public files. Finder metadata (`.DS_Store`) does not count, but other hidden files, like `.env`, do.
+	*/
+	private func checkOutputIsBuild(publishing publishedFiles: Set<PublishedFilePath>) throws(PublishingError) {
+		let files = try wrappingFileSystemErrors { try output.checkedContentsRecursively() }
+			.filter { $0.isSymbolicLink || !$0.isDirectory }
+			.filter { $0.lastPathComponent != ".DS_Store" }
+
+		guard
+			files.isEmpty
+				|| files.contains(where: { publishedFiles.contains(PublishedFilePath($0.path(relativeTo: output))) })
+		else {
+			throw PublishingError.notSiteOutput(output)
 		}
 	}
 
@@ -299,6 +316,11 @@ public enum PublishingError: Error, CustomStringConvertible, LocalizedError {
 	case repositoryOutput(URL)
 
 	/**
+	The output directory has files, but none that the site publishes, like `Sources` (``Publisher``).
+	*/
+	case notSiteOutput(URL)
+
+	/**
 	Reading or writing a file failed, like when the public directory is missing.
 	*/
 	case fileSystem(any Error)
@@ -322,6 +344,8 @@ public enum PublishingError: Error, CustomStringConvertible, LocalizedError {
 			"Refusing to publish to \(output.path(percentEncoded: false)), because it would delete the project or write into the public or content directory."
 		case .repositoryOutput(let output):
 			"Refusing to publish to \(output.path(percentEncoded: false)), because it is a git checkout, and the files that are not part of the site would be removed."
+		case .notSiteOutput(let output):
+			"Refusing to publish to \(output.path(percentEncoded: false)), because it has files and is not a build of the site. The build deletes each file that the site does not publish. Use an empty folder."
 		}
 	}
 }

@@ -17,11 +17,6 @@ struct AppHero: HTML {
 	var introduction: MarkdownContent?
 
 	/**
-	When the site is built, for how long the app has been available.
-	*/
-	let buildDate: Date
-
-	/**
 	Whether the page has guides about the app, which the “…” menu links to.
 	*/
 	let hasGuides: Bool
@@ -109,12 +104,11 @@ struct AppHero: HTML {
 
 					// Keep the list semantics in Safari, as the styles remove its bullets.
 					ul(.role(.list)) {
-						for fact in details {
-							li {
-								fact
-							}
-							.style(Styles.fact)
+						// The year that the app was released is in the facts at the end of the page (``AppFacts``), so this line stays short.
+						li {
+							listing.availabilityFact
 						}
+						.style(Styles.fact)
 
 						// It looks like the text around it, so the line stays quiet, and shows that it is a link under the pointer or with the focus of the keyboard.
 						li {
@@ -171,19 +165,12 @@ struct AppHero: HTML {
 			}
 
 			// The menu is there also without links, as it has a random app, and the QR code and sharing for apps that are not archived.
-			ChipNavigation(label: "App links", links: sectionLinks, menu: .appPage(app, hasGuides: hasGuides, variant: .chip))
+			ChipNavigation(label: "App links", links: sectionLinks, lastChip: .menu(.appPage(app, hasGuides: hasGuides, variant: .chip)))
 				.style {
 					$0.margin(.top, .rootEm(2))
 				}
 		}
 		.style(Styles.root)
-	}
-
-	/**
-	The platforms with the requirement, and how long the app has been available, before the link to the privacy policy.
-	*/
-	private var details: [String] {
-		[listing.availabilityFact, app.availableSinceText(at: buildDate)].compactMap(\.self)
 	}
 
 	/**
@@ -498,7 +485,7 @@ struct AppCallToAction: HTML {
 }
 
 /**
-The facts of an app at the end of its page, like the “Information” of the App Store: the platforms, the requirement, the category, when it was released, the privacy, Family Sharing for an app with a price on the App Store, when it was last updated, the version, the size of the download, and the rating, so visitors who scan find them in one place. They are in the box to get the app (``AppCallToAction``), below its button, as three columns with thin lines between them, and on phones as rows with the label at the start and the value at the end. The price is in the box too, so it is not repeated. An app that cannot be downloaded yet shows them alone. An archived app is no longer available, so it has none.
+The facts of an app at the end of its page, like the “Information” of the App Store: the platforms, the requirement, the category, when it was released (not in the hero, so the hero stays short), the privacy, Family Sharing for an app with a price on the App Store, when it was last updated, the number of free updates of a paid app with release notes, the version, the size of the download, and the rating, so visitors who scan find them in one place. They are in the box to get the app (``AppCallToAction``), below its button, as three columns with thin lines between them, and on phones as rows with the label at the start and the value at the end. The price is in the box too, so it is not repeated. An app that cannot be downloaded yet shows them alone. An archived app is no longer available, so it has none.
 */
 struct AppFacts: HTML {
 	/**
@@ -527,6 +514,7 @@ struct AppFacts: HTML {
 			Fact(label: "Privacy", value: app.privacyNote == nil ? app.privacySummary : "Read the policy", destination: .path(app.privacyPolicyPath)),
 			listing.hasFamilySharing ? Fact(label: "Family Sharing", value: "Yes", destination: .familySharingQuestion) : nil,
 			updatedFact,
+			freeUpdatesFact,
 			listing.version.map { Fact(label: "Version", value: $0) },
 			// A visitor with little free space sees a large download, like an app with a large model, before the download.
 			listing.fileSize.map { size in
@@ -551,19 +539,19 @@ struct AppFacts: HTML {
 			return nil
 		}
 
-		switch rating {
+		let destination: LinkDestination? = switch rating {
 		case .store(let rating):
-			let value = "\(rating.formattedAverage)/5 (\(rating.count.formatted(counting: "rating")))"
-
 			switch rating.store {
 			case .appStore:
-				return Fact(label: "US App Store rating", value: value, destination: app.appStoreID.map { .url(#URL("https://apps.apple.com/us/app").appending(path: "id\($0)")) })
+				app.appStoreID.map { .url(#URL("https://apps.apple.com/us/app").appending(path: "id\($0)")) }
 			case .gumroad:
-				return Fact(label: "Gumroad rating", value: value, destination: app.frontmatter.gumroad.map { .url($0.id.url) })
+				app.purchase.gumroad.map { .url($0.id.url) }
 			}
-		case .setapp(let rating):
-			return Fact(label: "Setapp rating", value: "\(rating.formattedPercentage) positive (\(rating.count.formatted(counting: "rating")))", destination: app.setappID.map { .url($0.pageURL) })
+		case .setapp:
+			app.setappID.map { .url($0.pageURL) }
 		}
+
+		return Fact(label: rating.label, value: rating.value, destination: destination)
 	}
 
 	/**
@@ -578,6 +566,23 @@ struct AppFacts: HTML {
 			label: "Updated",
 			value: date.foundationDate.formatted(.siteMonth)
 		)
+	}
+
+	/**
+	The number of free updates of a paid app with release notes (``AppListing/updateCount``), like “52” for Supercharge, with a link to the release notes, as it shows that the one-time price includes the work that came later. A free app has only free updates, so it says nothing.
+	*/
+	private var freeUpdatesFact: Fact? {
+		let count = listing.updateCount
+
+		guard
+			app.isPaid,
+			count > 0,
+			let releaseNotes = app.releaseNotes
+		else {
+			return nil
+		}
+
+		return Fact(label: "Free updates", value: count.formatted(.siteNumber), destination: .path(releaseNotes.path))
 	}
 
 	/**

@@ -27,7 +27,7 @@ screenshot: {
 
 If Aiko does not open from the share sheet, use [the shortcut workaround](../apps/aiko/index.md#voice-memos-ios26).
 
-Aiko finds the language itself. If it picks the wrong one, choose it in “Audio language” in the settings. The transcription runs on your iPhone, so your audio is never uploaded. To transcribe a file from the Files app, tap the add button, and choose “Import File”.
+Aiko finds the language itself. If it picks the wrong one, choose it in “Audio language” in the settings. The transcription runs on your iPhone, so your audio is never uploaded. To transcribe a file from the Files app, tap the add button, and choose “Import File…”.
 
 ## Without an app
 

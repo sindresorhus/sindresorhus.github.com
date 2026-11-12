@@ -12,14 +12,19 @@ feedbackNames: [
 	'Color Palette'
 ]
 nonAppStoreVersion: {
-	version: '1.3.1'
-	macOS: 26
-	url: 'https://www.dropbox.com/scl/fi/bbpfawkllfq81gw2xvksl/Simple-Color-Palette-1.3.1-1775986497.zip?rlkey=di7lacf9mdqhozck8tl37am9m&raw=1'
+	version: '1.4.0'
+	macOS: 27
+	url: 'https://www.dropbox.com/scl/fi/ncj0f7zrozh6v5a5arp7d/Simple-Color-Palette-1.4.0-1794507830.zip?rlkey=dzajyc5h070k71xyxa5o36ae3&raw=1'
 }
 sharedQuestions: [
 	'suggested-filenames'
 ]
 olderVersions: [
+	{
+		version: '1.3.1'
+		macOS: '26'
+		url: 'https://www.dropbox.com/scl/fi/ncj0f7zrozh6v5a5arp7d/Simple-Color-Palette-1.4.0-1794507830.zip?rlkey=dzajyc5h070k71xyxa5o36ae3&raw=1'
+	}
 	{
 		version: '1.2.0'
 		macOS: '15'
@@ -73,6 +78,7 @@ The app supports extended sRGB colors (wide gamut) with values outside the 0-255
 The app is focused on the [Simple Color Palette](https://simplecolorpalette.com) format. It doesn’t support exporting to other formats.
 
 ### What’s the benefit of the Simple Color Palette format over Adobe Swatch Exchange (ASE)? {#whats-the-benefit-of-the-simple-color-palette-format-over-adobe-swatch-exchange-ase}
+<!-- @faq.compares Adobe Swatch Exchange -->
 
 The Simple Color Palette format is an open JSON-based format that supports wide gamut colors and isn’t tied to any specific ecosystem. Unlike ASE, which is a proprietary binary format limited to Adobe products, Simple Color Palette is human-readable, platform-independent, and designed for modern color management needs with support for extended color gamuts.
 

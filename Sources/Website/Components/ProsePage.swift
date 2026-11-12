@@ -193,10 +193,17 @@ private enum ProsePageStyles: String, StyleSet {
 				.padding(.horizontal, .pageGutter)
 		case .backRow:
 			// One line high, so an accessory, like the larger RSS feed button, does not move the back link down, and the back link is at the same place on all the pages of an app.
+			// On phones, the accessory goes below the back link when the two do not fit on one line, like a long app name and the date of a guide. The back link can wrap when it is wider than the row, like with enlarged text. The row is then taller, and also a little taller with the RSS feed button.
 			Style()
 				.hstack(alignment: .center, justification: .spaceBetween)
 				.frame(height: .lineHeight(1))
 				.margin(.bottom, .rootEm(1.5))
+				.below(.smallTablet) {
+					$0
+						.flexWrap()
+						.gap(row: .rootEm(0.125), column: .rootEm(1))
+						.frame(height: .auto, minHeight: .lineHeight(1))
+				}
 		case .photo:
 			// It is in the prose, so it starts without the margins and the shadow of the images of prose.
 			Style()

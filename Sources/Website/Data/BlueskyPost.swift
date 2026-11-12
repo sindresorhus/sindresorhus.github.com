@@ -24,11 +24,20 @@ struct BlueskyPost {
 	static let handle = "sindresorhus.com"
 
 	/**
+	The profile of the account, like `https://bsky.app/profile/sindresorhus.com`. The page of a post is below it.
+	*/
+	static let profileURL = #URL("https://bsky.app/profile").appending(path: handle)
+
+	/**
+	The five newest posts and reposts of the account, without replies. The build and `now.js` read the same URL.
+	*/
+	static let feedURL = #URL("https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed").appending(formQueryItems: [URLQueryItem(name: "actor", value: handle), URLQueryItem(name: "limit", value: "5"), URLQueryItem(name: "filter", value: "posts_no_replies")])
+
+	/**
 	The newest post with text, without replies and reposts, from the five newest posts and reposts. `nil` when none of them has text, like posts with only an image.
 	*/
 	static func latest(cache: ResponseCache) async throws -> Self? {
-		let url = #URL("https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed").appending(formQueryItems: [URLQueryItem(name: "actor", value: handle), URLQueryItem(name: "limit", value: "5"), URLQueryItem(name: "filter", value: "posts_no_replies")])
-		return try await cache.decoded(AuthorFeed.self, from: url).posts.first
+		try await cache.decoded(AuthorFeed.self, from: feedURL).posts.first
 	}
 }
 
@@ -148,11 +157,12 @@ private struct AuthorFeed: Decodable {
 				item.reason == nil,
 				!item.post.record.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
 				let date = try? Date(item.post.record.createdAt, strategy: .iso8601),
-				let key = item.post.uri.split(separator: "/").last,
-				let url = URL(string: "https://bsky.app/profile/\(BlueskyPost.handle)/post/\(key)")
+				let key = item.post.uri.split(separator: "/").last
 			else {
 				return nil
 			}
+
+			let url = BlueskyPost.profileURL.appending(path: "post").appending(path: String(key))
 
 			return BlueskyPost(url: url, date: date, segments: Self.segments(of: item.post.record.text, facets: item.post.record.facets ?? []))
 		}

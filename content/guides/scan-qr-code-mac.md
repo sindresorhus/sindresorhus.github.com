@@ -1,5 +1,5 @@
 ---
-title: 'How to Scan a QR Code on Mac'
+title: 'How to Scan a QR Code or Barcode on Mac'
 description: 'Read a QR code or a barcode anywhere on your screen with Text Lens or Supercharge, or scan it with the camera of your iPhone.'
 publicationDate: 2026-10-31
 topic: 'text-images-and-sound'
@@ -10,7 +10,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	Click [Text Lens](../apps/text-lens/index.md) in the menu bar, choose “Capture”, and drag over the QR code. Its content, like a link, is copied. A Mac has no camera app that scans QR codes, like the Camera app on your iPhone, so without an app, point the camera of your iPhone at the code.
+	Click [Text Lens](../apps/text-lens/index.md) in the menu bar, choose “Capture”, and drag over the QR code or the barcode. Its content, like a link, is copied. A Mac has no camera app that scans QR codes, like the Camera app on your iPhone, so without an app, point the camera of your iPhone at the code.
 }
 
 ## With Text Lens

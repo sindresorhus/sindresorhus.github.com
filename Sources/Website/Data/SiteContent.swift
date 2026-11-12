@@ -540,7 +540,7 @@ public struct SiteContent: Sendable {
 			try await AppStoreInfo.lookup(ids: apps.compactMap(\.appStoreID), cache: cache)
 		}
 		// Like the App Store info, the ratings and prices of the Gumroad apps only add to the pages.
-		async let gumroadProducts = GumroadProduct.load(ids: apps.compactMap(\.frontmatter.gumroad?.id), cache: cache, warnings: warnings)
+		async let gumroadProducts = GumroadProduct.load(ids: apps.compactMap(\.purchase.gumroad?.id), cache: cache, warnings: warnings)
 		// Like the App Store info, the requirements in the appcasts only add to the pages, which fall back to `minimumOSVersion`.
 		async let appcasts = Appcast.load(urls: apps.compactMap(\.appcastURL), cache: cache, warnings: warnings)
 		// Like the App Store info, the ratings on Setapp only add to the pages. Archived apps are left out, as they are no longer on Setapp.
@@ -579,15 +579,21 @@ public struct SiteContent: Sendable {
 
 		let loadedAppStoreInfo = await appStoreInfo
 
-		// When the lookup works, an app without a result likely has a wrong App Store ID, so its links go nowhere.
+		// When the lookup works, an app without a result likely has a wrong App Store ID, so its links go nowhere. It is an error, like a `releasesRepository` that does not exist. A failed lookup is only a warning above, and an empty result counts as a failed one, like an empty feed of reviews, so neither stops a deploy. Limitation: an app that Apple removes from the store stops the build until it is archived.
 		if let loadedAppStoreInfo {
-			for app in apps where !app.isArchived {
-				if
+			let unknownIDErrors = apps.filter { !$0.isArchived }.compactMap { app -> ContentError? in
+				guard
 					let id = app.appStoreID,
 					loadedAppStoreInfo[id] == nil
-				{
-					warnings.add(app.file.warning(.unknownAppStoreID, "The App Store has no app with the ID \(id), which \(app.title) uses. Check its `appStoreID`."))
+				else {
+					return nil
 				}
+
+				return app.error(at: .appStoreID, "The App Store has no app with the ID \(id). Check the `appStoreID` of \(app.title).")
+			}
+
+			if !unknownIDErrors.isEmpty {
+				throw ContentErrors(unknownIDErrors)
 			}
 		}
 
@@ -678,9 +684,10 @@ extension SiteContent {
 			app: app,
 			appStoreInfo: app.appStoreID.flatMap { appData.appStoreInfo[$0] },
 			appcast: app.appcastURL.flatMap { appData.appcasts[$0] },
-			gumroadProduct: app.frontmatter.gumroad.flatMap { appData.gumroadProducts[$0.id] },
+			gumroadProduct: app.purchase.gumroad.flatMap { appData.gumroadProducts[$0.id] },
 			setappRating: app.setappID.flatMap { appData.setappRatings[$0] },
-			appStoreReviews: app.appStoreID.flatMap { appData.appStoreReviews[$0] } ?? [],
+			appStoreReviews: (app.appStoreID.flatMap { appData.appStoreReviews[$0] } ?? [])
+				.filter { !settings.hiddenReviews.contains($0.title) },
 			releases: app.releaseNotes.flatMap { appData.releases[$0.repository] } ?? []
 		)
 	}
@@ -690,6 +697,13 @@ extension SiteContent {
 	*/
 	var appStoreInfo: some Collection<AppStoreInfo> {
 		appData.appStoreInfo.values
+	}
+
+	/**
+	The titles of the App Store reviews that the build got for all apps, also the ones that `hiddenReviews` of ``settings`` hides, like for the check of the hidden titles.
+	*/
+	var appStoreReviewTitles: Set<String> {
+		Set(appData.appStoreReviews.values.joined().map(\.title))
 	}
 
 	/**
@@ -748,7 +762,7 @@ extension SiteContent {
 	}
 
 	/**
-	The sale that the app is in on the day of the build, for the note on its page: a sale of a page (``MarkdownPage/sales(on:project:)``), like the discounts page, that links to the page of the app or to its product on Gumroad.
+	The sale that the app is in on the day of the build, for the note on its page: a sale of a page (``MarkdownPage/sales(on:project:)``), like the discounts page, that links to the page of the app or to its product on Gumroad (``Sale/includes(_:)``), so only a paid and active app.
 	*/
 	func sale(of app: App) -> Sale? {
 		pages.flatMap { $0.sales(on: today, project: project) }.first { $0.includes(app) }
@@ -785,7 +799,7 @@ extension SiteContent {
 	The content file of the draft whose page a link of the site would go to, like `content/guides/keep-mac-awake.md` for `/guides/keep-mac-awake#steps`, or `nil` when there is none.
 	*/
 	func draftFile(ofLink link: String) -> URL? {
-		guard case .path(let path, _, _)? = try? LinkDestination(validating: link) else {
+		guard let path = (try? LinkDestination(validating: link))?.sitePath else {
 			return nil
 		}
 
@@ -838,7 +852,6 @@ extension SiteContent {
 
 extension Warning.Kind {
 	static let missingCommitDates = Self("Missing dates of the last commits")
-	static let unknownAppStoreID = Self("Unknown App Store ID")
 
 	/**
 	A draft guide without the shape of a guide yet, or with an app or a screenshot that does not exist, so the preview does not show it.

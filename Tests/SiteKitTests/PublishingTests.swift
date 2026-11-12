@@ -1030,6 +1030,19 @@ struct PublishingTests {
 		#expect(await LinkValidator(site: site).brokenLinks(in: routes, published: published).isEmpty)
 	}
 
+	@Test(arguments: [
+		(id: "a:~:b", expectedBroken: false),
+		(id: "a", expectedBroken: true),
+	])
+	func `an encoded fragment directive delimiter is compared as part of the literal ID`(id: String, expectedBroken: Bool) async {
+		let html = ##"<p id="\##(id)">Target</p><a href="#a%3A~%3Ab">Target</a>"##
+		let routes = [Route.page(.root) { html }]
+		let published = PublishedSite(routeFiles: ["index.html": Data(html.utf8)], publicFiles: [])
+		let brokenLinks = await LinkValidator(site: site).brokenLinks(in: routes, published: published)
+
+		#expect(brokenLinks.isEmpty == !expectedBroken)
+	}
+
 	/**
 	Only the directories of the path are resolved, as resolving the symlink itself gives the path of its target, which can be outside the public directory.
 	*/
@@ -1438,6 +1451,41 @@ struct PublishingTests {
 			Issue.record("Expected a repository output error, got \(error)")
 			return
 		}
+	}
+
+	@Test(.temporaryDirectory, arguments: ["todo.txt", ".env"])
+	func `refuses to publish into a directory with files that is not a build of the site`(fileName: String) async throws {
+		let project = try Project(
+			root: URL.temporaryDirectory(
+				files: [
+					"public/robots.txt": "",
+					"notes/\(fileName)": "Keep me",
+				]
+			)
+		)
+
+		let error = try await #require(throws: PublishingError.self) {
+			try await Publisher(site: site, project: project, output: project.root.appending(path: "notes")).publish([.page(#path("/")) { "Home" }])
+		}
+
+		guard case .notSiteOutput = error else {
+			Issue.record("Expected an output that is not a build of the site, got \(error)")
+			return
+		}
+
+		#expect(try String(contentsOf: project.root.appending(path: "notes/\(fileName)"), encoding: .utf8) == "Keep me")
+	}
+
+	@Test(.temporaryDirectory)
+	func `publishes into a directory containing only Finder metadata`() async throws {
+		let project = try Project(
+			root: URL.temporaryDirectory(files: ["public/robots.txt": "", "dist/.DS_Store": "Finder metadata"])
+		)
+		let output = project.root.appending(path: "dist")
+		try await Publisher(site: site, project: project, output: output).publish([.page(.root) { "Home" }])
+
+		#expect(try String(contentsOf: output.appending(path: "index.html"), encoding: .utf8) == "Home")
+		#expect(!output.appending(path: ".DS_Store").exists)
 	}
 
 	@Test

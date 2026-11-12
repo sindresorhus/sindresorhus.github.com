@@ -2,17 +2,32 @@ import Elementary
 import SiteKit
 
 /**
-Links as quiet chips, with an optional overflow menu as the last chip, like the section links of an app page and the app categories of the apps page. The menu has the chip variant. With `scrollsOnPhones`, the chips are one row that scrolls sideways on phones, like the many groups of a long page.
+Links as quiet chips, with an optional link to another page or an overflow menu as the last chip (``LastChip``), like the section links of an app page and the app categories of the apps page. The menu has the chip variant. With `scrollsOnPhones`, the chips are one row that scrolls sideways on phones, like the many groups of a long page, and the link to another page is the first chip of the row.
 
 ```swift
-ChipNavigation(label: "App categories", links: AppCategory.chips.map(\.link), menu: OverflowMenu(label: "More app pages", groups: groups, variant: .chip))
+ChipNavigation(label: "App categories", links: AppCategory.chips.map(\.link), lastChip: .menu(OverflowMenu(label: "More app pages", groups: groups, variant: .chip)))
 ```
 */
 struct ChipNavigation: HTML {
 	let label: String
 	let links: [LabeledLink]
-	var menu: OverflowMenu?
+	var lastChip: LastChip?
 	var scrollsOnPhones = false
+
+	/**
+	The chip after the links.
+	*/
+	enum LastChip {
+		/**
+		A link to another page, with an arrow, as the other chips jump to the sections of the page, like the guides for Windows users after the topics of the guides.
+		*/
+		case pageLink(LabeledLink)
+
+		/**
+		An overflow menu with more links, like the other app pages after the app categories.
+		*/
+		case menu(OverflowMenu)
+	}
 
 	var body: some HTML<HTMLTag.nav> {
 		nav {
@@ -21,8 +36,16 @@ struct ChipNavigation: HTML {
 				.style(Styles.link)
 			}
 
-			if let menu {
+			switch lastChip {
+			case .pageLink(let pageLink):
+				Link(destination: pageLink.destination) {
+					Label(pageLink.title, icon: .arrowRight, iconPosition: .trailing)
+				}
+				.style(Styles.pageLink)
+			case .menu(let menu):
 				menu
+			case nil:
+				EmptyHTML()
 			}
 		}
 		.accessibilityLabel(label)
@@ -34,6 +57,7 @@ struct ChipNavigation: HTML {
 		case root
 		case scrollingOnPhones
 		case link
+		case pageLink
 
 		var style: Style {
 			switch self {
@@ -56,9 +80,15 @@ struct ChipNavigation: HTML {
 							.fullBleed()
 							// The chip at the edge fades out, so it reads as more to scroll to, not as a word that is cut. At the end of the row, the fade is mostly in the space of the page, so the last chip is only a little faint.
 							.maskImage(.linearGradient(.toLeft, Color.transparent.at(.zero), Color.black.at(.rootEm(2.5))))
+							// The link to another page is first, as it would be screens of scrolling away at the end, and its arrow shows that it is not like the other chips. Screen readers and the Tab key keep the order of the HTML.
+							.children(Styles.pageLink.selector) {
+								$0.order(-1)
+							}
 					}
 			case .link:
 				Style().chip()
+			case .pageLink:
+				Style().chip(hasIcon: true)
 			}
 		}
 	}

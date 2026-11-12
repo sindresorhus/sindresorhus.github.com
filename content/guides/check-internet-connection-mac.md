@@ -31,7 +31,7 @@ Online Check loads a small page of Apple, and tries other servers when it fails,
 @Tips {
 - Turn on “Show red screen border when offline” in the “General” settings, so you notice it at once.
 - To show the icon only while you are offline, set “Show icon” to “when offline” in the “Menu Bar” settings.
-- To run a shortcut when the status changes, like one that restarts the Wi-Fi, choose it in the “Advanced” settings.
+- To run a shortcut when the status changes, like the [shortcut that restarts the Wi-Fi when the Mac is offline](https://www.icloud.com/shortcuts/8bbe914b13ff4f3ab9f063e835c92747), choose it in the “Advanced” settings.
 }
 
 ## Without an app

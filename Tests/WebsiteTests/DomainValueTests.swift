@@ -9,6 +9,30 @@ import TestSupport
 @testable import Website
 
 struct DomainValueTests {
+	@Test
+	func `guide screenshot numbers retain their validated scalar value`() async throws {
+		let guide = try await Guide(markdown: Guide.testMarkdown(frontmatter: "screenshot: {number: 2, description: 'The result'}"), slug: "how-to-test")
+		let number = try #require(guide.frontmatter.screenshot?.number)
+		#expect(number.value == 2)
+		#expect(number.description == "2")
+		#expect(String(decoding: try JSONEncoder().encode(number), as: UTF8.self) == "2")
+		#expect(try Guide.Screenshot.Number(validating: Int.max).value == Int.max)
+	}
+
+	@Test(arguments: [0, -1, Int.min])
+	func `guide screenshot numbers reject invalid construction and report the authored line`(number: Int) async throws {
+		#expect(throws: ContentError.self) {
+			try Guide.Screenshot.Number(validating: number)
+		}
+
+		let errors = try await #require(throws: ContentErrors.self) {
+			try await Guide(markdown: Guide.testMarkdown(frontmatter: "screenshot: {\nnumber: \(number)\ndescription: 'The result'\n}"), slug: "how-to-test")
+		}
+		#expect(errors.errors.count == 1)
+		#expect(errors.errors.first?.line?.rawValue == 8)
+		#expect(errors.errors.first?.reason == "Invalid `screenshot.number`: `screenshot.number` starts at 1, like `1` for the first screenshot of the app, got \(number).")
+	}
+
 	@Test(.temporaryDirectory)
 	func `project frontmatter formatting orders model keys and preserves values and bodies`() throws {
 		let app = """
@@ -34,7 +58,7 @@ struct DomainValueTests {
 		"""
 		let post = "---\ntags: ['swift', 'programming']\nredirectFrom: ['/old-post']\npublicationDate: 2026-01-02\ntitle: 'Post'\nisUnlisted: true\nisDraft: true\n---\n\nPost body.\n"
 		let guide = "---\napps: ['sample']\ntitle: 'Guide'\nscreenshot: {description: 'The result', number: 1}\n---\n\nGuide body.\n"
-		let expectedGuide = "---\napps: [\n\t'sample'\n]\ntitle: 'Guide'\nscreenshot: {\n\tdescription: 'The result'\n\tnumber: 1\n}\n---\n\nGuide body.\n"
+		let expectedGuide = "---\ntitle: 'Guide'\napps: [\n\t'sample'\n]\nscreenshot: {\n\tdescription: 'The result'\n\tnumber: 1\n}\n---\n\nGuide body.\n"
 		let page = "---\nlinks: {Second: 'https://example.com/b', First: 'https://example.com/a'}\ntitle: 'Page'\n---\n\nPage body.\n"
 		let expectedPage = "---\nlinks: {\n\tSecond: 'https://example.com/b'\n\tFirst: 'https://example.com/a'\n}\ntitle: 'Page'\n---\n\nPage body.\n"
 		let root = try URL.temporaryDirectory(files: [
@@ -727,8 +751,8 @@ struct DomainValueTests {
 			}
 		};
 		""")
-		// The first line imports the shared helpers of `dom.js`, which a plain script cannot load, so the context above has a stand-in for `elementForFragment`. The tested paths do not call the others.
-		context.evaluateScript(source.split(separator: "\n").dropFirst().joined(separator: "\n"))
+		// The import loads the shared helpers of `dom.js`, which a plain script cannot load, so the context above has a stand-in for `elementForFragment`. The tested paths do not call the others.
+		context.evaluateScript(source.split(separator: "\n").filter { !$0.hasPrefix("import ") }.joined(separator: "\n"))
 		context.evaluateScript("""
 		const element = new Element();
 		element.connectedCallback();
@@ -820,7 +844,7 @@ struct DomainValueTests {
 		let content = SiteContent.test(apps: [app], buildDate: Date(timeIntervalSince1970: 1767225600))
 		let html = ReviewsPage(content: content).body.render()
 		#expect(html.contains(#"data-app="sample""#))
-		#expect(html.contains(#""sample":{"title":"Sample App","url":"/sample"}"#))
+		#expect(html.contains(#""title":"Sample App","url":"/sample"}"#))
 		#expect(!html.contains(#"data-app="""#))
 	}
 
@@ -830,10 +854,10 @@ extension DomainValueTests {
 	@Test
 	func `frontmatter declaration order preserves the editorial wire key order`() {
 		#expect(App.formattingKeys.map(\.stringValue) == [
-			"isDraft", "isUnlisted", "isArchived", "title", "subtitle", "description", "publicationDate", "platforms", "minimumOSVersion", "isPaid", "isMenuBarApp", "appStoreID", "setappID", "gumroad", "gitHubDownload", "testFlightURL", "repositoryURL", "releasesRepository", "downloadCount", "hasSentry", "script", "categories", "links", "overflowLinks", "redirectURL", "redirectFrom", "feedbackNames", "nonAppStoreVersion", "trial", "announcement", "sharedQuestions", "olderVersions", "pressQuotes", "privacyNote", "feedbackNote",
+			"isDraft", "isUnlisted", "isArchived", "title", "subtitle", "description", "publicationDate", "platforms", "minimumOSVersion", "isPaid", "isMenuBarApp", "appStoreID", "setappID", "gumroad", "gitHubDownload", "testFlightURL", "repositoryURL", "releasesRepository", "downloadCount", "hasSentry", "hasNoNetworkAccess", "script", "categories", "links", "overflowLinks", "redirectURL", "redirectFrom", "feedbackNames", "nonAppStoreVersion", "trial", "announcement", "sharedQuestions", "olderVersions", "pressQuotes", "privacyNote", "feedbackNote",
 		])
 		#expect(BlogPost.formattingKeys.map(\.stringValue) == ["isDraft", "isUnlisted", "title", "description", "publicationDate", "tags", "redirectURL", "redirectFrom"])
-		#expect(Guide.formattingKeys.isEmpty)
+		#expect(Guide.formattingKeys.map(\.stringValue) == ["isDraft", "title", "description", "publicationDate", "topic", "isForWindowsUsers", "apps", "redirectFrom", "screenshot"])
 		#expect(MarkdownPage.formattingKeys.isEmpty)
 	}
 
@@ -857,7 +881,7 @@ extension DomainValueTests {
 	@Test
 	func `document diagnostics keep renamed key locations`() async throws {
 		let app = try await App(frontmatter: "testFlightURL: 'https://testflight.apple.com/join/test'")
-		let warning = app.warning(.unknownAppStoreID, at: .testFlight, "Check this.")
+		let warning = app.warning(.missingCommitDates, at: .testFlight, "Check this.")
 		let error = app.error(at: .testFlight, "Check this.")
 		#expect(warning.location == error.location)
 		#expect(error.line == app.file.line(of: App.Frontmatter.CodingKeys.testFlight))
@@ -927,8 +951,8 @@ extension DomainValueTests {
 		let content = SiteContent.test(apps: [app])
 		let route = try #require(Site(content: content).textFileRoutes.first { $0.path == #path("/llms-full.txt") })
 		let markdown = String(decoding: try await route.renderedFile(), as: UTF8.self)
-		#expect(markdown.contains("1. Open [the apps](https://sindresorhus.com/apps).\n2. Keep this authored number.\n3. Keep this one too."))
-		#expect(markdown.contains("Écrit [![Preview](https://sindresorhus.com/image(1).png)](https://sindresorhus.com/apps)."))
+		#expect(markdown.contains("1. Open [the apps](https://sindresorhus.com/apps.md).\n2. Keep this authored number.\n3. Keep this one too."))
+		#expect(markdown.contains("Écrit [![Preview](https://sindresorhus.com/image(1).png)](https://sindresorhus.com/apps.md)."))
 		#expect(markdown.contains("`[Example](/apps)`"))
 		#expect(markdown.contains("[Code](/apps)"))
 	}
@@ -1018,7 +1042,7 @@ extension DomainValueTests {
 		#expect(gumroad.gumroadURL?.query() == "wanted=true")
 	}
 
-	@Test(arguments: ["appStoreID: 123", "isPaid: false"])
+	@Test(arguments: ["appStoreID: 123"])
 	func `incompatible purchase metadata remains an authored gumroad error`(other: String) async throws {
 		let error = try await #require(throws: ContentErrors.self) {
 			try await App(frontmatter: "gumroad: {id: 'test', price: 6}\n\(other)")

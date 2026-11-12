@@ -1,6 +1,7 @@
 ---
 title: 'QuickGPT'
 subtitle: 'Easy access to ChatGPT'
+description: 'Open ChatGPT on your Mac in its own window with a keyboard shortcut, from the menu bar, or from the Dock.'
 publicationDate: 2023-04-12
 platforms: [
 	'macOS'
@@ -38,7 +39,7 @@ pressQuotes: [
 	}
 ]
 privacyNote: 'ChatGPT is covered by OpenAI’s privacy policy. The app itself collects no data or personal information.'
-feedbackNote: 'If you are having problems with copying text, that’s a problem with ChatGPT and not the app. The same problem can be seen on https://chatgpt.com'
+feedbackNote: 'If you are having problems with copying text, that’s a problem with ChatGPT and not the app. The same problem can be seen on [chatgpt.com](https://chatgpt.com).'
 ---
 
 Open ChatGPT in its own window with a keyboard shortcut, from the menu bar, or from the Dock.

@@ -52,7 +52,7 @@ Apps purchased on Gumroad can be used by one user on unlimited computers.
 On Setapp, the number of Macs and iOS devices depends on your [Setapp plan](https://setapp.com/pricing).
 
 ### Can I use your paid apps with Family Sharing? {#family-sharing}
-<!-- @faq.keywords share household spouse kids children -->
+<!-- @faq.keywords household spouse kids children -->
 <!-- @faq.general -->
 
 Yes, all paid apps on the App Store support [Family Sharing](https://support.apple.com/108380) by default. Once one family member purchases the app, everyone in the family group can download it at no additional cost. Make sure Purchase Sharing is enabled in your family group settings.
@@ -224,10 +224,10 @@ If you are on macOS 26 or later, make sure it’s not disabled in “[System Set
 
 Also try restarting your computer.
 
-To quit a menu bar app that you cannot see, open the Activity Monitor app, select the app, click the stop button in the toolbar, and click “Quit”.
+To quit a menu bar app that you cannot see, open the Activity Monitor app, select the app, click the (x) button in the toolbar, and click “Quit”.
 
 ### The menu bar item looks blurry or is not dimmed on a secondary display {#menu-bar-secondary-display}
-<!-- @faq.keywords monitor monitors second external screen fuzzy sharp dim dimming faded transparent -->
+<!-- @faq.keywords second external fuzzy sharp faded transparent -->
 <!-- @faq.platforms macOS -->
 <!-- @faq.general -->
 
@@ -301,12 +301,12 @@ You can try:
 
 If a diagnostic reports `loginwindow` as using Secure Input, this is a known macOS bug. Lock your screen with ++Control+Command+Q++, then unlock it. Do not try to quit `loginwindow`.
 
-The issue often occurs when an app requests Secure Input while in the background, causing it to get “stuck” in secure mode.
+The issue often occurs when an app requests Secure Input while in the background, causing it to get “stuck” in secure mode. See the [guide to fix keyboard shortcuts that stopped working](/guides/fix-keyboard-shortcuts-not-working-mac).
 
 [More about Secure Input ›](https://espanso.org/docs/troubleshooting/secure-input/)
 
 ### The widget does not show up, is stuck, or is missing {#widget-not-showing}
-<!-- @faq.keywords picker gallery blank disappeared home lock -->
+<!-- @faq.keywords picker gallery blank home lock -->
 <!-- @faq.general -->
 
 The widget system in iOS and macOS is quite buggy and can fail a lot. This is not a problem with the app and out of my control.
@@ -393,7 +393,7 @@ iOS: Open the Settings app, go to “General › iPhone/iPad Storage”, tap the
 ### How can I uninstall your app? {#uninstall-app}
 <!-- @faq.general -->
 
-macOS: Ensure the app is not running. To quit an app that you cannot see, like a menu bar app with a hidden icon, open the Activity Monitor app, select the app, click the stop button in the toolbar, and click “Quit”. Open Finder, go to the “Go” menu, and select “Applications”. Find the app and drag it into the trash.
+macOS: Ensure the app is not running. To quit an app that you cannot see, like a menu bar app with a hidden icon, open the Activity Monitor app, select the app, click the (x) button in the toolbar, and click “Quit”. Open Finder, go to the “Go” menu, and select “Applications”. Find the app and drag it into the trash.
 
 iOS: Tap and hold the app on the Home Screen and select “Remove App”.
 
@@ -534,6 +534,12 @@ Over 6 million users trust my apps, and [my open source packages](/about#stats) 
 ### What’s your policy on ads in your apps? {#no-ads}
 
 I hate ads. None of my apps have ads.
+
+### Why does the app ask me to rate it? {#rating-prompt}
+<!-- @faq.keywords review stars -->
+<!-- @faq.general -->
+
+My apps use the rating prompt of Apple, and only after you have used the app for some time. Apple shows it at most 3 times in a year for each app, and you can close it. To turn off the prompt for all apps, turn off “In-App Ratings & Reviews” in “App Store › Settings” on Mac, or in “Settings › Apps › App Store” on iPhone and iPad.
 
 ### Do you actively maintain all your apps? {#active-maintenance}
 

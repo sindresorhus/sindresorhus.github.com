@@ -11,7 +11,7 @@ struct BackLink: HTML {
 		a(.href(app.path)) {
 			"Back to \(app.title)"
 		}
-		// The arrow is only on the screen, so the name of the link is its text.
+		// The arrow is only on the screen, so the name of the link is its text. A long app name can wrap when it is wider than the row, like with enlarged text.
 		.style {
 			$0
 				.secondaryText()

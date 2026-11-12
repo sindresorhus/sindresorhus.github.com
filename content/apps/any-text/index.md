@@ -45,11 +45,11 @@ feedbackNote: 'If you are having problems with sync, [read this](/any-text#troub
 
 Write a goal, a note, or a short list, and see it every time you look at your Lock Screen, Home Screen, Apple Watch, or desktop.
 
-The text is shown in widgets that you add where you want them.
+The text is shown in widgets that you add where you want them. The app has 20 widgets, each with its own text and its own look, so you can show different texts in different places.
 
 For macOS, it’s only available for Apple silicon Macs running macOS 26 or later.
 
-On iOS, you can also show the text in a Live Activity.
+On iOS, you can also show the text in a Live Activity: tap the title at the top of the screen where you write the text, and choose “Show as Live Activity”. iOS shows a Live Activity for up to 8 hours in the Dynamic Island and for up to 12 hours on the Lock Screen.
 
 Syncs across your devices with iCloud.
 
@@ -71,6 +71,7 @@ For example:
 With a keyboard on iPad or Mac, press ++Command+B++ to make the selected text bold, ++Command+I++ to make it italic, and ++Shift+Command+X++ to strike it through.
 
 ### Troubleshoot syncing {#troubleshoot-syncing}
+<!-- @faq.keywords iphone ipad devices -->
 
 - After enabling sync, try writing some more text on all the devices.
 - [More iCloud sync troubleshooting…](/apps/faq#icloud-sync)

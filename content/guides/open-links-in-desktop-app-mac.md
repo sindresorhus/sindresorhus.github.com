@@ -15,7 +15,7 @@ apps: [
 ## With Velja
 
 @Steps {
-1. Open [Velja](../apps/velja/index.md) and click “Get Started”. Velja works by being the default browser, so it asks to become it.
+1. Open [Velja](../apps/velja/index.md), click “Continue”, and then “Get Started”. Velja works by being the default browser, so it asks to become it.
 1. Open the settings, and click “Apps”.
 1. Next to “Figma”, “Zoom”, or “Microsoft Teams”, choose the app.
 1. Click a link to the service in any app other than your browser. It opens in the desktop app.

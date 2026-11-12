@@ -2,7 +2,7 @@
 title: 'How to Scan a Document in a Shortcut on iPhone'
 description: 'Scan a document in a shortcut on iPhone and use the scan in the next actions, with the Scan Documents action of the free Actions app.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'actions'
 ]

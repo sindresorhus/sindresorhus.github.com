@@ -190,6 +190,7 @@ extension DirectoryWatcher {
 			var waiter: CheckedContinuation<Set<URL>?, Never>?
 		}
 
+		// The cancellation handler takes this lock, so continuations are resumed only after it is released.
 		private let state = Mutex(State())
 
 		func add(_ files: [URL]) {
@@ -197,14 +198,21 @@ extension DirectoryWatcher {
 				return
 			}
 
-			state.withLock { state in
+			let delivery = state.withLock { state -> (waiter: CheckedContinuation<Set<URL>?, Never>, changed: Set<URL>)? in
 				state.changed.formUnion(files)
 
-				if let waiter = state.waiter {
-					state.waiter = nil
-					waiter.resume(returning: state.changed)
-					state.changed = []
+				guard let waiter = state.waiter else {
+					return nil
 				}
+
+				let changed = state.changed
+				state.waiter = nil
+				state.changed = []
+				return (waiter, changed)
+			}
+
+			if let delivery {
+				delivery.waiter.resume(returning: delivery.changed)
 			}
 		}
 
@@ -215,22 +223,31 @@ extension DirectoryWatcher {
 		func next() async -> Set<URL>? {
 			await withTaskCancellationHandler {
 				await withCheckedContinuation { continuation in
-					state.withLock { state in
+					let delivery = state.withLock { state -> (waiter: CheckedContinuation<Set<URL>?, Never>, changed: Set<URL>?)? in
 						if !state.changed.isEmpty {
-							continuation.resume(returning: state.changed)
+							let changed = state.changed
 							state.changed = []
+							return (continuation, changed)
 						} else if Task.isCancelled {
-							continuation.resume(returning: nil)
+							return (continuation, nil)
 						} else {
 							state.waiter = continuation
+							return nil
 						}
+					}
+
+					if let delivery {
+						delivery.waiter.resume(returning: delivery.changed)
 					}
 				}
 			} onCancel: {
-				state.withLock { state in
-					state.waiter?.resume(returning: nil)
+				let waiter = state.withLock { state in
+					let waiter = state.waiter
 					state.waiter = nil
+					return waiter
 				}
+
+				waiter?.resume(returning: nil)
 			}
 		}
 	}

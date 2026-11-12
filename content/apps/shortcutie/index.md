@@ -324,6 +324,7 @@ No. The app relies on macOS-specific system features that aren’t available on 
 No, once installed, the app’s actions are always available to the Shortcuts app.
 
 ### I can already do some of these actions with AppleScript and the command-line, why use this app? {#i-can-already-do-some-of-these-actions-with-applescript-and-the-command-line-why-use-this-app}
+<!-- @faq.compares AppleScript and the command line -->
 
 Yes, but the app packages these capabilities into maintained, ready-to-use actions that integrate perfectly with Shortcuts. This lets you focus on building workflows instead of writing and maintaining scripts.
 

@@ -2,7 +2,7 @@
 title: 'How to Use Global Variables in Shortcuts on iPhone and Mac'
 description: 'A variable in Shortcuts is gone when the shortcut ends. The free Actions app adds global variables that all your shortcuts and devices share.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'actions'
 ]

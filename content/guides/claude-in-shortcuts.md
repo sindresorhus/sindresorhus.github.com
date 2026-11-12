@@ -2,7 +2,7 @@
 title: 'How to Use Claude in Shortcuts on iPhone and Mac'
 description: 'Use Claude in the Shortcuts app with the Ask Claude action of the Claude app on iPhone, or with AI Actions and your own Anthropic API key.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'ai-actions'
 ]

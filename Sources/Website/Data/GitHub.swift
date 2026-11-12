@@ -1,5 +1,6 @@
 import Foundation
 import SiteKit
+import SOML
 import Subprocess
 
 /**
@@ -57,17 +58,13 @@ struct GitHub {
 		let entries: [GitHubRelease.Response] = try await allPages("repos/\(repository)/releases")
 
 		return entries.compactMap { release -> GitHubRelease? in
-			guard
-				let publishedAt = release.publishedAt,
-				!release.isDraft,
-				!release.isPrerelease
-			else {
+			guard let publishedAt = release.publishedDate else {
 				return nil
 			}
 
 			// The site's classes, so a table is in the scrolling container of the prose.
 			var options = MarkdownDocument.ReleaseNotesOptions(theme: .site)
-			let page = repository.url.appending(path: "releases/tag/\(release.tagName)")
+			let page = release.url
 
 			// A relative link is resolved against the page of the release on GitHub, like a browser there would, so a link that is written for GitHub, like `../../issues/12`, is not a broken link of the site, which would fail a scheduled build. A link to a section, like `#usage`, stays.
 			options.resolveLink = { destination in
@@ -275,22 +272,8 @@ struct GitHub {
 			}
 
 			struct Payload: Decodable {
-				struct Release: Decodable {
-					let tagName: String
-					let url: URL
-					let isDraft: Bool
-					let isPrerelease: Bool
-
-					enum CodingKeys: String, CodingKey {
-						case tagName = "tag_name"
-						case url = "html_url"
-						case isDraft = "draft"
-						case isPrerelease = "prerelease"
-					}
-				}
-
 				let action: String?
-				let release: Release?
+				let release: GitHubRelease.Response?
 			}
 
 			case publishedRelease(OpenSourceRelease)
@@ -315,8 +298,7 @@ struct GitHub {
 					type == "ReleaseEvent",
 					payload.action == "published",
 					let release = payload.release,
-					!release.isDraft,
-					!release.isPrerelease
+					release.publishedDate != nil
 				else {
 					self = .ignored
 					return
@@ -400,6 +382,8 @@ struct GitHub {
 	The activity since the date, from the GraphQL API, which needs a token. `nil` without a token.
 
 	The comments are newest updated first, 100 at a time, so it asks for pages until a page has a comment that was last updated before the date, as the comments on the next pages were last updated even earlier, so they were also made before the date. Usually one page has a week of comments.
+
+	Limitation: It reads at most 5 pages (500 comments), as each page takes about 3 seconds, so a build of a day in the past, like with `--date`, does not wait minutes for all the comments since that day. For a week with more comments, the count is too low.
 	*/
 	func activity(since start: Date) async throws -> Activity? {
 		struct User: Decodable {
@@ -438,13 +422,16 @@ struct GitHub {
 		let query = "query($from: DateTime!, $after: String) { user(login: \"\(Self.account)\") { contributionsCollection(from: $from) { totalCommitContributions contributionCalendar { totalContributions } } issueComments(first: 100, after: $after, orderBy: {field: UPDATED_AT, direction: DESC}) { nodes { createdAt updatedAt } pageInfo { hasNextPage endCursor } } } }"
 		var variables = Variables(from: start)
 		var commentCount = 0
+		var pageCount = 0
 
 		while true {
 			let user = try await graphQL.data(GraphQL.UserResponse<User>.self, query: query, variables: variables).user
 			let comments = user.issueComments
 			commentCount += comments.nodes.count { $0.createdAt >= start }
+			pageCount += 1
 
 			guard
+				pageCount < 5,
 				case .after(let cursor) = comments.pageInfo,
 				comments.nodes.allSatisfy({ $0.updatedAt >= start })
 			else {
@@ -455,6 +442,93 @@ struct GitHub {
 
 			variables.after = cursor
 		}
+	}
+
+	/**
+	When a public commit of the account was made, in the time where it was made: the day, the hour, and the offset from UTC of its author date, like `2026-11-12T19:31:26.000+07:00`.
+	*/
+	struct CommitTime {
+		nonisolated(unsafe) private static let authorDatePattern = /(?<day>\d{4}-\d{2}-\d{2})T(?<hour>\d{2}):\d{2}:\d{2}(?:\.\d+)?(?<sign>[+-])(?<offsetHours>\d{2}):(?<offsetMinutes>\d{2})/
+
+		let day: SOML.Date
+
+		/**
+		The hour of the day, from 0 to 23.
+		*/
+		let hour: Int
+
+		/**
+		The offset from UTC, in minutes, like 420 for UTC+7.
+		*/
+		let utcOffsetMinutes: Int
+
+		/**
+		`nil` for a date in UTC (`Z`), like of a commit that a tool made on GitHub, as it does not tell the time where it was made. Limitation: a commit made at UTC+0 is then left out too.
+		*/
+		init?(authorDate: String) {
+			guard
+				let match = authorDate.wholeMatch(of: Self.authorDatePattern),
+				let day = SOML.Date(String(match.day)),
+				let hour = Int(match.hour),
+				let offsetHours = Int(match.offsetHours),
+				let offsetMinutes = Int(match.offsetMinutes)
+			else {
+				return nil
+			}
+
+			let offset = (offsetHours * 60) + offsetMinutes
+			self.day = day
+			self.hour = hour
+			self.utcOffsetMinutes = match.sign == "-" ? -offset : offset
+		}
+	}
+
+	/**
+	The times of the newest public commits of the account, newest first (``CommitTime``): at most 1000, the most that a search returns, which is about a month of commits. That is up to 10 searches, one after another, as a search has no page after the tenth. It needs a token, as without one GitHub allows only 10 searches a minute, so it is `nil` without one.
+
+	The search only has the commits on the default branches of public repos.
+	*/
+	func recentCommitTimes() async throws -> [CommitTime]? {
+		struct Item: Decodable, Sendable {
+			struct Commit: Decodable, Sendable {
+				struct Author: Decodable, Sendable {
+					// Not a `Date`, as it would lose the offset from UTC.
+					let date: String
+				}
+
+				let author: Author
+			}
+
+			let commit: Commit
+		}
+
+		guard token != nil else {
+			return nil
+		}
+
+		let pageSize = 100
+		var times = [CommitTime]()
+
+		for page in 1...10 {
+			let result: SearchResult<Item> = try await get(
+				"search/commits",
+				query: [
+					URLQueryItem(name: "q", value: "author:\(Self.account) is:public"),
+					URLQueryItem(name: "sort", value: "author-date"),
+					URLQueryItem(name: "order", value: "desc"),
+					URLQueryItem(name: "per_page", value: String(pageSize)),
+					URLQueryItem(name: "page", value: String(page)),
+				]
+			)
+
+			times += result.items.compactMap { CommitTime(authorDate: $0.commit.author.date) }
+
+			guard result.items.count == pageSize else {
+				break
+			}
+		}
+
+		return times
 	}
 
 	/**
@@ -634,5 +708,15 @@ extension URLRequest {
 		}
 
 		return request
+	}
+}
+
+extension [GitHub.CommitTime] {
+	/**
+	The number of days with a commit in each hour of the day, from 0 to 23, in the time where each commit was made. It counts days, not commits, so one busy night does not tower over the other hours.
+	*/
+	var dayCountsByHour: [Int] {
+		let dayCounts = Dictionary(grouping: self, by: \.hour).mapValues { Set($0.map(\.day)).count }
+		return (0..<24).map { dayCounts[$0] ?? 0 }
 	}
 }

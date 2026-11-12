@@ -1,4 +1,4 @@
-import {prefersReducedMotion} from '/scripts/dom.js';
+import {finePointer, prefersReducedMotion} from '/scripts/dom.js';
 
 const excluded = new URLSearchParams(location.search).get('exclude');
 
@@ -31,11 +31,10 @@ if (excluded) {
 // A soft light follows the pointer over the title, like light on glass. The styles fade it in while the pointer is over the title, so this only moves it.
 {
 	const title = document.querySelector('#apps-title');
-	const finePointerQuery = matchMedia('(hover: hover) and (pointer: fine)');
 	let frame = 0;
 
 	title.addEventListener('pointermove', event => {
-		if (prefersReducedMotion || !finePointerQuery.matches) {
+		if (prefersReducedMotion || !finePointer.matches) {
 			return;
 		}
 

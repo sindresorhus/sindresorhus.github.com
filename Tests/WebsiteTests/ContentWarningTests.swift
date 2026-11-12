@@ -8,6 +8,38 @@ import UniformTypeIdentifiers
 @testable import Website
 
 struct ContentWarningTests {
+	@Test(arguments: [
+		("The free [Test](/test) app.", true),
+		("### The free [Test](/test) app", true),
+		("Test is free.", true),
+		("Test, a free app.", true),
+		("The ad-free [Test](/test) app.", false),
+		("Test is freedom.", false),
+		("`free Test`", false),
+		("```\nfree Test\n```", false),
+		("<!-- free Test -->", false),
+		("The free `example` [Test](/test) app.", false),
+	])
+	func `paid app warnings check price claims in visible guide text`(text: String, expectsWarning: Bool) async throws {
+		let app = try await App(frontmatter: "gumroad: {id: 'test', price: 6}")
+		let guide = try await Guide(markdown: Guide.testMarkdown(body: "\(Guide.testBody)\n\n\(text)"))
+		let resolved = try #require(Guide.Resolved(guide: guide, apps: [app]))
+		let content = SiteContent.test(apps: [app], guides: [guide], resolvedGuides: [resolved])
+
+		#expect(await content.warningTexts(of: .freePaidApp).count == (expectsWarning ? 1 : 0))
+	}
+
+	@Test(arguments: [("The free Test app.", true), ("The ad-free Test app.", false)])
+	func `paid app warnings check price claims in guide descriptions`(description: String, expectsWarning: Bool) async throws {
+		let app = try await App(frontmatter: "gumroad: {id: 'test', price: 6}")
+		let markdown = Guide.testMarkdown().replacing("description: 'Use Test.'", with: "description: '\(description)'")
+		let guide = try await Guide(markdown: markdown)
+		let resolved = try #require(Guide.Resolved(guide: guide, apps: [app]))
+		let content = SiteContent.test(apps: [app], guides: [guide], resolvedGuides: [resolved])
+
+		#expect(await content.warningTexts(of: .freePaidApp).count == (expectsWarning ? 1 : 0))
+	}
+
 	@Test
 	func `finds spelling mistakes, vague links, links to the site, and facts that the App Store does not agree with`() async throws {
 		let source = App.testMarkdown(platforms: [.macOS, .iOS], frontmatter: "appStoreID: 123\nminimumOSVersion: '26'", body: "The app has a shorcut. Read more [here](https://example.com) or `in` in the code. See [Velja](https://sindresorhus.com/velja#faq).\n\n*Requires macOS 15 or later*\n")
@@ -98,7 +130,7 @@ struct ContentWarningTests {
 		let content = SiteContent.test(
 			apps: [
 				fetched,
-				try await app("missing", "isPaid: false"),
+				try await app("missing", ""),
 				try await app("unloaded", "releasesRepository: 'sindresorhus/unloaded-meta'"),
 				try await app("redirect", "redirectURL: 'https://github.com/sindresorhus/redirect'"),
 				try await app("manual", "minimumOSVersion: '26'"),
@@ -474,21 +506,21 @@ struct ContentWarningTests {
 	func `promises, tracking parameters, http links, copied answer blocks, and trial requirements are checked`() async throws {
 		// Two copied blocks in one answer still give one warning for it.
 		let steps = "- Open the settings of the app, and go to the “Calls” tab.\n- Click the plus button.\n- Choose the service in the list, and enter the link of the meeting room that you use for your calls.\n\nThe service then shows up in the list of services of the app, and the app opens the link of the meeting room when you join a call from the menu bar.\n"
-		let first = try await App(frontmatter: "pressQuotes: [{quote: 'Love it', source: 'Buyer', url: 'https://sindresorhus.gumroad.com/l/test'}]\ntrial: {url: 'https://example.com/Test.zip', macOS: '26'}", body: "See [the guide](https://example.com/guide?utm_source=chatgpt.com&ref=sponsor), not `https://example.com?fbclid=1`. The [old site](http://example.com).\n\n## Frequently Asked Questions {#faq}\n\n### Can you add iOS?\n\nI plan to do it at some point.\n\n### Can you add widgets?\n\nIt’s not something I plan to add in the future.\n\n### How do I add a call service?\n\n\(steps)", slug: "first")
-		let second = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '26'}", body: "## Frequently Asked Questions {#faq}\n\n### My call service is missing\n\nTell me which one.\n\n\(steps)", slug: "second")
-		let third = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '27'}", slug: "third")
+		let first = try await App(frontmatter: "pressQuotes: [{quote: 'Love it', source: 'Buyer', url: 'https://sindresorhus.gumroad.com/l/test'}]\ntrial: {url: 'https://example.com/Test.zip', macOS: '26'}\nisPaid: true", body: "See [the guide](https://example.com/guide?utm_source=chatgpt.com&ref=sponsor), not `https://example.com?fbclid=1`. The [old site](http://example.com).\n\n## Frequently Asked Questions {#faq}\n\n### Can you add iOS?\n\nI plan to do it at some point.\n\n### Can you add widgets?\n\nIt’s not something I plan to add in the future.\n\n### How do I add a call service?\n\n\(steps)", slug: "first")
+		let second = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '26'}\nisPaid: true", body: "## Frequently Asked Questions {#faq}\n\n### My call service is missing\n\nTell me which one.\n\n\(steps)", slug: "second")
+		let third = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '27'}\nisPaid: true", slug: "third")
 		// A trial can need a newer version than the app, as the trial is of a version that is not on the App Store yet.
-		let fourth = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '28'}", slug: "fourth")
+		let fourth = try await App(frontmatter: "minimumOSVersion: '27'\ntrial: {url: 'https://example.com/Test.zip', macOS: '28'}\nisPaid: true", slug: "fourth")
 		let content = SiteContent.test(apps: [first, second, third, fourth])
 
 		let warnings = await content.warningTexts(of: .copiedAnswerBlock, .promise, .trackingParameter, .insecureLink, .trialRequirement)
 
 		#expect(warnings == [
-			"content/apps/first.md:22: The answer of “How do I add a call service?” has a list or paragraph that is also in the FAQ of `second`. Move the question to `content/shared-questions.md`, or link to one answer, so the copies do not get out of sync.",
-			"content/apps/second.md:12: The answer of “My call service is missing” has a list or paragraph that is also in the FAQ of `first`. Move the question to `content/shared-questions.md`, or link to one answer, so the copies do not get out of sync.",
-			"content/apps/first.md:16: The answer of “Can you add iOS?” promises something: “I plan to”. Remove the promise when the plan changed, or answer what the app does now.",
-			"content/apps/first.md:10: The link https://example.com/guide?utm_source=chatgpt.com&ref=sponsor has the tracking parameter `utm_source`. Remove it.",
-			"content/apps/first.md:10: The link http://example.com uses `http://`. Use `https://` when the site supports it.",
+			"content/apps/first.md:23: The answer of “How do I add a call service?” has a list or paragraph that is also in the FAQ of `second`. Move the question to `content/shared-questions.md`, or link to one answer, so the copies do not get out of sync.",
+			"content/apps/second.md:13: The answer of “My call service is missing” has a list or paragraph that is also in the FAQ of `first`. Move the question to `content/shared-questions.md`, or link to one answer, so the copies do not get out of sync.",
+			"content/apps/first.md:17: The answer of “Can you add iOS?” promises something: “I plan to”. Remove the promise when the plan changed, or answer what the app does now.",
+			"content/apps/first.md:11: The link https://example.com/guide?utm_source=chatgpt.com&ref=sponsor has the tracking parameter `utm_source`. Remove it.",
+			"content/apps/first.md:11: The link http://example.com uses `http://`. Use `https://` when the site supports it.",
 			"content/apps/first.md:7: The trial needs macOS 26, but the page shows no requirement for the app. Add `minimumOSVersion`.",
 			"content/apps/second.md:7: The trial says macOS 26, but the app needs macOS 27.",
 			"content/apps/third.md:7: `trial.macOS` is not needed, as it is the version of the app, 27. Remove it.",

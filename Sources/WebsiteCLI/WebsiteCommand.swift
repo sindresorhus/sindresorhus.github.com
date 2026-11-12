@@ -25,6 +25,11 @@ struct WebsiteCommand: AsyncParsableCommand {
 		do {
 			var command = try await asyncParseAsRoot()
 
+			// The project is the current directory, so in a subfolder, like `content`, where `swift run` also works, every content folder would be missing.
+			guard Project.current.contentDirectory.isDirectory else {
+				throw ContentError(reason: "There is no content folder in \(Project.current.root.path(percentEncoded: false)). Run `website` from the root of the project.")
+			}
+
 			if var command = command as? any AsyncParsableCommand {
 				try await command.run()
 			} else {
@@ -144,19 +149,71 @@ extension Project {
 	private static let responseCache = ResponseCache.forBuilds(of: .current)
 }
 
-extension String {
+/**
+An argument of `website check`: a file or a directory, like `content/apps/dato`, or a page of the site, like `/dato`, the form that the warnings of pages and the address bar of the preview show.
+*/
+enum CheckTarget {
+	case file(URL)
+	case page(RoutePath)
+
 	/**
-	The path without the line at its end, like `content/apps/dato/index.md` for `content/apps/dato/index.md:12` or `content/apps/dato/index.md:12:`, the location that a warning or an error starts with, so it can be copied from the output.
+	The target of an argument of `website check`.
+
+	- The line and the column at the end of a path are ignored, like in `content/apps/dato/index.md:12` or `content/apps/dato/index.md:12:3`, the location that a warning or an error starts with, or that an editor copies.
+	- The URL of a page on the site or in the preview, like `https://sindresorhus.com/dato`, `http://127.0.0.1:8080/dato`, or the address on the local network that `website serve --local-network` prints, is that page.
+	- A path that starts with `/` is a page when no file has the path. The root is the home page, not the disk. So a mistyped absolute path of a file is taken as a path of the site.
+
+	A mistyped path would print “No warnings.” So a missing file, or a path of the site that is not valid, like `/dato/../x`, is an error here, before the build, so it does not fail only after the whole build. Whether the site has a page at a valid path is only known after the build (``WebsiteCommand/Check/contentFiles(ofPagesIn:)``).
 	*/
-	fileprivate var removingLineNumber: String {
-		replacing(/:\d+:?$/, with: "")
+	init(argument: String) throws {
+		func routePath(_ path: String) throws -> RoutePath {
+			do {
+				return try RoutePath(validating: path)
+			} catch {
+				throw ValidationError("The path \(path) is not a path of the site. \(error.reason)")
+			}
+		}
+
+		if
+			let url = URL(string: argument),
+			let scheme = url.scheme,
+			["http", "https"].contains(scheme)
+		{
+			guard [Site.url.host(), "localhost", "127.0.0.1", ProcessInfo.processInfo.localHostName.map { "\($0).local" }].contains(url.host()) else {
+				throw ValidationError("\(argument) is not a URL of the site or of the preview of `website serve`.")
+			}
+
+			self = .page(try routePath(url.path(percentEncoded: false).nilIfEmpty ?? "/"))
+			return
+		}
+
+		let path = argument.replacing(/(:\d+){1,2}:?$/, with: "")
+
+		if path == "/" || (path.hasPrefix("/") && !URL(filePath: path).exists) {
+			self = .page(try routePath(path))
+			return
+		}
+
+		let file = URL(filePath: path, relativeTo: .currentDirectory())
+
+		guard file.exists else {
+			// A name alone, like `dato`, is more likely the path of a page without its `/`.
+			let suggestion = path.contains("/") ? "" : " For a page of the site, write `/\(path)`."
+			throw ValidationError("The path \(path) does not exist.\(suggestion)")
+		}
+
+		self = .file(file)
 	}
 
 	/**
-	Whether an argument of `website check` is a path of the site, like `/dato`, the form that the warnings of pages and the address bar of the preview show, not a path of a file: it starts with `/`, and no file has the path. The root is the home page, not the disk. So a mistyped absolute path of a file is taken as a path of the site.
+	The file or the directory, or `nil` for a page of the site.
 	*/
-	fileprivate var isSitePath: Bool {
-		self == "/" || (hasPrefix("/") && !URL(filePath: self).exists)
+	var file: URL? {
+		guard case .file(let file) = self else {
+			return nil
+		}
+
+		return file
 	}
 }
 
@@ -329,23 +386,17 @@ extension WebsiteCommand {
 		@Flag(help: "Fail the check when there is a warning, like a failed request or a spelling mistake. With paths or `--changed`, it counts only the printed warnings.")
 		var strict = false
 
-		@Argument(help: "Only print the warnings of these files and directories, like `content/apps/dato`, or of the content file of a page of the site, like `/dato`. A warning of a page, like a skipped heading level, counts for the content file of the page. Warnings without a file, like a failed request, and warnings of a page without a content file, like `/apps`, are then left out. A line after a path is ignored, like in `content/apps/dato/index.md:12`, the location that a warning starts with.", transform: \.removingLineNumber)
-		var paths: [String] = []
+		@Argument(help: "Only print the warnings of these files and directories, like `content/apps/dato`, or of the content file of a page of the site, like `/dato` or `https://sindresorhus.com/dato`. A warning of a page, like a skipped heading level, counts for the content file of the page. Warnings without a file, like a failed request, and warnings of a page without a content file, like `/apps`, are then left out. A line and a column after a path are ignored, like in `content/apps/dato/index.md:12:3`, the location that a warning starts with.", transform: { try CheckTarget(argument: $0) })
+		var targets: [CheckTarget] = []
 
 		@Flag(help: "Only print the warnings of the files that git lists as changed or new, like the ones you are editing.")
 		var changed = false
 
 		/**
-		A mistyped path would print “No warnings.” It is checked before the build, so it does not fail only after the whole build. A path of the site, like `/dato`, is checked after the build (``contentFiles(ofSitePathsIn:)``), as only the content knows its file.
+		A mistyped path would print “No warnings.” A path is checked before the build when it is parsed (``CheckTarget/init(argument:)``), so it does not fail only after the whole build. A page of the site, like `/dato`, is checked after the build (``contentFiles(ofPagesIn:)``), as only the content knows its file.
 
 		The check publishes to its own directory (``outputDirectory``), as the preview server serves `dist`, and a check deletes the files that only the preview publishes, like the gallery.
 		*/
-		func validate() throws {
-			if let missingPath = paths.first(where: { !$0.isSitePath && !URL(filePath: $0, relativeTo: .currentDirectory()).exists }) {
-				throw ValidationError("The path \(missingPath) does not exist.")
-			}
-		}
-
 		func run() async throws {
 			// Before the build, so a folder without git does not fail only after the whole build.
 			let shownFilesOfArguments = try await shownFiles()
@@ -361,12 +412,12 @@ extension WebsiteCommand {
 
 			// Only drafts leave nothing to check.
 			guard
-				changed || paths.isEmpty || draftFiles.count < paths.count
+				changed || targets.isEmpty || draftFiles.count < targets.count
 			else {
 				return
 			}
 			let report = try await options.build(output: outputDirectory, isPreview: false, printsWarnings: false)
-			let shownFiles = try shownFilesOfArguments.map { $0 + (try contentFiles(ofSitePathsIn: report)) }
+			let shownFiles = try shownFilesOfArguments.map { $0 + (try contentFiles(ofPagesIn: report)) }
 			// With the warnings of the build, like failed requests.
 			let (allWarnings, steps) = await report.content.warnings(
 				published: report.published,
@@ -393,10 +444,10 @@ extension WebsiteCommand {
 			}
 
 			let count = warnings.count
-			let hiddenCount = allWarnings.count - count
-			let summary = count == 0 ? "No warnings." : "\(count.formatted(counting: "warning"))."
+			let summary = count == 0 ? "No warnings" : count.formatted(counting: "warning")
 
-			print(summary + (hiddenCount > 0 ? " \(hiddenCount) more not shown." : ""))
+			// With paths, the checks of the text only read the shown files, so the number of the other warnings is not known.
+			print(summary + (shownFiles == nil ? "." : " in these files. Run `website check` without paths for all files."))
 
 			if
 				count > 10,
@@ -410,35 +461,38 @@ extension WebsiteCommand {
 		}
 
 		/**
-		The files and directories whose warnings are printed, or `nil` for all the warnings. Without the content files of the paths of the site, like `/dato`, which only the build knows (``contentFiles(ofSitePathsIn:)``).
+		The files and directories whose warnings are printed, or `nil` for all the warnings. Without the content files of the pages of the site, like `/dato`, which only the build knows (``contentFiles(ofPagesIn:)``).
 		*/
 		private func shownFiles() async throws -> [URL]? {
-			guard !paths.isEmpty || changed else {
+			guard !targets.isEmpty || changed else {
 				return nil
 			}
 
-			let files = paths.filter { !$0.isSitePath }.map { URL(filePath: $0, relativeTo: .currentDirectory()) }
+			let files = targets.compactMap(\.file)
 			let changedFiles = changed ? try await Project.current.changedFiles() : []
 			return files + changedFiles
 		}
 
 		/**
-		The content files of the arguments that are paths of the site, like `content/apps/dato/index.md` for `/dato`, the same map that counts a warning of a page for its content file. A path without a page, or of a page without a content file, like `/apps`, is an error, as it would print “No warnings.”
+		The content files of the arguments that are pages of the site, like `content/apps/dato/index.md` for `/dato`, the same map that counts a warning of a page for its content file. A path without a page, or of a page without a content file, like `/apps`, is an error, as it would print “No warnings.”
 		*/
-		private func contentFiles(ofSitePathsIn report: Site.BuildReport) throws -> [URL] {
-			try paths.filter(\.isSitePath).map { path in
-				let routePath = try RoutePath(validating: path)
+		private func contentFiles(ofPagesIn report: Site.BuildReport) throws -> [URL] {
+			var files = [URL]()
 
-				if let file = report.content.contentFile(ofPage: routePath) {
-					return file
+			for case .page(let path) in targets {
+				if let file = report.content.contentFile(ofPage: path) {
+					files.append(file)
+					continue
 				}
 
-				guard report.routes.contains(where: { $0.path == routePath }) else {
+				guard report.routes.contains(where: { $0.path == path }) else {
 					throw ContentError(reason: "The site has no page at \(path), and no file has that path.")
 				}
 
 				throw ContentError(reason: "The page \(path) has no content file. Run `website check` without a path for its warnings.")
 			}
+
+			return files
 		}
 	}
 

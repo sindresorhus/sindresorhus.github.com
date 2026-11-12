@@ -11,7 +11,7 @@ struct AppReviews: HTML {
 	let reviews: [AppStoreReview]
 
 	/**
-	The app, for a link to all its quotes and reviews on the wall of love.
+	The app, for a link to all its quotes and reviews on the wall of love. Only when the wall of love has more than the page: the page shows all the press quotes of the app, so the wall has more only when the app has more reviews than the page shows.
 	*/
 	var app: App?
 
@@ -19,11 +19,13 @@ struct AppReviews: HTML {
 	Creates the section only when there is praise to show. The listing owns which app the reviews belong to, so the link cannot identify another app.
 	*/
 	init?(listing: AppListing) {
-		guard !listing.newestReviews.isEmpty else {
+		let reviews = listing.newestReviews
+
+		guard !reviews.isEmpty else {
 			return nil
 		}
 
-		self.init(reviews: listing.newestReviews, app: listing.app.isActive ? listing.app : nil)
+		self.init(reviews: reviews, app: listing.app.isActive && listing.reviews.count > reviews.count ? listing.app : nil)
 	}
 
 	/**

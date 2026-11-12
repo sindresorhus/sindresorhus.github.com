@@ -348,6 +348,11 @@ export default class ScriptedElement extends HTMLElement {
 				}
 			},
 			stop() {
+				if (singleFrame !== undefined) {
+					cancelAnimationFrame(singleFrame);
+					singleFrame = undefined;
+				}
+
 				if (frame === undefined) {
 					return;
 				}

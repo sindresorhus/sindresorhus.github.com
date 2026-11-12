@@ -38,7 +38,14 @@ export function closest(query, candidates, {key = candidate => candidate, maximu
 
 	for (const candidate of candidates) {
 		const candidateKey = key(candidate);
-		const ratio = editDistance(query, candidateKey) / Math.max(query.length, candidateKey.length, 1);
+		const longerLength = Math.max(query.length, candidateKey.length, 1);
+
+		// The distance is at least the difference of the lengths, so a key with a very different length cannot be close, and the slow comparison is skipped, like for a long text that was pasted by mistake.
+		if (Math.abs(query.length - candidateKey.length) / longerLength > maximumRatio) {
+			continue;
+		}
+
+		const ratio = editDistance(query, candidateKey) / longerLength;
 
 		if (ratio <= maximumRatio && ratio < closestRatio) {
 			closestCandidate = candidate;
@@ -47,4 +54,27 @@ export function closest(query, candidates, {key = candidate => candidate, maximu
 	}
 
 	return closestCandidate;
+}
+
+/**
+The filter of a list, like the app picker of the feedback page and the npm list of the open source page. Each item has a `textKey`, like `searchKey()` of the name and the description, and a `nameKey`, like `searchKey()` of the name.
+
+An item matches when its text has each word of the query, like “promise limit” for p-limit, also without spaces or punctuation (`searchKey`). The items whose name has the words come first, as visitors mostly type the name, like “menu bar” for Menu Bar Calendar before the apps that are about the menu bar. Else, the order of the items stays. Without words, all the items match, in their order.
+
+When no item matches, `matches` is only the item whose name is closest to the query, like Gifski for “gifksi” (`closest`), and `isClosest` is `true`. When none is close either, `matches` is empty.
+*/
+export function filterByWords(query, items) {
+	const words = query.split(/\s+/).map(word => searchKey(word)).filter(Boolean);
+	const hasWords = key => words.every(word => key.includes(word));
+	const matches = items.filter(({textKey}) => hasWords(textKey));
+
+	if (matches.length === 0) {
+		const closestItem = closest(words.join(''), items, {key: ({nameKey}) => nameKey});
+		return {matches: closestItem ? [closestItem] : [], isClosest: Boolean(closestItem)};
+	}
+
+	return {
+		matches: [...matches.filter(({nameKey}) => hasWords(nameKey)), ...matches.filter(({nameKey}) => !hasWords(nameKey))],
+		isClosest: false,
+	};
 }

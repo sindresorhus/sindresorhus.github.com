@@ -109,10 +109,11 @@ Add several websites, switch between them, and turn on Browsing Mode when you wa
 - Show the website on a different display
 - Invert website colors (fake dark mode)
 - Add custom CSS and JavaScript to the website
+- Allow a self-signed certificate, like for a dashboard on your local network
 - Lower the opacity
 - [Transparent background](https://github.com/sindresorhus/Plash/issues/1#issuecomment-573513816)
 - Automatically deactivate while on battery
-- Audio is muted
+- Audio is muted by default (turn off “Mute audio” in the settings to hear the website)
 - Single image will be aspect-filled to your screen
 - Hide menu bar icon
 - Global keyboard shortcuts to reload the website, go to the next, previous, or a random website, toggle browsing mode, and turn Plash on or off
@@ -240,7 +241,7 @@ Use the embed URL of the video, not the normal URL, and add options so the video
 https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1&loop=1&playlist=VIDEO_ID&controls=0
 ```
 
-The video must be muted to start by itself.
+The video must be muted to start by itself. See the [guide to set a YouTube video as your wallpaper](../../guides/youtube-video-wallpaper-mac.md).
 
 If the video shows a play button only when your Mac is on battery, Low Power Mode is a likely cause, as macOS can stop videos from starting by themselves in Low Power Mode. In “[System Settings › Battery](x-apple.systempreferences:com.apple.Battery-Settings.extension)”, set “Low Power Mode” to “Never”, or on a Mac with Energy Mode, set it to “Automatic” on battery.
 

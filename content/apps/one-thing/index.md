@@ -1,6 +1,7 @@
 ---
 title: 'One Thing'
 subtitle: 'Put a single task or goal in your menu bar'
+description: 'Write the one task or goal that matters most today, and see it in your Mac menu bar all day. A quiet reminder to focus on one thing at a time.'
 publicationDate: 2022-01-12
 platforms: [
 	'macOS'
@@ -94,7 +95,7 @@ However, what you use this space for is really up to you.
 - In the “Shortcuts” settings, set keyboard shortcuts to toggle the edit window, clear the text, or set the text from the clipboard.
 - Enable “Track history” in the settings to keep a dated log of your previous entries (the most recent 1000). Click “History” to see it, and export it.
 - If the menu bar item text is truncated, hover over it to see the full text in a tooltip.
-- You can use [Markdown](https://www.markdownguide.org/basic-syntax/#emphasis) to [style the text](https://x.com/sindresorhus/status/1481818533294407680) (supports bold, italic, and strikethrough) and add links.
+- You can use [Markdown](https://www.markdownguide.org/basic-syntax/#emphasis) to [style the text](markdown.png) (supports bold, italic, and strikethrough) and add links.
 - You can [drag & drop text](https://x.com/sindresorhus/status/1481862243755376642) onto the menu bar item to set it. For example, you could drag a todo item from the Reminders app or Things.
 - Select some text in any app, right-click, select “Services”, and click “Send to One Thing” to set One Thing to the selected text. You can also use the “Share” menu item if the app supports that.
 
@@ -112,6 +113,7 @@ macOS hides menu bar items that do not fit. [Reset the text](one-thing:?text=). 
 [Reset the text](one-thing:?text=). Then set “Settings › Appearance › Maximum width”, so the menu bar item always fits, also with long text.
 
 ### How is this different from your One Task app? {#one-task-difference}
+<!-- @faq.compares One Task -->
 
 See [this answer](/one-task#one-thing-difference).
 
@@ -175,6 +177,8 @@ More integrations:
 	- Note: Raycast commands are not the same as plugins. [How to install commands.](https://github.com/raycast/script-commands#install-script-commands-from-this-repository)
 
 ### Shortcuts app
+
+The “Set Text” and “Get Text” actions set and get the text, the prefix text, or the suffix text. The “Set Text Color” and “Get Text Color” actions set and get the color of the text as a hex color, like `#ff69b4`. For example, a shortcut can make the text red when a deadline is close.
 
 - [Example shortcut](https://www.icloud.com/shortcuts/381619f1c8404770ad020d439a48fd9c)
 - [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)

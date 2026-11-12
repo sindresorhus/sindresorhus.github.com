@@ -17,9 +17,9 @@ apps: [
 @Steps {
 1. Open [Quick Launch](../apps/quick-launch/index.md), and tap the add button.
 1. Choose “App” as the action. Below “App”, write the name of the app exactly as it shows on the Home Screen.
-1. In “Icon”, choose the icon of the button, like “App Icon”, “Symbol”, or “Emoji”.
+1. In “Icon”, tap “Choose”, and choose the icon of the button, like “App Icon”, “Symbol”, or “Emoji”.
 1. Tap “Add Shortcut”, which adds the shortcut that Quick Launch needs to open apps to the Shortcuts app. You only do this once.
-1. Below “Test”, tap “Open App” to check that the app opens. Then save the widget.
+1. Below “Test”, tap “Open App” to check that the app opens. Then tap the checkmark button to save the widget.
 1. Touch and hold the Lock Screen, and tap “Customize”.
 1. Tap the widget area below the clock, choose “Quick Launch”, and add the “Open Stuff” widget. Tap the widget, and choose the widget that you made.
 }

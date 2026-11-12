@@ -1,12 +1,14 @@
 ---
 title: 'Second Clock'
 subtitle: 'Show a second clock for a different time zone in your menu bar'
+description: 'The clock sits next to the system clock of your Mac, so you always know the time for colleagues, family, or servers in another time zone.'
 publicationDate: 2024-01-04
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 6450279539
+hasNoNetworkAccess: true
 nonAppStoreVersion: {
 	version: '1.2.0'
 	macOS: 26
@@ -50,7 +52,9 @@ Check out [Zone Bar](/zone-bar) if you need more than one extra clock, [Dato](/d
 
 ### Can it show a flag in front of the time? {#can-it-show-a-flag-in-front-of-the-time}
 
-You can set a [flag emoji](https://emojipedia.org/flags) in the “Prefix text” setting. [Example.](https://x.com/sindresorhus/status/1742975880031543330)
+You can set a [flag emoji](https://emojipedia.org/flags) in the “Prefix text” setting.
+
+![The Second Clock settings with the Norwegian flag in “Prefix text”, and the flag in front of the second clock in the menu bar](flag-prefix.jpg)
 
 ### Can it show an icon in front of the time? {#can-it-show-an-icon-in-front-of-the-time}
 

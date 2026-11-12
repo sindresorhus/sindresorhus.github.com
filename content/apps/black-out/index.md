@@ -1,6 +1,7 @@
 ---
 title: 'Black Out'
 subtitle: 'Hide sensitive parts of an image'
+description: 'On your Mac, put black boxes over the private parts of a screenshot or photo before you share it. The app also removes the metadata, like where it was captured.'
 publicationDate: 2017-12-01
 platforms: [
 	'macOS'
@@ -60,7 +61,7 @@ You can do this in any graphics app. The point of this app is to make the task s
 
 ### Does it support PDF? {#does-it-support-pdf}
 
-You can open a PDF document, but only its first page, and you have to export it as a PNG image. It’s almost impossible to reliably export redacted PDFs.
+You can open a PDF document, but only its first page, and you export it as an image (PNG, JPEG, or HEIC), not as a PDF. It’s almost impossible to reliably export redacted PDFs.
 
 ### What is the text in the icon? {#what-is-the-text-in-the-icon}
 

@@ -13,6 +13,12 @@ struct GuidePage: Page {
 	The first app of the guide, which the guide links back to.
 	*/
 	private let app: App
+
+	/**
+	All the apps of the guide, in the order of its `apps`, which its structured data is about.
+	*/
+	private let apps: [App]
+
 	private let parts: (before: MarkdownContent, after: MarkdownContent)
 
 	/**
@@ -22,6 +28,7 @@ struct GuidePage: Page {
 		self.guide = guide.guide
 		self.content = content
 		self.app = guide.app
+		self.apps = guide.apps
 		self.parts = guide.parts
 		self.screenshot = guide.app.isDownloadable ? guide.screenshot : nil
 	}
@@ -59,6 +66,8 @@ struct GuidePage: Page {
 
 	var body: some HTML {
 		ProsePage(title: .plain(guide.title), backTo: app) {
+			byline
+
 			// The box to get the app is after the steps, and before the built-in way, which stays the last word of the guide.
 			if app.isDownloadable {
 				parts.before
@@ -130,6 +139,8 @@ struct GuidePage: Page {
 					.textStyle(.caption)
 					.secondaryText()
 					.monospacedDigit()
+					// On one line, so it goes below the back link as a whole on a phone (``ProsePageStyles/backRow``).
+					.textWrap(.nowrap)
 			}
 		}
 
@@ -138,7 +149,19 @@ struct GuidePage: Page {
 
 		if !moreGuides.isEmpty {
 			section {
-				GuideLinks(title: "More Guides", guides: moreGuides)
+				h2 {
+					"More Guides"
+				}
+				// Like the titles of the groups of the footer.
+				.style {
+					$0
+						.margin(.bottom, .rootEm(0.75))
+						.textAlign(.center)
+						.textStyle(.caption, weight: .semibold)
+						.color(.secondaryText)
+				}
+
+				GuideLinks(guides: moreGuides)
 			}
 			.style(AppFooterLinks.Styles.root, AppFooterLinks.Styles.guides)
 			// The space below the guide, and a little more, so the list reads as navigation after the guide, not as a part of it.
@@ -148,6 +171,47 @@ struct GuidePage: Page {
 		}
 
 		JSONScript(schema: structuredData)
+		// The “Back to …” link above the title (``BackLink``), so search results can show the app of the guide.
+		JSONScript(schema: Schema.BreadcrumbList(parents: [(name: app.title, url: app.path.absoluteURL)], name: guide.title))
+	}
+
+	/**
+	Who wrote the guide, below the title, like “By Sindre Sorhus, who makes the Folder Peek app”, with the small photo of the about page. The guide recommends the app of its author, so the line says it openly, and the maker of the app knows how it works.
+	*/
+	private var byline: some HTML<HTMLTag.p> {
+		p {
+			img(
+				.src(Site.author.smallPhotoPath),
+				.alt(""),
+				.width(28),
+				.height(28)
+			)
+				// It is in the prose, so it starts without the margins and the shadow of the images of prose.
+				.style {
+					$0
+						.plainImage()
+						.frame(size: .pixels(28))
+						.flexShrink(0)
+						.cornerRadius(.circle)
+				}
+
+			// In one element, so the text and the link are one item of the stack, without a gap between them.
+			span {
+				"By "
+				a(.href(.about)) {
+					Site.author.name
+				}
+				// “the … app”, as the names of some apps are common words, and “who makes Today” reads like a sentence about time.
+				", who makes the \(app.title) app"
+			}
+		}
+		.style {
+			$0
+				.hstack(alignment: .center, spacing: .rootEm(0.5))
+				.secondaryText()
+				// Close to the title, as it says who wrote the guide, like the author line of an article, and with the space of the title below it, so it does not read as a part of the box below. The negative margin takes most of the space below the header of the page (``ProsePage``).
+				.margin(top: .rootEm(-1.75), horizontal: .zero, bottom: .rootEm(2.5))
+		}
 	}
 
 	/**
@@ -171,7 +235,7 @@ struct GuidePage: Page {
 	}
 
 	/**
-	The images are the card, the icon of the app, and the screenshot, as Google asks for images in several aspect ratios, and the card is wide. The article is about the first app, which the structured data of the app page has (``App/structuredDataID``).
+	The images are the card, the icon of the app, and the screenshot, as Google asks for images in several aspect ratios, and the card is wide. The article is about each app of the guide, which the structured data of its app page has (``App/structuredDataID``).
 	*/
 	private var structuredData: Schema.Article {
 		var article = Schema.Article(
@@ -182,7 +246,7 @@ struct GuidePage: Page {
 			images: [socialImageURL, app.iconURL, screenshot?.asset.path.absoluteURL].compactMap(\.self)
 		)
 
-		article.about = Schema.Reference(id: app.structuredDataID)
+		article.about = apps.map { Schema.Reference(id: $0.structuredDataID) }
 		return article
 	}
 }

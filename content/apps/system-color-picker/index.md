@@ -88,29 +88,33 @@ The macOS color picker as an app, with more features. Pick a color from anywhere
 
 You can use the following keyboard shortcuts in the app:
 
-- Pick color: ++Command+P++
-- Copy as Hex: ++Shift+Command+H++
-- Copy as HSL: ++Shift+Command+S++
-- Copy as RGB: ++Shift+Command+R++
-- Copy as Unit RGB: ++Shift+Command+U++
-- Copy as OKLCH: ++Shift+Command+O++
-- Copy as LCH: ++Shift+Command+L++
-- Copy as CMYK: ++Shift+Command+K++
-- Paste color: ++Shift+Command+V++ *(In the format Hex, HSL, RGB, Unit RGB, OKLCH, LCH, or CMYK)*
-- Reset opacity: ++Control+Shift+O++
+| Shortcut | Action |
+| --- | --- |
+| ++Command+P++ | Pick color |
+| ++Shift+Command+H++ | Copy as Hex |
+| ++Shift+Command+S++ | Copy as HSL |
+| ++Shift+Command+R++ | Copy as RGB |
+| ++Shift+Command+U++ | Copy as Unit RGB |
+| ++Shift+Command+O++ | Copy as OKLCH |
+| ++Shift+Command+L++ | Copy as LCH |
+| ++Shift+Command+K++ | Copy as CMYK |
+| ++Shift+Command+V++ | Paste color (in the format Hex, HSL, RGB, Unit RGB, OKLCH, LCH, or CMYK) |
+| ++Control+Shift+O++ | Reset opacity |
 
 #### Switch between picker tabs
 
 You can quickly switch between different color picker tabs:
 
-- Next tab: ++Control+Tab++
-- Previous tab: ++Control+Shift+Tab++
-- Wheel: ++Control+1++
-- Sliders: ++Control+2++
-- Color Palettes: ++Control+3++
-- Image Palettes: ++Control+4++
-- Pencils: ++Control+5++
-- Extensions: ++Control+6++-++9++ *(if installed)*
+| Shortcut | Action |
+| --- | --- |
+| ++Control+Tab++ | Next tab |
+| ++Control+Shift+Tab++ | Previous tab |
+| ++Control+1++ | Wheel |
+| ++Control+2++ | Sliders |
+| ++Control+3++ | Color Palettes |
+| ++Control+4++ | Image Palettes |
+| ++Control+5++ | Pencils |
+| ++Control+6++ … ++Control+9++ | Extensions (if installed) |
 
 ### Plugins
 

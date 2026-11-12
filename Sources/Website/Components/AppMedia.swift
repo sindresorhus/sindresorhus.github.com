@@ -50,7 +50,11 @@ struct AppMedia: ScriptedElement {
 				.attributes(.state(States.paused), when: asset.isVideo)
 				.style(Styles.item)
 				.style {
-					asset.settingSizes(on: $0, phoneMaximumHeight: phoneMaximumHeight)
+					asset.settingSizes(
+						on: $0,
+						phoneMaximumHeight: phoneMaximumHeight,
+						firstSize: app.media[0].size
+					)
 				}
 			}
 		}
@@ -84,7 +88,7 @@ struct AppMedia: ScriptedElement {
 	}
 
 	/**
-	The width of an item at a height of at most 640 pixels, which each item sets for wider screens.
+	The largest width of an item on wider screens, which each item sets: its width at a height of at most 640 pixels, and not more than the width at the height of the first item.
 	*/
 	fileprivate static let maximumWidth = StyleVariable<LengthPercentage>("max-width")
 
@@ -197,7 +201,7 @@ struct AppMedia: ScriptedElement {
 					.margin(vertical: .zero, horizontal: .auto)
 					.windowSurface()
 					.from(.tablet) {
-						$0.frame(maxWidth: .length(.min(.percent(100), AppMedia.maximumWidth.value)))
+						$0.frame(maxWidth: .length(AppMedia.maximumWidth.value))
 					}
 			case .control:
 				Style()
@@ -265,15 +269,35 @@ extension MediaAsset {
 	/**
 	The width at the largest height (``MediaAsset/maximumDisplayHeight``), for wider screens, and the width on phones: at most 85% of the screen, and at most as tall as 70% of the screen and the maximum height of the carousel, so a tall item is not taller than most of the screen, nor much taller than the other items.
 
-	- Parameter phoneMaximumHeight: The maximum height on phones, in percent of the width of the screen.
+	On wider screens, an item that is narrower than the first item, like a portrait screenshot after a landscape one, is also at most as tall as the first item, so the first item, which shows when the page loads, has no empty space below it, as the row is as tall as its tallest item. An item that is wider than the first item does not change.
+
+	- Parameters:
+		- phoneMaximumHeight: The maximum height on phones, in percent of the width of the screen.
+		- firstSize: The pixel size of the first item, which also limits the height when it is naturally smaller than the carousel.
 	*/
-	fileprivate func settingSizes(on style: Style, phoneMaximumHeight: Double) -> Style {
-		let maximumWidth = LengthPercentage.pixels(maximumDisplayWidth)
+	fileprivate func settingSizes(
+		on style: Style,
+		phoneMaximumHeight: Double,
+		firstSize: PixelSize
+	) -> Style {
+		let largestWidth = LengthPercentage.pixels(maximumDisplayWidth)
 		let phoneWidth = LengthPercentage.min(
 			.viewportWidth(AppMedia.phoneItemWidth),
 			.viewportWidth(phoneMaximumHeight * size.aspectRatio),
 			.smallViewportHeight(70 * size.aspectRatio),
-			maximumWidth
+			largestWidth
+		)
+
+		let heightLimitedWidth = if size.aspectRatio < firstSize.aspectRatio {
+			min(maximumDisplayWidth, Double(firstSize.height) * size.aspectRatio)
+		} else {
+			maximumDisplayWidth
+		}
+
+		// In percent of the width of the item, which is the width of the carousel.
+		let maximumWidth = LengthPercentage.min(
+			.percent(100 * min(1, size.aspectRatio / firstSize.aspectRatio)),
+			.pixels(heightLimitedWidth)
 		)
 
 		return style

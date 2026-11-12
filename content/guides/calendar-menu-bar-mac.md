@@ -1,6 +1,6 @@
 ---
 title: 'How to Show a Calendar in the Mac Menu Bar'
-description: 'See a monthly calendar with one click in the menu bar with the free Menu Bar Calendar app, or your events and world clocks too with Dato.'
+description: 'See a monthly calendar with one click in the menu bar with the Menu Bar Calendar app, or your events and world clocks too with Dato.'
 publicationDate: 2026-10-31
 topic: 'menu-bar'
 isForWindowsUsers: true
@@ -15,7 +15,7 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open the free [Menu Bar Calendar](../apps/menu-bar-calendar/index.md) app, and click its icon in the menu bar to see the month. macOS has no calendar in the menu bar. Its clock opens Notification Center, where you can add a calendar widget.
+	Open the [Menu Bar Calendar](../apps/menu-bar-calendar/index.md) app, and click its icon in the menu bar to see the month. macOS has no calendar in the menu bar. Its clock opens Notification Center, where you can add a calendar widget.
 }
 
 ## With Menu Bar Calendar

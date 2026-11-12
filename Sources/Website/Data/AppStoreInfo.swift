@@ -130,6 +130,11 @@ struct AppStoreInfo: Decodable {
 	*/
 	let primaryGenreName: String?
 
+	/**
+	The bundle identifier of the App Store version of the app, like `com.sindresorhus.Dato`. The Setapp version has another one, like `com.sindresorhus.Dato-setapp`.
+	*/
+	let bundleIdentifier: String?
+
 	enum CodingKeys: String, CodingKey {
 		case id = "trackId"
 		case version
@@ -143,6 +148,7 @@ struct AppStoreInfo: Decodable {
 		case supportedDevices
 		case fileSizeBytes
 		case primaryGenreName
+		case bundleIdentifier = "bundleId"
 	}
 
 	init(from decoder: any Decoder) throws {
@@ -193,6 +199,7 @@ struct AppStoreInfo: Decodable {
 		self.listedPlatforms = platforms
 		self.fileSize = try container.decodeIfPresent(String.self, forKey: .fileSizeBytes).flatMap(Int64.init)
 		self.primaryGenreName = try container.decodeIfPresent(String.self, forKey: .primaryGenreName)
+		self.bundleIdentifier = try container.decodeIfPresent(String.self, forKey: .bundleIdentifier)
 	}
 
 	/**
@@ -234,7 +241,9 @@ struct AppStoreInfo: Decodable {
 	}
 
 	/**
-	Looks up the apps with one request. A result that is not an app, like a song for an ID with a typo, is left out, so the build warns that the App Store has no app with the ID.
+	Looks up the apps with one request. A result that is not an app, like a song for an ID with a typo, is left out, so the build fails with an error at the `appStoreID` of the app.
+
+	An empty response is a failed lookup, so a temporary error of Apple keeps the cached response with a warning, or warns when no cached response is available.
 	*/
 	static func lookup(ids: [AppStoreID], cache: ResponseCache) async throws -> [AppStoreID: Self] {
 		struct Response: Decodable {
@@ -247,6 +256,11 @@ struct AppStoreInfo: Decodable {
 			init(from decoder: any Decoder) throws {
 				let container = try decoder.container(keyedBy: CodingKeys.self)
 				var results = try container.nestedUnkeyedContainer(forKey: .results)
+
+				guard !results.isAtEnd else {
+					throw ResponseCache.ReadError("The App Store lookup returned no results.")
+				}
+
 				var apps = [AppStoreInfo]()
 
 				while !results.isAtEnd {

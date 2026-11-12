@@ -9,6 +9,7 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6745427035
+hasNoNetworkAccess: true
 categories: [
 	'shortcuts'
 ]
@@ -67,12 +68,13 @@ Supports the `shortrun://` URL scheme for running shortcuts silently in the back
 Examples:
 - `shortrun://run-shortcut?name=My%20Shortcut`
 - `shortrun://run-shortcut?name=My%20Shortcut&input=text&text=Hello`
+- `shortrun://run-shortcut?name=My%20Shortcut&input=clipboard` gives the copied text to the shortcut as its input.
 
 *It does not support `shortcuts://x-callback-url`.*
 
 #### Privacy
 
-Your shortcuts and data never leave your device. The app is built without internet permissions (no network entitlement), so macOS prevents it from connecting to the internet even if it wanted to.
+Your shortcuts and data never leave your device.
 
 #### Example shortcuts
 
@@ -87,6 +89,7 @@ Your shortcuts and data never leave your device. The app is built without intern
 ## Frequently Asked Questions {#faq}
 
 ### How is this different from the built-in Shortcuts menu bar item? {#difference-builtin}
+<!-- @faq.compares Shortcuts menu bar item -->
 
 The built-in menu bar item shows shortcuts in one long, unorganized list.
 
@@ -102,6 +105,7 @@ Short Run benefits:
 - [URL scheme](#url-scheme) to run shortcuts silently in the background, perfect for automation workflows
 
 ### How is this different from running shortcuts in Spotlight? {#spotlight}
+<!-- @faq.compares Spotlight -->
 
 In macOS 26 and later, Spotlight can run shortcuts, and you can give a shortcut a quick key, like a few letters, that you type in Spotlight. This works well when you know the name of the shortcut.
 
@@ -112,6 +116,7 @@ Short Run is a menu that you organize and browse: you choose the order, put shor
 Open the Shortcuts app, select “Menu Bar” in the sidebar, select all shortcuts, right-click on them, and select “Remove from Menu Bar”.
 
 ### I already own Supercharge. Does this offer any benefits over its similar feature? {#supercharge}
+<!-- @faq.compares Supercharge -->
 
 Compared to the similar feature in [Supercharge](/supercharge):
 

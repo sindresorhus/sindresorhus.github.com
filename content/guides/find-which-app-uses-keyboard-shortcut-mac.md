@@ -36,3 +36,5 @@ macOS shows its own shortcuts, but not the shortcuts of other apps:
 }
 
 When two shortcuts of macOS are the same, a warning sign shows next to them. To find an app that took a shortcut, quit your apps one at a time, starting with the menu bar apps, and press the shortcut after each one. When the shortcut does something else, the last app that you quit had it. This works, but it takes time. Supercharge tells you at once.
+
+If no keyboard shortcut of other apps works at all, an app may have Secure Input on. See [how to fix keyboard shortcuts that stopped working](fix-keyboard-shortcuts-not-working-mac.md).

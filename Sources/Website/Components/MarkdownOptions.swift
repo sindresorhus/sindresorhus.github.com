@@ -86,7 +86,7 @@ extension MarkdownDocument.Options {
 	)
 
 	/**
-	The questions below the “Frequently Asked Questions” heading of an app page are collapsible, followed by a link to the general FAQ. A platform badge must be for a platform of the app. Each section has a link that copies its URL. The common questions that apply to the app (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question are added to the questions, and the older versions get their section (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:renderDownloadCard:)``). A link that is alone in its paragraph or list item to one of the shortcuts is a card (``ShortcutCard``).
+	The questions below the “Frequently Asked Questions” heading of an app page are collapsible, below links to ask an assistant about the page (``AssistantLinks``), and followed by a link to the general FAQ and, unless the app is archived, a link to send a message. A platform badge must be for a platform of the app. Each section has a link that copies its URL. The common questions that apply to the app (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question are added to the questions, and the older versions get their section (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:renderDownloadCard:)``). A link that is alone in its paragraph or list item to one of the shortcuts is a card (``ShortcutCard``).
 	*/
 	static func appPage(
 		_ file: MarkdownFile,
@@ -109,14 +109,42 @@ extension MarkdownDocument.Options {
 
 		// The feedback page suggests the questions of the FAQ section. The picked shared questions have their own directives too.
 		options.headingDirectives = FAQDirectives.all + [App.SharedQuestions.First.self]
+		// The end of the questions is where a visitor who did not find the answer gives up, so it says that a message is welcome. An archived app gets no support.
+		// A note about the FAQ, like the line about the assistants below its heading (``AssistantLinks``), so it has the same look, and does not read as the start of the next section.
+		let feedbackURL = App.feedbackURL(appTitle: frontmatter.title, referrer: .faq)
+		let footer: @Sendable () -> String = {
+			p {
+				"Did not find the answer? "
+
+				a(.href(feedbackURL)) {
+					"Send me a message"
+				}
+
+				". I read and reply to all messages."
+			}
+			.style {
+				$0.secondaryText()
+			}
+			.render()
+		}
+
 		options.collapsibleSections = MarkdownDocument.CollapsibleSections(
 			level: .h3,
 			startHeadingID: App.Section.faq.id,
-			moreLink: .init(title: "More FAQs", destination: .path(.faq))
+			moreLink: .init(title: "More FAQs", destination: .path(.faq)),
+			footerHTML: frontmatter.isArchived ? nil : footer
 		)
 		options.addsHeadingAnchors = true
+
+		// An unlisted app has no Markdown copy for the assistant to read.
+		let assistantLinks = frontmatter.isUnlisted ? nil : AssistantLinks(appTitle: frontmatter.title, markdownCopyURL: App.path(slug: file.slug).markdownCopy.absoluteURL)
+
 		options.rewrite = { document in
-			frontmatter.addingGeneratedSections(to: document.showingShortcutCards(shortcuts), sharedQuestions: sharedQuestions) { card in
+			frontmatter.addingGeneratedSections(
+				to: document.showingShortcutCards(shortcuts),
+				sharedQuestions: sharedQuestions,
+				faqIntroduction: assistantLinks.map { [HTMLBlock($0.render())] } ?? []
+			) { card in
 				[HTMLBlock(card.render())]
 			}
 		}
@@ -195,8 +223,19 @@ enum BlockDirectiveName: String, CaseIterable {
 			}
 		case .scheduled:
 			today.map { today in
-				.init { (arguments: ScheduledArguments, contentHTML: String) in
-					arguments.contains(today) ? contentHTML : ""
+				.init { (arguments: ScheduledArguments, contentHTML: String) -> String in
+					if arguments.contains(today) {
+						return contentHTML
+					}
+
+					guard
+						let sale = arguments.sale,
+						let announcement = arguments.saleAnnouncement(on: today)
+					else {
+						return ""
+					}
+
+					return MarkdownTheme.site.alert(.tip, title: sale, contentHTML: p { announcement }.render())
 				}
 			}
 		}
@@ -209,6 +248,17 @@ extension BlockDirective {
 	*/
 	var siteName: BlockDirectiveName? {
 		BlockDirectiveName(rawValue: name)
+	}
+
+	/**
+	The arguments of a `@Scheduled` block, or `nil` for another directive, and for arguments that are not valid, which the build already reported.
+	*/
+	var scheduled: ScheduledArguments? {
+		guard siteName == .scheduled else {
+			return nil
+		}
+
+		return try? arguments(as: ScheduledArguments.self)
 	}
 
 	/**
@@ -314,7 +364,7 @@ extension DetailsArguments: BlockDirectiveDefinition {
 }
 
 /**
-The arguments of `@Feature(title: "Open links in the right browser") { … }`.
+The arguments of `@Feature(title: "Open links in the right browser", label: "Browsers") { … }`.
 */
 @Frontmatter
 struct FeatureArguments {
@@ -322,10 +372,15 @@ struct FeatureArguments {
 	Inline Markdown.
 	*/
 	@NonEmpty var title: String
+
+	/**
+	The plain name of what the feature is about, like “Calendar”, after the number, like “01 · CALENDAR”, so a visitor who scans the sections for a noun finds it, and the title can be about what the feature does for the visitor. Without it, the number is alone.
+	*/
+	@PlainText var label: String?
 }
 
 /**
-A main feature of an app, like `@Feature(title: "Open links in the right browser") { … }`: a section with a numbered title, like “01”, so a few main features stand out from the rest of the page.
+A main feature of an app, like `@Feature(title: "Open links in the right browser") { … }`: a section with a numbered title, like “01”, so a few main features stand out from the rest of the page. With a `label`, the number and the label are a line above the title, like “01 · CALENDAR”.
 */
 extension FeatureArguments: BlockDirectiveDefinition {
 	typealias Arguments = Self
@@ -339,10 +394,19 @@ extension FeatureArguments: BlockDirectiveDefinition {
 		let titleHTML = try context.inlineDocument(parsing: arguments.title).inlineHTML
 
 		return section {
+			// The label is text, not generated content, so find in the page finds it, and screen readers say it before the title.
+			if let label = arguments.label {
+				p {
+					label
+				}
+				.style(FeatureSectionStyles.label)
+			}
+
 			h2 {
 				HTMLRaw(titleHTML)
 			}
-			.style(FeatureSectionStyles.title)
+			.style(FeatureSectionStyles.title, when: arguments.label == nil)
+			.style(FeatureSectionStyles.labeledTitle, when: arguments.label != nil)
 
 			HTMLRaw(contentHTML)
 		}
@@ -351,7 +415,9 @@ extension FeatureArguments: BlockDirectiveDefinition {
 	}
 
 	static func plainBlocks(arguments: Self, content: [any BlockMarkup]) -> [any BlockMarkup] {
-		[Markdown.Heading(level: .h2, inlineMarkup(arguments.title))] + content
+		// The label is text on the page, so the copy has it before the title, like “Calendar: Your week in the menu bar”.
+		let title = arguments.label.map { "\($0): \(arguments.title)" } ?? arguments.title
+		return [Markdown.Heading(level: .h2, inlineMarkup(title))] + content
 	}
 }
 
@@ -361,6 +427,8 @@ The styles of `@Feature` sections. The sections of a page are numbered in order 
 private enum FeatureSectionStyles: String, StyleSet {
 	case root
 	case title
+	case label
+	case labeledTitle
 
 	enum Counters: String, CounterSet {
 		case feature
@@ -381,14 +449,37 @@ private enum FeatureSectionStyles: String, StyleSet {
 						.content(counter: Counters.feature, style: .decimalLeadingZero, alternativeText: "")
 						.display(.block)
 						.margin(.bottom, .rootEm(0.75))
-						.fontFamily(.rounded)
-						.font(size: .rootEm(0.9375), lineHeight: 1.5)
-						.fontWeight(.bold)
-						.letterSpacing(.em(0.02))
-						.monospacedDigit()
-						.color(.accentMark)
+						.featureNumber()
 				}
+		case .label:
+			// The number and the label are one line with the look of the number alone, and the space above a title of prose, as the line is the start of the section. The number is before the label, and screen readers skip it, like the number of a title without a label.
+			Style()
+				.margin(top: .rootEm(5), horizontal: .zero, bottom: .rootEm(0.75))
+				.featureNumber()
+				// The label is text, so it has the accent for text, which has the contrast of text, also for a light accent in light mode or a dark accent in dark mode. The number alone is a mark (``Color/accentMark``).
+				.color(.accentText)
+				.textCase(.uppercase)
+				.before {
+					$0.content(counter: Counters.feature, style: .decimalLeadingZero, suffix: " · ", alternativeText: "")
+				}
+		case .labeledTitle:
+			// Close to the label above it, which has the space above the section.
+			Style().margin(.top, .zero)
 		}
+	}
+}
+
+extension Style {
+	/**
+	The look of the number of a `@Feature` section, and of the label after it: small, bold, and in the accent of the page.
+	*/
+	fileprivate func featureNumber() -> Self {
+		fontFamily(.rounded)
+			.font(size: .rootEm(0.9375), lineHeight: 1.5)
+			.fontWeight(.bold)
+			.letterSpacing(.em(0.02))
+			.monospacedDigit()
+			.color(.accentMark)
 	}
 }
 
@@ -979,7 +1070,7 @@ private enum ChangeKind: String, CaseIterable {
 	nonisolated(unsafe) private static let prefix = #/^([A-Z][a-z]+): /#
 
 	/**
-	The change with its kind as a badge, or the change as it is without a kind. A capitalized word and a colon that is not a kind is an error, as it is likely a typo, like “Add: ”.
+	The change with its kind as a badge, or the change as it is without a kind. A capitalized word and a colon that is not a kind is an error, as it is likely a typo, like “Add: ”, and so is a kind in another case, like “added: ”.
 
 	Limitation: the text after the kind is a new node, so a problem in it, like an invalid keyboard shortcut, is reported at the page without its line.
 	*/
@@ -987,9 +1078,17 @@ private enum ChangeKind: String, CaseIterable {
 		// A change of a list with blank lines between the changes is a paragraph too.
 		guard
 			var paragraph = change.child(at: 0) as? Paragraph,
-			let text = paragraph.child(at: 0) as? Markdown.Text,
-			let match = text.string.prefixMatch(of: prefix)
+			let text = paragraph.child(at: 0) as? Markdown.Text
 		else {
+			return change
+		}
+
+		// A kind in another case, like “added: ”, is not a capitalized word (``prefix``), so it would silently lose its badge.
+		if let kind = allCases.first(where: { text.string.lowercased().hasPrefix("\($0.rawValue.lowercased()): ") && !text.string.hasPrefix($0.rawValue) }) {
+			throw ContentError(reason: "Write the kind “\(text.string.prefix(kind.rawValue.count))” as “\(kind.rawValue)”.")
+		}
+
+		guard let match = text.string.prefixMatch(of: prefix) else {
 			return change
 		}
 
@@ -1171,7 +1270,7 @@ struct ScheduledArguments {
 	var until: DirectiveDate
 
 	/**
-	The name of the sale, like `sale: "Black Friday"`, when the content is the text of a sale. Then the page of each app that the content links to, like `[Dato](/dato)` or its product on Gumroad, shows a note about the sale on the same days, with a link to the page of the block (``Sale``).
+	The name of the sale, like `sale: "Black Friday"`, when the content is the text of a sale. Then the page of each paid and active app that the content links to, like `[Dato](/dato)` or its product on Gumroad, shows a note about the sale on the same days, with a link to the page of the block (``Sale``). A free or archived app gets no note. Before the first day, the page shows the name and the dates of the sale in place of the content (``saleAnnouncement(on:)``).
 	*/
 	@PlainText var sale: String?
 
@@ -1186,6 +1285,24 @@ struct ScheduledArguments {
 	*/
 	func contains(_ day: SOML.Date) -> Bool {
 		from.date <= day && day <= until.date
+	}
+
+	/**
+	What the page shows before the first day of a sale, in place of the content, like “Black Friday runs from November 27 to November 30. The apps and the discounts show here when the sale starts.”, or “Black Friday is on November 27. …” for a sale of one day, so a visitor who comes early knows when to come back. It is `nil` for a block without a `sale` name, and from the first day.
+	*/
+	func saleAnnouncement(on day: SOML.Date) -> String? {
+		guard
+			day < from.date,
+			let sale
+		else {
+			return nil
+		}
+
+		let firstDay = from.date.foundationDate.formatted(.siteDayWithoutYear)
+		let days = from.date == until.date ? "is on \(firstDay)" : "runs from \(firstDay) to \(until.date.foundationDate.formatted(.siteDayWithoutYear))"
+
+		// The name comes first without “sale” after it, so a name like “Summer Sale” does not become “Summer Sale sale”.
+		return "\(sale) \(days). The apps and the discounts show here when the sale starts."
 	}
 }
 

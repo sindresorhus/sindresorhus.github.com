@@ -1,6 +1,6 @@
 ---
-title: 'How to Minimize All Windows on Mac'
-description: 'macOS minimizes all windows of one app with Option+Command+M. Supercharge minimizes the windows of all apps with one keyboard shortcut.'
+title: 'How to Minimize or Hide All Windows on Mac'
+description: 'macOS minimizes all windows of one app with Option+Command+M. Supercharge minimizes or hides the windows of all apps with one keyboard shortcut.'
 publicationDate: 2026-11-07
 topic: 'windows-apps-and-dock'
 isForWindowsUsers: true
@@ -10,7 +10,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	Press ++Option+Command+M++ to minimize all windows of the front app. macOS has no command to minimize the windows of all apps. [Supercharge](../apps/supercharge/index.md) does it from its menu or with a keyboard shortcut, and can also keep the front window open.
+	Press ++Option+Command+M++ to minimize all windows of the front app. macOS has no command to minimize the windows of all apps. [Supercharge](../apps/supercharge/index.md) does it from its menu or with a keyboard shortcut, and can also keep the front window open or hide all windows.
 }
 
 ## With Supercharge
@@ -21,7 +21,9 @@ apps: [
 1. For a keyboard shortcut, open the Supercharge settings, click “Shortcuts”, and set a shortcut for “Minimize all windows”.
 }
 
-“Minimize all windows except frontmost” keeps the window that you use now. “Unminimize all windows” brings the windows back from the Dock. It only minimizes the windows in the current space.
+“Minimize all windows except frontmost” keeps the window that you use now. “Unminimize all windows” brings the windows back from the Dock. Supercharge only minimizes the windows in the current space.
+
+To hide the windows instead, choose “Hide All Windows”, or set a shortcut for “Hide all windows” in “Shortcuts”. It hides all apps, also Finder, so Supercharge shows in the Dock as the active app until you switch to another app. Then Finder shows again. Another hidden app comes back when you click it in the Dock or switch to it.
 
 ## Without an app
 

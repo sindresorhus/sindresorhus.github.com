@@ -72,6 +72,11 @@ public enum MarkdownElement: Hashable, Sendable {
 	case keySeparator
 
 	/**
+	The `<kbd>` of a modifier key, like `Command`, so the style can show its glyph, like `⌘`, as the menus of macOS show only the glyphs.
+	*/
+	case modifierKey(KeyboardKey.Modifier)
+
+	/**
 	The `<kbd>` around the keys of a shortcut of more than one key, which is a key combination in HTML, so the shortcut can be kept on one line.
 	*/
 	case keyboardShortcut
@@ -160,14 +165,17 @@ public struct MarkdownTheme: Sendable {
 	}
 
 	/**
-	Classes from the names of the elements, like `key-separator` for ``MarkdownElement/keySeparator``, and `alert alert-note` for a note alert.
+	Classes from the names of the elements, like `key-separator` for ``MarkdownElement/keySeparator``, `alert alert-note` for a note alert, and `modifier-key-command` for the Command key.
 	*/
 	public static let `default` = Self { element in
-		guard case .alert(let kind) = element else {
-			return String(describing: element).kebabCased
+		switch element {
+		case .alert(let kind):
+			"alert alert-\(kind.rawValue)"
+		case .modifierKey(let modifier):
+			"modifier-key-\(modifier.rawValue.lowercased())"
+		default:
+			String(describing: element).kebabCased
 		}
-
-		return "alert alert-\(kind.rawValue)"
 	}
 }
 
@@ -246,29 +254,33 @@ extension MarkdownTheme {
 	}
 
 	/**
-	A keyboard shortcut as one `<kbd>` per key, with a `+` between them that screen readers skip, like GitHub. A shortcut of more than one key is in another `<kbd>`, which HTML defines as a key combination. Keys are not translated, as they are the names on the keyboard.
-
-	- Parameter keysHTML: The HTML of each key, like `Command` and `K`.
+	A keyboard shortcut as one `<kbd>` per key, with a `+` between them that screen readers skip, like GitHub. A shortcut of more than one key is in another `<kbd>`, which HTML defines as a key combination. Keys are not translated, as they are the names on the keyboard. A modifier key has the class of its modifier (``MarkdownElement/modifierKey(_:)``).
 	*/
-	func keyboardShortcut(keysHTML: [String]) -> String {
-		guard keysHTML.count > 1 else {
-			return keysHTML.map { #"<kbd translate="no">\#($0)</kbd>"# }.joined()
+	private func keyboardShortcutHTML(_ keys: [KeyboardKey]) -> String {
+		// A single key is not in a key combination, so the key itself is not translated.
+		let translateAttribute = keys.count > 1 ? "" : #" translate="no""#
+
+		let keysHTML = keys.map { key in
+			let classes = key.modifier.map { classAttribute(.modifierKey($0)) } ?? ""
+			return "<kbd\(classes)\(translateAttribute)>\(key.html)</kbd>"
 		}
 
-		let keys = keysHTML.lazy.map { "<kbd>\($0)</kbd>" }
-			.joined(separator: #"<span\#(classAttribute(.keySeparator)) aria-hidden="true">+</span>"#)
+		guard keys.count > 1 else {
+			return keysHTML.joined()
+		}
 
-		return #"<kbd\#(classAttribute(.keyboardShortcut)) translate="no">\#(keys)</kbd>"#
+		let combinedKeysHTML = keysHTML.joined(separator: #"<span\#(classAttribute(.keySeparator)) aria-hidden="true">+</span>"#)
+		return #"<kbd\#(classAttribute(.keyboardShortcut)) translate="no">\#(combinedKeysHTML)</kbd>"#
 	}
 
 	/**
-	A keyboard shortcut as one `<kbd>` per key (``keyboardShortcut(keysHTML:)``), with the HTML of each key (``KeyboardKey/html``).
+	A keyboard shortcut as one `<kbd>` per key (``keyboardShortcutHTML(_:)``), with the HTML of each key (``KeyboardKey/html``).
 
 	- Parameter openingPunctuation: The opening punctuation right before the shortcut, like `(`, which stays on the line of a shortcut of more than one key, like the closing punctuation. A browser can break a line before the inline block of the shortcut, also after a parenthesis.
 	- Parameter punctuation: The closing punctuation right after the shortcut, like `,`, which stays on the line of a shortcut of more than one key (``MarkdownElement/keyboardShortcutWithPunctuation``). A browser can break a line after the inline block of the shortcut, also before a comma.
 	*/
 	func keyboardShortcut(_ keys: [KeyboardKey], openingPunctuation: Substring = "", punctuation: Substring = "") -> String {
-		let html = String(openingPunctuation).escapedForHTML + keyboardShortcut(keysHTML: keys.map(\.html)) + String(punctuation).escapedForHTML
+		let html = String(openingPunctuation).escapedForHTML + keyboardShortcutHTML(keys) + String(punctuation).escapedForHTML
 
 		guard
 			keys.count > 1,

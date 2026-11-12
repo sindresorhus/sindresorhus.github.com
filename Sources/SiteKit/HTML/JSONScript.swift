@@ -79,14 +79,16 @@ public struct SpeculationRules: Encodable, Sendable {
 		*/
 		public struct Condition: Encodable, Sendable {
 			/**
-			One predicate: a URL pattern to include, or patterns to exclude.
+			One predicate: a URL pattern to include, patterns to exclude, or a CSS selector of the links to exclude.
 			*/
 			public enum Clause: Encodable, Sendable {
 				case hrefMatches(String)
 				case notMatching([String])
+				case notSelector(String)
 
 				private enum CodingKeys: String, CodingKey {
 					case hrefMatches = "href_matches"
+					case selectorMatches = "selector_matches"
 					case not
 				}
 
@@ -98,6 +100,9 @@ public struct SpeculationRules: Encodable, Sendable {
 					case .notMatching(let patterns):
 						var excluded = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .not)
 						try excluded.encode(patterns, forKey: .hrefMatches)
+					case .notSelector(let selector):
+						var excluded = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .not)
+						try excluded.encode(selector, forKey: .selectorMatches)
 					}
 				}
 			}

@@ -22,14 +22,14 @@ screenshot: {
 1. Open [Dato](../apps/dato/index.md). It shows the day of the week and the time in the menu bar.
 1. Right-click the Dato item in the menu bar, and choose “Settings…”.
 1. Click “Menu Bar”, and below “Show”, turn on “Date”. Turn on “Week number” too, if you want it.
-1. To use your own format, like with the year, write a pattern in “Custom date & time format”, like `EEEE d MMMM yyyy`. Below the setting, Dato shows how the menu bar will look.
+1. To use your own format, like with the year, go to the “Advanced” section, and write a pattern in “Custom date & time format”, like `EEEE d MMMM yyyy`.
 }
 
 The custom format replaces the “Show” settings. For example, `yyyy-MM-dd HH:mm` shows the date and the time in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format, and `D` shows the day of the year. [More about the format.](https://www.unicode.org/reports/tr35/tr35-dates.html)
 
-Click the date in the menu bar to see a calendar with your events. To show the date above the time, and use less space in a full menu bar, turn on “Two lines”.
+Click the date in the menu bar to see a calendar with your events.
 
-macOS always shows its own clock in the menu bar. So that the date does not show two times, set “Show date” to “Never” in the clock options of macOS, like in the steps below. [How to hide the clock of macOS.](../apps/dato/index.md#macos11-hide-clock)
+macOS always shows its own clock in the menu bar. So that the date does not show two times, set “Show date” to “Never” in the clock options of macOS (see the steps below). [How to hide the clock of macOS.](../apps/dato/index.md#macos11-hide-clock)
 
 ## Without an app
 

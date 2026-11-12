@@ -44,7 +44,7 @@ struct AppStoreReview: Hashable {
 	private static let maximumPageCount = 10
 
 	/**
-	How long a page of a feed is used without asking Apple again, also on CI. Reviews come slowly, and Apple refuses some of the hundreds of requests of a build with status 403 on some nights. 60 hours, not 3 days, so the nightly builds, which start about 24 hours apart, ask for a page again on every third night, not on the second or the fourth night because of a few minutes. A page that Apple refused is asked for again the next night, and an empty page with the normal maximum age of the cache, so on every deploy build.
+	How long a page of a feed is used without asking Apple again, also on CI. Reviews come slowly, and Apple refuses some of the hundreds of requests of a build with status 403 on some nights. 60 hours, not 3 days, so the nightly builds, which start about 24 hours apart, ask for a page again on every third night, not on the second or the fourth night because of a few minutes. A page that Apple refused is asked for again the next night, and an empty page with the normal maximum age of the cache, so on every deploy build. An empty page does not replace a cached page with reviews, as an app does not lose all its reviews, so it is an error of Apple: the build uses the cached page with a warning, like for a refused request. Limitation: when an app really leaves the App Store of a country, its old reviews of that country stay, with the warning on each build, until the cached response is removed from `.cache/responses`.
 	*/
 	private static let feedMaximumAge = Duration.seconds(60 * 60 * 60)
 
@@ -54,6 +54,8 @@ struct AppStoreReview: Hashable {
 	Limitation: an entry that cannot be decoded rejects its page. The earlier pages are kept, and the later pages of that feed are not read.
 
 	The reviews are extra, so a failed request leaves out the reviews of that app on that App Store, with a warning, instead of failing the build. When every feed has no reviews at all, which happens when Apple stops filling the feeds, there is one warning, so the missing reviews are not silent.
+
+	A cancelled task keeps the reviews already read, without a request-failure warning.
 	*/
 	static func recentFiveStar(appIDs: [AppStoreID], cache: ResponseCache, warnings: WarningCollector) async -> [AppStoreID: [Self]] {
 		await withTaskGroup { group in
@@ -68,7 +70,15 @@ struct AppStoreReview: Hashable {
 							let url = #URL("https://itunes.apple.com").appending(path: "\(storefront.identifier.lowercased())/rss/customerreviews/page=\(page)/id=\(id)/sortBy=mostRecent/json")
 
 							do {
-								var feed = try await cache.decoded(ReviewFeed.self, from: url, maximumAge: feedMaximumAge)
+								// An empty page does not replace a cached page with entries (`feedMaximumAge`).
+								var feed = try await cache.decoded(
+									ReviewFeed.self,
+									from: url,
+									maximumAge: feedMaximumAge,
+									keepsCached: { cached, new in
+										new.entryCount == 0 && cached.entryCount > 0
+									}
+								)
 
 								// Apple sometimes sends feeds without entries for a while, so an empty page has the normal maximum age of the cache, like before, not the long one, which would hide the reviews of the app for days.
 								if feed.entryCount == 0 {
@@ -83,7 +93,9 @@ struct AppStoreReview: Hashable {
 								}
 							} catch {
 								// The reviews of the earlier pages are kept.
-								warnings.add(Warning(.failedRequest, "Could not get page \(page) of the App Store reviews of app \(id) in the “\(storefront.identifier)” App Store: \(error)"))
+								if !Task.isCancelled {
+									warnings.add(Warning(.failedRequest, "Could not get page \(page) of the App Store reviews of app \(id) in the “\(storefront.identifier)” App Store: \(error)"))
+								}
 								break
 							}
 						}
@@ -105,6 +117,7 @@ struct AppStoreReview: Hashable {
 			}
 
 			if
+				!Task.isCancelled,
 				!feedReviewCounts.isEmpty,
 				feedReviewCounts.allSatisfy({ $0 == 0 })
 			{

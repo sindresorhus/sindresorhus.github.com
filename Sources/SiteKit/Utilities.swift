@@ -95,7 +95,7 @@ extension String {
 	}
 
 	/**
-	An error when authored content has a git conflict marker, like `<<<<<<< Updated upstream` after `git stash pop`, at the line of the first marker. Without it, the page would show both versions and the markers, or the error would be about something else, like a key of the frontmatter.
+	An error when authored content or a script of the site has a git conflict marker, like `<<<<<<< Updated upstream` after `git stash pop`, at the line of the first marker. Without it, the page would show both versions and the markers, the error would be about something else, like a key of the frontmatter, or the script would silently not run.
 
 	Limitation: A line of a code block that starts like a marker is an error too.
 	*/
@@ -181,10 +181,24 @@ extension URL {
 	}
 
 	/**
+	The files and directories directly in the directory, also the hidden ones. Empty when the directory does not exist.
+	*/
+	public var contents: [URL] {
+		(try? FileManager.default.contentsOfDirectory(at: self, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey])) ?? []
+	}
+
+	/**
 	The files directly in the directory, without the files in subdirectories. Empty when the directory does not exist.
 	*/
 	public var files: [URL] {
-		((try? FileManager.default.contentsOfDirectory(at: self, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey])) ?? []).filter(\.isFile)
+		contents.filter(\.isFile)
+	}
+
+	/**
+	The directories directly in the directory, without their subdirectories. Empty when the directory does not exist.
+	*/
+	public var directories: [URL] {
+		contents.filter(\.isDirectory)
 	}
 
 	/**
@@ -958,12 +972,26 @@ extension URL {
 	}
 }
 
-extension FormatStyle where Self == IntegerFormatStyle<Int> {
+/**
+A whole number in the language of the site, with a thousands separator only from five digits, like “1234” and “40,000”, as a separator makes a short number harder to read and a long number easier.
+*/
+public struct SiteNumberFormatStyle: FormatStyle {
 	/**
-	A whole number in the language of the site, without a thousands separator, like “1234”, as the site writes no number with one.
+	The smallest number with a thousands separator, so a script that writes numbers, like the running count of the now page, follows the same rule.
+	*/
+	public static let groupingThreshold = 10_000
+
+	public func format(_ value: Int) -> String {
+		value.formatted(.number.grouping(value.magnitude < Self.groupingThreshold.magnitude ? .never : .automatic).locale(.site))
+	}
+}
+
+extension FormatStyle where Self == SiteNumberFormatStyle {
+	/**
+	A whole number in the language of the site, with a thousands separator only from five digits, like “1234” and “40,000”.
 	*/
 	public static var siteNumber: Self {
-		.number.grouping(.never).locale(.site)
+		SiteNumberFormatStyle()
 	}
 }
 
@@ -996,7 +1024,7 @@ extension String {
 
 extension Int {
 	/**
-	The count with the noun, in the plural when the count is not 1, like “1 day” or “1234 days”, without a thousands separator, as the site writes no count with one. The plural adds an “s”.
+	The count with the noun, in the plural when the count is not 1, like “1 day”, “1234 days”, or “40,000 downloads”, with a thousands separator only from five digits (``SiteNumberFormatStyle``). The plural adds an “s”.
 	*/
 	public func formatted(counting noun: String) -> String {
 		"\(formatted(.siteNumber)) \(noun.pluralized(for: self))"

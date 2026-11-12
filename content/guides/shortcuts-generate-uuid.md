@@ -2,7 +2,7 @@
 title: 'How to Generate a UUID in Shortcuts on iPhone and Mac'
 description: 'The Shortcuts app has no action that makes a UUID. The free Actions app adds a Generate UUID action. On Mac, a shell script can also make one.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'actions'
 ]

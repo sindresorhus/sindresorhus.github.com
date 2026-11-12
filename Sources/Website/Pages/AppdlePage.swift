@@ -96,13 +96,11 @@ struct AppdlePage: Page {
 						.name("guess"),
 						.list(id: Self.namesID),
 						.autocomplete("off"),
-						// The names of the apps are not in a dictionary, so the keyboard of a phone would correct a name, like “Plash” to “Flash”, when the visitor sends it.
-						.autocapitalize(.none),
-						.custom(name: "autocorrect", value: "off"),
-						.spellcheck(false),
 						.enterKeyHint(.send),
 						.placeholder("Type an app name")
 					)
+						// The names of the apps are not in a dictionary, so the keyboard of a phone would correct a name, like “Plash” to “Flash”, when the visitor sends it.
+						.autocorrectionDisabled()
 						.style(Styles.input)
 
 					button(.type(.submit)) {

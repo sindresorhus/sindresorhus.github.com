@@ -75,17 +75,22 @@ Click a thumbnail to view a larger version of it. Click again to exit.
 
 <!-- On macOS, when in preview mode, there are some keyboard shortcuts available: -->
 When in preview mode, there are some keyboard shortcuts available:
-- ++◀++ — Previous image
-- ++▶++ — Next image
-- ++Space++ — Save image
-- ++Command+C++ — Copy image
-- ++Esc++ — Exit preview
+
+| Shortcut | Action |
+| --- | --- |
+| ++◀++ | Previous image |
+| ++▶++ | Next image |
+| ++Space++ | Save image |
+| ++Command+C++ | Copy image |
+| ++Esc++ | Exit preview |
 
 ### Metadata
 
 <!-- On macOS, w -->
 
 When you save a generated image, it includes a lot of useful metadata (prompt, model, etc). You can [view this in Finder](https://x.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
+
+Images are saved in the “Imago” folder in your “Pictures” folder. To save an image in another folder, hold ++Option++ while you click “Save to Pictures Folder” on the image, or right-click the image and choose “Save Image As…”. To save each image as soon as it is made, turn on “Automatically save generated images” in the settings. To save images without the prompt, the model, and the tags, like an image that you share, turn off “Include prompt in image metadata”.
 
 ## Frequently Asked Questions {#faq}
 
@@ -98,6 +103,7 @@ The AI model is optimized for Apple silicon. It would be unusably slow on Intel 
 Generating images with Stable Diffusion requires a lot of system resources. It would not be a good experience on older devices. It could probably run fine on iPhone 15 and iPhone 14 Pro, but Apple does not let us do such a fine-grained requirement. Either I require the current devices or I have to support devices down to iPhone XS, which are not nearly powerful enough. -->
 
 ### How is it different from Image Playground? {#image-playground}
+<!-- @faq.compares Image Playground -->
 
 Imago makes the images on your Mac with the FLUX.2 model, with no daily limit. After the download of the model, it works without the internet. Image Playground, the built-in app, needs a Mac with Apple Intelligence. Apple says that Image Playground has a daily limit when it uses server models, and its ChatGPT styles send your description to ChatGPT. Image Playground can also make images of people from your photo library.
 

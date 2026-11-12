@@ -92,6 +92,24 @@ struct GumroadProductID: ValidatedValue, Hashable, CustomStringConvertible {
 		self.rawValue = rawValue
 	}
 
+	/**
+	The product of a link to it on Gumroad, also with a discount code or a query after it, like `https://sindresorhus.gumroad.com/l/supercharge/BLACKFRIDAY`. `nil` for another link.
+	*/
+	init?(productURL url: URL) {
+		let store = GumroadProduct.storeURL
+
+		guard
+			url.host() == store.host(),
+			url.pathComponents.count > store.pathComponents.count,
+			url.pathComponents.starts(with: store.pathComponents),
+			let id = try? Self(validating: url.pathComponents[store.pathComponents.count])
+		else {
+			return nil
+		}
+
+		self = id
+	}
+
 	var description: String {
 		rawValue
 	}

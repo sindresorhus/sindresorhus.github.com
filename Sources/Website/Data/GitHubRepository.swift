@@ -91,7 +91,12 @@ struct GitHubRepositoryName: ValidatedValue, Hashable, CustomStringConvertible {
 	let owner: String
 	let name: String
 
+	/**
+	Creates a code-owned repository name. Each component must be nonempty and contain no slash, matching the structural contract of `init(nameWithOwner:)`. Use a failable or validating initializer for external input.
+	*/
 	init(owner: String, name: String) {
+		precondition(!owner.isEmpty && !owner.contains("/"), "A GitHub repo owner must be one nonempty path component.")
+		precondition(!name.isEmpty && !name.contains("/"), "A GitHub repo name must be one nonempty path component.")
 		self.owner = owner
 		self.name = name
 	}
@@ -132,7 +137,12 @@ struct GitHubRepositoryName: ValidatedValue, Hashable, CustomStringConvertible {
 			return nil
 		}
 
-		self.init(owner: String(match.1), name: String(match.2).replacing(Self.gitExtension, with: ""))
+		let name = String(match.2).replacing(Self.gitExtension, with: "")
+		guard !name.isEmpty else {
+			return nil
+		}
+
+		self.init(owner: String(match.1), name: name)
 	}
 
 	var description: String {

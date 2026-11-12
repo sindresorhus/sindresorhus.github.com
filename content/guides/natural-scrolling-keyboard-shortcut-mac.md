@@ -12,7 +12,7 @@ apps: [
 	The scroll direction is the “Natural scrolling” switch in “System Settings › Trackpad” and “System Settings › Mouse”. macOS has no keyboard shortcut for it. [Shortcutie](../apps/shortcutie/index.md) adds the “Set Natural Scrolling” action to the Shortcuts app, so a shortcut with a keyboard shortcut can change the direction.
 }
 
-With natural scrolling, the content moves in the same direction as your fingers. Many people like this on a trackpad, but not with the wheel of a mouse.
+With natural scrolling, the content moves in the same direction as your fingers. Many people like this on a trackpad, but not with the wheel of a mouse. macOS has one setting for both, so a change for the mouse also changes the trackpad.
 
 ## With Shortcutie
 

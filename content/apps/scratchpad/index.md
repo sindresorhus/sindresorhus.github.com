@@ -70,6 +70,7 @@ On macOS, the app sits in your menu bar or Dock, ready whenever inspiration stri
 - 30+ menu bar icons to choose from ^[macOS](platform: "macOS")
 - Translucent background ^[macOS](platform: "macOS")
 - Font settings
+- Clickable links (turn on “Linkify URLs” in the settings)
 - Support for [Shortcuts](https://support.apple.com/guide/shortcuts/welcome/ios), [share service](https://support.apple.com/guide/mac-help/mh40614/mac), and [macOS Services](https://support.apple.com/guide/mac-help/mchlp1012/mac)
 
 Perfect for brain dumps, quick drafts, and fleeting ideas. Your thoughts are just a click away, without breaking your workflow.
@@ -100,14 +101,18 @@ To restore a previous version:
 
 Backups are created on changes (about every 10 minutes) and when the app moves to the background. The most recent 100 backups are kept. Backups are stored locally on each device and are not synced. You can turn automatic backups off in the settings.
 
+Scratchpad also makes a backup before “Clear Text”, and before the “Set Text” action of the Shortcuts app replaces the note, so you can get the text back.
+
 ### Keyboard shortcuts ^[macOS](platform: "macOS")
 
-- Copy text ++Shift+Command+C++
-- Share text ++Shift+Command+S++
-- Select all text ++Command+A++
-- Increase text size: ++Command+Plus++
-- Decrease text size: ++Command+-++
-- Reset text size: ++Command+0++
+| Shortcut | Action |
+| --- | --- |
+| ++Shift+Command+C++ | Copy text |
+| ++Shift+Command+S++ | Share text |
+| ++Command+A++ | Select all text |
+| ++Command+Plus++ | Increase text size |
+| ++Command+-++ | Decrease text size |
+| ++Command+0++ | Reset text size |
 
 ### Launch app from Lock Screen
 
@@ -238,6 +243,7 @@ The app is made using Apple’s latest technologies (SwiftUI) and they have not 
 Add the [“Add to Scratchpad” shortcut](https://www.icloud.com/shortcuts/caa5fd4f5a7240cf951ef9a4184b0522). You can then tap the “Add to Scratchpad” action in a share sheet to add text to Scratchpad in the background.
 
 ### What’s the difference between Plain Text Editor and Scratchpad? {#plain-text-editor-comparison}
+<!-- @faq.compares Plain Text Editor -->
 
 These two apps serve different purposes. [Plain Text Editor](/plain-text-editor) is a traditional text editor that lives in your Dock and handles multiple documents. It is perfect for working with separate text files and longer writing sessions.
 
@@ -246,6 +252,7 @@ Scratchpad is designed for quick notes. It lives in your menu bar (macOS) or Loc
 Both apps handle plain text only and work on macOS, iOS, and visionOS (Scratchpad also on watchOS). They’re complementary tools: Plain Text Editor for focused writing with multiple files, Scratchpad for quick, always-accessible note-taking.
 
 ### How does this compare to Tot? {#tot}
+<!-- @faq.compares Tot -->
 
 Scratchpad advantages:
 

@@ -59,12 +59,7 @@ struct AppPage: Page {
 			article(.id(AppHero.anotherRandomAppID)) {
 				let separatedContent = app.markdown.contentSeparatingIntroduction
 
-				AppHero(
-					listing: listing,
-					introduction: separatedContent?.introduction,
-					buildDate: content.buildDate,
-					hasGuides: hasGuides
-				)
+				AppHero(listing: listing, introduction: separatedContent?.introduction, hasGuides: hasGuides)
 
 				// A sale that the app is in today comes before the announcement of the app, like a bundle, as it ends soon, and one banner is enough.
 				let banner = content.sale(of: app).map { AnnouncementBanner(sale: $0, app: app) } ?? app.announcement.map(AnnouncementBanner.init(announcement:))
@@ -99,9 +94,33 @@ struct AppPage: Page {
 					Prose(markdown: description)
 				}
 
+				// After the features, a visitor who already uses another app asks how this one is different, and the answers are far down in the FAQ.
+				if !comparisonLinks.isEmpty {
+					div {
+						p {
+							"Compared with"
+						}
+						.style {
+							$0
+								.margin(.zero)
+								.textStyle(.headline)
+						}
+
+						ChipNavigation(label: "Compared with", links: comparisonLinks)
+							.style {
+								$0.justifyContent(.start)
+							}
+					}
+					.style {
+						$0
+							.contentColumn(.prose)
+							.vstack(alignment: .start, spacing: .rootEm(1))
+					}
+				}
+
 				// Testimonials stand alone; eligible store and Setapp ratings are shown in the app information, even without reviews.
 				if let reviews = AppReviews(listing: listing) {
-					// The wall of love only has the reviews of the active apps, so another app, or an app without reviews, has no link to it.
+					// The wall of love only has the reviews of the active apps, so another app, or an app without reviews, has no link to it. An app with no more reviews than the page shows has no link either, as the wall would show the same quotes.
 					reviews
 						.style {
 							$0.margin(.vertical, .length(.partSpacing(rootEm: 6)))
@@ -171,6 +190,15 @@ struct AppPage: Page {
 	private var listing: AppListing {
 		content.listing(of: app)
 	}
+
+	/**
+	The questions of the FAQ that compare the app with another app or feature (`@faq.compares`), as links to their answers, with the name of the other app, like “MeetingBar”. The page opens the question that a link points to.
+	*/
+	private var comparisonLinks: [LabeledLink] {
+		app.faqHeadings.compactMap { heading in
+			heading[FAQDirectives.Compares.self].map { LabeledLink($0, destination: .fragment(heading.id)) }
+		}
+	}
 }
 
 extension AppPage {
@@ -193,6 +221,75 @@ extension AppPage {
 				Style()
 					.flowSpacing(.rootEm(5))
 			}
+		}
+	}
+}
+
+/**
+Links that open ChatGPT or Claude with a prompt to answer questions about an app from the Markdown copy of its page (``RoutePath/markdownCopy``), below the heading of the FAQ section of the page (``MarkdownDocument/Options/appPage(_:project:frontmatter:sharedQuestions:shortcuts:)``). The assistant reads the page and asks the visitor for the question (``Assistant/url(prompt:)``). The Markdown copy does not have the links, as the assistant reads it.
+*/
+struct AssistantLinks: HTML {
+	enum Assistant {
+		case chatGPT
+		case claude
+
+		var title: String {
+			switch self {
+			case .chatGPT:
+				"ChatGPT"
+			case .claude:
+				"Claude"
+			}
+		}
+
+		/**
+		A new chat with the prompt. ChatGPT sends the prompt at once, and Claude can put it in the message field, so the prompt ends with a request that works in both cases. ChatGPT gets `hints=search`, so it reads the page from the web.
+		*/
+		func url(prompt: String) -> AbsoluteURL {
+			let url = switch self {
+			case .chatGPT:
+				#URL("https://chatgpt.com/").appending(queryItems: [
+					URLQueryItem(name: "q", value: prompt),
+					URLQueryItem(name: "hints", value: "search"),
+				])
+			case .claude:
+				#URL("https://claude.ai/new").appending(queryItems: [
+					URLQueryItem(name: "q", value: prompt),
+				])
+			}
+
+			return AbsoluteURL(url)
+		}
+
+		/**
+		A link to a new chat with the prompt (``url(prompt:)``), with the name of the assistant.
+		*/
+		func link(prompt: String) -> some HTML<HTMLTag.a> {
+			a(.href(.url(self.url(prompt: prompt)))) {
+				title
+			}
+		}
+	}
+
+	let appTitle: String
+	let markdownCopyURL: URL
+
+	var body: some HTML<HTMLTag.p> {
+		let prompt = "Read \(markdownCopyURL.absoluteString), the page of the \(appTitle) app. Answer my questions about the app only from this page, and say when the page does not have the answer. Then ask me what I want to know."
+
+		p {
+			"You can also ask "
+
+			Assistant.chatGPT.link(prompt: prompt)
+
+			" or "
+
+			Assistant.claude.link(prompt: prompt)
+
+			" about \(appTitle). They get this page as text."
+		}
+		.style {
+			$0.secondaryText()
 		}
 	}
 }

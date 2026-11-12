@@ -50,7 +50,7 @@ struct ContentTests {
 	@Test
 	func `download count frontmatter renders the app badge`() async throws {
 		let app = try await App(frontmatter: "downloadCount: 7000")
-		let html = AppHero(listing: AppListing(app: app), buildDate: .now, hasGuides: false).render()
+		let html = AppHero(listing: AppListing(app: app), hasGuides: false).render()
 
 		#expect(app.downloadCount?.value == 7000)
 		#expect(html.contains(">7K+</span>"))
@@ -80,7 +80,7 @@ struct ContentTests {
 	*/
 	@Test
 	func `the trial section goes before the first level-2 heading of the file`() async throws {
-		let app = try await App(frontmatter: "trial: {url: 'https://example.com/App-trial.zip'}", body: "The app.\n\n### Detail\n\nMore.\n\n## Tips\n\nTip.")
+		let app = try await App(frontmatter: "isPaid: true\ntrial: {url: 'https://example.com/App-trial.zip'}", body: "The app.\n\n### Detail\n\nMore.\n\n## Tips\n\nTip.")
 
 		#expect(app.hasTrial)
 		#expect(app.markdown.headings.map(\.text) == ["Detail", "Trial", "Tips"])
@@ -95,7 +95,7 @@ struct ContentTests {
 	*/
 	@Test
 	func `an archived app has no trial`() async throws {
-		let app = try await App(frontmatter: "isArchived: true\ntrial: {url: 'https://example.com/App-trial.zip'}", body: "The app.\n\n## Tips\n\nTip.")
+		let app = try await App(frontmatter: "isArchived: true\nisPaid: true\ntrial: {url: 'https://example.com/App-trial.zip'}", body: "The app.\n\n## Tips\n\nTip.")
 
 		#expect(!app.hasTrial)
 		#expect(app.markdown.headings.map(\.text) == ["Tips"])
@@ -196,7 +196,7 @@ struct ContentTests {
 	@Test(arguments: [
 		("minimumOSVersion: '18'", ["6: `minimumOSVersion` must be 26 or later, as the platforms only share their version numbers from 26, got 18."]),
 		("testFlightURL: 'https://example.com/join/abc'", ["6: Invalid `testFlightURL`: Must be a link to join a beta, like `https://testflight.apple.com/join/fJGUrsZx`, got https://example.com/join/abc."]),
-		("isPaid: false\ngumroad: {id: 'test', price: 6}", ["7: `gumroad` is only for paid apps that are not on the App Store. App Store apps get their price from the App Store."]),
+		("isPaid: false\ngumroad: {id: 'test', price: 6}", ["6: Invalid `isPaid`: Remove the key. A flag is `true` or not there, and `false` is the same as no flag."]),
 		("isPaid: true\nappStoreID: 123\ngumroad: {id: 'test', price: 6}", ["8: `gumroad` is only for paid apps that are not on the App Store. App Store apps get their price from the App Store."]),
 		("isPaid: true\ngumroad: {id: 'Test App', price: 6}", ["7: Invalid `gumroad.id`: A Gumroad product ID is the ID in the link, like `shortcutie`, got `Test App`."]),
 		("pressQuotes: [{quote: 'Great', source: 'Example', url: 'https://example.com/review'}]", ["6: The quote of Example in `pressQuotes` has a `url`, but no `year`. Add the year of the article."]),
@@ -891,7 +891,7 @@ struct ContentTests {
 	@Test
 	func `older versions get a section before the non-App Store version`() async throws {
 		func loadApp(isPaid: Bool) async throws -> App {
-			try await App(frontmatter: "appStoreID: 123\nisPaid: \(isPaid)\nolderVersions: [\n\t{version: '2.0.0', macOS: '15', url: 'https://example.com/a.zip?b=1&c=2'},\n\t{version: '1.10', macOS: '10.15', url: 'https://example.com/old.zip'},\n]\nnonAppStoreVersion: {version: '3.0.0', macOS: 26, url: 'https://example.com/new.zip'}")
+			try await App(frontmatter: "appStoreID: 123\n\(isPaid ? "isPaid: true\n" : "")olderVersions: [\n\t{version: '2.0.0', macOS: '15', url: 'https://example.com/a.zip?b=1&c=2'},\n\t{version: '1.10', macOS: '10.15', url: 'https://example.com/old.zip'},\n]\nnonAppStoreVersion: {version: '3.0.0', macOS: 26, url: 'https://example.com/new.zip'}")
 		}
 
 		let freeApp = try await loadApp(isPaid: false)
@@ -916,7 +916,7 @@ struct ContentTests {
 	@Test
 	func `a free older version is also for the newer macOS versions that the app does not run on`() async throws {
 		func loadListing(isPaid: Bool) async throws -> AppListing {
-			AppListing(app: try await App(frontmatter: "isPaid: \(isPaid)\nminimumOSVersion: '26'\nolderVersions: [\n\t{version: '2.0.0', macOS: '13', url: 'https://example.com/a.zip'},\n\t{version: '1.0.0', macOS: '11', url: 'https://example.com/b.zip'},\n]"))
+			AppListing(app: try await App(frontmatter: "\(isPaid ? "isPaid: true\n" : "")minimumOSVersion: '26'\nolderVersions: [\n\t{version: '2.0.0', macOS: '13', url: 'https://example.com/a.zip'},\n\t{version: '1.0.0', macOS: '11', url: 'https://example.com/b.zip'},\n]"))
 		}
 
 		let free = try await loadListing(isPaid: false)
@@ -1573,6 +1573,35 @@ struct ContentTests {
 		#expect(!html.contains("/apps/reviews?app=hidden"))
 	}
 
+	@Test(.temporaryDirectory)
+	func `site settings hide review titles across all apps`() async throws {
+		let url = try URL.temporaryDirectory(files: [SiteSettings.path: SiteSettings.testSOML + "hiddenReviews: ['Bug report']\n"]).appending(path: SiteSettings.path)
+		let settings = try SOMLFile<SiteSettings>(url: url).value
+		let hidden = AppStoreReview(
+			title: "Bug report",
+			text: "This app used to work well but now it fails to open my files.",
+			author: "Reviewer",
+			rating: .five,
+			date: .now
+		)
+		let shown = AppStoreReview(
+			title: "Useful app",
+			text: "This app helps me organize my work and saves me time every day.",
+			author: "Reviewer",
+			rating: .five,
+			date: .now
+		)
+
+		for identifier in [123, 456] {
+			let app = try await App(frontmatter: "appStoreID: \(identifier)")
+			let identifier = try #require(app.appStoreID)
+			let data = SiteContent.AppData(appStoreReviews: [identifier: [hidden, shown]])
+			let content = SiteContent.test(apps: [app], settings: settings, appData: data)
+			#expect(content.listing(of: app).reviews == [shown])
+			#expect(SiteContent.test(apps: [app], appData: data).listing(of: app).reviews == [hidden, shown])
+		}
+	}
+
 	/**
 	A paid app was often free before, and a review that calls it free would confuse visitors about the price. A word with “free” in it, like “ad-free”, is not the price.
 	*/
@@ -1594,7 +1623,7 @@ struct ContentTests {
 		#expect(!adFree.callsAppFree)
 
 		func reviews(isPaid: Bool) async throws -> [AppStoreReview] {
-			let app = try await App(publicationDate: "2020-01-01", platforms: [.iOS], frontmatter: "appStoreID: 123\nisPaid: \(isPaid)", slug: "test")
+			let app = try await App(publicationDate: "2020-01-01", platforms: [.iOS], frontmatter: "appStoreID: 123\(isPaid ? "\nisPaid: true" : "")", slug: "test")
 			let content = SiteContent.test(apps: [app], appData: SiteContent.AppData(appStoreReviews: [123: [free, adFree]]), buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601))
 			return content.listing(of: app).reviews
 		}
@@ -1749,7 +1778,7 @@ struct ContentTests {
 	func `an app without section links still has the overflow menu`() async throws {
 		let app = try await App(publicationDate: "2020-01-01")
 		#expect(app.links.map(\.title) == ["Support"])
-		#expect(AppHero(listing: AppListing(app: app), buildDate: .now, hasGuides: false).render().contains("Show QR Code"))
+		#expect(AppHero(listing: AppListing(app: app), hasGuides: false).render().contains("Show QR Code"))
 	}
 
 	/**
@@ -1758,7 +1787,7 @@ struct ContentTests {
 	@Test
 	func `an archived app has no QR code, sharing, terms, or discounts`() async throws {
 		let app = try await App(publicationDate: "2020-01-01", frontmatter: "isArchived: true\nisPaid: true")
-		let html = AppHero(listing: AppListing(app: app), buildDate: .now, hasGuides: false).render()
+		let html = AppHero(listing: AppListing(app: app), hasGuides: false).render()
 		#expect(html.contains("Show Random App"))
 		#expect(!html.contains("Show QR Code"))
 		#expect(!html.contains("Share…"))
@@ -2139,7 +2168,7 @@ struct ContentTests {
 		#expect(!testimonials.contains("4.6"))
 		#expect(!testimonials.contains(StarRating.Styles.root.className))
 		#expect(AppFacts(listing: listing, buildDate: .now).render().contains(">4.6/5 (1563 ratings)</a>"))
-		#expect(!AppHero(listing: AppListing(app: app, appStoreInfo: info), buildDate: .now, hasGuides: false).render().contains("Rated"))
+		#expect(!AppHero(listing: AppListing(app: app, appStoreInfo: info), hasGuides: false).render().contains("Rated"))
 		#expect(Schema.SoftwareApplication(listing: AppListing(app: app, appStoreInfo: info), buildDate: .now).aggregateRating?.ratingValue == 4.6)
 	}
 
@@ -2209,6 +2238,35 @@ struct ContentTests {
 		#expect(Set(apps.keys) == [1])
 		#expect(apps[1]?.version == "2.0")
 		#expect(apps[1]?.isMacApp == true)
+	}
+
+	@Test(.temporaryDirectory)
+	func `an empty App Store lookup is a failed response`() async throws {
+		let cache = try ResponseCache(responses: [
+			"https://itunes.apple.com/lookup?id=1": #"{"results": []}"#,
+		])
+		let error = try await #require(throws: ResponseCache.ReadError.self) {
+			try await AppStoreInfo.lookup(ids: [1], cache: cache)
+		}
+
+		#expect(error.description == "The App Store lookup returned no results.")
+	}
+
+	@Test
+	func `an App Store lookup without IDs needs no response`() async throws {
+		let cache = ResponseCache(directory: nil, maximumAge: .zero)
+		#expect(try await AppStoreInfo.lookup(ids: [], cache: cache).isEmpty)
+		#expect(cache.warnings.isEmpty)
+	}
+
+	@Test(.temporaryDirectory)
+	func `an App Store lookup with only non-app results is a successful lookup`() async throws {
+		let cache = try ResponseCache(responses: [
+			"https://itunes.apple.com/lookup?id=1": #"{"results": [{"kind": "song", "trackId": 1}]}"#,
+		])
+
+		#expect(try await AppStoreInfo.lookup(ids: [1], cache: cache).isEmpty)
+		#expect(cache.warnings.isEmpty)
 	}
 
 	@Test(.temporaryDirectory)
@@ -2454,14 +2512,6 @@ struct ContentTests {
 	}
 
 	@Test
-	func `an app that is two years old says since when it is available`() async throws {
-		let app = try await App(publicationDate: "2020-06-01")
-
-		#expect(app.availableSinceText(at: try Date("2026-01-01T00:00:00Z", strategy: .iso8601)) == "Since 2020")
-		#expect(app.availableSinceText(at: try Date("2021-06-01T00:00:00Z", strategy: .iso8601)) == nil)
-	}
-
-	@Test
 	func `the trial of an app page shows the requirement, how to install it, and Setapp`() async throws {
 		let app = try await App(frontmatter: "isPaid: true\nsetappID: 1\ntrial: {url: 'https://example.com/App-trial.zip', macOS: '26.4'}", body: "The app.\n")
 
@@ -2493,7 +2543,7 @@ struct ContentTests {
 	@Test
 	func `download cards are generated from metadata without content directives`() async throws {
 		let app = try await App(
-			frontmatter: "appStoreID: 123\ntrial: {url: 'https://example.com/Trial.zip', macOS: '26.4'}\nnonAppStoreVersion: {version: '3.0.3', macOS: 26, url: 'https://example.com/App.zip'}",
+			frontmatter: "isPaid: true\nappStoreID: 123\ntrial: {url: 'https://example.com/Trial.zip', macOS: '26.4'}\nnonAppStoreVersion: {version: '3.0.3', macOS: 26, url: 'https://example.com/App.zip'}",
 			body: "The app.\n\n## Tips\n\nA tip."
 		)
 		let generated = app.frontmatter.addingGeneratedSections(to: Document(parsing: app.file.body), sharedQuestions: app.sharedQuestions)

@@ -93,7 +93,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.pageWidth()
 					.padding(.rootEm(0.75))
 					.color(.gray(600), dark: .gray(200))
-					// Taps go through to the site navigation below it, except on the app and the button. The space at the end is for the menu button. The icon lines up with the site name, which it replaces.
+					// The icon lines up with the site name, which it replaces, and from tablets the “Get” button lines up with the end of the site navigation. Taps go through to the site navigation below it on phones, except on the app and the button. The space at the end is for the menu button.
 					.below(.tablet) {
 						$0
 							.padding(.leading, .pageGutter)
@@ -101,7 +101,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 							.allowsHitTesting(false)
 					}
 					.from(.tablet) {
-						$0.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1))
+						$0.padding(vertical: .rootEm(0.75), horizontal: .pageGutter)
 					}
 			case .identity:
 				// The focus of the keyboard shows as a fill around the icon and the name, like on the site name. The negative margin cancels the padding, so the layout does not change.

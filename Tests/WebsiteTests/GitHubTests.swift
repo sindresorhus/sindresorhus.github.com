@@ -8,6 +8,78 @@ import Testing
 @testable import Website
 
 struct GitHubTests {
+	@Test(arguments: ["owner/.git", "github:owner/.git", "https://github.com/owner/.git", "git+ssh://git@github.com:owner/.git#main"])
+	func `npm repository names cannot become empty after removing the git suffix`(link: String) {
+		#expect(GitHubRepositoryName(npmRepositoryLink: link) == nil)
+	}
+
+	@Test
+	func `code owned repository components enforce the same structure as decoded names`() async {
+		await #expect(processExitsWith: .failure) {
+			_ = GitHubRepositoryName(owner: "", name: "repo")
+		}
+		await #expect(processExitsWith: .failure) {
+			_ = GitHubRepositoryName(owner: "owner/other", name: "repo")
+		}
+		await #expect(processExitsWith: .failure) {
+			_ = GitHubRepositoryName(owner: "owner", name: "")
+		}
+		await #expect(processExitsWith: .failure) {
+			_ = GitHubRepositoryName(owner: "owner", name: "repo/other")
+		}
+		#expect(GitHubRepositoryName(owner: "Chalk", name: "Chalk") == GitHubRepositoryName(nameWithOwner: "chalk/chalk"))
+	}
+
+	@Test(arguments: [
+		(date: "2026-11-12T19:31:26.000+07:00", hour: 19, offset: 420),
+		(date: "2026-11-12T01:31:26-03:30", hour: 1, offset: -210),
+	])
+	func `commit times preserve the author day hour and UTC offset`(date: String, hour: Int, offset: Int) throws {
+		let time = try #require(GitHub.CommitTime(authorDate: date))
+		#expect(time.day.description == "2026-11-12")
+		#expect(time.hour == hour)
+		#expect(time.utcOffsetMinutes == offset)
+	}
+
+	@Test
+	func `hourly commit counts count each local day once and leave out unknown local times`() {
+		let times = [
+			"2026-11-12T19:31:26+07:00",
+			"2026-11-12T19:45:00+07:00",
+			"2026-11-13T19:31:26+07:00",
+			"2026-11-12T01:31:26-03:30",
+			"2026-11-12T19:31:26Z",
+		].compactMap(GitHub.CommitTime.init(authorDate:))
+
+		#expect(times.count == 4)
+		#expect(times.dayCountsByHour.count == 24)
+		#expect(times.dayCountsByHour[19] == 2)
+		#expect(times.dayCountsByHour[1] == 1)
+		#expect(times.dayCountsByHour.count(where: { $0 != 0 }) == 2)
+		#expect([GitHub.CommitTime]().dayCountsByHour == Array(repeating: 0, count: 24))
+	}
+
+	@Test(.temporaryDirectory)
+	func `recent commit times use only public repositories and continue after a full page`() async throws {
+		let publicCommit = #"{"commit":{"author":{"date":"2026-11-12T19:31:26+07:00"}}}"#
+		let unknownLocalTime = #"{"commit":{"author":{"date":"2026-11-12T19:31:26Z"}}}"#
+		let firstPage = Array(repeating: publicCommit, count: 99) + [unknownLocalTime]
+		let cache = try ResponseCache(responses: [
+			"https://api.github.com/search/commits?q=author:sindresorhus&sort=author-date&order=desc&per_page=100&page=1": #"{"total_count":1,"incomplete_results":false,"items":[{"commit":{"author":{"date":"2026-11-13T08:00:00-05:00"}}}]}"#,
+			"https://api.github.com/search/commits?q=author:sindresorhus%20is:public&sort=author-date&order=desc&per_page=100&page=1": #"{"total_count":101,"incomplete_results":false,"items":[\#(firstPage.joined(separator: ","))]}"#,
+			"https://api.github.com/search/commits?q=author:sindresorhus%20is:public&sort=author-date&order=desc&per_page=100&page=2": #"{"total_count":101,"incomplete_results":false,"items":[{"commit":{"author":{"date":"2026-11-11T01:00:00-03:30"}}}]}"#,
+		])
+		let times = try #require(try await GitHub(token: "fixture", cache: cache).recentCommitTimes())
+
+		#expect(times.count == 100)
+		#expect(times.first?.hour == 19)
+		#expect(times.first?.utcOffsetMinutes == 420)
+		#expect(times.last?.hour == 1)
+		#expect(times.last?.utcOffsetMinutes == -210)
+		#expect(times.last?.day.description == "2026-11-11")
+		#expect(try await GitHub(token: nil, cache: cache).recentCommitTimes() == nil)
+	}
+
 	@Test
 	func `an environment token takes precedence without launching the CLI`() async {
 		#expect(await GitHub.defaultToken(environment: ["GITHUB_TOKEN": "configured", "PATH": "/missing"]) == "configured")
@@ -67,7 +139,7 @@ struct GitHubTests {
 
 	@Test(.temporaryDirectory)
 	func `release loading sorts by publication date and keeps ties in endpoint order`() async throws {
-		let response = #"[{"tag_name":"v1.1.0","published_at":"2026-01-01T00:00:00Z","draft":false,"prerelease":false,"body":"Old"},{"tag_name":"v3.0.0","published_at":"2026-10-01T00:00:00Z","draft":false,"prerelease":false,"body":"Newest first tie"},{"tag_name":"v2.0.0","published_at":"2026-10-01T00:00:00Z","draft":false,"prerelease":false,"body":"Newest second tie"}]"#
+		let response = #"[{"tag_name":"v1.1.0","html_url":"https://github.com/sindresorhus/example/releases/tag/v1.1.0","published_at":"2026-01-01T00:00:00Z","draft":false,"prerelease":false,"body":"Old"},{"tag_name":"v3.0.0","html_url":"https://github.com/sindresorhus/example/releases/tag/v3.0.0","published_at":"2026-10-01T00:00:00Z","draft":false,"prerelease":false,"body":"Newest first tie"},{"tag_name":"v2.0.0","html_url":"https://github.com/sindresorhus/example/releases/tag/v2.0.0","published_at":"2026-10-01T00:00:00Z","draft":false,"prerelease":false,"body":"Newest second tie"}]"#
 		let cache = try ResponseCache(responses: ["https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=1": response])
 		let releases = try await GitHub(token: nil, cache: cache).releases(repository: #repository("sindresorhus/test"))
 		let app = try await App(publicationDate: "2025-01-01", frontmatter: "releasesRepository: 'sindresorhus/test'")
@@ -222,7 +294,7 @@ struct GitHubTests {
 
 	@Test(.temporaryDirectory)
 	func `the GitHub release event variants retain published payloads and ignore incomplete alternatives`() async throws {
-		let release = #"{"tag_name":"v1.2.3","html_url":"https://github.com/chalk/chalk/releases/v1.2.3","draft":false,"prerelease":false}"#
+		let release = #"{"tag_name":"v1.2.3","html_url":"https://github.com/chalk/chalk/releases/v1.2.3","published_at":"2026-01-02T00:00:00Z","draft":false,"prerelease":false}"#
 		let events = #"[{"type":"UnknownEvent","repo":{"name":"chalk/chalk"},"created_at":"2026-01-01T00:00:00Z","payload":{"action":null,"release":null}},{"type":"ReleaseEvent","repo":{"name":"chalk/chalk"},"created_at":"2026-01-02T00:00:00Z","payload":{"action":"published","release":\#(release)}},{"type":"ReleaseEvent","repo":{"name":"chalk/chalk"},"created_at":"2026-01-03T00:00:00Z","payload":{"action":"published"}}]"#
 		let cache = try ResponseCache(responses: ["https://api.github.com/users/sindresorhus/events/public?per_page=100": events])
 		let releases = try await GitHub(token: nil, cache: cache).latestReleases()
@@ -314,7 +386,7 @@ struct GitHubTests {
 		// Fresh cached responses, so the test does not use the network.
 		func response(page: Int, releaseCount: Int) -> (url: String, body: String) {
 			let url = "https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=\(page)"
-			let releases = (0..<releaseCount).map { #"{"tag_name": "v\#(page).\#($0)", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false}"# }
+			let releases = (0..<releaseCount).map { #"{"tag_name": "v\#(page).\#($0)", "html_url": "https://github.com/sindresorhus/example/releases/tag/v\#(page).\#($0)", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false}"# }
 			return (url, "[\(releases.joined(separator: ","))]")
 		}
 
@@ -332,7 +404,7 @@ struct GitHubTests {
 	*/
 	@Test(.temporaryDirectory)
 	func `a table in release notes has the container of the prose`() async throws {
-		let releases = #"[{"tag_name": "v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false, "body": "| A |\n| - |\n| 1 |"}]"#
+		let releases = #"[{"tag_name": "v1.0.0", "html_url": "https://github.com/sindresorhus/example/releases/tag/v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false, "body": "| A |\n| - |\n| 1 |"}]"#
 		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=1": releases]))
 		let notesHTML = try #require(try await github.releases(repository: #repository("sindresorhus/test")).first?.notesHTML)
 
@@ -344,19 +416,20 @@ struct GitHubTests {
 	*/
 	@Test(.temporaryDirectory)
 	func `a relative link in release notes goes where it goes on GitHub`() async throws {
-		let releases = #"[{"tag_name": "v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false, "body": "See [the docs](docs/usage.md), [#12](../issues/12), [usage](#usage), and [Dato](https://sindresorhus.com/dato)."}]"#
+		let releases = #"[{"tag_name": "v1.0.0", "html_url": "https://github.com/sindresorhus/example/releases/tag/v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false, "body": "See [the docs](docs/usage.md), [#12](../issues/12), [usage](#usage), and [Dato](https://sindresorhus.com/dato)."}]"#
+		// A repository can have been renamed, so the release URL from GitHub is the base, even when the request uses its old name.
 		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=1": releases]))
 		let notesHTML = try #require(try await github.releases(repository: #repository("sindresorhus/test")).first?.notesHTML)
 
-		#expect(notesHTML.contains(#"href="https://github.com/sindresorhus/test/releases/tag/docs/usage.md""#))
-		#expect(notesHTML.contains(#"href="https://github.com/sindresorhus/test/releases/issues/12""#))
+		#expect(notesHTML.contains(#"href="https://github.com/sindresorhus/example/releases/tag/docs/usage.md""#))
+		#expect(notesHTML.contains(#"href="https://github.com/sindresorhus/example/releases/issues/12""#))
 		#expect(notesHTML.contains(##"href="#usage""##))
 		#expect(notesHTML.contains(#"href="https://sindresorhus.com/dato""#))
 	}
 
 	@Test(.temporaryDirectory)
 	func `drafts without a publication date are left out`() async throws {
-		let releases = #"[{"tag_name": "v2.0.0", "published_at": null, "draft": true, "prerelease": false}, {"tag_name": "v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false}]"#
+		let releases = #"[{"tag_name": "v2.0.0", "html_url": "https://github.com/sindresorhus/example/releases/tag/v2.0.0", "published_at": null, "draft": true, "prerelease": false}, {"tag_name": "v1.0.0", "html_url": "https://github.com/sindresorhus/example/releases/tag/v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false}]"#
 		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=1": releases]))
 		let versions = try await github.releases(repository: #repository("sindresorhus/test")).map(\.version)
 

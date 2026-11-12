@@ -233,6 +233,10 @@ struct HTMLRenderer: MarkupWalker {
 				}
 
 				renderer.html += "</div>\n"
+
+				if let footerHTML = sections.footerHTML {
+					renderer.html += footerHTML() + "\n"
+				}
 			}
 
 			html += groupHTML
@@ -433,6 +437,16 @@ struct HTMLRenderer: MarkupWalker {
 	Renders the inline content. In a list item, a line that starts with `: ` is a subtitle, and a line that starts with `:: ` is a description.
 	*/
 	private mutating func renderParagraphContent(_ paragraph: Paragraph) {
+		// A marker is only an alert at the start of a block quote, so elsewhere, like after the `>` was lost, the page would show it as text. The start of a block quote is checked with the quote (``reportAlertMarker(of:)``). The check is here, as the paragraphs of the top level are rendered without ``visitParagraph(_:)``.
+		if
+			style == .extended,
+			!(paragraph.parent is BlockQuote && paragraph.indexInParent == 0),
+			let text = paragraph.child(at: 0) as? Text,
+			let match = text.string.prefixMatch(of: Self.alertMarker)
+		{
+			reportProblem("`\(match.0)` is only an alert at the start of a block quote. Write `> \(match.0)`, and start each line of the alert with `>`.", line: line(of: paragraph))
+		}
+
 		if
 			style == .extended,
 			paragraph.isTableWithoutDelimiterRow
@@ -981,6 +995,15 @@ struct HTMLRenderer: MarkupWalker {
 			reportProblem("The image `\(source)` has no description (alt text). Describe it, like `![Screenshot of the settings](…)`.", line: line(of: image))
 		}
 
+		// Like a photo from an iPhone. The owner tests in Safari, so it would only be broken in other browsers.
+		if
+			style == .extended,
+			let pathExtension = URL(string: source)?.pathExtension.lowercased(),
+			["heic", "heif"].contains(pathExtension)
+		{
+			reportProblem("The image `\(source)` is a HEIC file, which only Safari shows. Export it as JPEG or PNG.", line: line(of: image))
+		}
+
 		html += #"<img src="\#(source.escapedForHTML)" alt="\#(description.escapedForHTML)""#
 
 		if let size = options.imageSize?(source) {
@@ -1168,6 +1191,19 @@ struct HTMLRenderer: MarkupWalker {
 
 		if let mistake = blockDirective.contentMistake(for: renderer.content) {
 			reportProblem("`@\(blockDirective.name)` \(mistake)", line: line(of: blockDirective))
+			descendInto(blockDirective)
+			return
+		}
+
+		// swift-markdown removes the indentation of the first line of the content from each line, so in an indented list, a nested list becomes part of the outer list, which is one list, so the rule above does not find it. Compared with the line of the directive, so an indented directive can keep the same indentation for its content.
+		if
+			[.orderedList, .unorderedList].contains(renderer.content),
+			let directiveLine = sourceLines(of: blockDirective)?.first,
+			let firstBlock = blockDirective.visibleBlockChildren.first,
+			let contentLine = sourceLines(of: firstBlock)?.first,
+			contentLine.prefix(while: \.isWhitespace).count > directiveLine.prefix(while: \.isWhitespace).count
+		{
+			reportProblem("`@\(blockDirective.name)`: Do not indent the content of the directive. With the indentation, a nested list becomes part of the outer list.", line: line(of: firstBlock))
 			descendInto(blockDirective)
 			return
 		}
@@ -1376,7 +1412,7 @@ struct HTMLRenderer: MarkupWalker {
 	}
 
 	/**
-	The marker at the start of a block quote, like `[!NOTE]`, also with a name that is not a kind of alert, like `[!WARN]`.
+	The marker of an alert at the start of a paragraph, like `[!NOTE]`, also with a name that is not a kind of alert, like `[!WARN]`.
 	*/
 	nonisolated(unsafe) private static let alertMarker = /\[!([A-Za-z]+)\]/
 

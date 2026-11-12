@@ -7,6 +7,7 @@ platforms: [
 ]
 isMenuBarApp: true
 appStoreID: 6480373509
+hasNoNetworkAccess: true
 nonAppStoreVersion: {
 	version: '1.2.0'
 	macOS: 26
@@ -29,6 +30,8 @@ olderVersions: [
 Preview how your macOS app icon will look in the Dock and how your menu bar item icon will appear.
 
 The icon previews update automatically when the file changes.
+
+If the edges of an app icon are not transparent, like in a square image, the Dock preview adds a margin of 10% on each side, so the icon has the same size as the other icons in the Dock. The menu bar preview shows only the shape of the icon, in one color, like the text of the menu bar, at a height of at most 22 points, like the icons of other menu bar apps.
 
 An essential tool for developers and designers to perfect the look of their macOS app icons.
 

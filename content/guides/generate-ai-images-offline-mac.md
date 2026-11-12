@@ -23,7 +23,7 @@ Imago is free, and needs an Apple silicon Mac and 20 GB of free disk space. It w
 @Steps {
 1. Open [Imago](../apps/imago/index.md), and click “Download” to get the AI model. It is 16 GB, so this is the only step that needs the internet, and it can take a while.
 1. Type a description of the image, like “a red fox in the snow, watercolor”, and press ++Return++.
-1. When the image is ready, click it to see it larger, and press ++Space++ to save it.
+1. When the image is ready, click it to see it larger, and press ++Space++ to save it in the “Imago” folder in your Pictures folder.
 }
 
 After the download, Imago makes images without the internet. The prompts and the images stay on your Mac.

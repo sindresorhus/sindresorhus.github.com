@@ -10,6 +10,40 @@ Runs the scripts of the pages in WebKit, the engine of most visitors, as the oth
 */
 @MainActor
 struct PageScriptTests {
+	@Test(arguments: ["simple-color-palette", "ds-store-inspector"])
+	func `app back links fit on a phone with enlarged text`(slug: String) async throws {
+		let webView = try await Self.makeWebView()
+		webView.frame.size = CGSize(width: 390, height: 844)
+		#expect(try await webView.loadingErrors(of: App.path(slug: ContentSlug(slug)).appending("privacy-policy").description) == [])
+
+		let fits: Bool = try await webView.result(of: """
+		document.documentElement.style.fontSize = '200%';
+		const link = document.querySelector('.prose-page-back-row a');
+		const linkBounds = link.getBoundingClientRect();
+		const rowBounds = link.parentElement.getBoundingClientRect();
+		return linkBounds.left >= rowBounds.left && linkBounds.right <= rowBounds.right + 1 && link.parentElement.scrollWidth <= link.parentElement.clientWidth + 1;
+		""")
+
+		#expect(fits)
+	}
+
+	@Test
+	func `the selected review app fits on a phone with enlarged text`() async throws {
+		let webView = try await Self.makeWebView()
+		webView.frame.size = CGSize(width: 390, height: 844)
+		#expect(try await webView.loadingErrors(of: RoutePath.reviews.description + "?app=system-color-picker") == [])
+
+		let fits: Bool = try await webView.result(of: """
+		document.documentElement.style.fontSize = '200%';
+		const link = document.querySelector('#reviews-filter-app');
+		const linkBounds = link.getBoundingClientRect();
+		const paragraphBounds = link.parentElement.getBoundingClientRect();
+		return !link.hidden && link.textContent === 'System Color Picker' && linkBounds.left >= paragraphBounds.left && linkBounds.right <= paragraphBounds.right + 1 && link.parentElement.scrollWidth <= link.parentElement.clientWidth + 1;
+		""")
+
+		#expect(fits)
+	}
+
 	@Test
 	func `the scripts of the pages run without errors`() async throws {
 		let post = try #require(try await SiteContent.website.posts.first)
@@ -301,6 +335,86 @@ struct PageScriptTests {
 		#expect(part.contains("System Color Picker"), "\(part)")
 		let partOfSeveralNames: String = try await webView.result(of: status, arguments: ["name": "menu bar"])
 		#expect(partOfSeveralNames.contains("is not one of the apps"), "\(partOfSeveralNames)")
+	}
+
+	/**
+	A warning waits for an animation frame so screen readers can announce it again. A later guess or restart owns the status before that frame runs, so an earlier warning must not replace it.
+	*/
+	@Test
+	func `Appdle cancels warnings when a later action owns the status`() async throws {
+		let webView = try await Self.makeWebView()
+		#expect(try await webView.loadingErrors(of: RoutePath.appdle.description) == [])
+
+		let outcomes: [String: Bool] = try await webView.result(of: """
+		const frames = new Map();
+		let nextFrame = 0;
+		window.requestAnimationFrame = callback => {
+			const identifier = nextFrame++;
+			frames.set(identifier, callback);
+			return identifier;
+		};
+		window.cancelAnimationFrame = identifier => frames.delete(identifier);
+		const flushFrames = () => {
+			for (const [identifier, callback] of [...frames]) {
+				if (frames.delete(identifier)) {
+					callback(performance.now());
+				}
+			}
+		};
+		const form = document.querySelector('#appdle-form');
+		const status = document.querySelector('#appdle-status');
+		const attempts = document.querySelector('#appdle-attempts');
+		const restart = document.querySelector('#appdle-restart');
+		const {firstDay, puzzles} = JSON.parse(document.querySelector('#appdle-data').textContent);
+		const today = new Date();
+		const day = Math.max(firstDay, Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86_400_000));
+		const correctName = puzzles[day % puzzles.length].title;
+		const wrongName = [...form.elements.guess.list.options].map(option => option.value).find(name => name !== correctName);
+		const submit = name => {
+			form.elements.guess.value = name;
+			form.requestSubmit();
+		};
+		const outcomes = {};
+
+		submit('qzxvbnm');
+		submit(wrongName);
+		const wrongStatus = status.textContent;
+		flushFrames();
+		outcomes.wrongGuess = attempts.children.length === 1 && wrongStatus.startsWith('Not ') && status.textContent === wrongStatus;
+
+		restart.click();
+		submit('qzxvbnm');
+		submit(correctName);
+		const winningStatus = status.textContent;
+		flushFrames();
+		outcomes.winningGuess = winningStatus === 'You got it in 1 guess!' && status.textContent === winningStatus;
+
+		// The reset operation must also cancel a pending warning, independently of an accepted guess.
+		restart.click();
+		submit('qzxvbnm');
+		restart.click();
+		const restartedStatus = status.textContent;
+		flushFrames();
+		outcomes.restart = attempts.children.length === 0 && restartedStatus.endsWith('guesses left.') && status.textContent === restartedStatus;
+
+		submit('qzxvbnm');
+		submit('wvkxjfz');
+		const pendingWarnings = frames.size;
+		flushFrames();
+		outcomes.newestWarning = pendingWarnings === 1 && status.textContent.includes('wvkxjfz') && !status.textContent.includes('qzxvbnm');
+
+		const warning = status.textContent;
+		submit('wvkxjfz');
+		const clearedForRepeat = status.textContent === '' && frames.size === 1;
+		flushFrames();
+		outcomes.repeatedWarning = clearedForRepeat && status.textContent === warning;
+		return outcomes;
+		""")
+
+		for (name, passed) in outcomes {
+			#expect(passed, "\(name) must preserve the latest status.")
+		}
+		#expect(outcomes.count == 5)
 	}
 
 	/**

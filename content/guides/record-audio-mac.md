@@ -1,6 +1,6 @@
 ---
 title: 'How to Record Audio on Mac'
-description: 'Record the microphone, the sound of your Mac, or both, with Recordia, an alternative to Soundflower, or with Voice Memos and QuickTime Player.'
+description: 'Record the microphone, the system audio of your Mac, or both, with Recordia, an alternative to Soundflower, or with Voice Memos and QuickTime Player.'
 publicationDate: 2026-10-29
 topic: 'text-images-and-sound'
 apps: [
@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	Click [Recordia](../apps/recordia/index.md) in the menu bar, choose “Microphone”, “System Audio”, or “Microphone + System Audio”, and click “Record”. Without an app, Voice Memos and QuickTime Player record the microphone, and a screen recording can include the sound of the Mac.
+	Click [Recordia](../apps/recordia/index.md) in the menu bar, choose “Microphone”, “System Audio”, or “Microphone + System Audio”, and click “Record”. Without an app, Voice Memos and QuickTime Player record the microphone, and on macOS 27 or later, a screen recording can include the sound of the Mac.
 }
 
 Soundflower was a free audio driver that many people used to record the sound of the Mac. Its last release is 2.0b2 from December 2014, and Homebrew disabled it in November 2025 because it is not maintained. Recordia records the sound of the Mac without a driver. To send the sound of one app to another app, like for a stream, use the free [BlackHole](https://github.com/ExistentialAudio/BlackHole) driver, which is maintained.
@@ -37,6 +37,6 @@ macOS has three ways to record audio:
 
 - **Voice Memos:** Open Voice Memos, and click the record button. It records the microphone. It can also show a transcript of the recording.
 - **QuickTime Player:** Choose “File › New Audio Recording”, and click the record button. It records the microphone.
-- **Screen recording:** Press ++Shift+Command+5++, choose “Record Entire Screen” or “Record Selected Portion”, and in “Options”, choose a microphone and “Include System Audio”. It saves a video, not an audio file. To get only the audio, open the video in QuickTime Player, and choose “File › Export As › Audio Only”.
+- **Screen recording:** Press ++Shift+Command+5++, choose “Record Entire Screen” or “Record Selected Portion”, and in “Options”, choose a microphone. On macOS 27 or later, also choose “Include System Audio” to record the sound of the Mac. It saves a video, not an audio file. To get only the audio, open the video in QuickTime Player, and choose “File › Export As › Audio Only”.
 
 Voice Memos and QuickTime Player are good for a quick voice memo. They cannot record the sound that plays on your Mac, like a call or a video, and the screen recording gives a video file. Recordia records the sound directly to an audio file, and starts from its menu bar icon, or with a keyboard shortcut that you set in its settings.

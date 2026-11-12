@@ -133,10 +133,13 @@ extension LinkDestination {
 extension App.Frontmatter {
 	/**
 	The Markdown of the app page with what the build adds from the facts of the app: the “Trial” section, the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, the “Older Versions” and “Non-App Store Version” sections, and, unless the app is archived, the feedback question in the FAQ section. The download cards become plain Markdown by default; the app renderer supplies their HTML presentation.
+
+	- Parameter faqIntroduction: Blocks directly below the heading of the FAQ section, before any text of the file there, like the links to ask an assistant that only the page shows (``AssistantLinks``).
 	*/
 	func addingGeneratedSections(
 		to document: Document,
 		sharedQuestions: App.SharedQuestions,
+		faqIntroduction: [any BlockMarkup] = [],
 		renderDownloadCard: (AppDownloadCard) -> [any BlockMarkup] = { $0.plainBlocks }
 	) -> Document {
 		var blocks = Array(document.blockChildren)
@@ -160,6 +163,12 @@ extension App.Frontmatter {
 		}
 
 		blocks.addOlderVersions(olderVersions, isPaid: isPaid)
+
+		// Last, so the questions are added at the same places as without it.
+		if let faqHeadingIndex = blocks.firstIndex(of: .faq) {
+			blocks.insert(contentsOf: faqIntroduction, at: faqHeadingIndex + 1)
+		}
+
 		return Document(blocks)
 	}
 }
@@ -189,7 +198,8 @@ extension App.Frontmatter {
 	The text of the trial of the app, so every app promises the same trial in the same words. A trial on TestFlight is the full app for 14 days. Another trial is only for the Mac, so an app on several platforms says “the macOS app”. Its data carries over to the purchase on the App Store, for an app that is there. A trial that limits some features names them (``App/Trial/limitations``) instead of “The only limitation is …”.
 	*/
 	private func trialText(of trial: App.Trial) -> [any BlockMarkup] {
-		if trial.isTestFlight {
+		switch trial.kind {
+		case .testFlight:
 			var text = "Try \(title) free for 14 days with TestFlight. It’s the full app, no limitations. No auto-charges or commitment."
 
 			// A trial before the app is on the App Store has nothing to buy yet.
@@ -202,17 +212,17 @@ extension App.Frontmatter {
 				Paragraph(Emphasis(Markdown.Text("If you get asked for a code, just click the “\(trial.buttonTitle)” button again instead."))),
 				Paragraph(Emphasis(Markdown.Text("Disregard where it says how many days there are left. It means the days left of the current TestFlight build, not how long you have left on your trial."))),
 			]
-		}
+		case .download(_, let limitations):
+			let subject = platforms.count > 1 ? "The trial of the macOS app" : "The trial"
+			let store = appStoreID == nil ? "" : " on the App Store"
+			let text = if let limitations {
+				"\(subject) has a reminder to buy the app every 12 hours, and no automatic updates. \(limitations)"
+			} else {
+				"\(subject) is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates."
+			}
 
-		let subject = platforms.count > 1 ? "The trial of the macOS app" : "The trial"
-		let store = appStoreID == nil ? "" : " on the App Store"
-		let text = if let limitations = trial.limitations {
-			"\(subject) has a reminder to buy the app every 12 hours, and no automatic updates. \(limitations)"
-		} else {
-			"\(subject) is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates."
+			return [Paragraph(Markdown.Text("\(text) All data and settings carry over if you buy it\(store). Move the trial to the Trash before you install the app you bought."))]
 		}
-
-		return [Paragraph(Markdown.Text("\(text) All data and settings carry over if you buy it\(store). Move the trial to the Trash before you install the app you bought."))]
 	}
 }
 
@@ -486,7 +496,7 @@ extension App {
 
 				// The blocks start with the heading, and a directive below it, like `<!-- @faq.first -->`, is not an answer.
 				guard blocks.dropFirst().contains(where: { !$0.isCommentOnly }) else {
-					errors.append(file.error(line: heading.line, "The question “\(heading.text)” has no answer. Write it below the heading."))
+					errors.append(file.missingAnswerError(question: heading.text, line: heading.line))
 					continue
 				}
 
@@ -619,7 +629,7 @@ extension [any BlockMarkup] {
 	/**
 	The index of the heading of the section, by its level and its ID.
 	*/
-	private func firstIndex(of section: App.Section) -> Int? {
+	fileprivate func firstIndex(of section: App.Section) -> Int? {
 		firstIndex { block in
 			guard let heading = block as? Markdown.Heading else {
 				return false

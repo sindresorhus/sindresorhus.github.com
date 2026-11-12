@@ -1,13 +1,14 @@
 ---
 title: 'Googly Eyes'
 subtitle: 'Watchful eyes in your menu bar'
-description: 'A free app that adds playful eyes to your menu bar. They follow your cursor and blink when you click, like xeyes of old Unix desktops. Pure whimsy! 👀'
+description: 'A free app that adds playful eyes to your Mac menu bar. They follow your cursor and blink when you click, like xeyes of old Unix desktops. Pure whimsy! 👀'
 publicationDate: 2025-03-12
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 6743048714
+hasNoNetworkAccess: true
 script: '/googly-eyes/eyes.js'
 nonAppStoreVersion: {
 	version: '1.2.0'

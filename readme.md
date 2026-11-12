@@ -24,6 +24,8 @@ swift run website routes # Lists every route
 swift test
 ```
 
+For the JavaScript type checks, run `npm ci --ignore-scripts` once, then `npm test`. Swift generates component kinds, states, icon IDs, and DOM part types in `.build/script-types.d.ts`, then TypeScript checks `dom.js`, `LiveFact`, `CopyButton`, `AwakeStatus`, `ShareButton`, and `OverflowMenu` without emitting code. Parts absent from a rendered variant are optional, and checked callers must handle their absence. Shared helpers require concrete input types and expose parsed JSON as `unknown`. The checks also enforce potentially missing indexed values and exact optional properties. After that, editors can use `tsconfig.json` too. `AwakeStatus` also checks actual Swift-encoded configuration against the script's typedef, with exact Swift field-type witnesses for this fixed model. Negative fixtures prove that wrong parts, DOM properties, states, kind handlers, nested configuration fields, helper inputs, and unguarded optional parts are rejected. Other scripts and general configuration schemas are not covered yet. Local `swift test` skips this check when TypeScript is not installed; CI installs it and requires it.
+
 The preview server also has a gallery of every component at `/_gallery`.
 
 `website serve` formats frontmatter on startup and after edits. It puts publication flags first (`isDraft`, `isUnlisted`, and `isArchived` for apps), followed by the title and publication information, and expands objects and arrays. `website build` and `website check` accept any property order and leave source files unchanged.

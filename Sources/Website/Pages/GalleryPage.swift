@@ -337,14 +337,14 @@ struct GalleryPage: Page {
 	}
 
 	@Columns {
-		- 8x8
-		- Amazon Chime
-		- BlueJeans
-		- Google Meet
-		- Microsoft Teams
-		- Webex
-		- Whereby
-		- Zoom
+	- 8x8
+	- Amazon Chime
+	- BlueJeans
+	- Google Meet
+	- Microsoft Teams
+	- Webex
+	- Whereby
+	- Zoom
 	}
 
 	@Tips {
@@ -364,8 +364,8 @@ struct GalleryPage: Page {
 		The first main feature of an app, with a number above its title.
 	}
 
-	@Feature(title: "Another main feature") {
-		The second main feature.
+	@Feature(title: "Another main feature", label: "Label") {
+		The second main feature, with a label after its number.
 	}
 
 	@TinyApp(title: "A tiny app", download: "https://example.com/Tiny-App.zip", source: "https://github.com/sindresorhus", macOS: "26") {

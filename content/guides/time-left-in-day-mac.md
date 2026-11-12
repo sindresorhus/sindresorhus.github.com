@@ -17,7 +17,7 @@ apps: [
 @Steps {
 1. Open [Day Progress](../apps/day-progress/index.md). The progress of your day shows in the menu bar.
 1. Open its settings, and click “Schedule”.
-1. Edit the duration, or click “Add Duration”, and set the “Time range” of your day, like your work hours. Each day of the week can have its own times, and the end can be after midnight, like 2 AM.
+1. Click the duration to edit it, or click the add button (+) below the list, and set the “Time range” of your day, like your work hours. Each day of the week can have its own times, and the end can be after midnight, like 2 AM.
 1. Click the menu bar item to see the time until the end, and the time since the start.
 }
 

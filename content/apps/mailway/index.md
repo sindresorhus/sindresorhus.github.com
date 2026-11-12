@@ -8,6 +8,7 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 6766044904
+hasNoNetworkAccess: true
 # olderVersions: [
 # 	{
 # 		version: '',
@@ -172,10 +173,12 @@ No. iOS does not allow apps to intercept `mailto:` links the way macOS does.
 It’s not needed. Unlike [Velja](/velja), Mailway does not run in the background. It launches only when you click a `mailto:` link, routes it, and quits right away. There’s nothing to keep running, so there’s no “Launch at login” setting.
 
 ### How is it different from Velja? Why isn’t it part of Velja? {#velja}
+<!-- @faq.compares Velja -->
 
 [Velja](/velja) routes browser links (URLs) to different browsers and apps. Mailway routes `mailto:` links to different email apps and webmail services. Keeping them separate means each app stays focused and simple. They work great together though.
 
 ### How does it compare to Open In Webmail? {#open-in-webmail}
+<!-- @faq.compares Open In Webmail -->
 
 Mailway benefits:
 

@@ -190,7 +190,12 @@ const shareText = () => {
 	return `Appdle #${number} ${isWon() ? guesses.length : 'X'}/${maximumGuesses}\n${squares}\n${location.origin}${location.pathname}`;
 };
 
+// The next-frame warning belongs to the current presentation, so a new render or warning replaces it.
+let announcementFrame;
+
 const render = () => {
+	cancelAnimationFrame(announcementFrame);
+	announcementFrame = undefined;
 	document.querySelector('#appdle-number').textContent = `#${number}`;
 
 	const items = guesses.map(guess => {
@@ -241,9 +246,11 @@ const render = () => {
 
 // A message after a guess that was not counted, as text or an element. It is cleared first, so screen readers say the same message again, like after the same mistake twice.
 const sayAgain = message => {
+	cancelAnimationFrame(announcementFrame);
 	status.replaceChildren();
 
-	requestAnimationFrame(() => {
+	announcementFrame = requestAnimationFrame(() => {
+		announcementFrame = undefined;
 		status.replaceChildren(message);
 	});
 };

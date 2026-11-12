@@ -34,7 +34,13 @@ struct AppFooterLinks: HTML {
 			// The “…” menu of the page links to the group (``App/Section/guides``).
 			if !guides.isEmpty {
 				div(.id(App.Section.guides.id)) {
-					GuideLinks(title: App.Section.guides.title, guides: guides)
+					// The title looks like “You Might Also Like” below it, as both are extra content at the end of the page.
+					h2 {
+						App.Section.guides.title
+					}
+					.style(SectionStyles.label)
+
+					GuideLinks(guides: guides)
 				}
 				.style(Styles.guides)
 			}
@@ -46,18 +52,12 @@ struct AppFooterLinks: HTML {
 }
 
 /**
-A title and the rows of some guides, like the guides at the end of an app page and the more guides at the end of a guide.
+The rows of some guides, like the guides at the end of an app page and the more guides at the end of a guide. Each place writes the title above them.
 */
 struct GuideLinks: HTML {
-	let title: String
 	let guides: [Guide]
 
-	var body: some HTML {
-		h2 {
-			title
-		}
-		.style(AppFooterLinks.Styles.guidesTitle)
-
+	var body: some HTML<HTMLTag.ul> {
 		// Keep the list semantics in Safari, as the styles remove its bullets.
 		ul(.role(.list)) {
 			for guide in guides {
@@ -79,7 +79,6 @@ extension AppFooterLinks {
 		case pageLinks
 		case pageLink
 		case guides
-		case guidesTitle
 		case guideList
 		case guideLink
 
@@ -123,13 +122,6 @@ extension AppFooterLinks {
 								}
 						}
 					}
-			case .guidesTitle:
-				// Like the titles of the groups of the footer.
-				Style()
-					.margin(.bottom, .rootEm(0.75))
-					.textAlign(.center)
-					.textStyle(.caption, weight: .semibold)
-					.color(.secondaryText)
 			case .guideList:
 				Style().vstack(spacing: .rootEm(0.5))
 			case .guideLink:

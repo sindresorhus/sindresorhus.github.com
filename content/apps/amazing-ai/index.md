@@ -81,15 +81,20 @@ To write a [negative prompt](https://en.wikipedia.org/wiki/Stable_Diffusion#Text
 ### Keyboard shortcuts
 
 On macOS, when in preview mode, there are some keyboard shortcuts available:
-- ++◀++ — Previous image
-- ++▶++ — Next image
-- ++Space++ — Save image
-- ++Command+C++ — Copy image
-- ++Esc++ — Exit preview
+
+| Shortcut | Action |
+| --- | --- |
+| ++◀++ | Previous image |
+| ++▶++ | Next image |
+| ++Space++ | Save image |
+| ++Command+C++ | Copy image |
+| ++Esc++ | Exit preview |
 
 ### Metadata
 
-On macOS, when you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](https://x.com/sindresorhus/status/1611441129622278146/photo/1) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
+On macOS, when you save a generated image, it includes a lot of useful metadata (prompt, steps, etc). You can [view this in Finder](finder-metadata.jpg) by right-clicking the image file and selecting “Get Info”. The file also includes some relevant tags which can be used to create [smart folders](https://support.apple.com/guide/mac-help/tag-files-and-folders-mchlp15236/mac).
+
+On macOS, turn off “Include prompt in image metadata” in the settings to leave the prompt out, like for an image that you share, and turn on “Automatically save generated images” to save each image as soon as it is made. The images go in the “Amazing AI” folder in your “Pictures” folder. To save an image in another folder, hold ++Option++ while you click “Save to Pictures Folder” on the image, or right-click the image and choose “Save Image As…”.
 
 ## Frequently Asked Questions {#faq}
 

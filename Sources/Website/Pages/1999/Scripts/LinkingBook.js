@@ -315,6 +315,7 @@ class GeoCitiesLinkingBook extends GeoCitiesElement {
 			}
 
 			isLinking = true;
+			const isDone = age.red === 'book' && age.blue === 'book';
 			const hadFocus = document.activeElement;
 			flash.dataset.state = this.reducedMotion ? '' : 'on';
 			this.#beep(220, 0.6, {type: 'sine', volume: 0.04});
@@ -333,6 +334,12 @@ class GeoCitiesLinkingBook extends GeoCitiesElement {
 				}
 
 				panelLoop.start();
+				if (isDone) {
+					this.toast('📖 You came back from the Brunost Age. Kevin and the seagull are still arguing in there.');
+					this.cheer();
+				}
+
+				age = newAge();
 			}
 
 			delete flash.dataset.state;
@@ -353,16 +360,7 @@ class GeoCitiesLinkingBook extends GeoCitiesElement {
 			},
 			redBook: () => useBook('red'),
 			blueBook: () => useBook('blue'),
-			homeBook: async () => {
-				const isDone = age.red === 'book' && age.blue === 'book';
-				await link(false);
-				if (isDone) {
-					this.toast('📖 You came back from the Brunost Age. Kevin and the seagull are still arguing in there.');
-					this.cheer();
-				}
-
-				age = newAge();
-			},
+			homeBook: () => link(false),
 		};
 
 		const toggle = name => {

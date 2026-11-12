@@ -21,7 +21,7 @@ public struct Site: Sendable {
 	*/
 	static let supportReplyTime = "two weeks"
 
-	static let url = #URL("https://sindresorhus.com")
+	public static let url = #URL("https://sindresorhus.com")
 	static let origin = SiteOrigin(url)
 	static let description = "Full-Time Open-Sourcerer & App Maker"
 	static let author = Person.sindreSorhus
@@ -96,10 +96,8 @@ extension Site {
 	*/
 	@RouteBuilder
 	public func routes(includesGallery: Bool = false) -> [Route] {
-		let routes = pageRoutes + appRoutes + blogRoutes + guideRoutes + redirectRoutes + feedRoutes + textFileRoutes + assetRoutes
-
-		// The page of a content file names the file, so a redirect that writes the same file names both files to change.
-		routes.map { route in
+		// The page of a content file names the file, so a redirect that writes the same file names both files to change. Only the routes of the content, as a page that the site makes, like `/apps`, has no file, also when a content file has its path by mistake.
+		let contentRoutes = (contentPageRoutes + appRoutes + blogRoutes + guideRoutes).map { route in
 			guard
 				route.source == nil,
 				let file = content.contentFile(ofPage: route.path)
@@ -109,6 +107,9 @@ extension Site {
 
 			return route.source(.page(file: file))
 		}
+
+		let routes = specialPageRoutes + contentRoutes + redirectRoutes + feedRoutes + textFileRoutes + assetRoutes
+		routes
 
 		// The 404 page suggests the closest page, so it is made from the other routes: the pages in the sitemap, and the privacy policies, which are not indexed, but visitors guess their paths from the links of the App Store, like `/dato/privacy`. Not the policy of an unlisted app, which the 404 page would announce.
 		let privacyPolicyPaths = Set(content.apps.filter(\.isActive).map(\.privacyPolicyPath))
@@ -191,11 +192,14 @@ extension Site {
 	}
 
 	@RouteBuilder
-	private var pageRoutes: [Route] {
+	private var specialPageRoutes: [Route] {
 		for page in specialPages {
 			page
 		}
+	}
 
+	@RouteBuilder
+	private var contentPageRoutes: [Route] {
 		for page in content.pages {
 			switch page.kind {
 			case .about:

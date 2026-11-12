@@ -6,7 +6,7 @@ import SOML
 /**
 Quotes from the press, or five-star ratings from people, on an app page. Each quote is a pull quote, with a large quotation mark and its source below it, and has no card (``QuoteFigure/hasCard``). The App Store reviews (``AppReviews``) keep their cards, so the two kinds of praise look different.
 
-From small tablets, the quotes are in two columns, with an odd last quote centered below the others, and from laptops, three and five or more quotes are in three columns, with the quotes of a last row that is not full centered below the others, like the last two of five quotes. Four quotes stay in two columns, so they are two full rows (``QuoteLayout``). From laptops, more than two quotes are wider, with the edge of the reviews and the box to get the app (``Style/wideAppPartColumn()``). On phones, two or more quotes are a row that the visitor swipes, so they do not push the features far down the page (``Style/swipeRow(spacing:)``).
+From small tablets, a quote that is alone has larger text, as it has the whole column, and more quotes are in two columns, with an odd last quote centered below the others, and from laptops, three and five or more quotes are in three columns, with the quotes of a last row that is not full centered below the others, like the last two of five quotes. Four quotes stay in two columns, so they are two full rows (``QuoteLayout``). From laptops, more than two quotes are wider, with the edge of the reviews and the box to get the app (``Style/wideAppPartColumn()``). On phones, two or more quotes are a row that the visitor swipes, so they do not push the features far down the page (``Style/swipeRow(spacing:)``).
 */
 struct PressQuotes: HTML {
 	let quotes: [App.PressQuote.Resolved]
@@ -22,6 +22,7 @@ struct PressQuotes: HTML {
 		}
 		.attributes(.tabindex(0), .ariaLabel("Press quotes"), when: quotes.count > 1)
 		.style(Styles.root)
+		.style(Styles.single, when: layout == .single)
 		.style(Styles.row, when: layout != .single)
 		.style(layout, when: layout != .single)
 		.style(Styles.wide, when: layout.isWide)
@@ -29,6 +30,7 @@ struct PressQuotes: HTML {
 
 	enum Styles: String, StyleSet {
 		case root
+		case single
 		case row
 		case wide
 
@@ -39,6 +41,14 @@ struct PressQuotes: HTML {
 					.contentColumn()
 					.display(.grid)
 					.gap(row: .rootEm(3), column: .rootEm(2.5))
+			case .single:
+				// A quote that is alone has the whole column, so its text is larger, like a pull quote: about 70 characters a line instead of 100, and not smaller than the text around it. On phones, the column is narrow, so the text stays the size of the body.
+				Style()
+					.from(.smallTablet) {
+						$0.nested(QuoteFigure.Styles.text.selector) {
+							$0.font(size: .rootEm(1.375), lineHeight: 1.45)
+						}
+					}
 			case .row:
 				Style().swipeRow(spacing: .rootEm(1.5))
 			case .wide:

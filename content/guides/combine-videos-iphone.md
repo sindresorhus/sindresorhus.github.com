@@ -23,7 +23,7 @@ apps: [
 1. Run the shortcut, and pick the videos. The combined video is saved in Photos.
 }
 
-The videos must have the same size and orientation, like videos that you recorded in the same way with your iPhone. Actions does not change the video when it can, so the quality stays the same. If the actions do not show in Shortcuts, restart your iPhone.
+The videos must have the same size and orientation, like videos that you recorded in the same way with your iPhone. Actions does not change the video when it can, so the quality stays the same. iOS gives a shortcut action 30 seconds, so very long videos may not finish. If the actions do not show in Shortcuts, restart your iPhone.
 
 The “Combine Audio Files” action of Actions joins audio files the same way.
 

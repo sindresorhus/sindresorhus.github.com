@@ -91,12 +91,14 @@ This is an iOS/macOS bug. Launch the app once and then restart your device. If t
 Apple prevents any app that includes AI-related functionality from being available in China. I didn’t want the [Actions](/actions) app to be unavailable in China just because of one action.
 
 ### How is this better than the “Ask ChatGPT” action provided by the official ChatGPT app? {#how-is-this-better-than-the-ask-chatgpt-action-provided-by-the-official-chatgpt-app}
+<!-- @faq.compares ChatGPT app -->
 
 It uses your own API key, so you do not need a ChatGPT account. It also supports longer text, has more options, like a system prompt, temperature, and reasoning effort, and lets you choose the provider: OpenAI, Anthropic (Claude), or an [OpenAI-compatible service](#alternative-providers).
 
 Since version 1.5.2, long replies of the actions do not time out on iOS.
 
 ### How is this different from the built-in “Use Model” action? {#use-model}
+<!-- @faq.compares Use Model action -->
 
 The Shortcuts app has a built-in “Use Model” action. It uses Apple Intelligence (on the device or with Private Cloud Compute) or ChatGPT, and it is free. If it does what you need, use it.
 
@@ -111,6 +113,7 @@ It uses your own API key, so you pay the provider for what you use.
 The app has three actions: “Ask AI”, “Ask AI (Response API)”, and “Ask Claude”.
 
 ### How is this better than just calling the OpenAI API directly from Shortcuts? {#how-is-this-better-than-just-calling-the-openai-api-directly-from-shortcuts}
+<!-- @faq.compares OpenAI API -->
 
 This makes it simpler, but more importantly, it stores your API key securely in the keychain. This means you can share your shortcuts with others without exposing your API key. The API key is not stored in the shortcut.
 

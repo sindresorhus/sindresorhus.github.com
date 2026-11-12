@@ -648,6 +648,17 @@ struct ScriptedElementTests {
 	}
 
 	@Test
+	func `type annotations preserve direct config reads`() {
+		let script = """
+		/** @example const {notAKey} = this.config; */
+		const {statuses, utcOffsetMinutes} = /** @type {AwakeStatusConfig} */ (JSON.parse(/** @type {string} */ (this.dataset.config)));
+		const perSecond = (JSON.parse((this.dataset.config))).perSecond;
+		const {height} = (JSON.parse((this.dataset.config))).size;
+		"""
+		#expect(Self.readConfigKeys(in: script) == ["statuses", "utcOffsetMinutes", "perSecond", "size"])
+	}
+
+	@Test
 	func `only the parts of the element itself count as used`() {
 		let script = """
 		const {screen, sound} = this.parts;
@@ -1054,10 +1065,16 @@ struct ScriptedElementTests {
 		import test from 'node:test';
 		import vm from 'node:vm';
 
-		const {searchKey, closest} = await import('data:text/javascript,' + encodeURIComponent(fs.readFileSync('public/scripts/edit-distance.js', 'utf8')));
+		const {searchKey, filterByWords} = await import('data:text/javascript,' + encodeURIComponent(fs.readFileSync('public/scripts/edit-distance.js', 'utf8')));
 		const script = fs.readFileSync('Sources/Website/Components/Scripts/NPMPackageList.js', 'utf8').replaceAll(/^import .*\n/gm, '');
 
 		test('pagination, full-list search, and resetting the filter', () => {
+			const history = {
+				state: null,
+				replaceState(state) {
+					this.state = state;
+				},
+			};
 			let Component;
 			let focused;
 			let opened;
@@ -1070,7 +1087,8 @@ struct ScriptedElementTests {
 				},
 				parts: element => element.parts,
 				searchKey,
-				closest,
+				filterByWords,
+				history,
 			});
 			const control = () => ({
 				hidden: false,
@@ -1097,20 +1115,50 @@ struct ScriptedElementTests {
 					},
 				},
 			}));
+			// A description match must follow the package whose name matches, even when it has more downloads.
+			rows[0].parts.text.textContent += ' package-42';
+			const orderedRows = [];
 			const element = new Component();
-			element.parts = {filter, showMore, status: {textContent: ''}};
+			element.parts = {
+				filter,
+				showMore,
+				status: {textContent: ''},
+				list: {
+					append(...appendedRows) {
+						orderedRows.splice(0, orderedRows.length, ...appendedRows);
+					},
+				},
+			};
+			element.getAttribute = name => name === 'page-size' ? '20' : null;
 			element.querySelectorAll = () => rows;
 			element.connectedCallback();
-			const visible = () => rows.filter(row => !row.hidden);
+			const visible = () => orderedRows.filter(row => !row.hidden);
 			assert.equal(visible().length, 20);
+			assert.equal(rows[20].hidden, 'until-found');
 			assert.equal(showMore.hidden, false);
+			assert.equal(showMore.textContent, 'Show 20 more');
 			showMore.listeners.click();
 			assert.equal(visible().length, 40);
 			assert.equal(focused, 20);
+			// A reload shows as many rows again.
+			assert.equal(history.state.npmVisibleCount, 40);
+			const restoredElement = new Component();
+			restoredElement.parts = {filter: control(), showMore: control(), status: {textContent: ''}, list: element.parts.list};
+			restoredElement.getAttribute = element.getAttribute;
+			restoredElement.querySelectorAll = () => rows;
+			restoredElement.connectedCallback();
+			assert.equal(visible().length, 40);
+			assert.equal(restoredElement.parts.showMore.textContent, 'Show 5 more');
+			assert.equal(showMore.textContent, 'Show 5 more');
 			showMore.listeners.click();
 			assert.equal(visible().length, 45);
 			assert.equal(showMore.hidden, true);
 			assert.equal(focused, 40);
+			filter.value = 'package-42';
+			filter.listeners.input();
+			assert.deepEqual(visible(), [rows[42], rows[0]]);
+			filter.listeners.keydown({key: 'Enter', isComposing: false});
+			assert.equal(opened, 42);
 			filter.value = 'common description';
 			filter.listeners.input();
 			assert.equal(visible().length, 20);
@@ -1214,6 +1262,7 @@ struct ScriptedElementTests {
 				},
 				window: {addEventListener() {}},
 				matchMedia: () => ({matches: false}),
+				finePointer: {matches: false},
 				elementForFragment() {},
 				location: {
 					set href(value) {
@@ -1753,14 +1802,20 @@ struct ScriptedElementTests {
 
 	/**
 	The keys of the config that a script reads directly: `this.config.goal`, `arcade.config.games`, `JSON.parse(this.dataset.config).perSecond`, and the destructurings of them, like `const {games: titles, prizes} = arcade.config;`. Not the keys of a value in the config, like `width` in `this.config.size.width`.
+
+	JSDoc casts can group the config expression and the JSON argument in parentheses. Their comments do not contain reads.
 	*/
 	private static func readConfigKeys(in script: String) -> Set<String> {
-		let members = script.matches(of: /(?:\.config|JSON\.parse\(this\.dataset\.config\))\.(\w+)/).map { String($0.1) }
+		let script = script.replacing(configTypeComments, with: " ")
+		let members = script.matches(of: /(?:\.config|JSON\.parse\(\s*\(?\s*this\.dataset\.config\s*\)?\s*\))\s*\)?\s*\.(\w+)/).map { String($0.1) }
 
-		let destructured = script.matches(of: /\{([\w\s,:]+)\}\s*=\s*(?:[\w.#]+\.config|JSON\.parse\(this\.dataset\.config\))(?![.\w])/).flatMap { names(in: $0.1) }
+		let destructured = script.matches(of: /\{([\w\s,:]+)\}\s*=\s*\(?\s*(?:[\w.#]+\.config|JSON\.parse\(\s*\(?\s*this\.dataset\.config\s*\)?\s*\))(?!\w|[\s)]*[.\[])/).flatMap { names(in: $0.1) }
 
 		return Set(members + destructured)
 	}
+
+	// Stored once, as the config check reads every component script.
+	nonisolated(unsafe) private static let configTypeComments = /\/\*\*.*?\*\//.dotMatchesNewlines()
 
 	/**
 	The names of a destructuring, like `screen` and `flip` for `screen, flip: button`.
@@ -1857,7 +1912,6 @@ extension String {
 		})
 	}
 }
-
 
 extension ScriptedElementTests {
 	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check state transitions."))
@@ -1977,7 +2031,6 @@ extension ScriptedElementTests {
 		#expect(error == nil, "\(error ?? "")")
 	}
 }
-
 
 extension ScriptedElementTests {
 	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check state transitions."))
@@ -2125,7 +2178,6 @@ extension ScriptedElementTests {
 	}
 }
 
-
 extension ScriptedElementTests {
 	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check state transitions."))
 	func `Simon keeps idle showing and input phases exclusive`() throws {
@@ -2215,6 +2267,816 @@ extension ScriptedElementTests {
 			await finishShowing();
 			press(0);
 			assert.equal(timers.length, 1);
+		});
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+}
+
+extension ScriptedElementTests {
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check state transitions."))
+	func `animation loops cancel pending steps when stopped or disconnected`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import test from 'node:test';
+		import vm from 'node:vm';
+
+		const setUp = async () => {
+			const document = new EventTarget();
+			document.visibilityState = 'visible';
+			const frames = new Map();
+			const observers = [];
+			let nextFrame = 0;
+			let steps = 0;
+			let stops = 0;
+			let shouldRun = false;
+			const reducedMotion = new EventTarget();
+			reducedMotion.matches = true;
+			const context = vm.createContext({
+				HTMLElement: class extends EventTarget {
+					isConnected = true;
+				},
+				document, AbortController, AbortSignal,
+				prerendered: Promise.resolve(),
+				matchMedia: () => reducedMotion,
+				IntersectionObserver: class {
+					constructor(callback) {
+						observers.push(callback);
+					}
+					observe() {}
+					disconnect() {}
+				},
+				requestAnimationFrame(callback) {
+					const identifier = nextFrame++;
+					frames.set(identifier, callback);
+					return identifier;
+				},
+				cancelAnimationFrame(identifier) {
+					frames.delete(identifier);
+				},
+			});
+			const source = fs.readFileSync('public/scripts/scripted-element.js', 'utf8')
+				.replace(/^import .*\n/gm, '')
+				.replace(/^export \{.*\};\n/gm, '')
+				.replace('export default class', 'globalThis.Component = class');
+			vm.runInContext(source, context);
+			class Demo extends context.Component {
+				connected() {
+					this.animation = this.loop(() => {
+						steps++;
+					}, {while: () => shouldRun, stopped: () => {
+						stops++;
+					}});
+				}
+			}
+			const element = new Demo();
+			const connect = async () => {
+				element.isConnected = true;
+				await element.connectedCallback();
+				observers.at(-1)([{target: element, isIntersecting: true}]);
+			};
+			await connect();
+			return {
+				element, frames, connect,
+				get steps() {
+					return steps;
+				},
+				get stops() {
+					return stops;
+				},
+				runFrame() {
+					const pending = [...frames.values()];
+					frames.clear();
+					for (const callback of pending) {
+						callback(1000);
+					}
+				},
+				start() {
+					shouldRun = true;
+					element.animation.start();
+				},
+			};
+		};
+
+		test('one-shot drawing works without continuous animation and stop cancels only pending work', async () => {
+			const view = await setUp();
+			view.element.animation.requestStep();
+			view.element.animation.requestStep();
+			assert.equal(view.frames.size, 1);
+			view.runFrame();
+			assert.equal(view.steps, 1);
+			assert.equal(view.frames.size, 0);
+			view.element.animation.requestStep();
+			view.element.animation.stop();
+			assert.equal(view.frames.size, 0);
+			assert.equal(view.stops, 0);
+			view.element.animation.requestStep();
+			view.runFrame();
+			assert.equal(view.steps, 2);
+			view.start();
+			view.runFrame();
+			assert.equal(view.steps, 3);
+			assert.equal(view.frames.size, 1);
+			view.element.animation.stop();
+			view.element.animation.stop();
+			assert.equal(view.frames.size, 0);
+			assert.equal(view.stops, 1);
+		});
+
+		test('a removed connection cannot draw a pending one-shot after reconnecting', async () => {
+			const view = await setUp();
+			const previous = view.element.animation;
+			previous.requestStep();
+			view.element.isConnected = false;
+			view.element.disconnectedCallback();
+			assert.equal(view.frames.size, 0);
+			await view.connect();
+			view.runFrame();
+			assert.equal(view.steps, 0);
+			view.element.animation.requestStep();
+			view.runFrame();
+			assert.equal(view.steps, 1);
+			assert.equal(view.stops, 0);
+		});
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+}
+
+extension ScriptedElementTests {
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check state transitions."))
+	func `turntable preparation belongs to the current drag and connection`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import test from 'node:test';
+		import vm from 'node:vm';
+
+		const setUp = () => {
+			const rendering = Promise.withResolvers();
+			const sources = [];
+			const listeners = new Map();
+			const controller = new AbortController();
+			const control = () => ({
+				style: {}, attributes: {},
+				setAttribute(name, value) {
+					this.attributes[name] = value;
+				},
+				focus() {}, setPointerCapture() {},
+				getBoundingClientRect: () => ({left: 0, top: 0, width: 100, height: 100}),
+			});
+			const parts = {record: control(), play: control(), airHorn: control(), rewind: control()};
+			class Buffer {
+				length = 8;
+				sampleRate = 44_100;
+				getChannelData() {
+					return new Float32Array(this.length);
+				}
+			}
+			class Source {
+				constructor(_, options) {
+					this.buffer = options.buffer;
+					sources.push(this);
+				}
+				connect() {
+					return this;
+				}
+				start() {
+					this.started = true;
+				}
+				stop() {
+					this.stopped = true;
+				}
+			}
+			const audioContext = {currentTime: 0};
+			const context = vm.createContext({
+				GeoCitiesElement: class {},
+				customElements: {define: (_, component) => {
+					context.Component = component;
+				}},
+				context: audioContext,
+				OfflineAudioContext: class {
+					destination = {};
+					startRendering() {
+						return rendering.promise;
+					}
+				},
+				AudioBuffer: Buffer, AudioBufferSourceNode: Source,
+				GainNode: class {
+					gain = {setValueAtTime() {}, linearRampToValueAtTime() {}};
+					connect() {
+						return this;
+					}
+				},
+				performance: {now: () => 1000},
+				connectVolume() {}, startAudio: () => true,
+				makeBus: () => ({gain: {value: 0}}),
+				startPlaying() {}, stopPlaying() {}, addStopHandler() {},
+				drums: {kick() {}, snare() {}, hat() {}},
+				pluck() {}, voice() {}, midiFrequency: () => 1,
+				clamp: (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum),
+			});
+			vm.runInContext(fs.readFileSync('Sources/Website/Pages/1999/Scripts/DJBooth.js', 'utf8').replace(/^import .*\n/gm, ''), context);
+			const element = {
+				parts, signal: controller.signal, isConnected: true,
+				querySelectorAll: () => [],
+				loop: () => ({start() {}, stop() {}}),
+				say() {},
+				on(target, type, callback) {
+					if (!listeners.has(target)) {
+						listeners.set(target, new Map());
+					}
+					listeners.get(target).set(type, callback);
+				},
+			};
+			context.Component.prototype.connected.call(element);
+			return {
+				element, sources, parts, controller,
+				finishRendering() {
+					rendering.resolve(new Buffer());
+				},
+				play: () => listeners.get(parts.play).get('click')(),
+				pointer(type, pointerId = 1, clientX = 100, clientY = 50) {
+					return listeners.get(parts.record).get(type)({pointerId, pointerType: 'mouse', button: 0, clientX, clientY, preventDefault() {}});
+				},
+			};
+		};
+
+		test('releasing a drag during rendering cannot pause the beat that Play starts', async () => {
+			const deck = setUp();
+			const playing = deck.play();
+			const holding = deck.pointer('pointerdown');
+			deck.pointer('pointerup');
+			deck.finishRendering();
+			await Promise.all([playing, holding]);
+			assert.equal(deck.sources.length, 1);
+			assert.equal(deck.sources[0].started, true);
+			assert.equal(deck.sources[0].stopped, undefined);
+			assert.equal(deck.parts.play.attributes['aria-pressed'], 'true');
+		});
+
+		test('an active drag scratches and only its pointer can release and resume the beat', async () => {
+			const deck = setUp();
+			const playing = deck.play();
+			deck.finishRendering();
+			await playing;
+			await deck.pointer('pointerdown');
+			assert.equal(deck.sources[0].stopped, true);
+			deck.pointer('pointermove', 2, 50, 100);
+			deck.pointer('pointerup', 2);
+			assert.equal(deck.sources.length, 1);
+			deck.pointer('pointermove', 1, 50, 100);
+			assert.equal(deck.sources.length, 2);
+			assert.equal(deck.sources[1].started, true);
+			assert.equal(deck.sources[1].stopped, true);
+			assert.equal(deck.parts.record.style.rotate, '90deg');
+			deck.pointer('pointerup');
+			assert.equal(deck.sources.length, 3);
+			assert.equal(deck.sources[2].started, true);
+			assert.equal(deck.sources[2].stopped, undefined);
+			deck.pointer('pointermove', 1, 0, 50);
+			assert.equal(deck.sources.length, 3);
+		});
+
+		test('rendering from a removed connection cannot start playback after reconnection', async () => {
+			const deck = setUp();
+			const playing = deck.play();
+			deck.controller.abort();
+			deck.element.signal = new AbortController().signal;
+			deck.element.isConnected = true;
+			deck.finishRendering();
+			await playing;
+			assert.equal(deck.sources.length, 0);
+			assert.equal(deck.parts.play.attributes['aria-pressed'], undefined);
+		});
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+}
+
+extension ScriptedElementTests {
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check sharing controls."))
+	func `sharing controls preserve native selection and fallback behavior`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import vm from 'node:vm';
+
+		const events = [];
+		const failures = [];
+		const elements = new Map();
+		const constructors = new Map();
+		const page = {title: 'Example', url: 'https://example.com/app'};
+		const navigator = {};
+		const location = {href: ''};
+		const context = vm.createContext({
+			navigator, location,
+			matchMedia: () => ({matches: false}),
+			document: {
+				prerendering: false,
+				getElementById: identifier => elements.get(identifier),
+			},
+			console: {error: (...arguments_) => failures.push(arguments_)},
+			HTMLElement: class {
+				listeners = new Map();
+				getAttribute(name) {
+					return page[name.slice('share-'.length)];
+				}
+				querySelector() {
+					return this.shareOption;
+				}
+				closest() {
+					return this.popover;
+				}
+				addEventListener(name, listener) {
+					this.listeners.set(name, listener);
+				}
+			},
+			customElements: {
+				define: (name, constructor) => constructors.set(name, constructor),
+			},
+		});
+		vm.runInContext(fs.readFileSync('public/scripts/dom.js', 'utf8').replace(/^export /gm, ''), context);
+		for (const name of ['OverflowMenu', 'ShareButton']) {
+			vm.runInContext(fs.readFileSync(`Sources/Website/Components/Scripts/${name}.js`, 'utf8').replace(/^import .*\n/gm, ''), context);
+		}
+		const {copy, sharedPage, cloneTemplate, scriptData, clockTime, untilNextMinute, elementForFragment} = vm.runInContext('({copy, sharedPage, cloneTemplate, scriptData, clockTime, untilNextMinute, elementForFragment})', context);
+
+		const OverflowMenu = constructors.get('overflow-menu');
+		const absent = new OverflowMenu();
+		navigator.canShare = () => {
+			assert.fail('A menu without sharing must not query its capability.');
+		};
+		absent.connectedCallback();
+		const element = new OverflowMenu();
+		element.shareOption = {hidden: true, disabled: true};
+		delete navigator.canShare;
+		element.connectedCallback();
+		assert.equal(element.shareOption.hidden, true);
+		assert.equal(element.shareOption.disabled, true);
+		navigator.canShare = data => {
+			assert.equal(data.title, page.title);
+			assert.equal(data.url, page.url);
+			return false;
+		};
+		element.connectedCallback();
+		assert.equal(element.shareOption.hidden, true);
+		assert.equal(element.shareOption.disabled, true);
+		navigator.canShare = () => true;
+		element.connectedCallback();
+		assert.equal(element.shareOption.hidden, false);
+		assert.equal(element.shareOption.disabled, false);
+
+		const fallback = {
+			popover: 'auto',
+			showPopover({source}) {
+				assert.equal(source, menu);
+				events.push('open');
+			},
+			focus() {
+				events.push('popover-focus');
+			},
+		};
+		elements.set('share', fallback);
+		const option = {dataset: {part: 'share'}, hasAttribute: name => name === 'data-menu-popover'};
+		const menu = {value: '', selectedOptions: [option], focus: () => events.push('menu-focus')};
+		const choose = element.listeners.get('change');
+		await choose({target: menu});
+		assert.deepEqual(events, []);
+		let finishSharing;
+		navigator.share = data => {
+			assert.equal(data.title, page.title);
+			assert.equal(data.url, page.url);
+			assert.equal(menu.value, '');
+			assert.deepEqual(events, ['menu-focus']);
+			return new Promise(resolve => {
+				finishSharing = resolve;
+			});
+		};
+		menu.value = '#share';
+		const pending = choose({target: menu});
+		assert.equal(menu.value, '');
+		assert.deepEqual(events, ['menu-focus']);
+		finishSharing();
+		await pending;
+		assert.deepEqual(events, ['menu-focus']);
+
+		for (const name of ['AbortError', 'NotAllowedError', 'DataError']) {
+			events.length = 0;
+			navigator.share = async () => {
+				throw Object.assign(new Error(name), {name});
+			};
+			menu.value = '#share';
+			await choose({target: menu});
+			assert.equal(menu.value, '');
+			assert.deepEqual(events, name === 'NotAllowedError' ? ['menu-focus', 'open', 'popover-focus'] : ['menu-focus']);
+		}
+		assert.equal(failures.length, 1);
+		assert.deepEqual(failures[0], ['Share failed:', 'DataError']);
+		assert.equal(location.href, '');
+
+		const ShareButton = constructors.get('share-button');
+		const button = new ShareButton();
+		button.popover = {hidePopover: () => events.push('hide')};
+		navigator.share = async data => {
+			assert.equal(events.at(-1), 'hide');
+			assert.equal(data.url, page.url);
+			events.push('share');
+		};
+		button.connectedCallback();
+		button.listeners.get('click')();
+		assert.deepEqual(events.slice(-2), ['hide', 'share']);
+		assert.equal(sharedPage(button).title, page.title);
+
+		const announcements = [];
+		const copied = [];
+		navigator.clipboard = {writeText: async text => copied.push(text)};
+		assert.equal(await copy('Example', {ariaNotify: message => announcements.push(message)}), true);
+		assert.deepEqual(copied, ['Example']);
+		assert.deepEqual(announcements, ['Copied']);
+		assert.equal(await copy('Without announcement', {}), true);
+		navigator.clipboard.writeText = async () => {
+			throw new Error('Denied');
+		};
+		assert.equal(await copy('Unavailable', {ariaNotify: () => assert.fail('A failed copy must not announce success.')}), false);
+
+		const child = {cloneNode: deep => ({deep})};
+		assert.equal(cloneTemplate({content: {firstElementChild: child}}).deep, true);
+		elements.set('data', {text: '{"count":2}'});
+		assert.equal(scriptData('data').count, 2);
+		elements.set('scalar', {text: 'false'});
+		assert.equal(scriptData('scalar'), false);
+		assert.throws(() => scriptData('missing'));
+		elements.set('broken', {text: '{'});
+		assert.throws(() => scriptData('broken'));
+		elements.set('with space', fallback);
+		assert.equal(elementForFragment('#with%20space'), fallback);
+		assert.equal(elementForFragment('#missing'), undefined);
+		assert.equal(elementForFragment('#%E0'), undefined);
+		const date = new Date('2026-11-15T04:12:30.250Z');
+		assert.equal(clockTime(date, 'UTC'), '04:12');
+		assert.equal(untilNextMinute(date), 29_750);
+		assert.equal(untilNextMinute(new Date('2026-11-15T04:12:00.000Z')), 60_000);
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+}
+
+extension ScriptedElementTests {
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check DOM part ownership."))
+	func `DOM parts preserve ownership element identity and valid property names`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import vm from 'node:vm';
+
+		const context = vm.createContext({matchMedia: () => ({matches: false}), document: {prerendering: false}});
+		vm.runInContext(fs.readFileSync('public/scripts/dom.js', 'utf8').replace(/^export /gm, ''), context);
+		const parts = vm.runInContext('parts', context);
+		const descendants = [];
+		const root = {
+			localName: 'article',
+			querySelectorAll(selector) {
+				assert.equal(selector, '[data-part]');
+				return descendants;
+			},
+		};
+		const part = (name, parentElement = root, localName = 'span') => {
+			const element = {
+				parentElement, localName,
+				getAttribute(attribute) {
+					assert.equal(attribute, 'data-part');
+					return name;
+				},
+			};
+			descendants.push(element);
+			return element;
+		};
+		const nested = part('nested', root, 'child-element');
+		part('private', nested);
+		const wrapper = {localName: 'div', parentElement: root};
+		const first = part('label', wrapper);
+		part('label');
+		const icon = part('icon', root, 'svg');
+		icon.namespaceURI = 'http://www.w3.org/2000/svg';
+		const inheritedNames = ['constructor', 'toString', '__proto__'].map(name => [name, part(name)]);
+		const found = parts(root);
+		assert.equal(found.nested, nested);
+		assert.equal(found.label, first);
+		assert.equal(found.icon, icon);
+		assert.throws(() => found.private, /<article> has no part “private”/);
+		assert.throws(() => found.missing, /<article> has no part “missing”/);
+		assert.throws(() => parts(root, 'Example card').missing, /Example card has no part “missing”/);
+		assert.equal(found.then, undefined);
+		assert.equal(found.toJSON, undefined);
+		assert.equal(found[Symbol('unrecognized')], undefined);
+		assert.equal(found[Symbol.toStringTag], undefined);
+		assert.equal(await found, found);
+		for (const [name, element] of inheritedNames) {
+			assert.equal(found[name], element, `The valid part name ${name} must keep its element.`);
+		}
+		const empty = parts({localName: 'section', querySelectorAll: () => []});
+		assert.equal(JSON.stringify(empty), '{}');
+		assert.equal(await empty, empty);
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+}
+
+
+extension ScriptedElementTests {
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check linking book transitions."))
+	func `returning from the linking book completes only its active transition`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import vm from 'node:vm';
+
+		const drawing = {
+			createLinearGradient: () => ({addColorStop() {}}),
+			fillRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, arc() {},
+			fill() {}, stroke() {}, save() {}, restore() {}, translate() {}, rotate() {}, drawImage() {},
+		};
+		const control = () => ({
+			hidden: false, textContent: '', dataset: {},
+			focus() {
+				document.activeElement = this;
+			},
+		});
+		const document = {activeElement: undefined, body: {}};
+		const canvas = Object.assign(control(), {width: 480, height: 300, getContext: () => drawing});
+		const panel = control();
+		const parts = {
+			pages: control(), panel, canvas,
+			panelCanvas: {width: 160, height: 110, getContext: () => drawing},
+			view: Object.assign(control(), {hidden: true, contains: () => false}),
+			flash: control(),
+		};
+		const moveButtons = ['left', 'forward', 'back', 'right'].map(direction => Object.assign(control(), {dataset: {ageMove: direction}}));
+		const spotButtons = Array.from({length: 3}, control);
+		const listeners = new Map();
+		const waits = [];
+		const messages = [];
+		const celebrations = [];
+		let cheers = 0;
+		let Component;
+		vm.runInNewContext(fs.readFileSync('Sources/Website/Pages/1999/Scripts/LinkingBook.js', 'utf8').replace(/^import .*\n/gm, ''), {
+			document,
+			fillEllipse() {}, fillPolygon() {},
+			makeCanvas: () => ({getContext: () => drawing}),
+			GeoCitiesElement: class {
+				parts = parts;
+				reducedMotion = false;
+				querySelectorAll(selector) {
+					return selector === '[data-age-move]' ? moveButtons : spotButtons;
+				}
+				on(target, name, callback) {
+					if (!listeners.has(target)) {
+						listeners.set(target, new Map());
+					}
+					listeners.get(target).set(name, callback);
+				}
+				wait(milliseconds) {
+					assert.equal(milliseconds, 650);
+					return new Promise(resolve => waits.push(resolve));
+				}
+				loop() {
+					return {start() {}, requestStep() {}};
+				}
+				say(message) {
+					messages.push(message);
+				}
+				toast(message) {
+					celebrations.push(message);
+				}
+				cheer() {
+					cheers++;
+				}
+			},
+			customElements: {define: (name, constructor) => {
+				Component = constructor;
+			}},
+		});
+		const element = new Component();
+		element.connected();
+		const click = button => listeners.get(button).get('click')();
+		const move = key => listeners.get(canvas).get('keydown')({key, preventDefault() {}});
+		const spot = name => {
+			const button = spotButtons.find(button => !button.hidden && button.textContent === `✋ ${name}`);
+			assert.ok(button, `The current view must offer ${name}.`);
+			click(button);
+		};
+		const settle = async () => {
+			for (let turn = 0; turn < 6; turn++) {
+				await Promise.resolve();
+			}
+		};
+		const finishLink = async () => {
+			assert.equal(waits.length, 1);
+			waits.shift()();
+			await settle();
+		};
+
+		// An unfinished visit resets the switches when the visitor returns home.
+		click(panel);
+		await finishLink();
+		spot('Marker switch');
+		move('ArrowUp');
+		move('ArrowUp');
+		spot('Linking book home');
+		assert.equal(parts.view.hidden, false);
+		await finishLink();
+		assert.equal(parts.view.hidden, true);
+		assert.equal(parts.pages.hidden, false);
+		assert.equal(cheers, 0);
+
+		// Complete the puzzle through its real keyboard and button callbacks.
+		click(panel);
+		await finishLink();
+		spot('Marker switch');
+		assert.match(messages.at(-1), /1 of 3/);
+		move('ArrowUp');
+		spot('Marker switch');
+		move('ArrowLeft');
+		spot('Marker switch');
+		assert.match(messages.at(-1), /3 of 3/);
+		spot('Red page');
+		move('ArrowDown');
+		move('ArrowRight');
+		move('ArrowUp');
+		spot('Blue page');
+		move('ArrowDown');
+		move('ArrowDown');
+		move('ArrowUp');
+		spot('Red book');
+		spot('Blue book');
+		assert.match(messages.at(-1), /Time to touch the linking book and go home/);
+
+		// The second activation cannot finish or reset the first transition.
+		spot('Linking book home');
+		spot('Linking book home');
+		await settle();
+		assert.equal(waits.length, 1);
+		assert.equal(parts.view.hidden, false);
+		assert.equal(cheers, 0);
+		assert.equal(celebrations.length, 0);
+		await finishLink();
+		assert.equal(parts.view.hidden, true);
+		assert.equal(parts.pages.hidden, false);
+		assert.equal(cheers, 1);
+		assert.equal(celebrations.length, 1);
+
+		click(panel);
+		await finishLink();
+		spot('Marker switch');
+		assert.match(messages.at(-1), /1 of 3/);
+		move('ArrowUp');
+		move('ArrowLeft');
+		assert.match(messages.at(-1), /A red page lies on a tree stump/);
+		assert.equal(cheers, 1);
+		"""#
+		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)
+		#expect(error == nil, "\(error ?? "")")
+	}
+}
+
+
+extension ScriptedElementTests {
+	@Test(.enabled(if: Self.checksScripts, "Install Node.js to check Casio recording sessions."))
+	func `Casio recording sessions retain note timing and completed memory`() throws {
+		let harness = #"""
+		import assert from 'node:assert/strict';
+		import fs from 'node:fs';
+		import vm from 'node:vm';
+		import test from 'node:test';
+
+		await test('recording sessions retain note timing and completed memory', () => {
+
+			const context = {currentTime: 0};
+			const listeners = new Map();
+			const timers = [];
+			const voices = [];
+			const stopHandlers = [];
+			let canStart = true;
+			let Component;
+			const control = () => ({dataset: {}, attributes: {}, disabled: false, textContent: '', setAttribute(name, value) {this.attributes[name] = value;}});
+			const parts = Object.fromEntries(['keyboard', 'display', 'start', 'slower', 'faster', 'chord', 'demo', 'record', 'playback'].map(name => [name, control()]));
+			const keys = [60, 61].map(note => Object.assign(control(), {dataset: {casioNote: String(note)}}));
+			const toneButton = Object.assign(control(), {textContent: 'Piano', dataset: {casioTone: 'piano'}});
+			class GainNode {
+				gain = {setValueAtTime() {}, linearRampToValueAtTime() {}, setTargetAtTime() {}, cancelScheduledValues() {}};
+				connect() {return this;}
+				disconnect() {}
+			}
+			class OscillatorNode {
+				constructor() {voices.push(this);}
+				connect() {return this;}
+				start(time) {this.started = time;}
+				stop(time) {this.stopped = time;}
+			}
+			vm.runInNewContext(fs.readFileSync('Sources/Website/Pages/1999/Scripts/Casio.js', 'utf8').replace(/^import .*\n/gm, ''), {
+				context, GainNode, OscillatorNode, master: {}, document: {},
+				setTimeout() {},
+				connectVolume() {}, startAudio: () => canStart,
+				midiFrequency: note => note,
+				isTypingTarget: () => false, hasModifier: () => false,
+				addStopHandler: handler => stopHandlers.push(handler),
+				Clock: class {isRunning = false;},
+				startPlaying() {}, stopPlaying() {}, makeBus: () => ({}), fadeOut() {},
+				GeoCitiesElement: class {
+					parts = parts;
+					config = {lowestNote: 60, computerKeys: [{code: 'KeyA'}, {code: 'KeyS'}]};
+					querySelectorAll(selector) {
+						return selector === '[data-casio-note]' ? keys : selector === '[data-casio-tone]' ? [toneButton] : [];
+					}
+					on(target, type, callback) {
+						if (!listeners.has(target)) {listeners.set(target, new Map());}
+						listeners.get(target).set(type, callback);
+					}
+					timeout(milliseconds, callback) {
+						const timer = {milliseconds, callback, cancelled: false, cancel() {this.cancelled = true;}};
+						timers.push(timer);
+						return timer;
+					}
+					contains() {return false;}
+					say() {}
+				},
+				customElements: {define: (_, constructor) => {Component = constructor;}},
+			});
+			const element = new Component();
+			element.connected();
+			const click = name => listeners.get(parts[name]).get('click')();
+			const key = (type, code = 'KeyA') => listeners.get(element).get(type)({code, repeat: false, preventDefault() {}});
+			const memoryVoices = () => {
+				const first = voices.length;
+				click('playback');
+				return voices.slice(first);
+			};
+			const nearlyEqual = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} must equal ${expected}`);
+
+			// A recording can start at audio time zero, and stopping it closes a held note once.
+			click('record');
+			assert.match(parts.display.textContent, /REC/);
+			assert.equal(parts.record.attributes['aria-pressed'], 'true');
+			key('keydown');
+			context.currentTime = 2;
+			click('record');
+			key('keyup');
+			assert.equal(timers[0].cancelled, true);
+			assert.equal(parts.record.attributes['aria-pressed'], 'false');
+			assert.equal(parts.playback.disabled, false);
+			context.currentTime = 10;
+			let played = memoryVoices();
+			assert.equal(played.length, 2);
+			nearlyEqual(played[0].started, 10.1);
+			nearlyEqual(played[0].stopped, 12.35);
+
+			// Focus and sound-card stops close keys without ending the new recording session.
+			context.currentTime = 20;
+			click('record');
+			assert.equal(parts.playback.disabled, true);
+			const recordingTimer = timers.at(-1);
+			assert.equal(recordingTimer.milliseconds, 60_000);
+			key('keydown');
+			context.currentTime = 21;
+			listeners.get(element).get('focusout')({relatedTarget: undefined});
+			assert.match(parts.display.textContent, /REC/);
+			context.currentTime = 22;
+			key('keydown', 'KeyS');
+			context.currentTime = 23;
+			stopHandlers[0]();
+			assert.match(parts.display.textContent, /REC/);
+			context.currentTime = 24;
+			key('keydown');
+			context.currentTime = 80;
+			recordingTimer.callback();
+			assert.equal(recordingTimer.cancelled, true);
+			assert.doesNotMatch(parts.display.textContent, /REC/);
+			assert.equal(parts.playback.disabled, false);
+			context.currentTime = 100;
+			played = memoryVoices();
+			assert.equal(played.length, 6);
+			for (const [index, start, end] of [[0, 100.1, 101.35], [2, 102.1, 103.35], [4, 104.1, 160.35]]) {
+				nearlyEqual(played[index].started, start);
+				nearlyEqual(played[index].stopped, end);
+			}
+
+			// A new empty recording replaces the saved notes; a failed audio start opens no session.
+			click('record');
+			click('record');
+			assert.equal(parts.playback.disabled, true);
+			assert.equal(memoryVoices().length, 0);
+			const timerCount = timers.length;
+			canStart = false;
+			click('record');
+			assert.equal(timers.length, timerCount);
+			assert.doesNotMatch(parts.display.textContent, /REC/);
 		});
 		"""#
 		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)

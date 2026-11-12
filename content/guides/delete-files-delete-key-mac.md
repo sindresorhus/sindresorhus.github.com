@@ -21,7 +21,7 @@ apps: [
 1. Select a file in Finder, and press ++⌫++. The file moves to the Trash.
 }
 
-It also works with the Backspace key of external keyboards. It cannot be on together with the Supercharge setting that goes back to the previous folder with ++⌫++.
+It also works with the Backspace key of external keyboards. It cannot be on together with the Supercharge setting that [goes back to the previous folder with ++⌫++](backspace-go-back-mac.md).
 
 ## Without an app
 

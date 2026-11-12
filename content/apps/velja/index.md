@@ -96,15 +96,15 @@ For example, Google Meet links open in Chrome, Figma links in the Figma app, and
 
 [In-depth review of Velja.](https://www.podfeet.com/blog/2022/11/velja/)
 
-@Feature(title: "Open each link in the right place") {
+@Feature(title: "Open each link in the right place", label: "Rules") {
 	Make a rule for a website or for the app you click links in, and choose the browser, browser profile, or app that opens them. Some links need no rule at all: Velja can open Google Meet links in Chrome, and Zoom, Microsoft Teams, and Figma links in their desktop apps.
 }
 
-@Feature(title: "Pick a browser when you click") {
+@Feature(title: "Pick a browser when you click", label: "Browser prompt") {
 	Velja can show a prompt with your browsers for all links, only for links from some apps, or only when you hold ++Fn++ while you click. Press a key to pick a browser. ++Command++-click a browser to always open that website there.
 }
 
-@Feature(title: "Use browser profiles and private windows") {
+@Feature(title: "Keep work and personal browsing apart", label: "Profiles") {
 	Choose a browser profile anywhere you choose a browser: as the default, in the prompt, or in a rule. Send work links to your work profile and everything else to your personal one. Private windows work the same way, so you can open external links privately in Firefox or Chrome.
 
 	See which browsers support [profiles](#supported-browsers-for-profiles) and [private windows](#supported-browsers-for-private-browsing).
@@ -792,6 +792,7 @@ No:
 2. **Too slow:** Each link would first open Velja, then the actual browser. This is fast on macOS because Velja runs in the background, but not on iOS.
 
 ### How does it compare to Choosy? {#choosy}
+<!-- @faq.compares Choosy -->
 
 Velja benefits:
 
@@ -814,6 +815,7 @@ Velja benefits:
 - More options for custom rules
 
 ### How does it compare to Bumpr? {#bumpr}
+<!-- @faq.compares Bumpr -->
 
 Velja benefits:
 
@@ -846,6 +848,7 @@ Velja benefits:
 For email links, use my [Mailway](/mailway) app together with Velja.
 
 ### How does it compare to OpenIn? {#openin}
+<!-- @faq.compares OpenIn -->
 
 Velja benefits:
 
@@ -868,6 +871,7 @@ Velja benefits:
 For email links, use my [Mailway](/mailway) app together with Velja.
 
 ### How does it compare to Finicky? {#finicky}
+<!-- @faq.compares Finicky -->
 
 Velja benefits:
 

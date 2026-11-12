@@ -89,7 +89,7 @@ extension App {
 			links.append(namingApp(LabeledLink("Privacy Policy", path: privacyPolicyPath)))
 			links.append(.termsOfUse)
 
-			if frontmatter.isPaid {
+			if isPaid {
 				links.append(.discounts)
 			}
 		}
@@ -156,9 +156,8 @@ extension App {
 	The questions of the FAQ section: its level 3 headings, except the injected feedback question and the added menu bar question, which only links to the general question.
 	*/
 	var faqHeadings: [Heading] {
-		markdown.headings.faqSection.filter { heading in
-			heading.level == .h3
-				&& heading.id != App.Section.feedbackQuestion.id
+		markdown.headings.faqQuestions.filter { heading in
+			heading.id != App.Section.feedbackQuestion.id
 				&& heading.id != App.Section.menuBarQuestion.id
 		}
 	}
@@ -227,6 +226,13 @@ extension [Heading] {
 		}
 
 		return contentOfSection(afterHeadingAt: start, level: App.Section.faq.level) { $0.level }
+	}
+
+	/**
+	The questions of the FAQ section of an app: its level 3 headings (``faqSection``), with the questions that the build adds.
+	*/
+	var faqQuestions: [Heading] {
+		faqSection.filter { $0.level == .h3 }
 	}
 }
 

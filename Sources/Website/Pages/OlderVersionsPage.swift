@@ -41,6 +41,21 @@ struct OlderVersionsPage: Page {
 							}
 						}
 					}
+					// Two columns from laptops, as the rows are short, so the page is much shorter, and a visitor finds the version of an app sooner. Each row stays in one column.
+					// The space below each row is padding, not a margin, as browsers leave out a margin at the top of a column, or Safari moves it to the next column, so the columns would not start at the same height.
+					.style {
+						$0.from(.laptop) {
+							$0
+								.columns(2, minimumWidth: .rootEm(16))
+								.gap(column: .rootEm(2.5))
+								.children("li") {
+									$0
+										.keepsTogether()
+										.margin(.zero)
+										.padding(.bottom, ProseStyles.listItemSpacing)
+								}
+						}
+					}
 				}
 			}
 		}

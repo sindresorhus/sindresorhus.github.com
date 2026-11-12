@@ -27,6 +27,15 @@ struct OpenSourcePage: Page {
 		return .card(OpenGraphCard(page: self, artwork: .calendars(of: [contributions.days], scale: content.contributionScale)))
 	}
 
+	/**
+	Marks the page when the script of the npm list does not load, so the list shows all the packages, like without JavaScript, and not only the first batch.
+	*/
+	var head: some HTML {
+		if let scriptPath = NPMPackageList.script.path {
+			ScriptLoadFailure(scriptPath)
+		}
+	}
+
 	var body: some HTML {
 		section {
 			// The numbers are close to the introduction, like the numbers below the title of the apps page, so the header and the numbers are one block of the page.
@@ -303,7 +312,7 @@ extension OpenSourcePage {
 	var plainMarkdown: String {
 		let groups = OpenSourceProject.Group.allCases.map { group in
 			let projects = group.projects.map { project in
-				"- [\(project.name)](\(project.repository.url.absoluteString)): \(project.summary)\(project.language.map { " (\($0.rawValue))" } ?? "")"
+				"- \(project.repository.url.markdownLink(project.name)): \(project.summary)\(project.language.map { " (\($0.rawValue))" } ?? "")"
 			}
 
 			return "## \(group.title)\n\n\(group.summary)\n\n\(projects.joined(separator: "\n"))"

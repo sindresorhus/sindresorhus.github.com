@@ -8,7 +8,7 @@ description: 'Discounts on Supercharge, Dato, and other apps by Sindre Sorhus: t
 @Scheduled(from: 2026-11-27, until: 2026-11-30, sale: "Black Friday") {
 ## Black Friday
 
-Apps are on sale from 27. November to 30. November:
+Apps are on sale from November 27 to November 30:
 
 **App Store:**
 - [Dato](/dato): 30% off
@@ -57,6 +57,10 @@ Students can get [Supercharge](/supercharge) 50% off at [Student App Centre](htt
 For my [apps on the App Store](https://apps.apple.com/developer/id328077650), educational institutions get a 50% discount when they purchase 20 or more copies of one of my macOS or iOS apps through [Apple School Manager](https://support.apple.com/guide/apple-school-manager/welcome/web).
 
 For my [apps on Gumroad](https://sindresorhus.gumroad.com), educational institutions get a 50% discount when they purchase 10 or more copies. Promo code: `LD13WY0`
+
+## Companies
+
+Companies can buy many copies of my [apps on the App Store](https://apps.apple.com/developer/id328077650), at the normal price, through [Apple Business](https://support.apple.com/guide/business/intro-to-app-and-book-licenses-axme19b23f7f/web), and assign them to their Macs, iPhones, and iPads, or to their employees, with their device management.
 
 ## Reviewers and writers
 

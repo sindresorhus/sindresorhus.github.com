@@ -1,11 +1,13 @@
 ---
 title: 'DS_Store Inspector'
 subtitle: 'Inspect .DS_Store files'
+description: 'A Mac viewer for the Finder metadata stored in .DS_Store files. It shows the records, but it cannot change them.'
 publicationDate: 2026-01-29
 platforms: [
 	'macOS'
 ]
 appStoreID: 6758286374
+hasNoNetworkAccess: true
 # olderVersions: [
 # 	{
 # 		version: '1.0.0',
@@ -24,11 +26,21 @@ A viewer for Finder metadata stored in [`.DS_Store`](https://en.wikipedia.org/wi
 
 `.DS_Store` (Desktop Services Store) files are hidden files macOS creates in every folder you open in Finder. They store folder-specific view preferences like icon positions, window size, and sorting options.
 
+**Features**
+
+- Drop a folder on the window, or choose “File › Open…”
+- See the filename, the record type, and the value of each record in a table that you can sort and search by filename
+- Read sizes, dates, view styles, backgrounds, icon positions, and window bounds as plain values
+- See the property lists inside records
+- Copy filenames, values, or paths, also of many records at once
+
 ## Frequently Asked Questions {#faq}
 
 ### Why would I want to inspect a `.DS_Store` file? {#why-would-i-want-to-inspect-a-ds_store-file}
 
 To understand and debug how Finder presents a folder: sorting, view mode, window size, icon positions, and other hidden state. This is especially useful when investigating odd Finder behavior, auditing metadata left behind in shared folders, repositories, ZIP archives, installers, and designed DMGs, where the `.DS_Store` controls the exact visual layout users see (icon placement, background, window geometry).
+
+The table updates when the `.DS_Store` file changes, so you can change a view option in Finder and see which record Finder writes.
 
 ### Can I use this to clean or reset Finder settings? {#can-i-use-this-to-clean-or-reset-finder-settings}
 

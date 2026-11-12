@@ -1,7 +1,13 @@
+// @ts-check
 import {copy} from '/scripts/dom.js';
+
+/**
+@import {CopyButtonState} from '/scripts/element-contracts.js'
+*/
 
 class CopyButton extends HTMLElement {
 	// The pending timer that removes the copied state, so a second click restarts it.
+	/** @type {number | undefined} */
 	#copiedStateTimer;
 
 	connectedCallback() {
@@ -17,11 +23,11 @@ class CopyButton extends HTMLElement {
 
 	#copy = async () => {
 		// The button says “Copied”, as the element itself has no box.
-		if (!await copy(this.getAttribute('text'), this.firstElementChild)) {
+		if (!await copy(/** @type {string} */ (this.getAttribute('text')), /** @type {HTMLButtonElement} */ (this.firstElementChild))) {
 			return;
 		}
 
-		this.dataset.state = 'copied';
+		this.dataset.state = /** @satisfies {CopyButtonState} */ ('copied');
 
 		clearTimeout(this.#copiedStateTimer);
 		this.#copiedStateTimer = setTimeout(() => {

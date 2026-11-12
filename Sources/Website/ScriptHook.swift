@@ -106,3 +106,33 @@ extension Style {
 		nested("\(attribute.selector(value: value)) &", content)
 	}
 }
+
+/**
+A classic script for the `head` of a page that marks the root element when the module script at the path, or one of its imports, does not load, like with a content blocker or a dropped connection, so the styles can show the page without the script (`.when(ancestorHas: ScriptLoadFailure.Hooks.failed)`), like the note with the email address of the feedback page. The browser sends the `error` event of a module script after it parsed the page. Limitation: a script that loads but then fails is not noticed.
+*/
+struct ScriptLoadFailure: HTML, Sendable {
+	let scriptPath: RoutePath
+
+	init(_ scriptPath: RoutePath) {
+		self.scriptPath = scriptPath
+	}
+
+	var body: some HTML {
+		script {
+			HTMLRaw(#"""
+			addEventListener('error', event => {
+				if (event.target instanceof HTMLScriptElement && event.target.src.includes('\#(scriptPath)')) {
+					document.documentElement.setAttribute('\#(Hooks.failed.attributeName)', '');
+				}
+			}, true);
+			"""#)
+		}
+	}
+
+	enum Hooks: String, ScriptDataAttributeSet {
+		/**
+		On the root element when the script did not load.
+		*/
+		case failed = "script-failed"
+	}
+}

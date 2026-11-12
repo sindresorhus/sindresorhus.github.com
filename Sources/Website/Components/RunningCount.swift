@@ -1,10 +1,11 @@
 import Elementary
+import Foundation
 import SiteKit
 
 /**
 A count that starts at 0 when the page is opened and goes up at a rate in every frame while it is on screen, like the npm downloads while the visitor has been on the page. A ``StatCard`` shows it for a ``Stat`` with a rate.
 
-Without JavaScript, it stays at 0.
+Without JavaScript, it stays at 0, so the now page hides it, like a ``LiveFact``.
 
 It is not a CSS animation of an `@property` integer shown with `counter()`, as Safari 27 animates the integer as a decimal, which `counter()` does not accept, so it shows 0. CSS also cannot start the count when a prerendered page is opened.
 */
@@ -25,8 +26,9 @@ struct RunningCount: ScriptedElement {
 			const update = () => {
 				const time = Math.max(0, performance.now() - (navigation?.activationStart ?? 0));
 				const elapsed = Math.floor(time / step) * step;
-				// Without a thousands separator, like the other numbers of a stat card. Only a new number is written, as frames that are close can have the same one.
-				const count = String(Math.floor(elapsed * perMillisecond));
+				// A thousands separator only from five digits, in the language of the site, like the other numbers of the site (`SiteNumberFormatStyle`). Only a new number is written, as frames that are close can have the same one.
+				const number = Math.floor(elapsed * perMillisecond);
+				const count = number < \#(SiteNumberFormatStyle.groupingThreshold) ? String(number) : number.toLocaleString('\#(Locale.site.identifier(.bcp47))');
 
 				if (this.textContent !== count) {
 					this.textContent = count;

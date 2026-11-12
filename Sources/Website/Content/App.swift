@@ -67,7 +67,7 @@ struct App: ContentDocument {
 	/**
 	The root frontmatter order follows the declarations, with status first and related facts together. Missing properties stay absent.
 	*/
-	static var formattingKeys: [any CodingKey] {
+	static var formattingKeys: [Frontmatter.CodingKeys] {
 		Frontmatter.CodingKeys.allCases
 	}
 
@@ -170,7 +170,7 @@ struct App: ContentDocument {
 		}
 
 		// The feedback page suggests the questions of the FAQ section and the tips with a custom ID (``tipHeadings``), so the directives of another heading would silently do nothing, and so would platforms that the app is not on. The picked shared questions have no lines.
-		let questionLines = Set((markdown.headings.faqSection.filter { $0.level == .h3 } + markdown.headings.tips).compactMap(\.line))
+		let questionLines = Set((markdown.headings.faqQuestions + markdown.headings.tips).compactMap(\.line))
 
 		for heading in markdown.headings {
 			guard let line = heading.line else {
@@ -190,6 +190,29 @@ struct App: ContentDocument {
 			}
 		}
 
+		// The app page shows a chip only for the questions of the FAQ section (``AppPage``), so the directive of a tip would silently do nothing.
+		for heading in markdown.headings.tips where heading.contains(FAQDirectives.Compares.self) {
+			problems.append(file.error(line: heading.line, "`@\(FAQDirectives.Compares.name)` only works on a question of the FAQ section, which the app page links to. Remove it from the tip “\(heading.text)”."))
+		}
+
+		// Two chips with the same name would go to different questions, so a visitor cannot know which one to click. A picked shared question has no line, so the problem is at the question of the app.
+		var comparedQuestions = [String: (text: String, line: SiteKit.SourceLocation.Line?)]()
+
+		for heading in markdown.headings.faqQuestions {
+			guard let name = heading[FAQDirectives.Compares.self] else {
+				continue
+			}
+
+			let key = name.lowercased()
+
+			guard let other = comparedQuestions[key] else {
+				comparedQuestions[key] = (heading.text, heading.line)
+				continue
+			}
+
+			problems.append(file.error(line: heading.line ?? other.line, "The questions “\(other.text)” and “\(heading.text)” both compare with “\(name)”, so the page shows two equal chips. Give each question its own name, or keep one."))
+		}
+
 		// The questions are level 3 headings, so a level 4 heading would silently be a heading in the answer above it.
 		if let heading = markdown.headings.faqSection.first(where: { $0.level > .h3 }) {
 			problems.append(file.error(line: heading.line, "The questions of the FAQ section are level 3 headings: `### \(heading.text)`."))
@@ -198,23 +221,30 @@ struct App: ContentDocument {
 		// A question without an answer would be an empty question on the page, like after a new heading was put above the answer of another question. The shared questions have the same rule in their file (``SharedQuestions``), and the questions that the build adds have no lines. The feedback question can be only a heading, as the build writes its answer.
 		let sourceHeadings = body.descendants(of: Markdown.Heading.self)
 
-		for heading in markdown.headings.faqSection where heading.level == .h3 && heading.id != Section.feedbackQuestion.id {
+		for heading in markdown.headings.faqQuestions where heading.id != Section.feedbackQuestion.id {
 			guard
 				let line = heading.line,
-				let sourceHeading = sourceHeadings.first(where: { file.line(of: $0) == line }),
-				let parent = sourceHeading.parent
+				let sourceHeading = sourceHeadings.first(where: { file.line(of: $0) == line })
 			else {
 				continue
 			}
 
 			// A directive below the question, like `<!-- @faq.keywords … -->`, is not an answer.
-			let blocks = Array(parent.children)
-			let hasAnswer = blocks.contentOfSection(afterHeadingAt: sourceHeading.indexInParent, level: heading.level) { ($0 as? Markdown.Heading)?.headingLevel }
-				.contains { !$0.isCommentOnly }
-
-			if !hasAnswer {
-				problems.append(file.error(line: line, "The question “\(heading.text)” has no answer. Write it below the heading."))
+			if !sourceHeading.hasSectionContent {
+				problems.append(file.missingAnswerError(question: heading.text, line: line))
 			}
+		}
+
+		// A `@Feature` section with a label has the number on the line of the label, and one without has it above the title, so the sections of a page have one look only when all or none have a label. The build already reports invalid arguments.
+		let features = body.blockDirectives.compactMap { directive in
+			(try? directive.arguments(for: FeatureArguments.self)).map { (directive: directive, label: $0.label) }
+		}
+
+		if
+			features.contains(where: { $0.label != nil }),
+			let feature = features.first(where: { $0.label == nil })
+		{
+			problems.append(file.error(line: file.line(of: feature.directive), "The other `@\(FeatureArguments.name)` sections of the page have a `label`. Add one, like `label: \"Browser prompt\"`, or remove all labels."))
 		}
 
 		// The note is shown on the feedback page, so its links are resolved and checked like the text of the page. Its problems are reported at its key, as the lines of the SOML value are not the lines of the note.
@@ -320,10 +350,7 @@ extension App.Frontmatter {
 	var purchase: App.Purchase {
 		get throws(ContentError) {
 			if let gumroad {
-				guard
-					appStoreID == nil,
-					writtenIsPaid != false
-				else {
+				guard appStoreID == nil else {
 					throw ContentError(reason: "`gumroad` is only for paid apps that are not on the App Store. App Store apps get their price from the App Store.")
 				}
 
@@ -596,22 +623,41 @@ extension App {
 	}
 
 	/**
-	What the app collects or sends, without the crash reports, as a sentence, for the privacy policy: the `privacyNote`, or that it collects no data.
+	What the app collects or sends, without the crash reports, as a sentence, for the privacy policy: the `privacyNote`, or that it collects no data, and for an app without network access (`hasNoNetworkAccess`), that it cannot connect.
 	*/
 	var privacyStatement: String {
 		if let privacyNote = frontmatter.privacyNote {
 			return privacyNote
 		}
 
+		if frontmatter.hasNoNetworkAccess {
+			// Short, as the description of the privacy policy has it too. The policy and the Markdown copies say why (``noNetworkAccessSentence``).
+			return "No data or personal information is collected by this app, which cannot connect to the internet."
+		}
+
 		return frontmatter.hasSentry ? "No personal information is collected by this app." : "No data or personal information is collected by this app."
 	}
 
 	/**
-	The privacy in a few words, for the link to the privacy policy in the hero, like “No data collected”. An app with a `privacyNote` sends some data, which needs the whole sentence, so the link only says that the policy has the details.
+	What an app without network access (`hasNoNetworkAccess`) cannot do, for the Markdown copies.
+	*/
+	static let noNetworkAccessSentence = "The app cannot connect to the internet. \(noNetworkPermissionSentence)"
+
+	/**
+	Why an app without network access (`hasNoNetworkAccess`) cannot connect, for the privacy policy, before how to check it, and the Markdown copies (``noNetworkAccessSentence``).
+	*/
+	static let noNetworkPermissionSentence = "It has no network permission, so the macOS app sandbox stops all its connections."
+
+	/**
+	The privacy in a few words, for the link to the privacy policy in the hero and the facts of the app, like “No data collected”, or “No network access” for an app that cannot connect (`hasNoNetworkAccess`). An app with a `privacyNote` sends some data, which needs the whole sentence, so the link only says that the policy has the details.
 	*/
 	var privacySummary: String {
 		guard frontmatter.privacyNote == nil else {
 			return "Privacy details"
+		}
+
+		if frontmatter.hasNoNetworkAccess {
+			return "No network access"
 		}
 
 		return frontmatter.hasSentry ? "No personal data collected" : "No data collected"
@@ -640,17 +686,6 @@ extension App {
 	The first OS version that all the platforms share, as Apple gave them the same version numbers from 26, so one `minimumOSVersion` is enough for all of them.
 	*/
 	static let firstSharedOSVersion = 26
-
-	/**
-	How long the app has been available, like “Since 2019”, for an app that is at least two years old, as a sign that it is maintained. A newer app says nothing, as a recent year is not a sign of anything. It is next to the requirement, like “Requires macOS 26 or later”, or “Available on macOS” when the requirement is unknown, so it does not say “available”.
-	*/
-	func availableSinceText(at date: Date) -> String? {
-		guard date.duration(since: frontmatter.publicationDate.foundationDate) >= .days(365 * 2) else {
-			return nil
-		}
-
-		return "Since \(frontmatter.publicationDate.year)"
-	}
 
 	/**
 	Whether the app was published in the last 30 days.
@@ -698,7 +733,7 @@ extension App {
 					score += 2
 				}
 
-				if candidate.isPaid == frontmatter.isPaid {
+				if candidate.isPaid == isPaid {
 					score += 1
 				}
 
@@ -746,15 +781,15 @@ extension App {
 		// Compatibility limits, like Menu Bar Spacing not working on macOS 27, are documented in the app page content.
 
 		/**
-		Whether the app is paid: `isPaid` when it is written, else whether it is sold on Gumroad (``gumroad``), so a Gumroad app does not need to repeat it.
+		Whether the app is paid: `isPaid: true`, or sold on Gumroad (``gumroad``), so a Gumroad app does not need to repeat it.
 		*/
 		var isPaid: Bool {
-			writtenIsPaid ?? (gumroad != nil)
+			writtenIsPaid || gumroad != nil
 		}
 
-		@Key("isPaid") private var writtenIsPaid: Bool?
+		@Key("isPaid") @TrueOrAbsent private var writtenIsPaid = false
 
-		var isMenuBarApp = false
+		@TrueOrAbsent var isMenuBarApp = false
 		var appStoreID: AppStoreID?
 		var setappID: SetappID?
 
@@ -781,7 +816,12 @@ extension App {
 		var releasesRepository: GitHubRepositoryName?
 
 		var downloadCount: SafeInteger?
-		var hasSentry = false
+		@TrueOrAbsent var hasSentry = false
+
+		/**
+		Whether the Mac app has no network permission (`com.apple.security.network.client`), so the macOS app sandbox stops all its connections. The privacy of the app page and the privacy policy say it, as a visitor can check it with `codesign`. Only set it after you check the entitlements of the released version, like with `codesign -d --entitlements - "/Applications/Day Progress.app"`.
+		*/
+		@TrueOrAbsent var hasNoNetworkAccess = false
 
 		/**
 		A script for the app page, like a demo, as the path of a file in `public` or of the page bundle, like `/googly-eyes/eyes.js`.
@@ -918,6 +958,36 @@ extension App {
 				}
 			}
 
+			// Crash reports and the data of a `privacyNote` go over the network, and iOS has no network permission.
+			if hasNoNetworkAccess {
+				if hasSentry {
+					problems.add("`hasNoNetworkAccess` cannot go with `hasSentry`, as the app sends crash reports over the network.", at: .hasNoNetworkAccess)
+				}
+
+				if privacyNote != nil {
+					problems.add("`hasNoNetworkAccess` cannot go with `privacyNote`, which says what the app sends.", at: .hasNoNetworkAccess)
+				}
+
+				if platforms != [.macOS] {
+					problems.add("`hasNoNetworkAccess` is only for an app that is only on macOS, as only the Mac has a network permission.", at: .hasNoNetworkAccess)
+				}
+			}
+
+			// Both are usually from a copied frontmatter, and the site would list the app with the menu bar apps, or show a trial of a free app.
+			if
+				isMenuBarApp,
+				!platforms.contains(.macOS)
+			{
+				problems.add("`isMenuBarApp` needs `macOS` in `platforms`, as only the Mac has a menu bar.", at: .isMenuBarApp)
+			}
+
+			if
+				trial != nil,
+				!isPaid
+			{
+				problems.add("A free app needs no `trial`. Remove `trial`, or make the app paid with `isPaid` or `gumroad`.", at: .trial)
+			}
+
 			problems.validate(nonAppStoreVersion, at: .nonAppStoreVersion)
 			problems.validate(trial, at: .trial)
 			problems.validate(announcement, at: .announcement)
@@ -981,19 +1051,16 @@ extension App {
 		@PlainText var limitations: String?
 
 		func validate(into problems: inout FrontmatterProblems<Self>) {
-			// A TestFlight link that is not an invitation would silently be a download (``isTestFlight``), with the text and the button of a zip file.
-			if
-				!isTestFlight,
-				url.value.host() == "testflight.apple.com"
-			{
-				problems.add("`trial.url` is on TestFlight, but it is not a link to join a beta, like `https://testflight.apple.com/join/fJGUrsZx`, so the trial would be a download.", at: .url)
-			}
-
-			if
-				limitations != nil,
-				isTestFlight
-			{
-				problems.add("`trial.limitations` is only for a trial that is not on TestFlight, as a TestFlight trial is the full app.", at: .limitations)
+			switch kind {
+			case .testFlight:
+				if limitations != nil {
+					problems.add("`trial.limitations` is only for a trial that is not on TestFlight, as a TestFlight trial is the full app.", at: .limitations)
+				}
+			case .download:
+				// A TestFlight link that is not an invitation would silently be a download (``kind``), with the text and the button of a zip file.
+				if url.value.host() == "testflight.apple.com" {
+					problems.add("`trial.url` is on TestFlight, but it is not a link to join a beta, like `https://testflight.apple.com/join/fJGUrsZx`, so the trial would be a download.", at: .url)
+				}
 			}
 
 			// The standard text of the trial goes on with the next sentence after it (``App/Frontmatter/trialText(of:)``).
@@ -1006,17 +1073,41 @@ extension App {
 		}
 
 		/**
-		Whether the trial is on TestFlight, which has its own text and button title, as it is the full app for a limited time.
+		What the trial is, like ``App/Purchase`` for the purchase.
 		*/
-		var isTestFlight: Bool {
-			(try? TestFlightInvitation(validating: url.value)) != nil
+		enum Kind {
+			/**
+			The full app for a limited time, which has its own text and button title.
+			*/
+			case testFlight(TestFlightInvitation)
+
+			/**
+			A download, like a zip file, which can limit some features (``App/Trial/limitations``).
+			*/
+			case download(AbsoluteURL, limitations: String?)
+		}
+
+		/**
+		What the trial is: on TestFlight when `url` is an invitation, else a download.
+		*/
+		var kind: Kind {
+			guard let invitation = try? TestFlightInvitation(validating: url.value) else {
+				return .download(url, limitations: limitations)
+			}
+
+			return .testFlight(invitation)
 		}
 
 		/**
 		The text of the button of the trial.
 		*/
 		var buttonTitle: String {
-			isTestFlight ? "Try on TestFlight" : "Download Free Trial"
+			switch kind {
+			case .testFlight:
+				"Try on TestFlight"
+			case .download:
+				"Download Free Trial"
+			}
 		}
 
 		/**
@@ -1090,7 +1181,7 @@ extension App {
 		@PlainText var source: String
 
 		var url: AbsoluteURL?
-		var isStarRating = false
+		@TrueOrAbsent var isStarRating = false
 
 		/**
 		The year of the article, like `2021`, which the source shows.
@@ -1115,7 +1206,7 @@ extension App {
 		}
 
 		/**
-		The quote ready for display, with an article's required date carried by its attribution.
+		The quote ready for display, with typographic quotes and apostrophes, and with an article's required date carried by its attribution.
 		*/
 		var resolved: Resolved {
 			get throws(ContentError) {
@@ -1135,7 +1226,12 @@ extension App {
 					attribution = .person(source: source, year: year)
 				}
 
-				return Resolved(quote: self, attribution: attribution)
+				// A quote copied from an article can have straight quotes and apostrophes, like “Let's”, so the page shows typographic ones, like the App Store reviews. The highlight is changed the same way, so it is still in the quote.
+				var typographicQuote = self
+				typographicQuote.quote = quote.typographicQuotes
+				typographicQuote.highlight = highlight?.typographicQuotes
+
+				return Resolved(quote: typographicQuote, attribution: attribution)
 			}
 		}
 
@@ -1183,9 +1279,10 @@ extension App {
 				problems.add(error.reason, at: .url)
 			}
 
+			// The page finds the highlight in the quote with typographic quotes (``resolved``), and an apostrophe can become another quote mark in the highlight alone, like “'s go” in “Let's go”.
 			if
 				let highlight,
-				!quote.contains(highlight)
+				!quote.typographicQuotes.contains(highlight.typographicQuotes)
 			{
 				problems.add("The `highlight` of the `pressQuotes` quote from \(source) is not in its quote.", at: .highlight)
 			}
@@ -1384,7 +1481,6 @@ extension App {
 		}
 	}
 }
-
 
 extension FileRead where Value == Color?, Failure == Never {
 	/**

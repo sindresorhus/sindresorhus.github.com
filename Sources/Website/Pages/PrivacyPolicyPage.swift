@@ -38,6 +38,21 @@ struct PrivacyPolicyPage: Page {
 				app.privacyStatement
 			}
 
+			// A visitor can check the claim of an app without network access.
+			if app.hasNoNetworkAccess {
+				p {
+					"\(App.noNetworkPermissionSentence) To check it, run "
+					code(.notTranslated) {
+						"codesign -d --entitlements - \"/Applications/\(app.title).app\""
+					}
+					" in Terminal. The output does not have "
+					code(.notTranslated) {
+						"com.apple.security.network.client"
+					}
+					"."
+				}
+			}
+
 			if app.hasSentry {
 				// The DSNs of all the apps are in one Sentry organization in the US region, and the apps do not set `sendDefaultPii`, so Sentry gets no name or email. All the projects have “Prevent Storing of IP Addresses” on, so Sentry does not store the IP address that a report comes from.
 				p {

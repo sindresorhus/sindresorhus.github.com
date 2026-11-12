@@ -2,7 +2,7 @@
 title: 'How to Run JavaScript in Shortcuts on iPhone and Mac'
 description: 'The JavaScript actions of Shortcuts run on a web page in Safari, or control Mac apps. The free Actions app adds an action that runs JavaScript on any text.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'actions'
 ]

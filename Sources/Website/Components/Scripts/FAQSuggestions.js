@@ -5,9 +5,9 @@ FAQ suggestions: while the visitor types, the message is split into words (three
 */
 
 /*
-The lines of a log that the visitor pasted, like the diagnostic report that the form asks for: a field, like `Command:   Actions` (a colon and two or more spaces), a field of the JSON of a crash report, like `"procName" : "Dato",`, a line of a stack with its count of samples, like `  127  <e-core>`, and a line with a memory address, like a stack frame (`[0x10939e154]`). Their words are not the words of the visitor, so they would push the right answer down.
+The lines of a log that the visitor pasted, like the diagnostic report that the form asks for: a field, like `Command:   Actions` (a colon and two or more spaces), a field of the JSON of a crash report, like `"procName" : "Dato",`, a line of a stack with its count of samples, like `  127  <e-core>`, a line that starts with a date and a time with seconds, like `2026-11-01 10:15:30` of `log show` and `/var/log/install.log` (with seconds, so a sentence that starts with a date and a time, like `2026-11-01 10:15 the icon went away`, still counts), and a line with a memory address, like a stack frame (`[0x10939e154]`). Their words are not the words of the visitor, so they would push the right answer down.
 */
-const logLinePattern = /^(?:[\w \t./()-]+:\s{2,}|[\s{[]*"[^"]+"\s*:|\s*\d+\s{2,})|\b0x[\da-f]{4,}/i;
+const logLinePattern = /^(?:[\w \t./()-]+:\s{2,}|[\s{[]*"[^"]+"\s*:|\s*\d+\s{2,}|\s*\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2})|\b0x[\da-f]{4,}/i;
 
 const withoutLogLines = text => text.split('\n').filter(line => !logLinePattern.test(line)).join('\n');
 
@@ -17,23 +17,18 @@ const crashReportPattern = /^(?:Incident Identifier|Crashed Thread|Exception Typ
 // The name of a crash report file, like `Dato-2026-11-01-101530.ips`, or `.crash` of older macOS versions.
 const crashReportFilePattern = /\.(?:ips|crash)$/i;
 
-// The endings of the forms of a word, and no ending, for the same word.
-const wordEndings = new Set(['', 's', 'es', 'ed', 'ing', 'er', 'ly']);
-
-// The endings that a word without its last “e” takes, like “freezing” for “freeze”.
-const vowelEndings = new Set(['es', 'ed', 'ing', 'er']);
-
-// The steps from a word to its stem: “ies” and “ied” become “y”, then one ending, a doubled last letter, and a last “e” are removed.
-const stemSteps = [
-	[/ie[sd]$/, 'y'],
-	[/(?:ing|ed|es|s)$/, ''],
-	[/(.)\1$/, '$1'],
-	[/e$/, ''],
-];
-
 // The function that finds the questions a message is about, among the general questions and the questions of the app with the title.
 function questionMatcher(data, appTitle) {
 	const stopwords = new Set(data.stopwords);
+	// The patterns of the site generator, so the message is split like the questions.
+	const {apostrophe, menuBar, word} = data.wordPatterns;
+	const apostrophePattern = new RegExp(apostrophe, 'g');
+	const menuBarPattern = new RegExp(menuBar, 'g');
+	const wordPattern = new RegExp(word, 'g');
+	// The rules of the site generator for the forms of a word, so the check of the keywords and the page agree: the endings of the forms of a word (with no ending, for the same word), the endings that a word without its last “e” takes, like “freezing” for “freeze”, and the steps from a word to its stem.
+	const wordEndings = new Set(data.wordForms.endings);
+	const vowelEndings = new Set(data.wordForms.vowelEndings);
+	const stemSteps = data.wordForms.stemSteps.map(({pattern, replacement}) => [new RegExp(pattern), replacement]);
 	const app = data.apps.find(app => app.title === appTitle);
 
 	let questions = data.generalQuestions;
@@ -50,7 +45,7 @@ function questionMatcher(data, appTitle) {
 	const allWords = new Set(questions.flatMap(question => question.words));
 
 	// Apostrophes are removed first, as in the site generator, so “doesn't” becomes “doesnt”, and “menu bar” is one word, “menubar”, like in the questions.
-	const wordsIn = text => (text.toLowerCase().replaceAll(/['’]/g, '').replaceAll(/\bmenu\s+bar/g, 'menubar').match(/[a-z\d_]{3,}/g) ?? []).filter(word => !stopwords.has(word));
+	const wordsIn = text => (text.toLowerCase().replaceAll(apostrophePattern, '').replaceAll(menuBarPattern, 'menubar').match(wordPattern) ?? []).filter(word => !stopwords.has(word));
 
 	// The name of the app, which visitors often write, like “Velja is great”, is left out of the message, as many questions of the app have it, so it would match them all. Only the whole name, so “calendar” still counts for Menu Bar Calendar. A limitation: for an app whose name is a common word, like Actions, the word is left out too, so the other words of the message must match.
 	const appTitlePattern = app ? new RegExp(`\\b${RegExp.escape(app.title)}\\b`, 'gi') : undefined;

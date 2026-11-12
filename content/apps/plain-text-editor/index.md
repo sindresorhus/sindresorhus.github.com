@@ -51,6 +51,7 @@ It won’t handle your 1 million line log file, but it is a nice way to write do
 ## Frequently Asked Questions {#faq}
 
 ### How is the macOS version better than TextEdit? {#how-is-the-macos-version-better-than-textedit}
+<!-- @faq.compares TextEdit -->
 
 - Editor padding
 - Optimal line spacing and length
@@ -60,6 +61,7 @@ It won’t handle your 1 million line log file, but it is a nice way to write do
 - Window can stay on top
 - Force dark/light mode
 - Brain dump mode
+- “File › Close Without Saving” (++Control+Command+W++), when you turn it on in the settings
 
 ### Spellchecking does not work {#spellchecking-does-not-work}
 
@@ -84,6 +86,7 @@ You can also press ++Command+N++ if you have [tabs enabled for document apps](ht
 No, that’s not supported. However, you may be interested in my [Scratchpad](/scratchpad) app.
 
 ### What’s the difference between Plain Text Editor and Scratchpad? {#whats-the-difference-between-plain-text-editor-and-scratchpad}
+<!-- @faq.compares Scratchpad -->
 
 [See the comparison on the Scratchpad page](/scratchpad#plain-text-editor-comparison)
 

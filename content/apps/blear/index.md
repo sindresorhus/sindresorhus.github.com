@@ -15,7 +15,7 @@ Bright, colorful photos give the best result.
 
 ## Tips
 
-- Drag the photo sideways to change the crop, and use the slider to change the blur.
+- Drag the photo sideways to change the crop, and use the slider to change the blur. The app saves exactly what you see, without the buttons.
 - Shake your device or double-tap the photo to get another of the included photos.
 - To start in the Photos app, open a photo, tap the share button, and choose “Make Blurry Wallpaper”.
 - To use the saved wallpaper, open it in the Photos app, tap the share button, and choose “Use as Wallpaper”.

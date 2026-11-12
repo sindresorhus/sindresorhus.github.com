@@ -1,6 +1,6 @@
 ---
 title: 'How to Put a Sticky Note on the Mac Desktop and iPhone Home Screen'
-description: 'Show a short note as a sticky note widget on the iPhone Home Screen and the Mac desktop with Memo Widget, or use Stickies and the Notes widget.'
+description: 'Show a short note as a sticky note widget on the iPhone Home Screen or Lock Screen and the Mac desktop with Memo Widget, or use Stickies and the Notes widget.'
 publicationDate: 2026-10-30
 topic: 'iphone'
 apps: [

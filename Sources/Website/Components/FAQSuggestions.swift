@@ -108,6 +108,16 @@ struct FAQSuggestions: ScriptedElement {
 		*/
 		let stopwords = SuggestedQuestion.stopwords.sorted()
 
+		/**
+		The patterns that split the message into words, as ``SuggestedQuestion`` splits the questions.
+		*/
+		let wordPatterns = SuggestedQuestion.wordPatterns
+
+		/**
+		The rules that make two words forms of one word, as ``SuggestedQuestion/isForm(_:of:)`` uses them for the keywords.
+		*/
+		let wordForms = SuggestedQuestion.wordForms
+
 		var body: some HTML {
 			JSONScript(id: FAQSuggestions.questionsID, self)
 		}

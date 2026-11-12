@@ -3,15 +3,19 @@ import Foundation
 import SiteKit
 
 /**
-All the npm packages, most downloaded first, each as a row with its name, which links to the package on npm, its description, and its weekly downloads, with a field above them that filters the rows by name and description. JavaScript shows batches of 20, with a button to show more, and filtering searches the whole list. When no package matches, the package with the closest name shows, so a small typo still finds the package, and Enter opens the first package that shows. All the rows are in the HTML, so search engines and visitors without JavaScript see the whole list. Without JavaScript, there is no filter.
+All the npm packages, most downloaded first, each as a row with its name, which links to the package on npm, its description, and its weekly downloads, with a field above them that filters the rows by name and description. JavaScript shows the first 20, with a button that says how many more it shows, twice as many each time, and filtering searches the whole list, with the packages whose name has the words first. After a reload, the list shows as many rows as before, so the visitor is back at the package they read. The matching rows that the list does not show yet are hidden “until found”, so find in page also finds them. When no package matches, the package with the closest name shows, so a small typo still finds the package, and Enter opens the first package that shows. All the rows are in the HTML, so search engines and visitors without JavaScript see the whole list. Without JavaScript, there is no filter.
 */
 struct NPMPackageList: ScriptedElement {
 	static let script = ElementScript()
 
 	/**
-	The number of packages in a batch. The script has the same number (`#pageSize`).
+	The number of packages in the first batch. The script gets it from the `page-size` attribute, and the styles show only this many rows before the script runs.
 	*/
 	static let pageSize = 20
+
+	var rootAttributes: [HTMLAttribute<ElementTag<Self>>] {
+		[.custom(name: "page-size", value: String(Self.pageSize))]
+	}
 
 	/**
 	The packages, in the order of the list.
@@ -29,9 +33,9 @@ struct NPMPackageList: ScriptedElement {
 			.type(.search),
 			.placeholder("Filter packages"),
 			.autocomplete("off"),
-			.spellcheck(false),
 			.enterKeyHint(.go)
 		)
+		.autocorrectionDisabled()
 		.accessibilityLabel("Filter packages")
 		.style(FormFieldStyles.control)
 		// On the element, so it wins over the display of the field.
@@ -39,6 +43,10 @@ struct NPMPackageList: ScriptedElement {
 			$0
 				.margin(.bottom, .rootEm(1))
 				.hiddenWithoutScripting()
+				// The list then shows all the packages, like without JavaScript.
+				.when(ancestorHas: ScriptLoadFailure.Hooks.failed) {
+					$0.hidden()
+				}
 		}
 
 		// The script says how many packages match the filter, or that none does. Between the field and the list, where the eyes are while typing. A polite live region that is always on the page, so screen readers announce the text without interrupting the typing.
@@ -50,7 +58,7 @@ struct NPMPackageList: ScriptedElement {
 			}
 
 		// Keep the list semantics in Safari, as the styles remove its bullets.
-		ul(.role(.list)) {
+		ul(.role(.list), .part(Parts.list)) {
 			for package in packages {
 				li(.part(Parts.row)) {
 					// The name and the description are the text that the filter reads.
@@ -91,6 +99,7 @@ struct NPMPackageList: ScriptedElement {
 
 	enum Parts: String, ElementPartSet {
 		case filter
+		case list
 		case row
 		case text
 		case link
@@ -122,6 +131,10 @@ struct NPMPackageList: ScriptedElement {
 					.children(":not([hidden]) ~ :not([hidden])") {
 						$0.border(.top, .separator)
 					}
+					// A row that is hidden until find in page finds it keeps its box, but not its content, so without its padding it takes no space.
+					.children(.attribute("hidden", value: "until-found")) {
+						$0.padding(.zero)
+					}
 			case .row:
 				// The downloads next to the text from small tablets, and below it on phones. The link of the name covers the row.
 				Style()
@@ -135,9 +148,9 @@ struct NPMPackageList: ScriptedElement {
 							.justifyContent(.spaceBetween)
 							.gap(.rootEm(1.5))
 					}
-					// Before the script runs, only the first batch shows, like after it, so the page does not start with all the rows and then jump when the script hides them. The script defines the element, so the element is not defined until then. Without JavaScript, all the rows show. A known limit: when the browser has JavaScript but the script fails to load, only the first batch shows.
+					// Before the script runs, only the first batch shows, like after it, so the page does not start with all the rows and then jump when the script hides them. The script defines the element, so the element is not defined until then. Without JavaScript, all the rows show, and also when the page marks that the script did not load (`ScriptLoadFailure`).
 					.media(!MediaCondition.scriptingDisabled) {
-						$0.nested("\(Self.root.selector):not(:defined) &:nth-child(n + \(raw: String(NPMPackageList.pageSize + 1)))") {
+						$0.nested(":root:not(\(ScriptLoadFailure.Hooks.failed.selector())) \(Self.root.selector):not(:defined) &:nth-child(n + \(raw: String(NPMPackageList.pageSize + 1)))") {
 							$0.hidden()
 						}
 					}

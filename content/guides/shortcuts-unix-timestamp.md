@@ -2,7 +2,7 @@
 title: 'How to Get a Unix Timestamp in Shortcuts on iPhone and Mac'
 description: 'Convert a date to a Unix timestamp, or a timestamp to a date, in the Shortcuts app with the free Actions app, or count the seconds with a built-in action.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'actions'
 ]

@@ -15,7 +15,7 @@ apps: [
 ## With Velja
 
 @Steps {
-1. Open [Velja](../apps/velja/index.md) and click “Get Started”. Velja works by being the default browser, so it asks to become it.
+1. Open [Velja](../apps/velja/index.md), click “Continue”, and then “Get Started”. Velja works by being the default browser, so it asks to become it.
 1. Open the settings, and click “Extras”. “Remove tracking parameters when opening links” is on by default.
 1. To also clean the links that you copy, turn on “Remove tracking parameters when copying links”.
 }

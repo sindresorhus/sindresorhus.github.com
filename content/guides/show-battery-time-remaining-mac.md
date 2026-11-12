@@ -34,7 +34,7 @@ The battery item of macOS can show the percentage next to its icon:
 1. Select “Battery”, click “Battery Options”, and turn on “Show Percentage”.
 }
 
-Battery Indicator shows the time remaining by default, and the percentage when you hover over its item in the menu bar. With “Show” set to “Percentage”, it is the other way around.
+By default, Battery Indicator shows the percentage, and the time remaining when you hover over its item in the menu bar. With “Show” set to “Time remaining”, it is the other way around.
 
 ## Why macOS does not show the time remaining
 

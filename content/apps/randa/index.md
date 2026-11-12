@@ -52,7 +52,7 @@ On iPhone and iPad, shake the device for a new number, and tap and hold the numb
 
 ### Why do I get the same number twice in a row? {#same-number}
 
-Each number is random, so the same number can come again, like when you roll a die. To always get a number that is different from the previous one, turn on “Consecutively unique numbers” in the settings.
+Each number is random, so the same number can come again, like when you roll a die. To always get a number that is different from the previous one, turn on “Consecutively unique numbers” in the settings. The app does not work like a shuffled deck of cards: a number can come again before all the other numbers in the range have come.
 
 ### Why are the numbers back to 1 and 100? {#range-reset}
 <!-- @faq.keywords reset range remember -->

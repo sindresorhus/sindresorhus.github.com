@@ -157,3 +157,13 @@ extension OSVersion: ValidatedValue {
 		self = version
 	}
 }
+
+extension OSVersion: Encodable {
+	/**
+	Encodes the version as its text (``description``), like `"26.1"`, like the frontmatter writes it.
+	*/
+	func encode(to encoder: any Encoder) throws {
+		var container = encoder.singleValueContainer()
+		try container.encode(description)
+	}
+}

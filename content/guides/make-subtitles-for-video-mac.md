@@ -15,7 +15,7 @@ apps: [
 ## With Aiko
 
 @Steps {
-1. Open the settings of [Aiko](../apps/aiko/index.md), and turn on “Optimize for subtitles”. It keeps each subtitle at 84 characters or less.
+1. Open the settings of [Aiko](../apps/aiko/index.md), and turn on “Optimize for subtitles”. It keeps each subtitle at 84 characters or less, so a subtitle can stop in the middle of a sentence.
 1. Drop the video on the Aiko window, or click “Import”.
 1. Wait while Aiko transcribes. A long video takes some minutes.
 1. Click the export button in the toolbar, and choose “SRT (Subtitles)” or “WebVTT (Subtitles)”.

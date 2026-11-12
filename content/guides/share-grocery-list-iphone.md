@@ -33,6 +33,7 @@ When one of you adds or checks off an item, the other sees it right away. Each l
 - Type “2 milk” to add two of an item.
 - Make one list for each store, and share only the ones you shop together.
 - For someone without an iPhone, use “Send as Text” in the “…” menu. They get the list as text, sorted by section.
+- [Put the list in a widget](shopping-list-widget-iphone.md) on the Home Screen, and check off items there.
 }
 
 ## Without an app

@@ -30,7 +30,7 @@ screenshot: {
 - Turn on “Reduced opacity” in the settings, so the separators draw less attention.
 }
 
-Spaced only adds separators. It does not hide icons. To fit more icons in the menu bar of a MacBook, make the gap between them smaller with [Menu Bar Spacing](../apps/menu-bar-spacing/index.md), which works on macOS 26 and earlier.
+Spaced only adds separators. It does not hide icons. On macOS 26 and earlier, [Menu Bar Spacing](../apps/menu-bar-spacing/index.md) makes the gap between the icons smaller, so more icons fit in the menu bar of a MacBook. It does not work on macOS 27.
 
 ## Without an app
 

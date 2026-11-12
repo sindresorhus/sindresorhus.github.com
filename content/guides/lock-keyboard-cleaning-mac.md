@@ -25,7 +25,7 @@ To start it with a keyboard shortcut, open the Supercharge settings, click “Sh
 
 - “Cat Mode”, in the same menu, also turns off the keyboard and the mouse, but does not make the screen black. It is for a cat that walks on the keyboard.
 - Cleaning Mode cannot block the power button, so do not press it while you clean. On some Macs, the Caps Lock light can still turn on.
-- When a password field uses Secure Keyboard Entry, Supercharge cannot see your key presses, so it does not start, and tells you which app has it on.
+- When a password field uses Secure Keyboard Entry, Supercharge cannot see your key presses, so it does not start, and tells you which app has it on. [How to find and quit that app.](fix-keyboard-shortcuts-not-working-mac.md)
 
 ## Without an app
 

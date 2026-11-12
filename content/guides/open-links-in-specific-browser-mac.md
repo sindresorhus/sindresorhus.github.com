@@ -21,11 +21,11 @@ Browserosaurus, the free open-source browser picker, is discontinued. Its reposi
 ## With Velja
 
 @Steps {
-1. Open [Velja](../apps/velja/index.md) and click “Get Started”. Velja works by being the default browser, so it asks to become it.
+1. Open [Velja](../apps/velja/index.md), click “Continue”, and then “Get Started”. Velja works by being the default browser, so it asks to become it.
 1. Choose the browser for most links in “Primary Browser” in the menu bar menu.
 1. Open the settings, go to “Rules”, click “Add Rule”, and give the rule a name.
 1. Choose the browser in “Open in”. For a browser with profiles, like Chrome, you can choose the profile.
-1. Click the plus button next to “URL Matchers”, keep “Domain”, and type the domain, like `figma.com`.
+1. Click the plus button next to “URL Matchers”, keep “Domain”, and type the domain, like `meet.google.com`.
 1. Click “Save”.
 }
 

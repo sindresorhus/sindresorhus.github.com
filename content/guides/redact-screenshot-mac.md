@@ -45,6 +45,6 @@ Preview can draw a black rectangle over a part of an image:
 
 Check that the fill is fully black, and not a color with some transparency. You can also do this right after you take a screenshot: click the small image that shows in the corner of the screen, and use the shapes of Markup.
 
-Preview keeps the metadata of the image. To remove the location of a photo, choose “Tools › Show Location Info”, and click “Remove Location Info”. The other metadata, like the date, stays in the image.
+Preview keeps the metadata of the image. To remove the location of a photo, choose “Tools › Show Location Info”, and click “Remove Location Info”. The other metadata, like the date, stays in the image. [How to remove all metadata.](remove-photo-metadata-mac.md)
 
 A rectangle in a PDF is different: it stays a separate object, so other people can move it or delete it, and the text below it can still be selected and copied. For text in a PDF, use “Tools › Redact” in Preview, which removes the text. Or export the page as an image, and redact the image.

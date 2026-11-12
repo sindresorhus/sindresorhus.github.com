@@ -1,8 +1,8 @@
 import {cloneTemplate, scriptData} from '/scripts/dom.js';
-import {searchKey, closest} from '/scripts/edit-distance.js';
+import {searchKey, filterByWords} from '/scripts/edit-distance.js';
 import {intendedDomain} from '/scripts/email-typos.js';
 
-const {apps} = scriptData('feedback-data');
+const {apps, sentStorageKey} = scriptData('feedback-data');
 const parameters = new URLSearchParams(location.search);
 const productParameter = parameters.get('product');
 
@@ -142,7 +142,7 @@ function detectPlatform() {
 // The referrer path for pages of this site, and the full URL for other sites.
 function referrerText() {
 	const url = URL.parse(document.referrer);
-	if (url?.hostname === 'sindresorhus.com' || url?.hostname === 'www.sindresorhus.com') {
+	if (url?.origin === location.origin) {
 		return url.pathname + url.search + url.hash;
 	}
 
@@ -326,20 +326,16 @@ function setUpAppFilter() {
 	const list = document.querySelector('[data-app-filter-text]').parentElement;
 
 	// The text is the name and the subtitle of the app. The item only shows the name. In the alphabetical order of the page.
-	const items = [...document.querySelectorAll('[data-app-filter-text]')].map(item => ({item, textKey: searchKey(item.dataset.appFilterText), titleKey: searchKey(item.textContent)}));
+	const items = [...document.querySelectorAll('[data-app-filter-text]')].map(item => ({item, textKey: searchKey(item.dataset.appFilterText), nameKey: searchKey(item.textContent)}));
 	let shownItems = items;
 
 	/*
-	An app matches when its name or its subtitle has each word, like “menu cal” for “Menu Bar Calendar”, also without spaces, like “menubar” (`searchKey`). The apps whose name has the words come first, as visitors mostly type the name, so “menu bar” shows Menu Bar Calendar before the apps that are about the menu bar.
+	An app matches when its name or its subtitle has each word, like “menu cal” for “Menu Bar Calendar”, also without spaces, like “menubar”, and the apps whose name has the words come first (`filterByWords`).
 
-	When no app matches, the app whose name is closest shows instead, like “Gifski” for “gifksi” (`closest`).
+	When no app matches, the app whose name is closest shows instead, like “Gifski” for “gifksi”.
 	*/
 	const update = () => {
-		const words = filter.value.split(/\s+/).map(word => searchKey(word)).filter(Boolean);
-		const matches = items.filter(({textKey}) => words.every(word => textKey.includes(word)));
-		const nameMatches = matches.filter(({titleKey}) => words.every(word => titleKey.includes(word)));
-		const closestItem = matches.length === 0 ? closest(words.join(''), items, {key: ({titleKey}) => titleKey}) : undefined;
-		shownItems = matches.length > 0 ? [...nameMatches, ...matches.filter(match => !nameMatches.includes(match))] : [closestItem].filter(Boolean);
+		shownItems = filterByWords(filter.value, items).matches;
 
 		const hiddenItems = items.filter(entry => !shownItems.includes(entry));
 
@@ -410,10 +406,9 @@ if (!document.documentElement.hasAttribute('data-sent')) {
 	// The button is disabled in the HTML until this script has added the hidden fields, like the app and the environment of the browser, which waits for the browser. The page can also come back with it disabled from the back/forward cache. The first `pageshow` is left out, as it can come after a submit when the page loads slowly.
 	hiddenFieldsAdded.then(enableSubmitButton);
 
-	// The script in the head sets it when the message was sent. A page that the browser loads again, like after Back without the back/forward cache, starts without it. Limitation: a browser that puts the text of the fields back in a page that it loads again keeps the sent text there.
-	const sentKey = 'feedback-sent';
+	// The script in the head sets the key of a sent message (`sentStorageKey`) when the message was sent. A page that the browser loads again, like after Back without the back/forward cache, starts without it. Limitation: a browser that puts the text of the fields back in a page that it loads again keeps the sent text there.
 	try {
-		sessionStorage.removeItem(sentKey);
+		sessionStorage.removeItem(sentStorageKey);
 	} catch {
 		// Without storage, like with blocked site data, the form keeps its text after Back.
 	}
@@ -428,8 +423,8 @@ if (!document.documentElement.hasAttribute('data-sent')) {
 		// After Back from the sent message, the form is emptied, so the visitor does not send the same message again. A send that failed, like when the browser is offline, keeps the text.
 		let isSent = false;
 		try {
-			isSent = sessionStorage.getItem(sentKey) !== null;
-			sessionStorage.removeItem(sentKey);
+			isSent = sessionStorage.getItem(sentStorageKey) !== null;
+			sessionStorage.removeItem(sentStorageKey);
 		} catch {
 			// Without storage, the form keeps its text.
 		}

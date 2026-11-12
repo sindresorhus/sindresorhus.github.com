@@ -1,3 +1,4 @@
+// @ts-check
 import {share, sharedPage} from '/scripts/dom.js';
 
 class ShareButton extends HTMLElement {
@@ -7,7 +8,8 @@ class ShareButton extends HTMLElement {
 	}
 
 	#share = () => {
-		this.closest('[popover]')?.hidePopover();
+		const popover = /** @type {HTMLElement | null} */ (this.closest('[popover]'));
+		popover?.hidePopover();
 		share(sharedPage(this));
 	};
 }

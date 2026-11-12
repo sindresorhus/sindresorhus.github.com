@@ -1,3 +1,4 @@
+import CoreGraphics
 import Elementary
 import Foundation
 import ImageIO
@@ -7,6 +8,7 @@ import SiteKit
 import SOML
 import TestSupport
 import Testing
+import UniformTypeIdentifiers
 @testable import Website
 
 /**
@@ -32,6 +34,49 @@ struct PageTests {
 		#expect(html.contains("decoding=\"async\""))
 		#expect(html.contains("loading=\"lazy\"") == !loadsImmediately)
 		#expect(!html.contains("<picture"))
+	}
+
+	@Test(.temporaryDirectory)
+	func `narrower app media does not exceed the natural height of the first image`() async throws {
+		let project = try Project.testSite(files: ["content/apps/test/index.md": App.testMarkdown()])
+		let directory = project.root.appending(path: "content/apps/test")
+
+		for (index, dimensions) in [(800, 400), (400, 800), (1200, 400)].enumerated() {
+			let context = try #require(CGContext(
+				data: nil,
+				width: dimensions.0,
+				height: dimensions.1,
+				bitsPerComponent: 8,
+				bytesPerRow: 0,
+				space: CGColorSpaceCreateDeviceRGB(),
+				bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+			))
+			let image = try #require(context.makeImage())
+			let file = directory.appending(path: "screenshot\(index + 1).png")
+			let destination = try #require(CGImageDestinationCreateWithURL(
+				file as CFURL,
+				UTType.png.identifier as CFString,
+				1,
+				nil
+			))
+			CGImageDestinationAddImage(destination, image, nil)
+			try #require(CGImageDestinationFinalize(destination))
+		}
+
+		let app = try await App(project: project)
+		let resources = PageResources()
+		let html = try resources.collect {
+			AppMedia(app: app).render()
+		}
+		let css = Stylesheet { resources.elementStyleNodes }.css
+
+		#expect(html.contains("src=\"/test/screenshot2.png\""))
+		// On a 900-pixel carousel, the portrait image must stay at most 200 pixels wide, so it is no taller than the 400-pixel first image.
+		#expect(css.contains("--max-width: min(25%, 200px);"))
+		#expect(css.contains("--max-width: min(100%, 800px);"))
+		// A wider image keeps its own natural size, and phone sizing keeps the original 640-pixel height limit.
+		#expect(css.contains("--max-width: min(100%, 1200px);"))
+		#expect(css.contains("--phone-width: min(85vw, 30vw, 35svh, 320px);"))
 	}
 
 	@Test
@@ -60,12 +105,17 @@ struct PageTests {
 		#expect(AppReviews(listing: AppListing(app: app, setappRating: rating)) == nil)
 
 		let review = AppStoreReview(title: "Useful", text: "Works well.", author: "A reader", rating: .five, date: .now)
-		let reviews = try #require(AppReviews(listing: AppListing(app: app, appStoreReviews: [review])))
+		// The wall of love has more only when the app has more reviews than the page shows.
+		let fewReviews = try #require(AppReviews(listing: AppListing(app: app, appStoreReviews: [review])))
+		#expect(fewReviews.app == nil)
+		#expect(!fewReviews.render().contains("Wall of Love"))
+
+		let reviews = try #require(AppReviews(listing: AppListing(app: app, appStoreReviews: Array(repeating: review, count: 5))))
 		#expect(reviews.app?.slug == app.slug)
 		#expect(reviews.render().contains("Wall of Love"))
 
 		let archived = try await App(frontmatter: "isArchived: true")
-		let archivedReviews = try #require(AppReviews(listing: AppListing(app: archived, appStoreReviews: [review])))
+		let archivedReviews = try #require(AppReviews(listing: AppListing(app: archived, appStoreReviews: Array(repeating: review, count: 5))))
 		#expect(archivedReviews.app == nil)
 		#expect(!archivedReviews.render().contains("Wall of Love"))
 	}
@@ -959,15 +1009,17 @@ struct PageTests {
 		// Only headings, as a code block can have the syntax of an app, like `[Ana]{#00ff00}` for colored text.
 		#expect(text.firstMatch(of: /^#{1,6} .*\{#[\w-]+\}$/.anchorsMatchLineEndings()) == nil)
 		#expect(!text.contains("<!-- @"))
-		#expect(text.contains("## Open each link in the right place\n"))
+		#expect(text.contains("## Rules: Open each link in the right place\n"))
 		#expect(text.contains("Shift+Command+N"))
 		#expect(text.contains("## Copy URL\n\nAdds copy functionality to browser picker apps.\n\n"))
 		#expect(text.firstMatch(of: /\*Requires macOS [\d.]+ or later\*/) != nil)
 
-		// Each guide has its date and the facts of its app, like the app page.
+		// Each guide has its date and the facts of each of its apps, like in llms.txt.
 		for resolved in try await SiteContent.website.resolvedGuides {
 			let guide = resolved.guide
-			#expect(text.contains("# \(guide.title)\n\nUpdated: \(guide.lastModified.foundationDate.formatted(.siteDay))\n\n\(resolved.app.title): "))
+			let appLines = resolved.apps.map { "- [\($0.title)](\($0.path.markdownCopy.absoluteURL.absoluteString)): \($0.subtitle). " }
+			#expect(text.contains("# \(guide.title)\n\nUpdated: \(guide.lastModified.foundationDate.formatted(.siteDay))\n\n\(appLines[0])"))
+			#expect(appLines.allSatisfy { text.contains("\n\($0)") })
 			#expect(text.contains("\nURL: \(guide.path.absoluteURL.absoluteString)\n\n"))
 		}
 	}
@@ -1071,7 +1123,59 @@ struct PageTests {
 	}
 
 	/**
-	The file is read outside the site, so a link to another page, like `donate.md` on the about page, is an absolute URL.
+	A named sale is announced before its first day, shows its content through its last day, and disappears afterwards, both on the page and in its Markdown copy.
+	*/
+	@Test(arguments: [
+		(lastDay: "2026-11-30", day: "2026-11-26", announcement: Optional("Summer Sale runs from November 27 to November 30. The apps and the discounts show here when the sale starts."), showsContent: false),
+		(lastDay: "2026-11-30", day: "2026-11-27", announcement: nil, showsContent: true),
+		(lastDay: "2026-11-30", day: "2026-11-30", announcement: nil, showsContent: true),
+		(lastDay: "2026-11-30", day: "2026-12-01", announcement: nil, showsContent: false),
+		(lastDay: "2026-11-27", day: "2026-11-26", announcement: Optional("Summer Sale is on November 27. The apps and the discounts show here when the sale starts."), showsContent: false),
+		(lastDay: "2026-11-27", day: "2026-11-27", announcement: nil, showsContent: true),
+		(lastDay: "2026-11-27", day: "2026-11-28", announcement: nil, showsContent: false),
+	])
+	func `sale announcements and content follow the same boundaries in HTML and Markdown`(
+		lastDay: String,
+		day: String,
+		announcement: String?,
+		showsContent: Bool
+	) async throws {
+		let day = try #require(SOML.Date(day))
+		let file = try MarkdownFile(
+			contents: """
+			---
+			title: 'Discounts'
+			---
+
+			Outside the sale.
+
+			@Scheduled(from: 2026-11-27, until: \(lastDay), sale: "Summer Sale") {
+			Secret discount.
+			}
+			""",
+			url: Project.empty.root.appending(path: "content/pages/discounts.md")
+		)
+		let page = try MarkdownPage(file: file.decoded(), project: .empty, today: day)
+		let content = SiteContent.test(pages: [page], buildDate: day.foundationDate)
+		let route = try #require(Site(content: content).routes().first { $0.path == page.path.markdownCopy })
+		let markdown = String(decoding: try await route.renderedFile(), as: UTF8.self)
+
+		for text in [page.markdown.html, markdown] {
+			#expect(text.contains("Outside the sale."))
+			#expect(text.contains("Secret discount.") == showsContent)
+
+			if let announcement {
+				#expect(text.contains(announcement))
+				#expect(!text.contains("Summer Sale sale"))
+			} else {
+				#expect(!text.contains("The apps and the discounts show here"))
+				#expect(!text.contains("Summer Sale"))
+			}
+		}
+	}
+
+	/**
+	The file is read outside the site, so a link to another page, like `donate.md` on the about page, is an absolute URL, to the Markdown copy of the page when it has one, like the paid apps, and else to the page, like the feedback form.
 	*/
 	@Test
 	func `llms-full.txt has absolute links`() async throws {
@@ -1079,8 +1183,10 @@ struct PageTests {
 		let text = String(decoding: try await route.renderedFile(), as: UTF8.self)
 		#expect(!text.contains("](donate.md)"))
 		#expect(!text.contains("](../"))
-		#expect(text.contains("](https://sindresorhus.com/supporters)"))
-		#expect(text.contains("](https://sindresorhus.com/donate)"))
+		#expect(text.contains("](https://sindresorhus.com/supporters.md)"))
+		#expect(text.contains("](https://sindresorhus.com/donate.md)"))
+		#expect(text.contains("](https://sindresorhus.com/apps/paid.md)"))
+		#expect(text.contains("](https://sindresorhus.com/feedback)"))
 		#expect(text.firstMatch(of: /(src|href)="\//) == nil)
 	}
 
@@ -1137,10 +1243,11 @@ struct PageComponentTests {
 	}
 
 	@Test
-	func `schema objects own JSON-LD keywords during direct encoding`() throws {
+	func `schema objects own JSON-LD keywords, and only the top level has the context`() throws {
 		let person = Schema.Person(id: #URL("https://example.com/#person"), name: "Author")
-		let model = Schema.ProfilePage(context: "https://schema.org", mainEntity: person)
-		let object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(model)) as? [String: Any])
+		let html = JSONScript(schema: Schema.ProfilePage(mainEntity: person)).render()
+		let json = try #require(html.firstMatch(of: /<script type="application\/ld\+json">(.*)<\/script>/)?.1)
+		let object = try #require(JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any])
 		#expect(object["@context"] as? String == "https://schema.org")
 		#expect(object["@type"] as? String == "ProfilePage")
 		#expect(object["type"] == nil)
@@ -1148,6 +1255,7 @@ struct PageComponentTests {
 		#expect(author["@type"] as? String == "Person")
 		#expect(author["@id"] as? String == "https://example.com/#person")
 		#expect(author["id"] == nil)
+		#expect(author["@context"] == nil)
 	}
 
 	@Test(arguments: [false, true])
@@ -1175,7 +1283,7 @@ struct PageComponentTests {
 	@Test
 	func `the app hero preserves the semantics of its list of facts`() async throws {
 		let app = try await App(title: "A useful app")
-		let html = AppHero(listing: AppListing(app: app), buildDate: .now, hasGuides: false).render()
+		let html = AppHero(listing: AppListing(app: app), hasGuides: false).render()
 
 		#expect(html.contains(#"<ul role="list" class="app-hero-facts">"#))
 		#expect(html.contains("<li class=\"app-hero-fact\">"))
@@ -1241,7 +1349,28 @@ struct PageComponentTests {
 			.render()
 		}
 		let json = try #require(html.firstMatch(of: /<script type="speculationrules">(.*?)<\/script>/)?.1)
-		#expect(String(json) == #"{"prefetch":[{"eagerness":"moderate","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999"]}}]}}],"prerender":[{"eagerness":"conservative","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999","/apps/random","/feedback"]}}]}}]}"#)
+		#expect(String(json) == #"{"prefetch":[{"eagerness":"moderate","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999"]}},{"not":{"selector_matches":"a[href*=\":~:\"]"}}]}}],"prerender":[{"eagerness":"conservative","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999","/apps/random","/feedback"]}},{"not":{"selector_matches":"a[href*=\":~:\"]"}}]}}]}"#)
+	}
+
+	@Test
+	func `guide previews include links with sections and queries but leave out unreferenced guides`() async throws {
+		let app = try await App(body: "[Built-in way](/guides/linked#without-an-app) and [another guide](/guides/with-query?source=test).")
+		var guides = [Guide]()
+
+		for slug in ["linked", "with-query", "unreferenced"] {
+			guides.append(try await Guide(markdown: Guide.testMarkdown(), slug: slug))
+		}
+		let resolvedGuides = try guides.map { try #require(Guide.Resolved(guide: $0, apps: [app])) }
+		let content = SiteContent.test(apps: [app], guides: guides, resolvedGuides: resolvedGuides)
+		let previews = try JSONDecoder().decode([String: [String: String]].self, from: LinkPreview.data(for: content))
+
+		for path in ["/guides/linked", "/guides/with-query"] {
+			#expect(previews[path]?["name"] == "How to Test")
+			#expect(previews[path]?["icon"] == app.iconPath.description)
+			#expect(previews[path]?["facts"] == "Guide")
+		}
+
+		#expect(previews["/guides/unreferenced"] == nil)
 	}
 
 	@Test

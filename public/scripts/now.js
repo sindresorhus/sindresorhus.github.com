@@ -1,5 +1,8 @@
 // The now page is complete without this script. It adds the latest commits, which are only loaded here, in the card that is waiting for them, and shows a newer Bluesky post than the one of the build.
-import {cloneTemplate, prerendered} from '/scripts/dom.js';
+import {cloneTemplate, prerendered, scriptData} from '/scripts/dom.js';
+
+// The accounts and the request of the build, so the script asks for the same ones, and the number of placeholder rows of the commits.
+const {blueskyFeedURL, blueskyProfileURL, commitCount, gitHubAccount} = scriptData('now-data');
 
 // The speculation rules of the site can prerender the page while the pointer is over a link to it. The script waits until the visitor opens the page, so a page that nobody opens spends none of the GitHub searches of the visitor, and the relative times are not old when the page shows.
 await prerendered;
@@ -74,7 +77,7 @@ const showLatestCommits = async () => {
 	const template = document.querySelector('#commit-template');
 	const list = container.querySelector('ul');
 
-	// Without a token, GitHub allows 10 searches a minute for each visitor. When the request fails, a link to GitHub replaces the placeholder rows. The section is shown too, as it can be hidden until the commits load.
+	// Without a token, GitHub allows 10 searches a minute for each visitor. When the request fails, an error replaces the placeholder rows, and the link to GitHub below them stays. The section is shown too, as it can be hidden until the commits load.
 	const showError = () => {
 		list.hidden = true;
 		list.removeAttribute('aria-busy');
@@ -85,14 +88,14 @@ const showLatestCommits = async () => {
 	let items;
 
 	try {
-		const response = await fetch('https://api.github.com/search/commits?q=author:sindresorhus&sort=author-date&order=desc&per_page=30', {
+		const response = await fetch(`https://api.github.com/search/commits?q=author:${gitHubAccount}&sort=author-date&order=desc&per_page=30`, {
 			headers: {
 				Accept: 'application/vnd.github+json',
 			},
 			signal: AbortSignal.timeout(requestTimeout),
 		});
 
-		// More than the five rows, as some commits are left out.
+		// More than the rows of the card, as some commits are left out.
 		items = response.ok ? (await response.json()).items : undefined;
 	} catch (error) {
 		showError();
@@ -104,7 +107,7 @@ const showLatestCommits = async () => {
 		.filter(({title}) => !isRoutineCommit(title))
 		// At most two commits of each repo, so a busy day in one repo does not fill the card, which is about all that is being built.
 		.filter(({item}, index, commits) => commits.slice(0, index).filter(other => other.item.repository.full_name === item.repository.full_name).length < 2)
-		.slice(0, 5);
+		.slice(0, commitCount);
 
 	if (commits.length === 0) {
 		showError();
@@ -129,7 +132,8 @@ const showLatestCommits = async () => {
 			message.append(link, ' (', pullRequestLink, ')');
 		}
 
-		row.querySelector('[data-commit-repository]').textContent = item.repository.full_name.replace(/^sindresorhus\//, '');
+		const repositoryPrefix = `${gitHubAccount}/`;
+		row.querySelector('[data-commit-repository]').textContent = item.repository.full_name.startsWith(repositoryPrefix) ? item.repository.full_name.slice(repositoryPrefix.length) : item.repository.full_name;
 		const time = row.querySelector('[data-commit-time]');
 		const date = new Date(item.commit.author.date);
 		time.textContent = relativeTime(date);
@@ -141,8 +145,6 @@ const showLatestCommits = async () => {
 	list.removeAttribute('aria-busy');
 	container.closest('section').hidden = false;
 };
-
-const handle = 'sindresorhus.com';
 
 const linkOfFeature = feature => {
 	switch (feature.$type) {
@@ -210,7 +212,7 @@ const showLatestBlueskyPost = async () => {
 		return;
 	}
 
-	const response = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${handle}&limit=5&filter=posts_no_replies`, {
+	const response = await fetch(blueskyFeedURL, {
 		signal: AbortSignal.timeout(requestTimeout),
 	});
 
@@ -227,7 +229,7 @@ const showLatestBlueskyPost = async () => {
 		return;
 	}
 
-	const url = `https://bsky.app/profile/${handle}/post/${post.uri.split('/').at(-1)}`;
+	const url = `${blueskyProfileURL}/post/${post.uri.split('/').at(-1)}`;
 	const link = document.querySelector('#bluesky-post-link');
 	const time = document.querySelector('#bluesky-post-time');
 	const date = new Date(post.record.createdAt);

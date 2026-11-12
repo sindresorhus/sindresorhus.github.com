@@ -159,6 +159,14 @@ struct MarkdownTests {
 		#expect(MarkdownDocument(parsing: "> [!NOTE]\n>\n> Text").html.contains(#"class="alert alert-note""#))
 	}
 
+	@Test(arguments: ["[!NOTE]\nText.", "- [!NOTE]\n  Text."])
+	func `an alert marker outside a block quote is a problem`(markdown: String) {
+		let document = MarkdownDocument(parsing: markdown)
+
+		#expect(document.problems.map(\.line) == [1])
+		#expect(document.problems.map(\.reason) == ["`[!NOTE]` is only an alert at the start of a block quote. Write `> [!NOTE]`, and start each line of the alert with `>`."])
+	}
+
 	/**
 	Code is shown as written, so a heading that ends in code like `` `{#id}` `` has no custom ID.
 	*/
@@ -899,8 +907,8 @@ struct MarkdownTests {
 	@Test
 	func `keyboard shortcuts are split into keys`() {
 		let html = MarkdownDocument(parsing: "<kbd>Command+Shift+C</kbd>, <kbd>Command+</kbd>, and <kbd>+</kbd>").html
-		#expect(html.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>Shift</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>C</kbd>"#))
-		#expect(html.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>+</kbd>"#))
+		#expect(html.contains(#"<kbd class="modifier-key-command">Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd class="modifier-key-shift">Shift</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>C</kbd>"#))
+		#expect(html.contains(#"<kbd class="modifier-key-command">Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>+</kbd>"#))
 		#expect(html.contains(#", and <kbd translate="no">+</kbd>"#))
 	}
 
@@ -912,7 +920,7 @@ struct MarkdownTests {
 		// Like a shortcut in the Markdown: a glyph key has its name for screen readers, and the plus key is `+`. The text is HTML, so an escape is not escaped again.
 		let glyphHTML = MarkdownDocument(parsing: "<div><kbd>Command+◀</kbd> <kbd>Command+Plus</kbd> <kbd>Option+&amp;</kbd></div>").html
 		#expect(glyphHTML.contains(#"<kbd><span role="img" aria-label="Left Arrow">◀</span></kbd>"#))
-		#expect(glyphHTML.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>+</kbd>"#))
+		#expect(glyphHTML.contains(#"<kbd class="modifier-key-command">Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>+</kbd>"#))
 		#expect(glyphHTML.contains("<kbd>&amp;</kbd>"))
 	}
 
@@ -1071,6 +1079,32 @@ struct MarkdownTests {
 		#expect(document.html.contains(#"<h4 id="not-a-section" class="anchored-heading" aria-label="Not a section">Not a section<a"#))
 		try #require(document.headings.map(\.id.rawValue) == ["before", "faq", "first", "second", "after", "not-a-section"])
 		#expect(document.headings[2][Keywords.self] == ["one"])
+	}
+
+	@Test
+	func `a collapsible footer follows the group and retains its styles`() throws {
+		let options = MarkdownDocument.Options(collapsibleSections: .init(
+			level: .h3,
+			startHeadingID: ElementID("faq"),
+			moreLink: .init(title: "More", destination: .path(#path("/faq"))),
+			footerHTML: {
+				p {
+					"Contact."
+				}.style {
+					$0.padding(.pixels(1))
+				}.render()
+			}
+		))
+		let document = MarkdownDocument(parsing: "## FAQ\n\n### Question\n\nAnswer.\n\n## After", options: options)
+		let resources = PageResources()
+		let html = try resources.collect {
+			document.content.render()
+		}
+
+		#expect(document.problems.isEmpty)
+		#expect(html.contains("More</a>\n</div>\n<p class="))
+		#expect(html.hasSuffix("Contact.</p>\n<h2 id=\"after\">After</h2>\n"))
+		#expect(!resources.elementStyleNodes.isEmpty)
 	}
 
 	/**
@@ -1260,10 +1294,19 @@ struct MarkdownTests {
 		#expect(document.html.contains(#"<img src="/cat.png" alt="A cat" width="10" height="20">"#))
 	}
 
+	@Test(arguments: ["photo.heic", "photo.HEIF?download=1"])
+	func `HEIC images are a problem even with a description`(source: String) {
+		let document = MarkdownDocument(parsing: "![Photo](\(source))")
+
+		#expect(document.problems.map(\.line) == [1])
+		#expect(document.problems.map(\.reason) == ["The image `\(source)` is a HEIC file, which only Safari shows. Export it as JPEG or PNG."])
+		#expect(MarkdownDocument(parsing: "![Photo](photo.jpg)").problems.isEmpty)
+	}
+
 	@Test
 	func `plus signs around keys make a keyboard shortcut`() {
 		let html = MarkdownDocument(parsing: "Press ++Option+◀++, not C++ and C++.").html
-		#expect(html.contains(#"<kbd>Option</kbd><span class="key-separator" aria-hidden="true">+</span><kbd><span role="img" aria-label="Left Arrow">◀</span>"#))
+		#expect(html.contains(#"<kbd class="modifier-key-option">Option</kbd><span class="key-separator" aria-hidden="true">+</span><kbd><span role="img" aria-label="Left Arrow">◀</span>"#))
 		#expect(html.contains("not C++ and C++."))
 	}
 
@@ -1271,7 +1314,7 @@ struct MarkdownTests {
 	func `a shortcut of more than one key is a key combination, and its modifiers must be in the order of Apple`() {
 		let document = MarkdownDocument(parsing: "Press ++Command+Shift+V++ or ++Q++.")
 
-		#expect(document.html.contains(#"<kbd class="keyboard-shortcut" translate="no"><kbd>Command</kbd>"#))
+		#expect(document.html.contains(#"<kbd class="keyboard-shortcut" translate="no"><kbd class="modifier-key-command">Command</kbd>"#))
 		#expect(document.html.contains(#"or <kbd translate="no">Q</kbd>."#))
 		#expect(document.problems.map(\.reason) == ["The modifiers of the keyboard shortcut `Command+Shift+V` must be in the order of Apple: Shift, Command, like `Shift+Command+V`."])
 		#expect(MarkdownDocument(parsing: "Press ++Control+Option+Shift+Command+K++.").problems.isEmpty)
@@ -1376,7 +1419,7 @@ struct MarkdownTests {
 	func `the closing punctuation after a shortcut of more than one key stays on its line`() {
 		let html = MarkdownDocument(parsing: "Press ++Shift+Command+V++), ++Q++, or ++Control+C++ to stop.").html
 
-		#expect(html.contains(#"Press <span class="keyboard-shortcut-with-punctuation"><kbd class="keyboard-shortcut" translate="no"><kbd>Shift</kbd>"#))
+		#expect(html.contains(#"Press <span class="keyboard-shortcut-with-punctuation"><kbd class="keyboard-shortcut" translate="no"><kbd class="modifier-key-shift">Shift</kbd>"#))
 		#expect(html.contains(#"<kbd>V</kbd></kbd>),</span> <kbd translate="no">Q</kbd>, or <kbd class="keyboard-shortcut" translate="no">"#))
 		#expect(html.contains(#"<kbd>C</kbd></kbd> to stop."#))
 	}
@@ -1395,7 +1438,7 @@ struct MarkdownTests {
 
 		#expect(fragments == ["text: Copy ", "shortcut: Command+K opening: ( punctuation: ),", "text:  ", "shortcut: Q opening:  punctuation: !"])
 		#expect(MarkdownDocument(parsing: "Copy (++Command+K++), ++Q++!").introduction == "Copy (Command+K), Q!")
-		#expect(MarkdownDocument(parsing: "Copy (++Shift+Command+V++) now.").html.contains(#"Copy <span class="keyboard-shortcut-with-punctuation">(<kbd class="keyboard-shortcut" translate="no"><kbd>Shift</kbd>"#))
+		#expect(MarkdownDocument(parsing: "Copy (++Shift+Command+V++) now.").html.contains(#"Copy <span class="keyboard-shortcut-with-punctuation">(<kbd class="keyboard-shortcut" translate="no"><kbd class="modifier-key-shift">Shift</kbd>"#))
 	}
 
 	@Test
@@ -1500,7 +1543,7 @@ struct MarkdownTests {
 	func `a glyph key has its name for screen readers, and a glyph without a name is a problem`() {
 		let document = MarkdownDocument(parsing: "Press ++Command+◀++, <kbd>▶</kbd>, or ++★++.")
 
-		#expect(document.html.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd><span role="img" aria-label="Left Arrow">◀</span></kbd>"#))
+		#expect(document.html.contains(#"<kbd class="modifier-key-command">Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd><span role="img" aria-label="Left Arrow">◀</span></kbd>"#))
 		#expect(document.html.contains(#"<kbd translate="no"><span role="img" aria-label="Right Arrow">▶</span></kbd>"#))
 		#expect(document.problems.map(\.reason) == ["The key `★` of the keyboard shortcut `★` is a glyph without a name for screen readers. Write the name of the key, or add the glyph to `KeyboardKey.Glyph`."])
 	}
@@ -1531,7 +1574,7 @@ struct MarkdownTests {
 	@Test
 	func `the plus key is written as Plus`() {
 		let document = MarkdownDocument(parsing: "Press ++Command+Plus++.")
-		#expect(document.html.contains(#"<kbd>Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>+</kbd>"#))
+		#expect(document.html.contains(#"<kbd class="modifier-key-command">Command</kbd><span class="key-separator" aria-hidden="true">+</span><kbd>+</kbd>"#))
 		#expect(document.problems.isEmpty)
 	}
 
@@ -1557,7 +1600,7 @@ struct MarkdownTests {
 	@Test
 	func `a shortcut of one key ends at its own plus signs, not at the next shortcut`() {
 		let html = MarkdownDocument(parsing: "Press ++Q++ twice while holding ++Command++.").html
-		#expect(html.contains(#"Press <kbd translate="no">Q</kbd> twice while holding <kbd translate="no">Command</kbd>."#))
+		#expect(html.contains(#"Press <kbd translate="no">Q</kbd> twice while holding <kbd class="modifier-key-command" translate="no">Command</kbd>."#))
 	}
 
 	@Test
@@ -1829,6 +1872,18 @@ struct MarkdownTests {
 		#expect(MarkdownDocument(parsing: "@Cards {\nText.\n}", options: options).html == "<p>Text.</p>\n")
 	}
 
+	@Test(arguments: ["  ", "\t"])
+	func `a single list in a directive must not be indented`(indentation: String) {
+		let options = MarkdownDocument.Options(blockDirectives: [
+			"Cards": .init(content: .unorderedList) { $0 },
+		])
+		let document = MarkdownDocument(parsing: "@Cards {\n\(indentation)- One\n}", options: options)
+
+		#expect(document.problems.map(\.line) == [2])
+		#expect(document.problems.map(\.reason) == ["`@Cards`: Do not indent the content of the directive. With the indentation, a nested list becomes part of the outer list."])
+		#expect(MarkdownDocument(parsing: "@Cards {\n- One\n}", options: options).problems.isEmpty)
+	}
+
 	/**
 	An empty directive is a lost edit, like a deleted list, but a directive without braces has no content.
 	*/
@@ -1893,7 +1948,7 @@ struct MarkdownTests {
 		[^list]: List note.
 		""")
 
-		#expect(document.html.contains("<kbd>Command</kbd>"))
+		#expect(document.html.contains(#"<kbd class="modifier-key-command">Command</kbd>"#))
 		#expect(document.html.contains(##"popovertarget="user-content-fn-1""##))
 		#expect(document.html.contains(##"popovertarget="user-content-fn-2""##))
 		#expect(!document.html.contains("[^"))

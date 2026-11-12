@@ -83,7 +83,7 @@ struct AppsPage: Page {
 						}
 
 					// The categories as chips below the stats, so visitors find the kind of app they want without opening the menu. The menu is the last chip, so the heading is only the title. The menu leaves out the categories of the chips.
-					ChipNavigation(label: "App categories", links: AppCategory.chips.map(\.link), menu: OverflowMenu(label: "More app pages", groups: Self.linkGroups(categories: AppCategory.menuCategories), variant: .chip))
+					ChipNavigation(label: "App categories", links: AppCategory.chips.map(\.link), lastChip: .menu(OverflowMenu(label: "More app pages", groups: Self.linkGroups(categories: AppCategory.menuCategories), variant: .chip)))
 						.style {
 							$0.margin(.top, .rootEm(2))
 						}
@@ -199,7 +199,7 @@ struct AppsPage: Page {
 					.faq,
 					.guides,
 					.feedback,
-					LabeledLink("Tiny Apps", destination: .path(.tinyApps), description: "Smaller utilities"),
+					.tinyApps,
 					.appTimeline,
 					.wallOfLove,
 					.olderVersions,

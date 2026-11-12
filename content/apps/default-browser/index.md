@@ -124,10 +124,12 @@ Yes. Go to “[System Settings › Desktop & Dock](x-apple.systempreferences:com
 Default Browser lets you change it from the menu bar or with a keyboard shortcut, without the confirmation prompt of macOS, and it can change it automatically with your Focus mode or the Shortcuts app.
 
 ### How is it different from your Velja app? {#how-is-it-different-from-your-velja-app}
+<!-- @faq.compares Velja -->
 
 [Velja](/velja) works by acting as a browser and forwarding URLs to other browsers, enabling features like rules, interactive browser prompt, desktop app handling, and URL tracking parameter cleaning. This app is simpler: it just changes the system default browser directly.
 
 ### I already own Supercharge. Does this offer any benefits over its browser switcher feature? {#supercharge}
+<!-- @faq.compares Supercharge -->
 
 Compared to the browser switcher in [Supercharge](/supercharge):
 

@@ -19,6 +19,13 @@ struct Guide: ContentDocument {
 
 	static let pageRoute = RoutePath.guides
 
+	/**
+	The root frontmatter order follows the declarations, with the draft flag first, like in apps and posts. Missing properties stay absent.
+	*/
+	static var formattingKeys: [Frontmatter.CodingKeys] {
+		Frontmatter.CodingKeys.allCases
+	}
+
 	init(file decodedFile: DecodedMarkdownFile<Frontmatter>, project: Project) throws {
 		let file = decodedFile.source
 		let frontmatter = decodedFile.frontmatter
@@ -72,6 +79,9 @@ struct Guide: ContentDocument {
 			if !hasText {
 				errors.append(file.error(line: heading.line, "The section “\(Self.withoutAppTitle)” is empty. Write the built-in way below its heading."))
 			}
+		} else if let heading = markdown.headings.first(where: { $0.level == .h2 && $0.text.lowercased() == Self.withoutAppTitle.lowercased() }) {
+			// Like the title case of the titles, like `## Without An App`.
+			errors.append(file.error(line: heading.line, "Write the heading as `## \(Self.withoutAppTitle)`."))
 		} else {
 			errors.append(file.error(line: file.bodyStartLine, "A guide needs the built-in way, in a section with the heading `## \(Self.withoutAppTitle)`."))
 		}
@@ -105,13 +115,12 @@ struct Guide: ContentDocument {
 				guard
 					link.otherFile == nil,
 					let line = link.line,
-					lines.contains(line),
-					case .path(let path, _, _) = try? LinkDestination(validating: link.destination)
+					lines.contains(line)
 				else {
 					return false
 				}
 
-				return path == app.path
+				return (try? LinkDestination(validating: link.destination))?.sitePath == app.path
 			})
 		else {
 			return nil
@@ -155,11 +164,6 @@ extension Guide {
 		static let publicationDateKey = CodingKeys.publicationDate
 
 		/**
-		The slugs of the apps that the guide is about, like `gifski`. The first one is the app that the page links back to.
-		*/
-		var apps: [ContentSlug]
-
-		/**
 		The topic of the guide, like `menu-bar`, which groups it on the list of guides.
 		*/
 		var topic: Topic
@@ -168,6 +172,11 @@ extension Guide {
 		Whether the guide is about a habit from Windows, like the Delete key that deletes a file, so the page “Mac Guides for Windows Users” lists it too (``WindowsGuidesPage``). The guide stays in its topic.
 		*/
 		@TrueOrAbsent var isForWindowsUsers = false
+
+		/**
+		The slugs of the apps that the guide is about, like `gifski`. The first one is the app that the page links back to.
+		*/
+		var apps: [ContentSlug]
 
 		/**
 		Old paths of the guide, like `/guides/old-name`. They redirect to the guide.
@@ -187,6 +196,15 @@ extension Guide {
 			}
 
 			problems.addRepeatedItems(of: apps, at: .apps)
+
+			// Usually from a copied frontmatter, like on a guide about the iPhone.
+			if
+				isForWindowsUsers,
+				!title.split(whereSeparator: { !$0.isLetter }).contains("Mac")
+			{
+				problems.add("The page “Mac Guides for Windows Users” lists this guide, so its title must say “Mac”.", at: .isForWindowsUsers)
+			}
+
 			problems.validate(screenshot, at: .screenshot)
 			validatePublicationDate(into: &problems)
 		}
@@ -202,6 +220,7 @@ extension Guide {
 		case windowsAppsAndDock = "windows-apps-and-dock"
 		case textImagesAndSound = "text-images-and-sound"
 		case browsersLinksAndEmail = "browsers-links-and-email"
+		case shortcuts
 		case iPhone = "iphone"
 		case mac
 
@@ -219,6 +238,8 @@ extension Guide {
 				"Text, Images, and Sound"
 			case .browsersLinksAndEmail:
 				"Browsers, Links, and Email"
+			case .shortcuts:
+				"Shortcuts"
 			case .iPhone:
 				"iPhone and Apple Watch"
 			case .mac:
@@ -235,16 +256,32 @@ extension Guide {
 		/**
 		The number in the file name of the screenshot of the app, like `2` for `screenshot2.png`, not its position on the app page, so the guide keeps its image when another screenshot of the app is removed.
 		*/
-		var number: Int
+		var number: Number
 
 		/**
 		What the screenshot shows, for screen readers (the `alt` text).
 		*/
 		@PlainText var description: String
 
-		func validate(into problems: inout FrontmatterProblems<Self>) {
-			if number < 1 {
-				problems.add("`screenshot.number` starts at 1, like `1` for the first screenshot of the app, got \(number).", at: .number)
+		/**
+		A positive screenshot file number, retained after decoding so a guide cannot select zero or a negative number. This is a file number, not an index in the carousel.
+		*/
+		struct Number: PlainValidatedValue, Hashable, Sendable, CustomStringConvertible, Encodable {
+			let value: Int
+
+			/**
+			Creates a screenshot selection from its one-based file number.
+			*/
+			init(validating value: Int) throws(ContentError) {
+				guard value >= 1 else {
+					throw ContentError(reason: "`screenshot.number` starts at 1, like `1` for the first screenshot of the app, got \(value).")
+				}
+
+				self.value = value
+			}
+
+			var description: String {
+				String(value)
 			}
 		}
 	}
@@ -258,7 +295,7 @@ extension Guide {
 		}
 
 		// By the name of the file, not its position, so a removed screenshot does not silently move the guide to the next image.
-		return app.screenshots.first { $0.number == number }
+		return app.screenshots.first { $0.number == number.value }
 	}
 }
 

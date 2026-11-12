@@ -69,7 +69,7 @@ struct Person {
 			socialLinks: [
 				SocialLink(name: "X (Twitter)", url: #URL("https://x.com/sindresorhus"), icon: .x),
 				SocialLink(name: "Mastodon", url: fediverseHandle.profileURL, icon: .mastodon),
-				SocialLink(name: "Bluesky", url: #URL("https://bsky.app/profile/sindresorhus.com"), icon: .bluesky),
+				SocialLink(name: "Bluesky", url: BlueskyPost.profileURL, icon: .bluesky),
 				SocialLink(
 					name: "Instagram",
 					url: #URL("https://instagram.com/sindresorhus"),

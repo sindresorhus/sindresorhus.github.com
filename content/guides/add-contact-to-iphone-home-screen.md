@@ -1,6 +1,6 @@
 ---
 title: 'How to Add a Contact to the iPhone Home Screen'
-description: 'Call or message a favorite person with one tap from a Home Screen or Lock Screen widget with Favorites Widget, or use the Contacts widget of iOS.'
+description: 'Set up speed dial on iPhone: call or message a favorite person with one tap from a widget with Favorites Widget, or use the Contacts widget of iOS.'
 publicationDate: 2026-10-30
 topic: 'iphone'
 apps: [
@@ -11,6 +11,8 @@ apps: [
 @QuickAnswer {
 	Add the “Contact” widget of [Favorites Widget](../apps/favorites-widget/index.md) to the Home Screen, and choose the contact and what a tap does, like “Call” or “Message”. Without an app, add the “Contacts” widget of iOS, and turn on “Show Buttons” for the call and message buttons.
 }
+
+A contact widget is the speed dial of the iPhone: one tap calls the person.
 
 ## With Favorites Widget
 

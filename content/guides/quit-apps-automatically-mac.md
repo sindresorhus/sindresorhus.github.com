@@ -22,7 +22,7 @@ apps: [
 1. Close the window, and turn on the switch next to “Automatically quit or hide inactive apps”.
 }
 
-The time starts when you switch away from the app. Supercharge does not quit or hide apps while an app uses the camera, while the screen is recorded, or while the app uses the microphone. To turn this off for an app, click its more button, and turn on “Ignore Media Guards”. It never quits the active app or apps that are only in the menu bar.
+The time starts when you switch away from the app. Supercharge does not quit or hide apps while any app uses the camera, while the screen is recorded, or while the app itself uses the microphone. To turn off these checks for an app, click its more button, and turn on “Ignore Media Guards”. It never quits the active app or apps that are only in the menu bar.
 
 ## Without an app
 

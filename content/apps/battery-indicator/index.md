@@ -1,6 +1,7 @@
 ---
 title: 'Battery Indicator'
 subtitle: 'Remaining battery time in your menu bar'
+description: 'See the battery percentage of your MacBook in the menu bar, and the time remaining when you move the pointer over it. You can show the time remaining instead.'
 publicationDate: 2017-02-18
 platforms: [
 	'macOS'
@@ -51,7 +52,7 @@ olderVersions: [
 ]
 ---
 
-See how long your battery will last, right in your menu bar, without clicking anything. You can show the percentage instead.
+See the battery percentage in your menu bar, and the time remaining when you move the pointer over it. You can show the time remaining instead.
 
 **Features**
 

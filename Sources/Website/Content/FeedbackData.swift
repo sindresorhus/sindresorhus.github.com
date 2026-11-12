@@ -35,6 +35,11 @@ struct FeedbackData: Encodable {
 
 	let apps: [AppData]
 
+	/**
+	The session storage key of a sent message (``FeedbackPage/sentStorageKey``).
+	*/
+	let sentStorageKey = FeedbackPage.sentStorageKey
+
 	init(listings: [AppListing]) {
 		self.apps = listings.map { listing in
 			let app = listing.app

@@ -2,7 +2,7 @@
 title: 'How to Require Face ID to Run a Shortcut on iPhone'
 description: 'Ask for Face ID before a shortcut does its work, with the Authenticate action of the free Actions app. iOS itself can require Face ID to open an app.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'actions'
 ]

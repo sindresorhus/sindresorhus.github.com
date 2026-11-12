@@ -4,7 +4,7 @@ import SiteKit
 /**
 What Sindre did lately on Bluesky and GitHub, like in the week and in the year, for the now page, and the comments of all time, for the about page, which are in the same request as the contributions.
 
-All of it is extra, so a failed request leaves out its part, with a warning, instead of failing the build. The contributions, the sponsors, the comments, and the activity of the week need a GitHub token, so without one they are left out without a warning.
+All of it is extra, so a failed request leaves out its part, with a warning, instead of failing the build. The contributions, the sponsors, the comments, the activity of the week, and the times of the commits need a GitHub token, so without one they are left out without a warning.
 */
 struct RecentActivity {
 	var blueskyPost: BlueskyPost?
@@ -33,6 +33,11 @@ struct RecentActivity {
 	The latest releases of the open-source projects, newest first.
 	*/
 	var releases = [OpenSourceRelease]()
+
+	/**
+	The times of the newest public commits, newest first, for the time where Sindre is (``AwakeStatus``) and the hours that he commits in. It needs a GitHub token.
+	*/
+	var commitTimes = [GitHub.CommitTime]()
 
 	/**
 	The start of the week of the numbers, like the issues closed: the start of the day (UTC) 6 days before the build, so the week is the 7 days up to and with the day of the build, like the last week of ``ContributionCalendar/weeklyCounts``. A whole day, as the GitHub contributions count whole days, so all the numbers of the week count the same days. The requests of builds on the same day then have the same cache key too.
@@ -68,6 +73,9 @@ struct RecentActivity {
 		async let yearMaintenance = warnings.value(warning: "Could not get the issues closed and the pull requests merged this year, so the page leaves that out") {
 			try await github.maintenance(since: Date(year: buildDate.siteYear, month: 1, day: 1))
 		}
+		async let commitTimes = warnings.value(warning: "Could not get the times of the latest commits, so the page leaves out the hours of the commits and shows the time at UTC+7") {
+			try await github.recentCommitTimes()
+		}
 
 		var activity = Self()
 		activity.blueskyPost = await blueskyPost ?? nil
@@ -76,6 +84,7 @@ struct RecentActivity {
 		activity.releases = await releases ?? []
 		activity.weekActivity = await weekActivity ?? nil
 		activity.yearMaintenance = await yearMaintenance
+		activity.commitTimes = (await commitTimes ?? nil) ?? []
 		return activity
 	}
 }

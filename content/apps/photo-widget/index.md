@@ -84,7 +84,10 @@ This is not possible.
 
 The interval is a suggestion to iOS, not a strict rule. iOS manages widget updates independently to optimize performance and battery life. It may refresh widgets more or less frequently based on various factors. Apps cannot control this behavior.
 
+To make a widget keep its photo, edit the widget and set “Refresh Interval” to “None”. If its “Tap Action” is “Skip to Next Photo”, the photo then changes when you tap the widget, and iOS can still change it about once a day.
+
 ### How is this different from the built-in “Photos” widget? {#how-is-this-different-from-the-built-in-photos-widget}
+<!-- @faq.compares Photos widget -->
 
 The built-in widget can show the photos of an album, not only “Featured Photos” and “Memories”. If that is all you need, it works well. Photo Widget gives you more control:
 
@@ -102,6 +105,8 @@ If two or more widgets of the same size show all the photos or the same album, t
 ### Can you make the cropping prioritize faces? {#can-you-make-the-cropping-prioritize-faces}
 
 This is something I want to add, but it’s more complicated than it sounds. Widgets have limited resources, and currently, it’s not enough to do face detection. Apple works around that by having the face data already available, but this data is not available to third-party apps. Other photo widget apps solve this by letting the user pick the album in the app itself and then they do the face detection in the app upfront, however, that would require a rewrite of this app, which is not something I have time to do right now.
+
+For now, edit the widget and turn off “Crop” to show the whole photo with nothing cut off. The space around the photo is black, white, or follows the appearance of the system (“Background Color”).
 
 ### Why are the images in the widget not full quality? {#why-are-the-images-in-the-widget-not-full-quality}
 

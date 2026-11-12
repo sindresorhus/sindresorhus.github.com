@@ -1,6 +1,7 @@
 ---
 title: 'Speediness'
 subtitle: 'Check your internet speed'
+description: 'Quickly check the internet connection speed, ping, and RPM of your Mac.'
 publicationDate: 2021-11-23
 platforms: [
 	'macOS'
@@ -73,11 +74,15 @@ Tip: If you have limited space in the menu bar, you could switch the info shown 
 
 By default, tests are run in parallel to better reflect real-world situations (video chat and voice calls). Because of this, speeds may differ from other tools. You can change this in the settings.
 
+Also compare the units. Speediness shows megabits per second (Mbps) by default. The same speed in megabytes per second (MB/s) is a number that is 8 times lower. To see MB/s, change “Result display unit” in the settings.
+
 ### How does it compare to Speedtest by Ookla? {#ookla}
+<!-- @faq.compares Speedtest by Ookla -->
 
 The Speedtest app uses a nearby server, which means the speed does not reflect real-world usage — it shows the most optimal scenario. Its requests are also often prioritized by ISPs, which skews the numbers even more. Speediness also looks more like a proper macOS app and it has support for Shortcuts.
 
 ### How does it compare to fast.com? {#fast}
+<!-- @faq.compares fast.com -->
 
 The problem with fast.com is that it’s run by Netflix, and Netflix’s servers are often prioritized (and sometimes throttled), meaning you won’t always get a realistic value. It pretty much gives you your speed for watching Netflix.
 
@@ -90,6 +95,8 @@ It’s a measurement called Round-trips Per Minute (RPM) — the number of seque
 ### What does the ping value mean? {#what-does-the-ping-value-mean}
 
 It’s a measurement of the round-trip time for messages sent from the originating host to a destination computer that are echoed back to the source. `ms` is the symbol for milliseconds.
+
+The app shows a ping below 50 ms in green as “Low Ping” (good), 50 to 99 ms in yellow as “Medium Ping” (OK), and 100 ms or more in red as “High Ping” (bad).
 
 [Learn more about ping](https://xtrium.com/what-is-a-good-ping-speed/)
 

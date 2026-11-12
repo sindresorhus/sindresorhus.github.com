@@ -71,7 +71,7 @@ HEIC is Apple’s default image format since iOS 11, replacing JPEG. HEIC uses m
 
 If you don’t have any HEIC images, you can try the app out with [this one](heic-example.heic).
 
-You can convert up to 1000 photos at a time, because of a macOS bug.
+You can convert up to 1000 photos at a time, because of a macOS bug. Quit and reopen the app between conversions.
 
 ## Frequently Asked Questions {#faq}
 
@@ -109,5 +109,6 @@ I expect JPEG XL to gain more widespread support and become the preferred format
 Not by itself. However, the Shortcuts app can: make an automation with the “Folder” trigger, and let it run a shortcut that uses the built-in “Convert Image” action on the added files.
 
 ### What’s the benefit of this app over the built-in Quick Actions converter? {#whats-the-benefit-of-this-app-over-the-built-in-quick-actions-converter}
+<!-- @faq.compares Quick Actions -->
 
 The built-in converter (right-click › Quick Actions › Convert Image) works well for basic conversions. This app offers adjustable JPEG quality and granular metadata control (separately toggle location data and modification dates instead of all-or-nothing).

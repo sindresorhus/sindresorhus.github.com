@@ -1,6 +1,7 @@
 ---
 title: 'Day Progress'
 subtitle: 'Time remaining today in your menu bar'
+description: 'See how much of your day or workday is left, as a progress pie or bar in your Mac menu bar. A small nudge to use the time well.'
 publicationDate: 2023-06-18
 platforms: [
 	'macOS'
@@ -8,6 +9,7 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6450280202
+hasNoNetworkAccess: true
 sharedQuestions: [
 	'blurry-secondary-display'
 ]

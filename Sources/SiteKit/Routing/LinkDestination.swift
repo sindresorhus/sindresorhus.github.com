@@ -29,6 +29,20 @@ public enum LinkDestination: ValidatedValue, Hashable, Sendable, CustomStringCon
 	case path(RoutePath, query: [URLQueryItem] = [], fragment: String? = nil)
 
 	/**
+	A page of the site that the browser opens at the first match of the text, which it marks, like `/apps/discounts#:~:text=Velja` (a text fragment). A browser without text fragments opens the page at the top. The link check does not read the text as an ID.
+
+	Limitation: A comma, an ampersand, or a hyphen at the start or the end of the text is syntax of a text fragment, so the text must not have them.
+	*/
+	public static func path(_ path: RoutePath, highlighting text: String) -> Self {
+		.path(path, fragment: "\(fragmentDirectiveDelimiter)text=\(text)")
+	}
+
+	/**
+	The start of the instructions for the browser in a fragment, like a text fragment (`#:~:text=Velja`). The part before it is the ID of an element, if any.
+	*/
+	public static let fragmentDirectiveDelimiter = ":~:"
+
+	/**
 	A section of the same page, as decoded text, like `faq` for `#faq`.
 	*/
 	case fragment(String)
@@ -88,8 +102,13 @@ public enum LinkDestination: ValidatedValue, Hashable, Sendable, CustomStringCon
 				let suggestion = pane.closest(in: SystemSettingsPane.allCases.map(\.rawValue)).map { " Did you mean `\($0)`?" } ?? " Add it to `LinkDestination.SystemSettingsPane` when System Settings has it."
 				throw ContentError(reason: "The link “\(string)” goes to `\(pane)`, which is not a known pane of System Settings.\(suggestion)")
 			}
-		default:
+		case "http", "https", "mailto":
 			break
+		default:
+			// A misspelled scheme, like `htps` or `x-apple.systempreference`, gives a link that does nothing, and the panes of System Settings are only checked with the right scheme. Other schemes are allowed, like `one-thing:` of the One Thing page. Limitation: a real scheme that is close to one of them, like `callto`, is an error too.
+			if let suggestion = scheme.lowercased().closest(in: ["http", "https", "mailto", SystemSettingsPane.scheme]) {
+				throw ContentError(reason: "The link “\(string)” has the scheme `\(scheme)`. Did you mean `\(suggestion)`?")
+			}
 		}
 
 		self = .url(url)
@@ -146,6 +165,17 @@ public enum LinkDestination: ValidatedValue, Hashable, Sendable, CustomStringCon
 		}
 
 		return false
+	}
+
+	/**
+	The path of a link to a page of the site, without its query and fragment, like `/dato` for `/dato#faq`, or `nil` for a link to another site or to a section of the same page.
+	*/
+	public var sitePath: RoutePath? {
+		guard case .path(let path, _, _) = self else {
+			return nil
+		}
+
+		return path
 	}
 
 	/**

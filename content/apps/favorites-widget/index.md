@@ -29,6 +29,8 @@ A tap can also start a FaceTime video or audio call, or open the chat in WhatsAp
 
 The widget comes in small, medium, large, and extra large sizes for the Home Screen, and in round, rectangular, and inline sizes for the Lock Screen. To align widgets on the Lock Screen, add the empty “Spacer” widget.
 
+Edit a widget to give the contact another name, or to hide the name or the photo. On the Home Screen, the widget can also show the photo as a circle or as the full widget (“Full Image”), show the full name, and keep the colors of the photo when the Home Screen is tinted (“Keep Photo Colors”).
+
 You can also open a URL or run a shortcut instead when tapping the widget. This opens up a lot of cool possibilities. Here are [some ideas](https://github.com/bhagyas/app-urls) of what you could open.
 
 <!-- For macOS, it's only available for Apple silicon Macs running macOS 26 or later. -->
@@ -45,6 +47,7 @@ You can also open a URL or run a shortcut instead when tapping the widget. This 
 Yes. In the app, tap “Quick Call”, add the shortcut that the screen links to, and then turn on “Quick Call”. Calls and FaceTime calls from the widgets then run through the Shortcuts app, so keep the shortcut and its name.
 
 ### How is this different from the built-in “Contacts” widget? {#how-is-this-different-from-the-built-in-contacts-widget}
+<!-- @faq.compares Contacts widget -->
 
 The small Contacts widget can have “Call” and “Message” buttons for one contact. If you only need that on the Home Screen, it works well.
 

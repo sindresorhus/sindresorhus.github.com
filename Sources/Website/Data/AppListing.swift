@@ -30,16 +30,25 @@ struct AppListing {
 	var appStoreReviews = [AppStoreReview]()
 
 	/**
-	The recent five-star App Store reviews, newest first. For a paid app, not the reviews that call it free, which were written while it was free, as they would confuse visitors about the price.
+	The recent five-star App Store reviews, newest first. For a paid app, reviews that call it free are left out, as they were written while it was free and would confuse visitors about the price.
 	*/
 	var reviews: [AppStoreReview] {
-		app.isPaid ? appStoreReviews.filter { !$0.callsAppFree } : appStoreReviews
+		appStoreReviews.filter { review in
+			!(app.isPaid && review.callsAppFree)
+		}
 	}
 
 	/**
 	The published releases, newest first, like on the release notes page. Empty for an app without release notes, like an archived app.
 	*/
 	var releases = [GitHubRelease]()
+
+	/**
+	The number of updates on the release notes: the releases after the day that the app was published, as the first release is not an update. It does not count on the first release, as a repo can start with a later version, like 1.1.0.
+	*/
+	var updateCount: Int {
+		releases.count { SOML.Date($0.publishedAt) > app.publicationDate }
+	}
 
 	/**
 	The four newest reviews, which the app page shows. They fill two rows of two, so none is alone in a row. The wall of love has more.
@@ -319,6 +328,35 @@ enum AppRating {
 			rating.count
 		case .setapp(let rating):
 			rating.count
+		}
+	}
+
+	/**
+	The source of the rating, like “Gumroad rating”, which the facts of the app page and its Markdown copy show before the value (``value``).
+	*/
+	var label: String {
+		switch self {
+		case .store(let rating):
+			switch rating.store {
+			case .appStore:
+				"US App Store rating"
+			case .gumroad:
+				"Gumroad rating"
+			}
+		case .setapp:
+			"Setapp rating"
+		}
+	}
+
+	/**
+	The rating with the number of ratings, like “4.8/5 (120 ratings)”, or “99% positive (878 ratings)” on Setapp.
+	*/
+	var value: String {
+		switch self {
+		case .store(let rating):
+			"\(rating.formattedAverage)/5 (\(rating.count.formatted(counting: "rating")))"
+		case .setapp(let rating):
+			"\(rating.formattedPercentage) positive (\(rating.count.formatted(counting: "rating")))"
 		}
 	}
 }

@@ -79,12 +79,18 @@ public struct ResponseCache: Sendable {
 	A response is decoded before it is saved. A response that cannot be decoded, like a GraphQL error with status 200, is not saved, and is handled like a failed request, so the cached response stays and the next build asks again. A cached response that cannot be decoded, like after the type changed, is removed, so the next build asks again.
 
 	- Parameter maximumAge: How long the response is used without asking again, like a long time for data that never changes, such as the contributions of a past year. Defaults to the maximum age of the cache.
+	- Parameter keepsCached: Whether the cached value stays instead of the new one, like for an empty page that a server sends by mistake while the cached page has data. The cached value is then used like for a failed request, with a warning, and the next build asks again.
 	*/
-	public func decoded<Value: Decodable & Sendable>(_ type: Value.Type = Value.self, from request: URLRequest, maximumAge: Duration? = nil) async throws -> Value {
+	public func decoded<Value: Decodable & Sendable>(
+		_ type: Value.Type = Value.self,
+		from request: URLRequest,
+		maximumAge: Duration? = nil,
+		keepsCached: (_ cached: Value, _ new: Value) -> Bool = { _, _ in false }
+	) async throws -> Value {
 		let decoder = JSONDecoder()
 		decoder.dateDecodingStrategy = .iso8601
 
-		return try await decoded(from: request, maximumAge: maximumAge) {
+		return try await decoded(from: request, maximumAge: maximumAge, keepsCached: keepsCached) {
 			try decoder.decode(Value.self, from: $0)
 		}
 	}
@@ -92,8 +98,18 @@ public struct ResponseCache: Sendable {
 	/**
 	Fetches and decodes JSON with the common 15-second data-request timeout. Use the request-taking overload for custom headers, methods, or timeouts.
 	*/
-	public func decoded<Value: Decodable & Sendable>(_ type: Value.Type = Value.self, from url: URL, maximumAge: Duration? = nil) async throws -> Value {
-		try await decoded(type, from: URLRequest(url: url, timeoutInterval: 15), maximumAge: maximumAge)
+	public func decoded<Value: Decodable & Sendable>(
+		_ type: Value.Type = Value.self,
+		from url: URL,
+		maximumAge: Duration? = nil,
+		keepsCached: (_ cached: Value, _ new: Value) -> Bool = { _, _ in false }
+	) async throws -> Value {
+		try await decoded(
+			type,
+			from: URLRequest(url: url, timeoutInterval: 15),
+			maximumAge: maximumAge,
+			keepsCached: keepsCached
+		)
 	}
 
 	/**
@@ -105,18 +121,20 @@ public struct ResponseCache: Sendable {
 		from url: URL,
 		cacheIdentity: String? = nil,
 		maximumAge: Duration? = nil,
+		keepsCached: (_ cached: Value, _ new: Value) -> Bool = { _, _ in false },
 		decode: (Data) throws -> Value
 	) async throws -> Value {
 		try await decoded(
 			from: URLRequest(url: url, timeoutInterval: 15),
 			cacheIdentity: cacheIdentity,
 			maximumAge: maximumAge,
+			keepsCached: keepsCached,
 			decode: decode
 		)
 	}
 
 	/**
-	Fetches the body and reads it with the function, like the names in a JavaScript file, with the caching of ``decoded(_:from:maximumAge:)``. The function throws for a body that it cannot read, so the body is not saved, and the cached response is used.
+	Fetches the body and reads it with the function, like the names in a JavaScript file, with the caching of ``decoded(_:from:maximumAge:keepsCached:)``. The function throws for a body that it cannot read, so the body is not saved, and the cached response is used.
 
 	A cached response that is used because its request failed is kept in memory with the time of the failure, so the later builds of the process, like each rebuild of `website serve`, use it without asking again until it is outdated, like a fresh response. Each of them still warns about it, as its data is still old.
 	*/
@@ -124,6 +142,7 @@ public struct ResponseCache: Sendable {
 		from request: URLRequest,
 		cacheIdentity: String? = nil,
 		maximumAge: Duration? = nil,
+		keepsCached: (_ cached: Value, _ new: Value) -> Bool = { _, _ in false },
 		decode: (Data) throws -> Value
 	) async throws -> Value {
 		try Task.checkCancellation()
@@ -218,6 +237,14 @@ public struct ResponseCache: Sendable {
 			return try cachedValue(because: .unreadableBody((error as? DecodingError)?.readableDescription(root: "response") ?? error.descriptiveMessage))
 		}
 
+		// The new response is not saved, so the cached response stays for the next build.
+		if
+			let cached,
+			keepsCached(cached.value, value)
+		{
+			return try cachedValue(because: .lessThanCached)
+		}
+
 		let fetched = Entry(etag: response.value(forHTTPHeaderField: "ETag"), date: .now, body: data)
 		return try save(fetched, value: value, for: requestKey, to: file)
 	}
@@ -277,6 +304,11 @@ extension ResponseCache {
 		case unreadableBody(String)
 
 		/**
+		The response arrived, but the caller kept the cached response, which has data that the new one does not have (`keepsCached`).
+		*/
+		case lessThanCached
+
+		/**
 		The HTTP status, or `nil` for a failed request or an unreadable body.
 		*/
 		public var statusCode: Int? {
@@ -295,6 +327,8 @@ extension ResponseCache {
 				"the request failed: \(message)"
 			case .unreadableBody(let message):
 				"the response could not be read: \(message)"
+			case .lessThanCached:
+				"the response has less data than the cached response."
 			}
 		}
 	}
@@ -368,7 +402,7 @@ extension ResponseCache {
 	}
 
 	/**
-	A body that the function of ``decoded(from:maximumAge:decode:)`` cannot read, like a page without the expected data. The description says what is wrong, like “The page has no `aggregateRating`.”
+	A body that the function of ``decoded(from:cacheIdentity:maximumAge:keepsCached:decode:)`` cannot read, like a page without the expected data. The description says what is wrong, like “The page has no `aggregateRating`.”
 	*/
 	public struct ReadError: Error, CustomStringConvertible {
 		public let description: String

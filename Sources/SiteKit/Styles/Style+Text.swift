@@ -334,10 +334,16 @@ extension Style {
 		}
 	```
 
+	- Parameter suffix: Text after the value, like `" · "` before the text of the element.
 	- Parameter alternativeText: What screen readers say instead, like an empty string for a number that only decorates a heading.
 	*/
-	public func content(counter value: some CounterSet, style: CounterStyle = .decimal, alternativeText: String? = nil) -> Self {
-		let counter = CSSValue(raw: "counter(\(value.name), \(style.rawValue))")
+	public func content(
+		counter value: some CounterSet,
+		style: CounterStyle = .decimal,
+		suffix: String? = nil,
+		alternativeText: String? = nil
+	) -> Self {
+		let counter = CSSValue([CSSValue(raw: "counter(\(value.name), \(style.rawValue))"), suffix.map(CSSValue.string)].compactMap(\.self), separator: " ")
 
 		guard let alternativeText else {
 			return declaration(.content, counter)

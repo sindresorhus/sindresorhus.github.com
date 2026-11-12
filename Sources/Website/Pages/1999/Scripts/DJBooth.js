@@ -5,7 +5,8 @@ import {context, connectVolume, startAudio, tone, pluck, voice, drums, startPlay
 class Turntable extends GeoCitiesElement {
 	connected() {
 		const {record, play: playButton, airHorn, rewind} = this.parts;
-		connectVolume(this.querySelectorAll('[data-music-volume]'), this.signal);
+		const {signal} = this;
+		connectVolume(this.querySelectorAll('[data-music-volume]'), signal);
 		const secondsPerTurn = 1.8;
 		const tempo = 95;
 		const loopLength = (8 * 60) / tempo;
@@ -17,7 +18,7 @@ class Turntable extends GeoCitiesElement {
 		let beatStart = 0;
 		let position = 0;
 		let angle = 0;
-		let isHolding = false;
+		let drag;
 
 		// Renders the record: a breakbeat, a bass line, and a voice that shouts “Ahh!” at the start of each bar, which is what DJs scratch.
 		const renderRecord = () => {
@@ -74,7 +75,7 @@ class Turntable extends GeoCitiesElement {
 
 		// While the beat plays, the record turns with it, unless the visitor prefers reduced motion. It only turns while the record is on the screen and the tab is visible.
 		const spinning = this.loop(() => {
-			if (beatSource && !isHolding) {
+			if (beatSource && !drag) {
 				turnTo((currentPosition() / secondsPerTurn) * 360);
 			}
 		}, {while: () => isBeatOn && !this.reducedMotion, target: record});
@@ -119,8 +120,8 @@ class Turntable extends GeoCitiesElement {
 			}
 			await renderRecord();
 
-			// The turntable can be removed while the record renders, and then it must not play.
-			return this.isConnected;
+			// The turntable can be removed while the record renders, and that connection must not play, even if it comes back.
+			return !signal.aborted;
 		};
 
 		this.on(playButton, 'click', async () => {
@@ -168,11 +169,6 @@ class Turntable extends GeoCitiesElement {
 			const bounds = record.getBoundingClientRect();
 			return Math.atan2(event.clientY - (bounds.top + (bounds.height / 2)), event.clientX - (bounds.left + (bounds.width / 2)));
 		};
-
-		let lastAngle;
-		let lastTime;
-		let pointerId;
-
 		this.on(record, 'pointerdown', async event => {
 			if (event.pointerType === 'mouse' && event.button !== 0) {
 				return;
@@ -181,15 +177,13 @@ class Turntable extends GeoCitiesElement {
 			event.preventDefault();
 			record.focus({preventScroll: true});
 			record.setPointerCapture(event.pointerId);
-			pointerId = event.pointerId;
-			isHolding = true;
-			lastAngle = pointerAngle(event);
-			lastTime = performance.now();
+			const currentDrag = {pointerId: event.pointerId, lastAngle: pointerAngle(event), lastTime: performance.now()};
+			drag = currentDrag;
 
 			if (!buffer) {
 				this.say('Putting the needle on the record…');
 
-				if (!await prepare()) {
+				if (!await prepare() || drag !== currentDrag) {
 					return;
 				}
 
@@ -203,12 +197,12 @@ class Turntable extends GeoCitiesElement {
 		});
 
 		this.on(record, 'pointermove', event => {
-			if (!isHolding || event.pointerId !== pointerId || !buffer) {
+			if (!drag || event.pointerId !== drag.pointerId || !buffer) {
 				return;
 			}
 
 			const newAngle = pointerAngle(event);
-			let change = newAngle - lastAngle;
+			let change = newAngle - drag.lastAngle;
 
 			// The angle jumps by a whole turn where it goes past the left side.
 			if (change > Math.PI) {
@@ -219,19 +213,19 @@ class Turntable extends GeoCitiesElement {
 
 			const now = performance.now();
 			const seconds = (change / (Math.PI * 2)) * secondsPerTurn;
-			scratch(position, seconds, (now - lastTime) / 1000);
+			scratch(position, seconds, (now - drag.lastTime) / 1000);
 			position = wrap(position + seconds);
 			turnTo(angle + ((change * 180) / Math.PI));
-			lastAngle = newAngle;
-			lastTime = now;
+			drag.lastAngle = newAngle;
+			drag.lastTime = now;
 		});
 
 		const letGo = event => {
-			if (!isHolding || event.pointerId !== pointerId) {
+			if (!drag || event.pointerId !== drag.pointerId) {
 				return;
 			}
 
-			isHolding = false;
+			drag = undefined;
 
 			if (isBeatOn && buffer) {
 				startBeat();
@@ -323,7 +317,7 @@ class Turntable extends GeoCitiesElement {
 					spinning.start();
 				}
 
-				if (!isHolding) {
+				if (!drag) {
 					startBeat();
 				}
 			});
@@ -332,7 +326,7 @@ class Turntable extends GeoCitiesElement {
 		// A rewind that started while the beat was off is not playing yet, so leaving the tab cancels it too.
 		addStopHandler(() => {
 			rewindTimer?.cancel();
-		}, this.signal);
+		}, signal);
 	}
 }
 

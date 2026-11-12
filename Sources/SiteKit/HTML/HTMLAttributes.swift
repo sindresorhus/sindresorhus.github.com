@@ -448,6 +448,19 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 	}
 }
 
+extension HTML where Tag == HTMLTag.input {
+	/**
+	Turns off the corrections of the text, like SwiftUI's `autocorrectionDisabled()`, for a field of names that are not in a dictionary, like the names of apps and packages: no automatic capitals, no autocorrection, and no spell check. Else the keyboard of a phone would correct a name, like “Plash” to “Flash”.
+	*/
+	public func autocorrectionDisabled() -> _AttributedContent<Self> {
+		attributes(
+			.autocapitalize(.none),
+			.custom(name: "autocorrect", value: "off"),
+			.spellcheck(false)
+		)
+	}
+}
+
 /**
 HTML elements whose intrinsic dimensions can be set together.
 */

@@ -142,6 +142,7 @@ Yes. Your lists are on your device, so you can add and check off items without a
 Copy a list with one item per line, for example, from Notes or a message, and use “Paste” in the “…” menu of the list. Bullets like “- ” are removed.
 
 ### How is this different from the grocery list in the Reminders app? {#reminders}
+<!-- @faq.compares Reminders -->
 <!-- @faq.keywords compare todo -->
 
 Reminders is a to-do app that can also keep grocery lists. Bare is made only for shopping, so it is simpler, easier to use, and more focused:

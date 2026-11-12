@@ -2,7 +2,7 @@
 title: 'How to Use ChatGPT in Shortcuts on iPhone and Mac'
 description: 'Use ChatGPT in the Shortcuts app with the built-in Use Model action, or with the Ask AI action of AI Actions and your own API key.'
 publicationDate: 2026-11-07
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'ai-actions'
 ]
@@ -13,7 +13,7 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	On a device with Apple Intelligence, add the built-in “Use Model” action to a shortcut, and choose “Extension Model”, which uses ChatGPT. To choose the model, add a system prompt, or use it on any device, add the “Ask AI” action of [AI Actions](../apps/ai-actions/index.md) with your own OpenAI API key.
+	On a device with Apple Intelligence, add the built-in “Use Model” action to a shortcut, and choose ChatGPT as the model. To choose the model, add a system prompt, or use it on any device, add the “Ask AI” action of [AI Actions](../apps/ai-actions/index.md) with your own OpenAI API key.
 }
 
 ## With AI Actions
@@ -36,7 +36,7 @@ On iOS 26 and macOS 26 or later, with Apple Intelligence (the names of the model
 
 @Steps {
 1. In the Shortcuts app, make a new shortcut.
-1. Add the “Use Model” action, and choose “Extension Model” to use ChatGPT. “On-Device”, “Cloud”, and “Cloud Pro” use the models of Apple.
+1. Add the “Use Model” action, and choose ChatGPT as the model. “On-Device”, “Cloud”, and “Cloud Pro” use the models of Apple.
 1. Type your prompt in the text field below “Use Model”, and run the shortcut.
 }
 

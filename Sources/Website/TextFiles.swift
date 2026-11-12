@@ -25,9 +25,12 @@ extension Site {
 			await llmsFull
 		}
 
-		for copy in markdownCopies {
+		let copies = markdownCopies
+		let copiedPages = Set(copies.map(\.page))
+
+		for copy in copies {
 			Route.text(copy.page.markdownCopy) {
-				copy.markdown()
+				copy.markdown(copiedPages)
 			}
 		}
 
@@ -76,7 +79,7 @@ extension Site {
 	@TaskLocal static var pagesWithMarkdownCopies: Set<RoutePath> = []
 
 	/**
-	The pages that this site publishes a Markdown copy of, for ``pagesWithMarkdownCopies``.
+	The pages that this site publishes a Markdown copy of, for ``pagesWithMarkdownCopies``, and for the links of `llms.txt` and of the copies, which go to the copy of a page that has one.
 	*/
 	var markdownCopyPages: Set<RoutePath> {
 		Set(markdownCopies.map(\.page))
@@ -154,23 +157,19 @@ extension Site {
 		// The featured apps first, in the order of `content/site.soml`, as they are the main apps.
 		let apps = content.activeAppsWithPages.startingWith(content.featuredApps)
 
-		lines += apps.map { app in
-			Self.llmsLink(app.title, url: app.llmsURL, description: "\(app.subtitle). \(content.listing(of: app).llmsFacts)")
-		}
+		lines += apps.map(llmsLine(of:))
 
 		// The archived apps still have their pages, which say why they are no longer available, so assistants do not recommend them.
 		lines += ["", "## Archived apps", ""]
-		lines += archivedAppsWithPages.map { app in
-			Self.llmsLink(app.title, url: app.llmsURL, description: app.description)
-		}
+		lines += archivedAppsWithPages.map(llmsLine(of:))
 
 		lines += ["", "## Pages", ""]
 		lines += content.pages.map { page in
 			Self.llmsLink(page.title, url: page.llmsURL, description: page.description)
 		}
 
-		// The open-source page has a Markdown copy too.
-		let copiedPages = Set(markdownCopies.map(\.page))
+		// The open-source page and the lists of apps have Markdown copies too.
+		let copiedPages = markdownCopyPages
 		lines += swiftPages.map { page in
 			Self.llmsLink(page.metadata.title, url: copiedPages.contains(page.path) ? page.path.markdownCopy.absoluteURL : page.path.absoluteURL, description: page.metadata.description)
 		}
@@ -181,9 +180,14 @@ extension Site {
 			Self.llmsLink(post.title, url: post.llmsURL, description: "\(post.description.map { "\($0) " } ?? "")(\(post.publicationDate.foundationDate.formatted(.site.year())))")
 		}
 
-		lines += ["", "## Guides", ""]
-		lines += content.guides.map { guide in
-			Self.llmsLink(guide.title, url: guide.llmsURL, description: guide.description)
+		// A section for each topic, in the order of the list of guides (``GuidesPage``), so an assistant finds the guides of a topic together, like the menu bar guides.
+		for topic in Guide.Topic.allCases {
+			let guides = content.guides.filter { $0.frontmatter.topic == topic }
+
+			if !guides.isEmpty {
+				lines += ["", "## Guides: \(topic.title)", ""]
+				lines += guides.map(llmsLine(of:))
+			}
 		}
 
 		// The shared shortcuts that the app pages link to, with their names from iCloud, as the link texts on the pages are often only “Example shortcut”. A shortcut that several pages link to is listed for the first app. A shortcut that still has the default name of the Shortcuts app, like “New Shortcut 22”, is left out, as the name says nothing. By name, as the shortcuts of an app are loaded in no order.
@@ -192,7 +196,7 @@ extension Site {
 
 		for app in apps {
 			for shortcut in app.shortcuts.sorted(using: KeyPathComparator(\.name)) where !shortcut.name.hasPrefix("New Shortcut") && listedShortcuts.insert(shortcut.id).inserted {
-				shortcutLines.append(Self.llmsLink(shortcut.name, url: shortcut.id.url, description: "A shortcut for [\(app.title)](\(app.llmsURL.absoluteString))."))
+				shortcutLines.append(Self.llmsLink(shortcut.name, url: shortcut.id.url, description: "A shortcut for \(app.llmsURL.markdownLink(app.title))."))
 			}
 		}
 
@@ -209,8 +213,8 @@ extension Site {
 			"",
 			"## Optional",
 			"",
-			Self.llmsLink("Everything", url: Self.llmsFullPath.absoluteURL, description: "All the app pages, guides, pages, open-source projects, and blog posts as Markdown, in one file (\(megabytes) MB, about \(tokens) tokens). To read one page, use its link above."),
-			Self.llmsLink("Apps as JSON", url: Self.appsJSONPath.absoluteURL, description: "The facts of each app as data, for a tool that filters the apps: the name, the platforms, the price, the requirement, the version, and the links to the stores, the trial, and the Markdown copy of the page."),
+			Self.llmsLink("Everything", url: Self.llmsFullPath.absoluteURL, description: "All the app pages, lists of apps, guides, pages, open-source projects, and blog posts as Markdown, in one file (\(megabytes) MB, about \(tokens) tokens). To read one page, use its link above."),
+			Self.llmsLink("Apps as JSON", url: Self.appsJSONPath.absoluteURL, description: "The facts of each app as data, for a tool that filters the apps: the name, the platforms, the categories, the price, the requirement, the version, the bundle identifier, and the links to the stores, the download, the trial, and the Markdown copy of the page."),
 		]
 		return lines.joined(separator: "\n") + "\n"
 	}
@@ -219,7 +223,25 @@ extension Site {
 	An item of a list of links in `llms.txt`, like `- [Dato](https://sindresorhus.com/dato): Calendar in the menu bar.`, without the colon when there is no description.
 	*/
 	private static func llmsLink(_ title: String, url: URL, description: String?) -> String {
-		"- [\(title)](\(url.absoluteString))\(description.map { ": \($0)" } ?? "")"
+		"- \(url.markdownLink(title))\(description.map { ": \($0)" } ?? "")"
+	}
+
+	/**
+	The item of an app in `llms.txt`, with its subtitle and its facts (``AppListing/llmsFacts``), like `- [Zone Bar](https://sindresorhus.com/zone-bar.md): World clocks in your menu bar. Price: $4, one-time purchase. …`. The Markdown copies of a guide and of a list of apps have the same item for each of their apps. An archived app has its description instead of the facts, as it is no longer available.
+	*/
+	private func llmsLine(of app: App) -> String {
+		guard !app.isArchived else {
+			return Self.llmsLink(app.title, url: app.llmsURL, description: app.description)
+		}
+
+		return Self.llmsLink(app.title, url: app.llmsURL, description: "\(app.subtitle). \(content.listing(of: app).llmsFacts)")
+	}
+
+	/**
+	The item of a guide in `llms.txt`, with its short answer, like in the list of the guides of an app in its Markdown copy.
+	*/
+	private func llmsLine(of guide: Guide) -> String {
+		Self.llmsLink(guide.title, url: guide.llmsURL, description: guide.description)
 	}
 
 	/**
@@ -237,69 +259,108 @@ extension Site {
 	}
 
 	/**
-	The app pages, the archived app pages, the guides, the pages, the open-source projects, and the blog posts as Markdown, in the order of `llms-full.txt`.
+	The app pages, the archived app pages, the guides, the pages, the lists of apps, the open-source projects, and the blog posts as Markdown, in the order of `llms-full.txt`.
 	*/
 	private var markdownCopies: [MarkdownCopy] {
 		let project = content.project
 
 		let apps = content.activeAppsWithPages.map { app in
 			let listing = content.listing(of: app)
-			let facts = [listing.llmsFacts, listing.versionSentence].compactMap(\.self).joined(separator: " ")
+			let facts = [listing.llmsFacts, listing.versionSentence, listing.ratingSentence(at: content.buildDate), listing.terminalInstallSentence, listing.bundleIdentifierSentence].compactMap(\.self).joined(separator: " ")
 
 			// The announcement that the page shows as a banner, like a bundle with a discount, with its link.
 			let announcement = app.frontmatter.announcement.map { announcement in
-				"\n\n\(announcement.text)." + (announcement.link.map { " [\($0.text)](\($0.url.absoluteURL(on: app.path).absoluteString))" } ?? "")
+				"\n\n\(announcement.text)." + (announcement.link.map { " \($0.url.absoluteURL(on: app.path).markdownLink($0.text))" } ?? "")
 			}
 
-			return MarkdownCopy(page: app.path) {
-				app.exportedMarkdown(body: app.fullMarkdown, introduction: "\(app.subtitle). \(facts)\(announcement ?? "")", project: project)
+			// The guides of the app, which the page lists at its end (``AppFooterLinks``), with the links of their Markdown copies, like in `llms.txt`.
+			let guides = content.guides(about: app).map(llmsLine(of:))
+			let guidesSection = guides.isEmpty ? "" : "\n\n## \(App.Section.guides.title)\n\n\(guides.joined(separator: "\n"))"
+
+			return MarkdownCopy(page: app.path) { copiedPages in
+				app.exportedMarkdown(
+					body: app.fullMarkdown,
+					introduction: "\(app.subtitle). \(facts)\(announcement ?? "")",
+					project: project,
+					copiedPages: copiedPages
+				) + guidesSection
 			}
 		}
 
 		let archivedApps = archivedAppsWithPages.map { app in
-			MarkdownCopy(page: app.path) {
-				app.exportedMarkdown(body: app.fullMarkdown, introduction: "\(app.subtitle). The app is archived, so it is no longer available.", project: project)
+			MarkdownCopy(page: app.path) { copiedPages in
+				app.exportedMarkdown(
+					body: app.fullMarkdown,
+					introduction: "\(app.subtitle). The app is archived, so it is no longer available.",
+					project: project,
+					copiedPages: copiedPages
+				)
 			}
 		}
 
 		let guides = content.resolvedGuides.map { resolved in
 			let guide = resolved.guide
-			let app = resolved.app
-			let appFacts = "\(app.title): \(content.listing(of: app).llmsFacts)"
+			let appLines = resolved.apps.map(llmsLine(of:)).joined(separator: "\n")
 
-			return MarkdownCopy(page: guide.path) {
-				// The date that the page shows, as a guide is only useful while its steps are right, and the facts of its app, like on the app page, which the page shows in the box to get the app.
-				guide.exportedMarkdown(body: guide.file.plainMarkdown, introduction: "Updated: \(guide.lastModified.foundationDate.formatted(.siteDay))\n\n\(appFacts)", project: project)
+			return MarkdownCopy(page: guide.path) { copiedPages in
+				// The date that the page shows, as a guide is only useful while its steps are right, and the item of each of its apps in `llms.txt`, with the facts of the app, like on the app page, as the guide recommends them all.
+				guide.exportedMarkdown(
+					body: guide.file.plainMarkdown,
+					introduction: "Updated: \(guide.lastModified.foundationDate.formatted(.siteDay))\n\n\(appLines)",
+					project: project,
+					copiedPages: copiedPages
+				)
 			}
 		}
 
 		let pages = content.pages.map { page in
-			MarkdownCopy(page: page.path) {
-				page.exportedMarkdown(body: page.fullMarkdown(today: content.today), project: project)
+			MarkdownCopy(page: page.path) { copiedPages in
+				page.exportedMarkdown(body: page.fullMarkdown(today: content.today), project: project, copiedPages: copiedPages)
 			}
 		}
 
+		// The apps page and the pages of its categories, with the item of each app in `llms.txt`, like the open-source page (``OpenSourcePage/plainMarkdown``), as the pages are only cards. The apps page has the featured apps first, like `llms.txt`, as the page shows other featured apps each day. Limitation: the free and the paid apps are one list, not grouped by platform like on their pages, as each item has its platforms.
+		func appListCopy(of page: some Page, apps: [App]) -> MarkdownCopy {
+			let markdown = "# \(page.metadata.title)\n\nURL: \(page.path.absoluteURL.absoluteString)\n\n\(page.metadata.description ?? "")\n\n\(apps.map(llmsLine(of:)).joined(separator: "\n"))"
+
+			return MarkdownCopy(page: page.path) { _ in
+				markdown
+			}
+		}
+
+		let appLists = [appListCopy(of: AppsPage(content: content), apps: content.activeApps.startingWith(content.featuredApps))]
+			+ AppCategory.allCases.map { category in
+				appListCopy(of: AppCategoryPage(category: category, content: content), apps: category.apps(in: content))
+			}
+
 		// The projects of the open-source page, grouped like on the page.
 		let openSourcePage = OpenSourcePage(content: content)
-		let openSource = MarkdownCopy(page: openSourcePage.path) {
+		let openSource = MarkdownCopy(page: openSourcePage.path) { _ in
 			openSourcePage.plainMarkdown
 		}
 
 		let posts = content.listedPosts.filter { !$0.isRedirect }.map { post in
-			MarkdownCopy(page: post.path) {
-				post.exportedMarkdown(body: post.file.plainMarkdown, introduction: "Published: \(post.publicationDate.foundationDate.formatted(.siteMonth))", project: project)
+			MarkdownCopy(page: post.path) { copiedPages in
+				post.exportedMarkdown(
+					body: post.file.plainMarkdown,
+					introduction: "Published: \(post.publicationDate.foundationDate.formatted(.siteMonth))",
+					project: project,
+					copiedPages: copiedPages
+				)
 			}
 		}
 
-		return apps + archivedApps + guides + pages + [openSource] + posts
+		return apps + archivedApps + guides + pages + appLists + [openSource] + posts
 	}
 
 	/**
-	All the app pages, guides, pages, open-source projects, and blog posts as Markdown, in one file. The documents are made at the same time, as the file is the slowest route.
+	All the app pages, lists of apps, guides, pages, open-source projects, and blog posts as Markdown, in one file. The documents are made at the same time, as the file is the slowest route.
 	*/
 	private var llmsFull: String {
 		get async {
-			let documents = await markdownCopies.concurrentMap { $0.markdown() }
+			let copies = markdownCopies
+			let copiedPages = Set(copies.map(\.page))
+			let documents = await copies.concurrentMap { $0.markdown(copiedPages) }
 			return (["# \(Self.name)\n\n> \(Self.description)"] + documents).joined(separator: "\n\n---\n\n") + "\n"
 		}
 	}
@@ -324,7 +385,7 @@ extension Site {
 			/**
 			The lowest OS version that the app runs on, like `26` or `26.1`, for all its platforms.
 			*/
-			let minimumOSVersion: String?
+			let minimumOSVersion: OSVersion?
 
 			/**
 			The current version, like `1.30.1`.
@@ -334,13 +395,31 @@ extension Site {
 			/**
 			The day that the current version was released, like `2026-11-05`.
 			*/
-			let updated: String?
+			let updated: SOML.Date?
 
 			let isMenuBarApp: Bool
+
+			/**
+			The categories of the apps page that the app is in, like `menu-bar`. Each one is a page, like `/apps/menu-bar`.
+			*/
+			let categories: [AppCategory]
+
 			let appStoreID: AppStoreID?
+
+			/**
+			The bundle identifier of the App Store version, like `com.sindresorhus.Dato`. The Setapp version has another one.
+			*/
+			let bundleIdentifier: String?
+
 			let appStoreURL: URL?
 			let setappURL: URL?
 			let gumroadURL: URL?
+
+			/**
+			The download of the latest version on GitHub, for an app that is in no store, like App Buddy.
+			*/
+			let downloadURL: URL?
+
 			let isPaid: Bool
 
 			/**
@@ -366,14 +445,17 @@ extension Site {
 				markdownURL: app.isRedirect ? nil : app.path.markdownCopy.absoluteURL,
 				icon: app.iconURL,
 				platforms: app.platforms,
-				minimumOSVersion: listing.minimumOSVersion?.description,
+				minimumOSVersion: listing.minimumOSVersion,
 				version: listing.version,
-				updated: listing.currentVersionDate?.description,
+				updated: listing.currentVersionDate,
 				isMenuBarApp: app.frontmatter.isMenuBarApp,
+				categories: AppCategory.browsable.filter { $0.includes(app, in: content) },
 				appStoreID: app.appStoreID,
+				bundleIdentifier: listing.appStoreInfo?.bundleIdentifier,
 				appStoreURL: app.appStoreURL,
 				setappURL: app.setappURL,
 				gumroadURL: app.gumroadURL,
+				downloadURL: app.frontmatter.gitHubDownload?.url,
 				isPaid: app.isPaid,
 				price: listing.paidPriceText,
 				hasTrial: app.hasTrial,
@@ -427,7 +509,11 @@ A page of the site as Markdown, for `llms-full.txt` and for its own file next to
 */
 private struct MarkdownCopy: Sendable {
 	let page: RoutePath
-	let markdown: @Sendable () -> String
+
+	/**
+	Makes the Markdown with the pages that have a Markdown copy, as a link to one of them goes to its copy (``MarkdownFile/withAbsoluteLinks(_:page:project:copiedPages:)``).
+	*/
+	let markdown: @Sendable (_ copiedPages: Set<RoutePath>) -> String
 }
 
 extension RoutePath {
@@ -450,25 +536,27 @@ extension ContentDocument {
 
 extension AppListing {
 	/**
-	The facts of the app for `llms.txt` and `llms-full.txt`, like “Price: Free. Platforms: macOS, iOS. Get it from: [App Store](https://apps.apple.com/app/id1519522160). Free trial: [download](https://sindresorhus.com/dato#trial). Requires macOS or iOS 26 or later. Free older versions for macOS 15 and 14: [download](https://sindresorhus.com/dato#older-versions).”, as assistants otherwise quote wrong facts from other sites. The stores, the trial, and the older versions are links, so an assistant can give the link without the page, and does not say that the app cannot run on an older macOS version. An app that is in no store is downloaded from its page. The price is left out when it is unknown, like for a paid app when the App Store did not answer.
+	The facts of the app for `llms.txt` and `llms-full.txt`, like “Price: Free. Platforms: macOS, iOS. Get it from: [App Store](https://apps.apple.com/app/id1519522160). Free trial: [download](https://sindresorhus.com/dato#trial). Requires macOS or iOS 26 or later. Free older versions for macOS 15 and 14: [download](https://sindresorhus.com/dato#older-versions).”, as assistants otherwise quote wrong facts from other sites. An app without network access (`hasNoNetworkAccess`) also says that it cannot connect, as assistants are asked whether an app sends data. The stores, the trial, and the older versions are links, so an assistant can give the link without the page, and does not say that the app cannot run on an older macOS version. An app that is in no store links to its download on GitHub, like App Buddy, or else to its page. The price is left out when it is unknown, like for a paid app when the App Store did not answer.
 	*/
 	fileprivate var llmsFacts: String {
-		func link(_ text: String, _ url: URL) -> String {
-			"[\(text)](\(url.absoluteString))"
-		}
-
+		// Gumroad before Setapp, like the buttons of an app that is not on the App Store, so the first link is the one-time purchase of the price, not the subscription of Setapp.
 		var stores = [
-			app.appStoreURL.map { link("App Store", $0) },
-			app.setappURL.map { link("Setapp", $0) },
-			app.gumroadURL.map { link("Gumroad", $0) },
+			app.appStoreURL?.markdownLink("App Store"),
+			app.gumroadURL?.markdownLink("Gumroad"),
+			app.setappURL?.markdownLink("Setapp"),
 		]
 		.compactMap(\.self)
 
 		if
 			stores.isEmpty,
+			let gitHubDownload = app.frontmatter.gitHubDownload
+		{
+			stores.append(gitHubDownload.url.markdownLink("download"))
+		} else if
+			stores.isEmpty,
 			app.ownDownloadURL != nil
 		{
-			stores.append(link("the app page", app.absoluteURL))
+			stores.append(app.absoluteURL.markdownLink("the app page"))
 		}
 
 		let olderMacOSVersions = app.olderVersions.map(\.macOS.rawValue).formattedList(.and)
@@ -477,9 +565,13 @@ extension AppListing {
 			priceText.map { "Price: \($0)." },
 			"Platforms: \(app.operatingSystems).",
 			stores.isEmpty ? nil : "Get it from: \(stores.joined(separator: ", ")).",
-			app.trialURL.map { "Free trial: \(link(app.frontmatter.trial?.isTestFlight == true ? "TestFlight" : "download", $0))." },
+			app.trialURL.map { url in
+				let name = if case .testFlight = app.frontmatter.trial?.kind { "TestFlight" } else { "download" }
+				return "Free trial: \(url.markdownLink(name))."
+			},
 			requirementSentence.map { "\($0)." },
-			app.olderVersions.isEmpty ? nil : "Free older versions for macOS \(olderMacOSVersions): \(link("download", LinkDestination.section(.olderVersions).absoluteURL(on: app.path))).",
+			app.olderVersions.isEmpty ? nil : "Free older versions for macOS \(olderMacOSVersions): \(LinkDestination.section(.olderVersions).absoluteURL(on: app.path).markdownLink("download")).",
+			app.frontmatter.hasNoNetworkAccess ? App.noNetworkAccessSentence : nil,
 		]
 		.compactMap(\.self)
 		.joined(separator: " ")
@@ -497,6 +589,40 @@ extension AppListing {
 
 		return "Version \(version)\(currentVersionDate.map { ", released \($0.foundationDate.formatted(.siteDay))" } ?? "")."
 	}
+
+	/**
+	The rating that the facts of the app page show (``rating(at:)``), like “Setapp rating: 99% positive (878 ratings).”, for the Markdown copy of the app page, as assistants are asked whether an app is good. Not in `llms.txt`, which would then change with each build, like the version. `nil` when the page shows no rating.
+
+	- Parameter date: The day of the build, as an app shows a rating only after its first year.
+	*/
+	fileprivate func ratingSentence(at date: Date) -> String? {
+		rating(at: date).map { "\($0.label): \($0.value)." }
+	}
+
+	/**
+	How to install a Mac app on the App Store from the terminal with mas, and with a Brewfile of Homebrew Bundle, for the Markdown copy of the app page, as an assistant that sets up a Mac cannot click the App Store button. `mas get` gets an app that is free to download, and `mas install` only installs an app that the Apple Account already bought, as mas cannot buy apps. `nil` for an app that the App Store does not list for the Mac, like an iPad app that also runs on Apple silicon Macs, which mas cannot install, or when the price is unknown, as then the command is unknown.
+	*/
+	fileprivate var terminalInstallSentence: String? {
+		guard
+			let appStoreInfo,
+			appStoreInfo.listedPlatforms.contains(.macOS),
+			let price
+		else {
+			return nil
+		}
+
+		let appStoreID = appStoreInfo.id
+		let (start, command) = price.isFree ? ("Install", "get") : ("After you buy it on the App Store, install", "install")
+
+		return "\(start) it from the terminal with [mas](https://github.com/mas-cli/mas): `mas \(command) \(appStoreID)`, or with this line in a Brewfile: `mas \"\(app.title)\", id: \(appStoreID)`."
+	}
+
+	/**
+	The bundle identifier of the App Store version (``AppStoreInfo/bundleIdentifier``), like “Bundle identifier of the App Store version: `com.sindresorhus.Dato`.”, for the Markdown copy of the app page, as scripts, `tccutil`, and device management need it, and it cannot be guessed. The Setapp version has another one.
+	*/
+	fileprivate var bundleIdentifierSentence: String? {
+		appStoreInfo?.bundleIdentifier.map { "Bundle identifier of the App Store version: `\($0)`." }
+	}
 }
 
 extension App {
@@ -504,7 +630,14 @@ extension App {
 	The link to get the trial: the invitation on TestFlight, or the trial section of the app page. `nil` without a trial.
 	*/
 	fileprivate var trialURL: URL? {
-		frontmatter.trial.map { $0.isTestFlight ? $0.url.value : LinkDestination.section(.trial).absoluteURL(on: path) }
+		switch frontmatter.trial?.kind {
+		case .testFlight(let invitation):
+			invitation.url
+		case .download:
+			LinkDestination.section(.trial).absoluteURL(on: path)
+		case nil:
+			nil
+		}
 	}
 
 	/**
@@ -603,13 +736,31 @@ extension MarkdownFile {
 	nonisolated(unsafe) private static let rootRelativeHTMLURL = /\b(src|href)="(\/(?:[^"\/][^"]*)?)"/
 
 	/**
-	The Markdown with the destinations of its links and images, and the root-relative URLs of its raw HTML, as absolute URLs, as the file is read outside the site. A link to a content file, like `donate.md`, goes to its page.
+	The Markdown with the destinations of its links and images, and the root-relative URLs of its raw HTML, as absolute URLs, as the file is read outside the site. A link to a content file, like `donate.md`, goes to its page. A link to a page that has a Markdown copy, like `/menu-drop`, goes to the copy (`https://sindresorhus.com/menu-drop.md`), as the copy is much smaller than the HTML of the page. A link to a section of a page, like `/supercharge#trial`, or with a query, goes to the page, as the copy has no sections.
+
+	Limitation: a link to a page without a leading slash, like `donate`, a full link to the site, like `https://sindresorhus.com/dato`, and a link in raw HTML go to the page.
+
+	- Parameter copiedPages: The pages that have a Markdown copy.
 	*/
-	fileprivate func withAbsoluteLinks(_ markdown: String, page: URL, project: Project) -> String {
+	fileprivate func withAbsoluteLinks(
+		_ markdown: String,
+		page: URL,
+		project: Project,
+		copiedPages: Set<RoutePath>
+	) -> String {
 		let document = Document(parsing: markdown, options: .parseBlockDirectives)
 		let replacements = document.linkReplacements { destination in
 			let destination = (try? resolvingLink(destination, project: project)) ?? destination
-			return URL(string: destination, relativeTo: page)?.absoluteString ?? destination
+
+			guard
+				case .path(let path, let query, nil)? = try? LinkDestination(validating: destination),
+				query.isEmpty,
+				copiedPages.contains(path)
+			else {
+				return URL(string: destination, relativeTo: page)?.absoluteString ?? destination
+			}
+
+			return path.markdownCopy.absoluteURL.absoluteString
 		}
 		let resolved = markdown.replacingSource(replacements, range: \.range) { replacement, _ in
 			replacement.replacementText
@@ -636,19 +787,34 @@ extension MarkdownFile {
 
 extension MarkdownPage {
 	/**
-	The Markdown of the page with the sponsors from the frontmatter, where the page shows them, without the syntax of the site. The parsed `@Sponsors` directive places its tiers, so code examples remain literal. A `@Scheduled` block is only its content, and only when the page shows it.
+	The Markdown of the page with the sponsors from the frontmatter, where the page shows them, without the syntax of the site. The parsed `@Sponsors` directive places its tiers, so code examples remain literal. A `@Scheduled` block is only its content, and only when the page shows it, or before the first day of a sale, the sentence with its name and dates. A level 1 heading at the start, like “Thanks! 🙌”, is left out, as the copy starts with the title of the page (``ContentDocument/exportedMarkdown(body:introduction:project:copiedPages:)``), and a second title would start a new document.
 
 	- Parameter today: The day of the build, which decides what `@Scheduled` shows.
 	*/
 	fileprivate func fullMarkdown(today: SOML.Date) -> String {
-		Document(parsing: file.body, options: .parseBlockDirectives).plainMarkdown(source: file.body, blockDirective: { directive in
+		var blocks = Array(Document(parsing: file.body, options: .parseBlockDirectives).blockChildren)
+
+		if (blocks.first as? Markdown.Heading)?.level == 1 {
+			blocks.removeFirst()
+		}
+
+		// The blocks keep their source ranges, so the other blocks keep their source text.
+		return Document(blocks).plainMarkdown(source: file.body, blockDirective: { directive in
 			switch directive.siteName {
 			case .sponsors:
 				let sponsors = frontmatter.sponsorTiers.map(\.markdown).joined(separator: "\n\n")
 				return Array(Document(parsing: sponsors).blockChildren)
 			case .scheduled:
 				// The build already reported invalid arguments.
-				return (try? directive.arguments(as: ScheduledArguments.self))?.contains(today) == true ? Array(directive.blockChildren) : []
+				guard let arguments = directive.scheduled else {
+					return []
+				}
+
+				if arguments.contains(today) {
+					return Array(directive.blockChildren)
+				}
+
+				return arguments.saleAnnouncement(on: today).map { [Paragraph(Text($0))] as [any BlockMarkup] } ?? []
 			default:
 				return directive.plainBlocks
 			}
@@ -662,7 +828,7 @@ extension MarkdownPage.SponsorTier {
 	*/
 	fileprivate var markdown: String {
 		let sponsors = sponsors.map { sponsor in
-			sponsor.url.map { "- [\(sponsor.name)](\($0.value.absoluteString))" } ?? "- \(sponsor.name)"
+			sponsor.url.map { "- \($0.value.markdownLink(sponsor.name))" } ?? "- \(sponsor.name)"
 		}
 
 		return "## \(title) \(price)\n\n\(sponsors.joined(separator: "\n"))"
@@ -672,10 +838,24 @@ extension MarkdownPage.SponsorTier {
 extension ContentDocument {
 	/**
 	Frames a document export with its canonical identity, keeping type-specific introductions and bodies at the call site.
+
+	- Parameter copiedPages: The pages that have a Markdown copy, which the links of the body go to (``MarkdownFile/withAbsoluteLinks(_:page:project:copiedPages:)``).
 	*/
-	fileprivate func exportedMarkdown(body: String, introduction: String? = nil, project: Project) -> String {
+	fileprivate func exportedMarkdown(
+		body: String,
+		introduction: String? = nil,
+		project: Project,
+		copiedPages: Set<RoutePath>
+	) -> String {
 		let introduction = introduction.map { "\($0)\n\n" } ?? ""
-		return "# \(frontmatter.title)\n\n\(introduction)URL: \(absoluteURL.absoluteString)\n\n\(file.withAbsoluteLinks(body, page: absoluteURL, project: project))"
+		let body = file.withAbsoluteLinks(
+			body,
+			page: absoluteURL,
+			project: project,
+			copiedPages: copiedPages
+		)
+
+		return "# \(frontmatter.title)\n\n\(introduction)URL: \(absoluteURL.absoluteString)\n\n\(body)"
 	}
 }
 

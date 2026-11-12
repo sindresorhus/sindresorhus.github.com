@@ -31,3 +31,5 @@ sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
 ```
 
 Enter your administrator password, and press ++Return++. Terminal shows no characters while you type the password, and there is no output when it works. If you are comfortable with Terminal, this is just as good as the button.
+
+To do it without Terminal, add the [“Flush DNS cache” shortcut](https://www.icloud.com/shortcuts/a91b36f037d74cd7a647284e8c376f3d) to the Shortcuts app. Then choose “Shortcuts › Settings”, click “Advanced”, and turn on “Allow Running Scripts”. The shortcut tells the DNS service of macOS to clear its cache (`killall -HUP mDNSResponder`), and asks for your administrator password.

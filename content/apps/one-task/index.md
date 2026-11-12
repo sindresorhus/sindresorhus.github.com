@@ -59,7 +59,7 @@ For example, on macOS, select the tasks you want in Reminders or Things, right-c
 ### Add tasks from anywhere on macOS
 
 - Drag text onto the menu bar item to add it as tasks. Each line becomes a task.
-- Select text in any app and choose “Services › Add to One Task” from the app menu or the right-click menu. You can give the service its own keyboard shortcut in “System Settings › Keyboard › Keyboard Shortcuts › Services › Text”.
+- Select text in any app and choose “Services › Add to One Task” from the app menu or the right-click menu. You can give the service its own keyboard shortcut in “[System Settings › Keyboard › Keyboard Shortcuts › Services › Text](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”.
 
 ### Complete the task with a double tap on Apple Watch
 
@@ -79,6 +79,7 @@ In the title, write a space as `%20` or `+`, and a plus sign as `%2B`.
 ## Frequently Asked Questions {#faq}
 
 ### How is this different from your One Thing app? {#one-thing-difference}
+<!-- @faq.compares One Thing -->
 
 [One Thing](/one-thing) is a minimalist note app that sits in the menu bar, displaying a single piece of text like a sticky note. In contrast, One Task is a task management tool that lets you queue multiple tasks, check them off upon completion, and view them one at a time, with a strong emphasis on widgets. While both apps share a focus on simplicity, One Thing is designed for quick, single-note access, whereas One Task is geared towards managing multiple tasks with a more structured approach, similar to the difference between the Notes app and Reminders app.
 
@@ -94,6 +95,11 @@ Known issue:
 Swipe right on the task and choose “Rename…”.
 
 On macOS, you can also right-click the task.
+
+### Where are my completed tasks? {#completed}
+<!-- @faq.keywords history -->
+
+Tap the “…” button and choose “Show Completed”. The newest completed tasks are at the top. “Clear Completed” in the same menu deletes them.
 
 ### Does the app integrate with other todo apps? {#does-the-app-integrate-with-other-todo-apps}
 

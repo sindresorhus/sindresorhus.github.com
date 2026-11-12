@@ -66,6 +66,10 @@ pressQuotes: [
 
 Keep your Mac awake and the screen on, for a set time or until you turn it off. Useful for presentations, downloads, and reading without touching the keyboard.
 
+To keep only the Mac awake and let the screen turn off as usual, like for a long download, turn on “Allow Display to Sleep” in the `…` submenu of the menu. The “Set Enabled State” action in Shortcuts has a “Display Sleep” option for one session.
+
+Set a keyboard shortcut in “Settings › Shortcuts” to turn Lungo on and off from any app, like ++Control+Command+L++. Turn on “Launch at login” and “Activate at launch” to keep your Mac awake from the moment you log in.
+
 ## Frequently Asked Questions {#faq}
 
 ### Lungo did not keep my computer awake {#lungo-did-not-keep-my-computer-awake}
@@ -152,6 +156,7 @@ Yes. Run `caffeinate -di` in the Terminal app, and your Mac and the screen stay 
 Lungo adds a menu bar icon to turn it on and off with one click, preset durations (and custom ones with Shortcuts), and settings like “Deactivate when switching to battery” and “Allow display to sleep while keeping computer awake”.
 
 ### How is it different from Amphetamine? {#how-is-it-different-from-amphetamine}
+<!-- @faq.compares Amphetamine -->
 
 Amphetamine is free and has many more features, like triggers that keep your Mac awake automatically, and keeping a MacBook awake with the lid closed. If you need those, use Amphetamine. Its last update was in November 2023.
 

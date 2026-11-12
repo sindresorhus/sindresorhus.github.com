@@ -54,23 +54,26 @@ struct SuggestedQuestion: Encodable {
 		let questionWords = Self.words(in: question)
 		self.questionWords = questionWords
 
-		var words = [String]()
-		var seenWords = Set<String>()
+		let words = Self.matchableWords(of: questionWords + Self.words(in: keywords.joined(separator: " ")))
 
-		for word in questionWords + Self.words(in: keywords.joined(separator: " ")) {
+		// Only the words that are not already in the question, so the page does not repeat them.
+		let questionWordSet = Set(questionWords)
+		self.extraWords = words.filter { !questionWordSet.contains($0) }
+	}
+
+	/**
+	The words that a message can match for the words of a question and its keywords (``words(in:)``): each word, its synonyms, and the word without its last “s”, in order and without repeats.
+	*/
+	static func matchableWords(of words: [String]) -> [String] {
+		words.flatMap { word in
 			// A plural, like “images” or “crashes”, gets the synonyms of the singular.
 			let singulars = word.singulars
 			let synonyms = Self.synonyms[word] ?? singulars.lazy.compactMap { Self.synonyms[$0] }.first ?? []
 
 			// A plural, like “quits”, also gets the word without the “s”, so its other forms match, like “quitting”.
-			for match in [word] + singulars.prefix(1) + synonyms where seenWords.insert(match).inserted {
-				words.append(match)
-			}
+			return [word] + singulars.prefix(1) + synonyms
 		}
-
-		// Only the words that are not already in the question, so the page does not repeat them.
-		let questionWordSet = Set(questionWords)
-		self.extraWords = words.filter { !questionWordSet.contains($0) }
+		.uniqued(by: \.self)
 	}
 
 	/**
@@ -87,11 +90,97 @@ struct SuggestedQuestion: Encodable {
 	}
 
 	/**
-	The apostrophes, the menu bar, and the words for ``words(in:)``. Not literals in the function, as Swift parses a regex literal each time the code runs, and it runs for each question.
+	The patterns of ``words(in:)``, which the script of ``FAQSuggestions`` also uses for the message, so the two split a text in the same way. Each pattern is valid in Swift and in JavaScript.
 	*/
-	nonisolated(unsafe) private static let apostrophe = /['’]/
-	nonisolated(unsafe) private static let menuBar = /\bmenu\s+bar/
-	nonisolated(unsafe) private static let word = /[a-z0-9_]{3,}/
+	struct WordPatterns: Encodable {
+		let apostrophe = "['’]"
+		let menuBar = #"\bmenu\s+bar"#
+		let word = "[a-z0-9_]{3,}"
+	}
+
+	static let wordPatterns = WordPatterns()
+
+	/**
+	The apostrophes, the menu bar, and the words for ``words(in:)``. Not made in the function, as it runs for each question. Strings and not literals, as the script gets the same patterns. The tests of ``words(in:)`` find a pattern that is not valid.
+	*/
+	nonisolated(unsafe) private static let apostrophe = try! Regex(wordPatterns.apostrophe, as: Substring.self)
+	nonisolated(unsafe) private static let menuBar = try! Regex(wordPatterns.menuBar, as: Substring.self)
+	nonisolated(unsafe) private static let word = try! Regex(wordPatterns.word, as: Substring.self)
+
+	/**
+	Whether a word is another form of the other word, or the same word, so a message word matches a question word: the shorter word with an ending, like “syncs”, “synced”, and “syncing” for “sync”, also with a doubled last letter, like “quitting” for “quit”, or without a last “e”, like “freezing” for “freeze”. Or the two words have the same stem (``stem(of:)``), like “crashed” and “crashing”. Not a longer word with the same start, like “freezing” for “free”. The script of ``FAQSuggestions`` matches with the same rules (``WordForms``).
+	*/
+	static func isForm(_ first: String, of second: String) -> Bool {
+		let (shorter, longer) = first.count <= second.count ? (first, second) : (second, first)
+		var stems = [
+			(stem: shorter, endings: wordForms.endings),
+			(stem: shorter + String(shorter.suffix(1)), endings: wordForms.endings),
+		]
+
+		// Without its last “e”, a word only takes an ending that starts with a vowel, so “one” does not match “only”.
+		if shorter.hasSuffix("e") {
+			stems.append((stem: String(shorter.dropLast()), endings: wordForms.vowelEndings))
+		}
+
+		return stems.contains { longer.hasPrefix($0.stem) && $0.endings.contains(String(longer.dropFirst($0.stem.count))) }
+			|| stem(of: first) == stem(of: second)
+	}
+
+	/**
+	The stem of a word, without one ending, a doubled last letter, and a last “e” (``WordForms/stemSteps``), so two forms of a word have the same stem, like “crashed” and “crashing”, “stops” and “stopped”, and “enabled” and “enabling”. A step that would leave fewer than 3 letters is skipped, so “ads” does not match “added”.
+	*/
+	private static func stem(of word: String) -> String {
+		var stem = word
+
+		for step in stemSteps {
+			let shorterStem = stem.replacing(step.pattern, with: step.replacement)
+
+			if shorterStem.count >= 3 {
+				stem = shorterStem
+			}
+		}
+
+		return stem
+	}
+
+	/**
+	The rules of ``isForm(_:of:)``, which the script of ``FAQSuggestions`` also uses for the words of the message, so the page and the check of the keywords agree. Each pattern is valid in Swift and in JavaScript.
+	*/
+	struct WordForms: Encodable {
+		struct StemStep: Encodable {
+			let pattern: String
+			let replacement: String
+		}
+
+		/**
+		The endings of the forms of a word, and no ending, for the same word.
+		*/
+		let endings = ["", "s", "es", "ed", "ing", "er", "ly"]
+
+		/**
+		The endings that a word without its last “e” takes, like “freezing” for “freeze”.
+		*/
+		let vowelEndings = ["es", "ed", "ing", "er"]
+
+		/**
+		The steps from a word to its stem: “ies” and “ied” become “y”, then one ending, a doubled last letter, and a last “e” are removed. The replacement is plain text, so the doubled letter is the first of the two, which is followed by the same letter at the end.
+		*/
+		let stemSteps = [
+			StemStep(pattern: "ie[sd]$", replacement: "y"),
+			StemStep(pattern: "(?:ing|ed|es|s)$", replacement: ""),
+			StemStep(pattern: #"(.)(?=\1$)"#, replacement: ""),
+			StemStep(pattern: "e$", replacement: ""),
+		]
+	}
+
+	static let wordForms = WordForms()
+
+	/**
+	The steps of ``stem(of:)``. Not made in the function, as it runs for each pair of words.
+	*/
+	nonisolated(unsafe) private static let stemSteps = wordForms.stemSteps.map { step in
+		(pattern: try! Regex(step.pattern), replacement: step.replacement)
+	}
 
 	/**
 	Common English words that carry no meaning for finding a support question, and the words that almost every question is about (“app”, “Mac”). With prefix matching, those would also match words like “apple”, “appearing”, and “macOS”.

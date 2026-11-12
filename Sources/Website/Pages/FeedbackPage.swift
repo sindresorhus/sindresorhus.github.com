@@ -40,35 +40,44 @@ struct FeedbackPage: Page {
 		PageMetadata(
 			title: "Feedback & Support",
 			description: "Send feedback, report a bug, or get support for apps by Sindre Sorhus.",
-			preconnectOrigins: [SiteOrigin(#URL("https://formcarry.com"))]
+			preconnectOrigins: [SiteOrigin(Self.formService)]
 		)
 	}
 
 	/**
-	A classic script in the head marks the page when the URL selects an app, before the body is parsed, so the browser does not show the picker or load its icons. It also marks the page after a send (`?success`, where Formcarry sends the visitor back), so the page shows the message and not the picker, and it notes the send for the form, which empties itself when Back brings it back (`feedback.js`). `feedback.js` is a module, which runs only after the whole page is parsed. When `feedback.js` or one of its imports does not load, like with a content blocker or a dropped connection, the script marks the page too, so the page shows the note with the email address, and not only the title. Limitation: a script that loads but then fails is not noticed.
+	A classic script in the head marks the page when the URL selects an app, before the body is parsed, so the browser does not show the picker or load its icons. It also marks the page after a send (`?success`, where Formcarry sends the visitor back), so the page shows the message and not the picker, and it notes the send for the form, which empties itself when Back brings it back (`feedback.js`). `feedback.js` is a module, which runs only after the whole page is parsed. When `feedback.js` or one of its imports does not load, like with a content blocker or a dropped connection, the page is marked too (`ScriptLoadFailure`), so it shows the note with the email address, and not only the title. With a selected app, the script in the head adds the app and the details that the app sent (`metadata`) to the email link of the note, as the form would send them.
 	*/
 	var head: some HTML {
 		script {
 			HTMLRaw(#"""
-			if (location.search === '?success') {
-				document.documentElement.setAttribute('\#(Hooks.sent.attributeName)', '');
+			// In a block, so the constants are not global for the other scripts of the page.
+			{
+				const parameters = new URLSearchParams(location.search);
+				const product = parameters.get('\#(Parameters.product.rawValue)');
 
-				try {
-					sessionStorage.setItem('feedback-sent', '');
-				} catch {
-					// Without storage, the form keeps its text after Back.
+				if (location.search === '?success') {
+					document.documentElement.setAttribute('\#(Hooks.sent.attributeName)', '');
+
+					try {
+						sessionStorage.setItem('\#(Self.sentStorageKey)', '');
+					} catch {
+						// Without storage, the form keeps its text after Back.
+					}
+				} else if (product) {
+					document.documentElement.setAttribute('\#(Hooks.hasProduct.attributeName)', '');
+
+					// The email of the note for a form that did not load has the app and the details that the app sent, which the form would send. Encoded with `encodeURIComponent`, as mail apps read a `+` in a mailto link as a plus, not a space.
+					addEventListener('DOMContentLoaded', () => {
+						const metadata = parameters.get('\#(Parameters.metadata.rawValue)');
+						const body = metadata ? `&body=${encodeURIComponent(`\n\n---\n${metadata}`)}` : '';
+						document.getElementById('\#(IDs.emailLink.id)').href += `?subject=${encodeURIComponent(`Feedback for ${product}`)}${body}`;
+					});
 				}
-			} else if (new URLSearchParams(location.search).get('\#(Parameters.product.rawValue)')) {
-				document.documentElement.setAttribute('\#(Hooks.hasProduct.attributeName)', '');
 			}
-
-			addEventListener('error', event => {
-				if (event.target instanceof HTMLScriptElement && event.target.src.includes('\#(Self.scriptPath)')) {
-					document.documentElement.setAttribute('\#(Hooks.formFailed.attributeName)', '');
-				}
-			}, true);
 			"""#)
 		}
+
+		ScriptLoadFailure(Self.scriptPath)
 	}
 
 	var body: some HTML {
@@ -103,9 +112,9 @@ struct FeedbackPage: Page {
 
 			// Without a selected app, the app is picked first, so the message says which app it is about. The script in the head marks the page when an app is selected, and the styles hide the picker and show the form.
 			// Without JavaScript, the picker shows, but not the form, so the note is above the picker, where it is seen. It also shows when `feedback.js` does not load, so its title is correct for the two causes. Not in the prose, so it lines up with the picker, and the address does not break with a hyphen.
-			// A warning alert with a title that says what is wrong, not only “WARNING”. The text only has a link, so it uses no styles or scripts of the Markdown that the page would need to add.
+			// A warning alert with a title that says what is wrong, not only “WARNING”. The text only has a link, so it uses no styles or scripts of the Markdown that the page would need to add. It is not Markdown, so its link has the ID for the script in the head.
 			div {
-				HTMLRaw(MarkdownTheme.site.alert(.warning, title: "The form did not load", contentHTML: MarkdownDocument(parsing: "The form needs JavaScript. Turn it on and reload the page, or email [\(Site.author.email)](mailto:\(Site.author.email)) and say which app it is about. With a content blocker, allow the scripts of this site.", options: .site).html))
+				HTMLRaw(MarkdownTheme.site.alert(.warning, title: "The form did not load", contentHTML: scriptingNoticeText.render()))
 			}
 			.style(Styles.scriptingNotice)
 
@@ -147,7 +156,7 @@ struct FeedbackPage: Page {
 
 			form(
 				.id(IDs.form),
-				.action("https://formcarry.com/s/UBfgr97yfY"),
+				.action(Self.formService.appending(path: "s/UBfgr97yfY").absoluteString),
 				.method(.post),
 				.enctype(.multipartFormData),
 				// The declarative WebMCP API of Chrome (an origin trial) lets an AI agent fill the form as a tool. Without `toolautosubmit`, the visitor still sends it.
@@ -199,6 +208,19 @@ struct FeedbackPage: Page {
 	}
 
 	/**
+	The text of the note for a form that did not load. The script in the head adds the app to its email link.
+	*/
+	private var scriptingNoticeText: some HTML {
+		p {
+			"The form needs JavaScript. Turn it on and reload the page, or email "
+			a(.id(IDs.emailLink), .href("mailto:\(Site.author.email)")) {
+				Site.author.email
+			}
+			" and say which app it is about. With a content blocker, allow the scripts of this site."
+		}
+	}
+
+	/**
 	The apps to pick from, by name, each a link to the form for the app. Not the unlisted apps, like an app before its launch, which the picker would announce. Their form still works with `?product=`, like for App Review.
 	*/
 	private var appPicker: some HTML {
@@ -224,9 +246,9 @@ struct FeedbackPage: Page {
 				.type(.search),
 				.placeholder("Filter apps"),
 				.autocomplete("off"),
-				.enterKeyHint(.go),
-				.spellcheck(false)
+				.enterKeyHint(.go)
 			)
+			.autocorrectionDisabled()
 			.accessibilityLabel("Filter apps")
 			.style(FormFieldStyles.control)
 			// On the element, so it wins over the display of the field.
@@ -390,9 +412,19 @@ struct FeedbackPage: Page {
 
 extension FeedbackPage {
 	/**
-	The script of the page, which the script in the head also names, to find out when it does not load.
+	The script of the page, which the head also names, to find out when it does not load.
 	*/
 	private static let scriptPath = #path("/scripts/feedback.js")
+
+	/**
+	The service that gets the messages of the form.
+	*/
+	private static let formService = #URL("https://formcarry.com")
+
+	/**
+	The session storage key that the script in the head sets after a send, and that `feedback.js` reads to empty the form after Back (``FeedbackData``).
+	*/
+	static let sentStorageKey = "feedback-sent"
 
 	/**
 	The IDs that the scripts of the page find elements by.
@@ -404,6 +436,11 @@ extension FeedbackPage {
 		case appFilterStatus = "app-filter-status"
 		case appPicker = "app-picker"
 		case changeAppLink = "change-app-link"
+		/**
+		The email address in the note for a form that did not load. With a selected app, the script in the head adds the subject and the details that the app sent.
+		*/
+		case emailLink = "email-link"
+
 		case emailSuggestionTemplate = "email-suggestion-template"
 		case emailWarning = "email-warning"
 		case faqSuggestions = "faq-suggestions"
@@ -425,11 +462,6 @@ extension FeedbackPage {
 		On the template of the note of an app, with the title of the app.
 		*/
 		case feedbackNote = "feedback-note"
-
-		/**
-		On the root element when `feedback.js` or one of its imports did not load, so the page shows the note with the email address.
-		*/
-		case formFailed = "form-failed"
 
 		case hasProduct = "has-product"
 
@@ -594,7 +626,7 @@ extension FeedbackPage {
 				// Only shown when JavaScript is turned off, or when `feedback.js` did not load.
 				Style()
 					.shownOnlyWithoutScripting()
-					.when(ancestorHas: Hooks.formFailed) {
+					.when(ancestorHas: ScriptLoadFailure.Hooks.failed) {
 						$0.display(.block)
 					}
 					.margin(.bottom, .rootEm(2))

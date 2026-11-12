@@ -93,10 +93,14 @@ struct AnnouncementBanner: HTML {
 					.shadow(.small)
 					.hidden(below: .smallTablet)
 			case .text:
+				// On phones, the text is centered above the button, so its lines have about the same length, and the last line is not one or two words, like the date of a sale. Not from small tablets, where the text is in a row with the button, and shorter lines would leave a gap before the button.
 				Style()
 					.font(size: .rootEm(0.9375))
 					.fontWeight(.medium)
 					.color(.bodyText)
+					.below(.smallTablet) {
+						$0.textWrap(.balance)
+					}
 					.from(.smallTablet) {
 						$0.textStyle(.body)
 					}
@@ -116,12 +120,12 @@ extension AnnouncementBanner {
 	}
 
 	/**
-	The note of a sale that the app is in today, with a link to the page of the sale, like “Black Friday: Dato is on sale through November 30”. It has no price and no discount, as they are on the page of the sale.
+	The note of a sale that the app is in today, with a link to the page of the sale, like “Black Friday: Dato is on sale through November 30”. It has no price and no discount, as they are on the page of the sale. The link opens the page at the first “Dato” and marks it, which is the line of the app when the block is the first text of the page with its title, like on the discounts page.
 	*/
 	init(sale: Sale, app: App) {
 		self.init(
 			text: "\(sale.name): \(app.title) is on sale through \(sale.lastDay.foundationDate.formatted(.siteDayWithoutYear))",
-			link: LabeledLink("See the Discounts", destination: .path(sale.page))
+			link: LabeledLink("See the Discounts", destination: .path(sale.page, highlighting: app.title))
 		)
 	}
 }

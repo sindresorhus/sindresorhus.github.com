@@ -91,6 +91,7 @@ struct SiteFooter: HTML {
 				links: [LabeledLink("All Apps", path: .apps)] + [AppCategory.free, .paid, .macOS, .iOS, .menuBar].map { LabeledLink($0.title, path: $0.path) } + [
 					.wallOfLove,
 					.appTimeline,
+					.tinyApps,
 					LabeledLink("Guess the App", path: .appdle),
 				]
 			),

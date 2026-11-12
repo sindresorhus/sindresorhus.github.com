@@ -1,6 +1,7 @@
 ---
 title: 'Today'
 subtitle: 'Today’s schedule in your menu bar'
+description: 'See today’s events in your Mac menu bar, and nothing else. Click an event to show it in the Calendar app, or join an upcoming video call directly from the menu.'
 publicationDate: 2022-10-27
 platforms: [
 	'macOS'
@@ -56,6 +57,8 @@ This app is intentionally simple. For more advanced needs, check out [Dato](/dat
 It integrates with Calendar, Fantastical, and BusyCal.
 
 With the “Next up” setting, the menu can also show your first event after today. You can set global keyboard shortcuts to show Today, create a new event, and open your calendar.
+
+With the “Filter Calendars” [Focus Filter](https://support.apple.com/guide/mac-help/mchl613dc43f/mac#mchl49b73d04), Today shows only some calendars in a Focus, like only your work calendar while you work. Focus Filters are [broken in macOS 26.5](https://developer.apple.com/forums/thread/826766) because of a macOS bug.
 
 ## Frequently Asked Questions {#faq}
 
@@ -130,6 +133,7 @@ I don’t plan to add this. Very few users use widgets on macOS, so it’s not w
 I plan to do that at some point when the app is more mature.
 
 ### How does it compare to MeetingBar? {#meetingbar}
+<!-- @faq.compares MeetingBar -->
 
 MeetingBar is mainly for video calls and has a gazillion settings and features around that. Today has a cleaner look and is opinionated so you don’t have to make so many choices. If all you need is a quick way to join video calls, Today is probably what you want. If you need more advanced features, MeetingBar or [Dato](/dato) may be a better choice.
 

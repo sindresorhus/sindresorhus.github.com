@@ -26,7 +26,7 @@ screenshot: {
 1. Turn off “All Photos”, tap “Selected Photos”, and choose one photo, or more.
 }
 
-With more than one photo, the widget changes the photo at the interval that you choose in “Minimum Refresh Interval”, like “1 hour”. “Same as App Setting” uses the “Refresh Interval” in the settings of the app, which is 1 hour at first. iOS can update a widget less often than the interval.
+With more than one photo, the widget changes the photo at the interval that you choose in “Refresh Interval”, like “1 hour”. “Same as App Setting” uses the “Refresh Interval” in the settings of the app, which is 1 hour at first. iOS can update a widget less often than the interval.
 
 “Crop” is on at first, so the photo fills the widget. Turn it off to show all of the photo, with the color of “Background Color” around it.
 

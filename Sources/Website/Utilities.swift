@@ -2,8 +2,33 @@ import CoreGraphics
 import Elementary
 import Foundation
 import ImageIO
+import Markdown
 import SiteKit
 import SOML
+
+extension Markdown.Heading {
+	/**
+	Whether the section of the heading has something that the page shows before the next heading of the same or a higher level, like the answer of a question. A directive below the heading, like `<!-- @faq.keywords … -->`, does not count.
+	*/
+	var hasSectionContent: Bool {
+		guard let parent else {
+			return false
+		}
+
+		return Array(parent.children)
+			.contentOfSection(afterHeadingAt: indexInParent, level: headingLevel) { ($0 as? Markdown.Heading)?.headingLevel }
+			.contains { !$0.isCommentOnly }
+	}
+}
+
+extension MarkdownFile {
+	/**
+	The error of a question of an FAQ without an answer, as the page would show a question that opens to an empty box: in an app file, in the shared questions, and on the general FAQ page.
+	*/
+	func missingAnswerError(question: String, line: SiteKit.SourceLocation.Line?) -> ContentError {
+		error(line: line, "The question “\(question)” has no answer. Write it below the heading.")
+	}
+}
 
 /**
 A random number generator that gives the same numbers for the same seed (SplitMix64).
@@ -116,6 +141,15 @@ extension String {
 	nonisolated(unsafe) private static let trailingPunctuation = /[,.:;]$/
 }
 
+extension URL {
+	/**
+	A Markdown link to the URL, like `[Dato](https://sindresorhus.com/dato.md)`, for the Markdown copies of the pages and `llms.txt`.
+	*/
+	func markdownLink(_ text: String) -> String {
+		"[\(text)](\(absoluteString))"
+	}
+}
+
 extension Int {
 	/**
 	The number rounded down to its first significant digits, like 1,068 to 1,000 and 515,161 to 510,000 with two digits. A number that changes every day, like a download count, then changes the page less often.
@@ -186,15 +220,12 @@ Schema.org types for structured data (JSON-LD). Unset properties are left out.
 */
 enum Schema {
 	/**
-	A schema.org object that can be the top level of structured data, which has the `@context`.
+	A schema.org object that can be the top level of structured data, where ``JSONScript/init(schema:)`` adds the `@context`.
 	*/
-	protocol Object: Encodable {
-		var context: String? { get set }
-	}
+	protocol Object: Encodable {}
 
 	struct Person: Object {
 		private enum CodingKeys: String, CodingKey {
-			case context = "@context"
 			case type = "@type"
 			case id = "@id"
 			case name
@@ -209,7 +240,6 @@ enum Schema {
 			case knowsAbout
 		}
 
-		var context: String?
 		let type = "Person"
 
 		/**
@@ -239,7 +269,6 @@ enum Schema {
 	*/
 	struct Article: Object {
 		private enum CodingKeys: String, CodingKey {
-			case context = "@context"
 			case type = "@type"
 			case headline
 			case description
@@ -260,7 +289,6 @@ enum Schema {
 			case blogPosting = "BlogPosting"
 		}
 
-		var context: String?
 		let type: Kind
 		let headline: String
 		var description: String?
@@ -277,9 +305,9 @@ enum Schema {
 		var keywords: [String]?
 
 		/**
-		What the article is about, like the app of a guide.
+		What the article is about, like the apps of a guide.
 		*/
-		var about: Reference?
+		var about: [Reference]?
 	}
 
 	/**
@@ -298,12 +326,10 @@ enum Schema {
 	*/
 	struct ProfilePage: Object {
 		private enum CodingKeys: String, CodingKey {
-			case context = "@context"
 			case type = "@type"
 			case mainEntity
 		}
 
-		var context: String?
 		let type = "ProfilePage"
 		let mainEntity: Person
 	}
@@ -313,13 +339,11 @@ enum Schema {
 	*/
 	struct WebSite: Object {
 		private enum CodingKeys: String, CodingKey {
-			case context = "@context"
 			case type = "@type"
 			case name
 			case url
 		}
 
-		var context: String?
 		let type = "WebSite"
 		let name: String
 		let url: URL
@@ -330,7 +354,6 @@ enum Schema {
 	*/
 	struct SoftwareApplication: Object {
 		private enum CodingKeys: String, CodingKey {
-			case context = "@context"
 			case type = "@type"
 			case id = "@id"
 			case name
@@ -383,7 +406,6 @@ enum Schema {
 			case utilities = "UtilitiesApplication"
 		}
 
-		var context: String?
 		let type: Kind
 
 		/**
@@ -531,7 +553,6 @@ enum Schema {
 	*/
 	struct ItemList: Object {
 		private enum CodingKeys: String, CodingKey {
-			case context = "@context"
 			case type = "@type"
 			case name
 			case description
@@ -552,7 +573,6 @@ enum Schema {
 			let url: URL
 		}
 
-		var context: String?
 		let type = "ItemList"
 		let name: String
 		let description: String
@@ -573,6 +593,45 @@ enum Schema {
 			self.itemListElement = itemURLs.enumerated().map { ListItem(position: $0.offset + 1, url: $0.element) }
 		}
 	}
+
+	/**
+	The trail of links that a page shows above its title, like “Back to Command X” on a guide, which search results can show instead of the path of the URL. The last item is the page itself, without a URL, so Google uses the URL of the page.
+	*/
+	struct BreadcrumbList: Object {
+		private enum CodingKeys: String, CodingKey {
+			case type = "@type"
+			case itemListElement
+		}
+
+		struct ListItem: Encodable {
+			private enum CodingKeys: String, CodingKey {
+				case type = "@type"
+				case position
+				case name
+				case item
+			}
+
+			let type = "ListItem"
+			let position: Int
+			let name: String
+
+			/**
+			The URL of the page, or `nil` for the last item.
+			*/
+			var item: URL?
+		}
+
+		let type = "BreadcrumbList"
+		let itemListElement: [ListItem]
+
+		/**
+		- Parameter parents: The pages above the page, from the first, like the app of a guide.
+		- Parameter name: The name of the page itself, like the title of a guide.
+		*/
+		init(parents: [(name: String, url: URL)], name: String) {
+			self.itemListElement = parents.enumerated().map { ListItem(position: $0.offset + 1, name: $0.element.name, item: $0.element.url) } + [ListItem(position: parents.count + 1, name: name)]
+		}
+	}
 }
 
 extension JSONScript {
@@ -580,9 +639,25 @@ extension JSONScript {
 	Structured data for search engines.
 	*/
 	init(schema value: some Schema.Object) {
-		var value = value
-		value.context = "https://schema.org"
-		self.init(structuredData: value)
+		self.init(structuredData: SchemaTopLevel(value: value))
+	}
+}
+
+/**
+A schema.org object at the top level of structured data, with the `@context` next to its own keys, as only the top level has it.
+*/
+private struct SchemaTopLevel<Value: Schema.Object>: Encodable {
+	private enum CodingKeys: String, CodingKey {
+		case context = "@context"
+	}
+
+	let value: Value
+
+	func encode(to encoder: any Encoder) throws {
+		var container = encoder.container(keyedBy: CodingKeys.self)
+		try container.encode("https://schema.org", forKey: .context)
+		// The object asks for the same keyed container, so its keys are in the same JSON object.
+		try value.encode(to: encoder)
 	}
 }
 
@@ -616,7 +691,7 @@ extension Schema.SoftwareApplication {
 		dateModified = listing.currentVersionDate
 		fileSize = listing.fileSize?.formatted(.siteFileSize)
 		// The plain pages of the stores, not the Setapp link, as it is a referral link, and not the Gumroad link, as it opens the checkout.
-		sameAs = [app.appStoreURL, app.frontmatter.gumroad?.id.url, app.frontmatter.setappID?.pageURL, app.frontmatter.repositoryURL?.value].compactMap(\.self).nilIfEmpty
+		sameAs = [app.appStoreURL, app.purchase.gumroad?.id.url, app.frontmatter.setappID?.pageURL, app.frontmatter.repositoryURL?.value].compactMap(\.self).nilIfEmpty
 
 		softwareVersion = listing.version
 
@@ -634,7 +709,7 @@ extension Schema.SoftwareApplication {
 			}
 
 			// The product page on Gumroad, which has the price and the ratings, not the checkout of the Buy button. An archived app is no longer available, so it has no offer, like the archived apps without a download.
-			let offerURL = app.frontmatter.gumroad?.id.url ?? storeURL
+			let offerURL = app.purchase.gumroad?.id.url ?? storeURL
 			offers = app.isArchived ? nil : listing.price.map { Schema.Offer(url: offerURL, seller: .authorName, price: $0) }
 		}
 

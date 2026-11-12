@@ -1,6 +1,7 @@
 ---
 title: 'SOML Editor'
 subtitle: 'View and edit SOML files'
+description: 'A Mac app to view and edit SOML files. SOML is a new config format for humans, and an alternative to JSON.'
 publicationDate: 2026-10-17
 platforms: [
 	'macOS'
@@ -8,6 +9,7 @@ platforms: [
 	# 'visionOS'
 ]
 appStoreID: 6821636565
+hasNoNetworkAccess: true
 sharedQuestions: [
 	'suggested-filenames'
 ]

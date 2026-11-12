@@ -1,4 +1,5 @@
 import Foundation
+import Markdown
 import SiteKit
 import SOML
 
@@ -56,18 +57,21 @@ struct MarkdownPage: ContentDocument {
 		}
 
 		self.status = try frontmatter.status.map { try MarkdownDocument(parsing: $0, at: .status, of: decodedFile, project: project) }
-		self.markdown = try MarkdownDocument(parsing: file, options: kind == .faq ? .faqPage(file, project: project) : .content(
+		let parsed = file.parsedMarkdown(options: kind == .faq ? .faqPage(file, project: project) : .content(
 			file,
 			project: project,
 			sponsorTiers: sponsorTiers,
 			today: today
 		))
+		self.markdown = try parsed.rendered()
 
 		// The feedback page suggests the general questions, so the directives of another heading would silently do nothing.
 		if kind == .faq {
-			let errors = markdown.headings.compactMap { heading -> ContentError? in
+			var errors = markdown.headings.compactMap { heading -> ContentError? in
+				// A question with `@faq.compares` gets only the error below, as that directive is the one to remove.
 				guard
 					!heading.contains(FAQDirectives.General.self),
+					!heading.contains(FAQDirectives.Compares.self),
 					heading.hasFAQDirective
 				else {
 					return nil
@@ -75,6 +79,16 @@ struct MarkdownPage: ContentDocument {
 
 				return file.error(line: heading.line, "The feedback page suggests only the questions with `<!-- @\(FAQDirectives.General.name) -->`, so the directives of “\(heading.text)”, like `@\(FAQDirectives.Keywords.name)`, do nothing. Add it, or remove them.")
 			}
+
+			// Only an app page shows the chips of the compared apps (``AppPage``).
+			errors += markdown.headings
+				.filter { $0.contains(FAQDirectives.Compares.self) }
+				.map { file.error(line: $0.line, "`@\(FAQDirectives.Compares.name)` is only for the FAQ questions of an app page. Remove it from “\($0.text)”.") }
+
+			// Like the questions of an app (``App``), a question without an answer would open to an empty box.
+			errors += parsed.document.descendants(of: Markdown.Heading.self)
+				.filter { $0.headingLevel == .h3 && !$0.hasSectionContent }
+				.map { file.missingAnswerError(question: $0.title, line: file.line(of: $0)) }
 
 			guard errors.isEmpty else {
 				throw ContentErrors(errors)
@@ -292,7 +306,7 @@ extension MarkdownPage {
 		/**
 		Shows the name next to the logo, for a logo without the name in it.
 		*/
-		var showsName = false
+		@TrueOrAbsent var showsName = false
 
 		/**
 		A sponsor with the required destination for the logo grid.

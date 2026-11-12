@@ -37,8 +37,11 @@ extension ProseStyles {
 		.descendants("p, ul, ol") {
 			$0.margin(vertical: .em(1), horizontal: .zero)
 		}
+		// A link wraps only between its words, as a hyphen in a link cuts its underline in two, so it looks like two links, like “Send me a mes-” and “sage”.
 		.descendants("a") {
-			$0.textLink()
+			$0
+				.textLink()
+				.hyphenation(false)
 		}
 		.descendants("strong") {
 			$0

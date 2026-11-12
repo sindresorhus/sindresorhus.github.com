@@ -35,6 +35,8 @@ struct CareerQuiltPage: Page {
 		return section {
 			PageHeader(title: "Career Quilt", intro: "\(years.totalCount.formatted(counting: "contribution")) on GitHub since \(ContributionYear.firstYear), one patch for each year.")
 
+			YearBars(years: years)
+
 			// The contributions of a day for each color, below the introduction, so the colors are clear before the first patch.
 			div {
 				"Contributions a day:"
@@ -92,6 +94,9 @@ extension CareerQuiltPage {
 		case calendar
 		case legend
 		case legendItem
+		case yearItem
+		case yearLink
+		case yearBar
 
 		var style: Style {
 			switch self {
@@ -105,10 +110,12 @@ extension CareerQuiltPage {
 					.cardSurface(isInteractive: false)
 					.outline(.lightDark(.gray(300), .gray(700)), offset: .pixels(-6), style: .dashed)
 			case .year:
+				// A link to a year, like a bar of ``YearBars``, shows the top of its patch below the header.
 				Style()
 					.font(.extraLarge, weight: .bold)
 					.monospacedDigit()
 					.color(.primaryText)
+					.scrollMargin(top: .rootEm(1.5))
 			case .summary:
 				Style()
 					.margin(bottom: .rootEm(0.75))
@@ -140,7 +147,93 @@ extension CareerQuiltPage {
 					.children("span") {
 						$0.frame(width: .rootEm(0.75))
 					}
+			// A grid, so the link fills the column, and the whole column is a target.
+			case .yearItem:
+				Style()
+					.display(.grid)
+			// The bar on top of its year, at the bottom of the column. The fill of the column shows the pointer and the focus of the keyboard. On phones, the text is smaller, so the 17 years fit next to each other.
+			case .yearLink:
+				Style()
+					.vstack(justification: .end, spacing: .rootEm(0.375))
+					.padding(vertical: .rootEm(0.25), horizontal: .zero)
+					.cornerRadius(.rootEm(0.375))
+					.secondaryText(.extraSmall)
+					.below(.smallTablet) {
+						$0
+							.font(size: .rootEm(0.625))
+							.letterSpacing(.em(-0.02))
+					}
+					.textAlign(.center)
+					.monospacedDigit()
+					.noUnderline()
+					.hoverFill(.card, color: .primaryText)
+			// A year with few contributions, like 2010, still has a line.
+			case .yearBar:
+				Style()
+					.display(.block)
+					.frame(minHeight: .pixels(2))
+					.cornerRadius(.pixels(3))
 			}
+		}
+	}
+}
+
+/**
+The total of each year as a bar that links to its patch, so the shape of the career is clear before the patches, and a visitor can go to a year. The bars have the darkest color of the quilt. Screen readers read each link as the year and its total, like “2015: 6308 contributions”.
+
+It is its own component, not a part of the body of ``CareerQuiltPage``, so the type of the page does not get deeper, like `CommitHours` of the now page.
+*/
+private struct YearBars: HTML {
+	/**
+	Oldest first.
+	*/
+	let years: [ContributionYear]
+
+	/**
+	The height of the bar of the year with the most contributions.
+	*/
+	private static let maximumBarHeight = 4.0
+
+	var body: some HTML {
+		let highest = max(years.map(\.calendar.totalCount).max() ?? 0, 1)
+
+		return nav(.ariaLabel("Years")) {
+			ol {
+				for year in years {
+					li {
+						a(.href(.fragment(String(year.year)))) {
+							span {}
+								.style(CareerQuiltPage.Styles.yearBar, ContributionHeatmap.Styles.level(.fourth))
+								.style {
+									$0.frame(height: .rootEm(Self.maximumBarHeight * Double(year.calendar.totalCount) / Double(highest)))
+								}
+
+							span {
+								"’\(String(year.year).suffix(2))"
+							}
+							.accessibilityHidden()
+
+							VisuallyHidden("\(year.year): \(year.calendar.totalCount.formatted(counting: "contribution"))")
+						}
+						.style(CareerQuiltPage.Styles.yearLink)
+					}
+					.style(CareerQuiltPage.Styles.yearItem)
+				}
+			}
+			// One column for each year. Thin gaps on phones, where 17 years share the width.
+			.style {
+				$0
+					.display(.grid)
+					.gridAutoFlow(.column)
+					.gridAutoColumns(.fraction(1))
+					.gap(.pixels(2))
+					.from(.tablet) {
+						$0.gap(.rootEm(0.25))
+					}
+			}
+		}
+		.style {
+			$0.margin(.bottom, .rootEm(1.5))
 		}
 	}
 }

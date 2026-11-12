@@ -5,6 +5,18 @@ import Testing
 @testable import SiteKit
 
 struct UtilitiesTests {
+	@Test(arguments: [(0, "0"), (9999, "9999"), (-9999, "-9999"), (10_000, "10,000"), (-10_000, "-10,000"), (Int.max, "9,223,372,036,854,775,807")])
+	func `site numbers group only from five digits`(value: Int, expected: String) {
+		#expect(value.formatted(.siteNumber) == expected)
+	}
+
+	@Test
+	func `site numbers can format the smallest integer`() async {
+		await #expect(processExitsWith: .success) {
+			#expect(Int.min.formatted(.siteNumber) == "-9,223,372,036,854,775,808")
+		}
+	}
+
 	@Test(.temporaryDirectory, arguments: [false, true])
 	func `recursive listings preserve hidden file and directory filtering`(includesHiddenFiles: Bool) throws {
 		let directory = try URL.temporaryDirectory(files: [

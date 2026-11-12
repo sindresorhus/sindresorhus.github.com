@@ -158,8 +158,9 @@ extension Stylesheet {
 
 		Rule("button, label[for]", Style().cursor(.pointer))
 
+		// Not an element that is hidden until find in page finds it, as the browser hides its content, but keeps its box, so the page finds its text.
 		Rule(
-			"[hidden]",
+			"[hidden]:not([hidden=\"until-found\"])",
 			Style()
 			.declaration(raw: .display, Display.none, isImportant: true)
 		)

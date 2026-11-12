@@ -64,6 +64,14 @@ public struct MarkdownFile: SOMLValueFile, Sendable {
 	public let bodyLines: [Substring]
 
 	/**
+	Each line of the file with its line number: the lines of the frontmatter, from the line after the opening `---`, and the lines of the body (``bodyLines``).
+	*/
+	public var numberedLines: [(line: SourceLocation.Line, text: Substring)] {
+		frontmatter.split(separator: "\n", omittingEmptySubsequences: false).enumerated().map { (line: Self.lineInFile(ofFrontmatterLine: $0.offset + 1), text: $0.element) }
+			+ bodyLines.enumerated().map { (line: bodyStartLine.offset(by: $0.offset), text: $0.element) }
+	}
+
+	/**
 	When a commit last changed the file. `nil` outside a git repository and for files without commits.
 	*/
 	public var lastCommitDate: Date?

@@ -268,6 +268,7 @@ I don’t plan to support any editing. Export the transcription and edit it in a
 Not built in, as Aiko only transcribes. To get a summary, make a shortcut with the “Transcribe Audio” action of Aiko and the “Use Model” action of the Shortcuts app (Apple Intelligence), with a prompt like `Summarize this`. On a device with Apple Intelligence, you can also select the text in Aiko and use Writing Tools to summarize it.
 
 ### How is this better than the built-in transcription on Apple devices? {#how-is-this-better-than-the-built-in-transcription-on-apple-devices}
+<!-- @faq.compares Built-in transcription -->
 
 The built-in transcription in iOS 26 and macOS 26 is fast and works well for the languages it supports. If it does what you need, use it. Aiko gives you more:
 
@@ -276,6 +277,7 @@ The built-in transcription in iOS 26 and macOS 26 is fast and works well for the
 - Export to text, text with timestamps, subtitles (SRT and WebVTT), JSON, and CSV.
 
 ### How is this different from MacWhisper? {#macwhisper}
+<!-- @faq.compares MacWhisper -->
 
 - Aiko is a one-time purchase that works on Mac, iPhone, iPad, and Apple Vision Pro.
 - Aiko is simple and only transcribes on your device.
@@ -377,7 +379,7 @@ The error comes from iOS and means that it could not read the audio file. Someti
 
 **macOS:** Drag and drop the memo into the Aiko window. Note that because of a macOS bug, this can sometimes crash Aiko. If this happens, try sharing the memo from the Voice Memos app to Aiko instead.
 
-**iOS:** In the Voice Memos app, tap the memo, tap the `…` button, tap `Share`, and choose Aiko in the app list.
+**iOS:** In the Voice Memos app, tap the memo, tap the `…` button, tap `Share`, and choose Aiko in the app list. See the [guide to transcribe a voice memo on iPhone](../../guides/transcribe-voice-memo-iphone.md).
 
 **iOS 26:** Sharing from Voice Memos is broken due to an iOS bug. See [workaround](#voice-memos-ios26).
 

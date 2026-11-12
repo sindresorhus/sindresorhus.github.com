@@ -1,12 +1,14 @@
 ---
 title: 'Spaced'
 subtitle: 'Organize your menu bar items into groups'
+description: 'Add separators to your Mac menu bar, so related items sit together in groups.'
 publicationDate: 2023-01-20
 platforms: [
 	'macOS'
 ]
 isMenuBarApp: true
 appStoreID: 1666327168
+hasNoNetworkAccess: true
 nonAppStoreVersion: {
 	version: '1.3.0'
 	macOS: 26

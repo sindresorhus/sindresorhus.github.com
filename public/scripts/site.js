@@ -1,4 +1,4 @@
-import {cloneTemplate, copy, elementForFragment, parts, prefersReducedMotion} from '/scripts/dom.js';
+import {cloneTemplate, copy, elementForFragment, finePointer, parts, prefersReducedMotion} from '/scripts/dom.js';
 
 // A greeting for the curious ones who open the developer tools. The source link is in the footer.
 console.log(`%c
@@ -40,6 +40,9 @@ async function openTargetedSection() {
 openTargetedSection();
 window.addEventListener('hashchange', openTargetedSection);
 
+// A click with the main button and no modifier key. With a modifier key, like to open a link in a new tab, a link only does what the browser does.
+const isPlainClick = event => event.button === 0 && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey);
+
 // The pending timers that remove the copied state of section links, so a second click restarts the timer of its link.
 const copiedStateTimers = new WeakMap();
 
@@ -47,7 +50,8 @@ const copiedStateTimers = new WeakMap();
 document.addEventListener('click', async event => {
 	const link = event.target.closest?.('[data-copy-link]');
 
-	if (!link) {
+	// With a modifier key, like to open the section in a new tab, the link only does what the browser does, so the clipboard of the visitor stays the same, like the audio links below.
+	if (!link || !isPlainClick(event)) {
 		return;
 	}
 
@@ -93,7 +97,7 @@ let audioPlayer;
 document.addEventListener('click', event => {
 	const link = event.target.closest?.('a[href$=".m4a"]');
 
-	if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+	if (!link || !isPlainClick(event)) {
 		return;
 	}
 
@@ -187,8 +191,11 @@ document.addEventListener('click', event => {
 	document.documentElement.toggleAttribute('data-smooth-scrolling', isClose);
 }, {capture: true});
 
-// A link in text, like prose, shows a preview of what it goes to when the pointer rests on it: an app, the answer of a question, or a shared shortcut (`LinkPreview` in Swift). Only with a precise pointer that can hover, as on a touch screen, a tap opens the page at once.
-if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+// A link in text, like prose, shows a preview of what it goes to when the pointer rests on it: an app, the answer of a question, a guide, or a shared shortcut (`LinkPreview` in Swift). Only with a precise pointer that can hover, as on a touch screen, a tap opens the page at once.
+if (finePointer.matches) {
+	// The template of the preview, which also has the path of the data.
+	const template = document.querySelector('#link-preview-template');
+
 	// What the previews show, by their link, loaded at the first hover. Without them, links show no preview.
 	let contentsByLink;
 	let preview;
@@ -196,7 +203,7 @@ if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
 	let previewRequest;
 
 	const contentForLink = async link => {
-		contentsByLink ??= fetch('/link-previews.json')
+		contentsByLink ??= fetch(template.dataset.linkPreviewData)
 			.then(response => response.json())
 			.then(contents => new Map(Object.entries(contents)))
 			// A failed request is not kept, so the next hover tries again, like after a short loss of the network.
@@ -224,7 +231,7 @@ if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
 		}
 
 		if (!preview) {
-			preview = cloneTemplate(document.querySelector('#link-preview-template'));
+			preview = cloneTemplate(template);
 			document.body.append(preview);
 		}
 

@@ -37,6 +37,8 @@ Terminal has the `zip` command. To remove the files from a zip file that you alr
 zip -d archive.zip "__MACOSX/*" "*.DS_Store"
 ```
 
+This changes the zip file itself, so keep a copy if you need the original.
+
 To make a zip file without them, do not use “Compress” in Finder. Go to the folder that contains your folder, and run:
 
 ```console

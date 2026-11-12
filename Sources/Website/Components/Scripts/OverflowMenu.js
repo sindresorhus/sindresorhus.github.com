@@ -1,9 +1,14 @@
+// @ts-check
 import {elementForFragment, share, sharedPage} from '/scripts/dom.js';
+
+/**
+@import {OverflowMenuParts} from '/scripts/element-contracts.js'
+*/
 
 class OverflowMenu extends HTMLElement {
 	connectedCallback() {
 		// The “Share…” option is hidden until the browser can share. Some browsers, like Firefox on desktop, cannot.
-		const shareOption = this.querySelector('[data-part="share"]');
+		const shareOption = /** @type {OverflowMenuParts['share'] | null} */ (this.querySelector('[data-part="share"]'));
 
 		if (shareOption && navigator.canShare?.(sharedPage(this))) {
 			shareOption.hidden = false;
@@ -15,15 +20,16 @@ class OverflowMenu extends HTMLElement {
 	}
 
 	// Choosing an option opens its link, or shows its explicitly marked popover, like the QR code of an app.
+	/** @param {Event} event */
 	#choose = async event => {
-		const menu = event.target;
+		const menu = /** @type {HTMLSelectElement} */ (event.target);
 		const destination = menu.value;
 
 		if (!destination) {
 			return;
 		}
 
-		const option = menu.selectedOptions[0];
+		const option = /** @type {HTMLOptionElement} */ (menu.selectedOptions[0]);
 		const isShare = option.dataset.part === 'share';
 		const isPopover = option.hasAttribute('data-menu-popover');
 		menu.value = '';
@@ -38,7 +44,7 @@ class OverflowMenu extends HTMLElement {
 			}
 		}
 
-		const popover = isPopover ? elementForFragment(destination) : undefined;
+		const popover = /** @type {HTMLElement | undefined} */ (isPopover ? elementForFragment(destination) : undefined);
 
 		if (popover?.popover) {
 			// The menu is the source, so focus goes back to it when the popover closes.

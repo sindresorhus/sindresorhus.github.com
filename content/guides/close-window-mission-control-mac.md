@@ -21,7 +21,7 @@ apps: [
 1. Open Mission Control, and right-click a window. The window closes.
 }
 
-To do something else with a right-click or a middle-click, choose “Minimize Window”, “Quit App”, or “Hide App” in “Right-click action” and “Middle-click action”. You can also point at a window and press ++Command+W++, ++Command+Q++, ++Command+H++, or ++Command+M++, and move between the windows with the arrow keys. On macOS 27, moving between the windows with the arrow keys does not work yet in other spaces.
+To do something else with a right-click or a middle-click, choose “Minimize Window”, “Quit App”, or “Hide App” in “Right-click action” and “Middle-click action”. You can also point at a window and press ++Command+W++, ++Command+Q++, ++Command+H++, or ++Command+M++, and move between the windows with the arrow keys. On macOS 27, the window actions work only in the first space for now.
 
 ## Without an app
 

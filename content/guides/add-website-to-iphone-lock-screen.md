@@ -20,7 +20,9 @@ screenshot: {
 
 @Steps {
 1. Open [Quick Launch](../apps/quick-launch/index.md), and tap the add button.
-1. Choose “URL” as the action, and enter the website, like `https://example.com`. Choose a symbol or up to two characters as the icon.
+1. Choose “URL” as the action, and enter the website, like `https://example.com`.
+1. In “Icon”, tap “Choose”, and choose the icon, like “Website Icon”, “Symbol”, or “Characters” (up to two characters).
+1. Tap the checkmark button to save the widget.
 1. Touch and hold the Lock Screen, and tap “Customize”.
 1. Tap the widget area below the clock, choose “Quick Launch”, and add the “Open Stuff” widget.
 1. Tap the widget, and choose the widget that you made.

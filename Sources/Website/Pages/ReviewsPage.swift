@@ -5,7 +5,7 @@ import SiteKit
 /**
 The wall of love: the press quotes and the recent five-star App Store reviews of all active apps, each with a link to its app.
 
-The press quotes come first, in the order of the apps, and then the reviews in a random order on each visit. The order stays with the history entry, so the visitor who goes back to the page, or reloads it, returns to the same reviews. Without JavaScript, the reviews are newest first. `?app=velja` shows only the quotes and reviews of one app, like from the reviews on an app page. Then the notice names the app and links to it, so the cards do not repeat its icon and name.
+The press quotes come first, in the order of the apps, and then the reviews in a random order on each visit. The order stays with the history entry, so the visitor who goes back to the page, or reloads it, returns to the same reviews. Without JavaScript, the reviews are newest first. `?app=velja` shows only the quotes and reviews of one app, like from the reviews on an app page. Then the introduction names the app with its icon and links to it, so the cards do not repeat its icon and name.
 */
 struct ReviewsPage: Page {
 	let content: SiteContent
@@ -26,23 +26,42 @@ struct ReviewsPage: Page {
 		let quotes = pressQuotes + reviews
 
 		section {
-			PageHeader(title: "Wall of Love", intro: "What the press and App Store reviewers say about my apps.")
+			// The script names the one app in place of “my apps” when the page shows its quotes, with its icon and a link to it, and shows the link to all the apps.
+			PageHeader(title: "Wall of Love") {
+				"What the press and App Store reviewers say about "
+
+				span(.id(IDs.allApps)) {
+					"my apps"
+				}
+
+				a(.id(IDs.filterApp), .hidden) {}
+					// The script puts the icon of the app before its name. The icon is a little larger than the text, and is clipped like in ``AppIcon``, so the cut rim of the image does not show. A long app name can wrap, also with enlarged text.
+					.style {
+						$0.children("img") {
+							$0
+								.display(.inlineBlock)
+								.frame(size: .em(1.5))
+								.margin(.trailing, .em(0.3))
+								.verticalAlign(.em(-0.4))
+								.clipShape(inset: .percent(1.2), cornerRadius: .percent(22.5))
+						}
+					}
+
+				"."
+
+				span(.id(IDs.showAll), .hidden) {
+					" "
+
+					a(.href(.reviews)) {
+						"Show all apps"
+					}
+				}
+			}
 
 			// Identify the selected reviews without repeating a rating on every testimonial.
 			p {
 				VisuallyHidden("Selected App Store reviews.")
 			}
-
-			// The script shows it when the page shows the quotes of one app.
-			p(.id(IDs.filterNotice), .hidden) {
-				"Showing what people say about "
-				a(.id(IDs.filterApp)) {}
-				". "
-				a(.href(.reviews)) {
-					"Show All"
-				}
-			}
-			.style(Styles.filterNotice)
 
 			div(.id(IDs.wall)) {
 				for quote in quotes {
@@ -89,17 +108,18 @@ struct ReviewsPage: Page {
 							card.hidden = !cards.includes(card);
 						}
 
-						const notice = document.querySelector('#\#(IDs.filterNotice.id)');
-						const {title, url, reviewURL} = \#(Self.appsJSON(quotes))[app];
+						const {title, url, icon, reviewURL} = \#(Self.appsJSON(quotes))[app];
 						const appLink = document.querySelector('#\#(IDs.filterApp.id)');
-						appLink.textContent = title;
+						appLink.replaceChildren(Object.assign(new Image(), {src: icon, alt: ''}), title);
 						appLink.href = url;
-						notice.hidden = false;
+						appLink.hidden = false;
+						document.querySelector('#\#(IDs.allApps.id)').hidden = true;
+						document.querySelector('#\#(IDs.showAll.id)').hidden = false;
 
-						// The notice names the app and links to it, so the cards do not repeat it.
+						// The introduction names the app and links to it, so the cards do not repeat it.
 						wall.dataset.state = 'one-app';
 
-						// The words of the notice, so the tabs and the history entries of the walls of different apps have different names.
+						// The words of the introduction, so the tabs and the history entries of the walls of different apps have different names.
 						document.title = `What People Say About ${title} — \#(Site.name)`;
 
 						// The button at the end of the page rates the app that the page shows, without the menu of all the apps. An app that is not on the App Store keeps the menu.
@@ -178,16 +198,24 @@ struct ReviewsPage: Page {
 	}
 
 	/**
-	The title and the page of each app with quotes, for the filter notice, and its link to rate or review it on the App Store, when it has one, by slug.
+	The title, the page, and the icon of each app with quotes, for the introduction, and its link to rate or review it on the App Store, when it has one, by slug.
 	*/
 	private static func appsJSON(_ quotes: [Entry]) -> String {
 		struct FilteredApp: Encodable {
 			let title: String
 			let url: LinkDestination
+			let icon: RoutePath
 			let reviewURL: URL?
 		}
 
-		return JSONEncoder.pageJSON(quotes.map(\.app).keyed(by: \.slug.value).mapValues { FilteredApp(title: $0.title, url: $0.url, reviewURL: $0.reviewURL) })
+		return JSONEncoder.pageJSON(quotes.map(\.app).keyed(by: \.slug.value).mapValues { app in
+			FilteredApp(
+				title: app.title,
+				url: app.url,
+				icon: app.iconPath,
+				reviewURL: app.reviewURL
+			)
+		})
 	}
 
 	/**
@@ -223,12 +251,20 @@ extension ReviewsPage {
 	The IDs that the scripts of the page find elements by.
 	*/
 	enum IDs: String, ScriptIDSet {
-		case filterNotice = "reviews-filter-notice"
+		/**
+		“my apps” in the introduction, which the script hides when the page shows the quotes of one app.
+		*/
+		case allApps = "reviews-all-apps"
 
 		/**
-		The name of the app in the filter notice, which links to the app.
+		The icon and the name of the one app that the page shows, in the introduction, which link to the app.
 		*/
 		case filterApp = "reviews-filter-app"
+
+		/**
+		The link to the quotes of all the apps, in the introduction, which the script shows when the page shows the quotes of one app.
+		*/
+		case showAll = "reviews-show-all"
 
 		case wall = "reviews-wall"
 
@@ -272,7 +308,6 @@ extension ReviewsPage {
 		case root
 		case wall
 		case cardWrapper
-		case filterNotice
 
 		var style: Style {
 			switch self {
@@ -288,7 +323,7 @@ extension ReviewsPage {
 							.columns(3, minimumWidth: .rootEm(18))
 							.gap(column: .rootEm(1.25))
 					}
-					// The notice names the one app and links to it, so the cards start with the quote.
+					// The introduction names the one app and links to it, so the cards start with the quote.
 					.when(States.oneApp) {
 						$0.nested(QuoteFigure.Styles.appLink.selector) {
 							$0.hidden()
@@ -302,10 +337,6 @@ extension ReviewsPage {
 					.below(.tablet) {
 						$0.rendersOnlyNearScreen(estimatedHeight: .pixels(268))
 					}
-			case .filterNotice:
-				Style()
-					.secondaryText()
-					.textLinks()
 			}
 		}
 	}

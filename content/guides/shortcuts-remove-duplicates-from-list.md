@@ -2,7 +2,7 @@
 title: 'How to Remove Duplicates from a List in Shortcuts on iPhone and Mac'
 description: 'Remove the duplicate items of a list in the Shortcuts app with one action: Remove Duplicates from List of the free Actions app.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'shortcuts'
 apps: [
 	'actions'
 ]

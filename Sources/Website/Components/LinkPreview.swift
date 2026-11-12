@@ -4,17 +4,18 @@ import Markdown
 import SiteKit
 
 /**
-A small preview of what a link in prose goes to, which shows when the pointer rests on the link, like the page previews of Wikipedia. So a visitor sees what the link adds without leaving the page. It has three kinds of links (``Content``):
+A small preview of what a link in prose goes to, which shows when the pointer rests on the link, like the page previews of Wikipedia. So a visitor sees what the link adds without leaving the page. It has four kinds of links (``Content``):
 
 - A link to the page of an app, like “Velja” on the tiny apps page: the icon, the name, the subtitle, and the platforms, the price, and the trial.
 - A link to a question of an FAQ, on the same page or on another page, like `/apps/faq#refund`: the question, the start of the answer (also when the answer starts with a list), and the name of the FAQ.
+- A link to a guide, like `/guides/flush-dns-cache-mac`: the icon of its first app, the title, and the short answer (`description`).
 - A link to a shared shortcut in a sentence, like “this (iOS)”: the icon and the name of the shortcut from iCloud (``Shortcut``).
 
-`site.js` loads the previews from `/link-previews.json` at the first hover, and shows a copy of the template next to the link. The preview only adds to the link, which still opens the page, so it is not focusable, and screen readers skip it. Only with a precise pointer that can hover: on a touch screen, a tap opens the page at once.
+`site.js` loads the previews at the first hover, from the path that the template has (``dataPath``), and shows a copy of the template next to the link. The preview only adds to the link, which still opens the page, so it is not focusable, and screen readers skip it. Only with a precise pointer that can hover: on a touch screen, a tap opens the page at once.
 */
 struct LinkPreview: HTML {
 	var body: some HTML {
-		template(.id(IDs.template)) {
+		template(.id(IDs.template), .hook(Hooks.data, value: Self.dataPath.description)) {
 			// A manual popover, so it does not close an open footnote or inline note.
 			div(.popover(.manual)) {
 				img(.part(Parts.icon), .alt(""), .width(48), .height(48))
@@ -56,6 +57,11 @@ struct LinkPreview: HTML {
 		A box inside that text that already shows the app of its links, like the box to get the app of a guide, or a link that already shows what it goes to, like the card of a shortcut, so the links show no preview.
 		*/
 		case noLinkPreview = "no-link-preview"
+
+		/**
+		On the template, with the path of the data of the previews (``dataPath``), which `site.js` loads at the first hover, so the path is only in Swift.
+		*/
+		case data = "link-preview-data"
 	}
 
 	/**
@@ -67,7 +73,7 @@ struct LinkPreview: HTML {
 		case subtitle
 
 		/**
-		What the link goes to: for an app, the platforms, the price, and the trial, like “macOS · $10 · Free Trial”, for a question, its FAQ, like “General FAQ”, and for a shortcut, “Shortcut”.
+		What the link goes to: for an app, the platforms, the price, and the trial, like “macOS · $10 · Free Trial”, for a question, its FAQ, like “General FAQ”, for a guide, “Guide”, and for a shortcut, “Shortcut”.
 		*/
 		case facts
 	}
@@ -145,7 +151,7 @@ extension LinkPreview {
 		var subtitle: String?
 
 		/**
-		The small text at the end, like “macOS · $10 · Free Trial” or “General FAQ”.
+		The small text at the end, like “macOS · $10 · Free Trial”, “General FAQ”, or “Guide”.
 		*/
 		let facts: String
 	}
@@ -153,7 +159,7 @@ extension LinkPreview {
 	static let dataPath = #path("/link-previews.json")
 
 	/**
-	The previews by the link that shows them: the path of an app page, like `/dato`, the path and the fragment of a question, like `/apps/faq#refund`, or the link of a shared shortcut. Only the questions that a link in the content goes to have a preview, as the pages have more than a thousand questions.
+	The previews by the link that shows them: the path of an app page, like `/dato`, the path and the fragment of a question, like `/apps/faq#refund`, the path of a guide, like `/guides/flush-dns-cache-mac`, or the link of a shared shortcut. Only the questions and the guides that a link in the content goes to have a preview, as the pages have more than a thousand questions, and the lists of guides show no preview.
 	*/
 	static func data(for content: SiteContent) -> Data {
 		var previews = [String: Content]()
@@ -177,8 +183,8 @@ extension LinkPreview {
 			previews[shortcut.id.url.absoluteString] = Content(icon: shortcut.iconPath, name: shortcut.name, facts: "Shortcut")
 		}
 
-		// The links to a section in the content, as the path and the fragment, like `/dato#refresh-interval` for `#refresh-interval` on the page of Dato. The feedback page shows the notes of the apps.
-		let sectionLinks = Set(
+		// The links in the content, already resolved, like `/guides/flush-dns-cache-mac`, and a link to a section as the path and the fragment, like `/dato#refresh-interval` for `#refresh-interval` on the page of Dato. The feedback page shows the notes of the apps.
+		let contentLinks = Set(
 			content.documents.flatMap { document in
 				document.markdown.links.map { link -> String in
 					guard link.destination.hasPrefix("#") else {
@@ -191,6 +197,21 @@ extension LinkPreview {
 				+ content.apps.flatMap { $0.feedbackNote?.links.map(\.destination) ?? [] }
 		)
 
+		// A guide preview is for its page, also when the link has a query or a fragment. The FAQ previews below still need the whole links to find their questions.
+		let contentPagePaths = Set(contentLinks.compactMap { (try? LinkDestination(validating: $0))?.sitePath })
+
+		// The short answer of a guide (`description`), which the list of guides also shows, and the icon of the app that it is about. The lists of guides show no preview, so only the guides that a link in the content goes to are needed.
+		for resolved in content.resolvedGuides where contentPagePaths.contains(resolved.guide.path) {
+			let guide = resolved.guide
+
+			previews[guide.path.description] = Content(
+				icon: resolved.app.iconPath,
+				name: guide.title,
+				subtitle: guide.description,
+				facts: "Guide"
+			)
+		}
+
 		func addQuestions(
 			_ questions: [SiteKit.Heading],
 			of page: RoutePath,
@@ -198,7 +219,7 @@ extension LinkPreview {
 			file: MarkdownFile,
 			facts: String
 		) {
-			let questions = questions.filter { sectionLinks.contains("\(page)#\($0.id)") }
+			let questions = questions.filter { contentLinks.contains("\(page)#\($0.id)") }
 
 			guard !questions.isEmpty else {
 				return

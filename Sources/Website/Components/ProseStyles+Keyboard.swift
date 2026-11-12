@@ -21,6 +21,8 @@ extension ProseStyles {
 				.cornerRadius(.pixels(5))
 				.padding(vertical: .em(0.1), horizontal: .em(0.45))
 				.margin(.horizontal, .em(0.15))
+				// A key with a name of two words, like “Caps Lock”, goes to the next line as a whole, so the key cap is not cut in two.
+				.textWrap(.nowrap)
 		}
 
 	/**
@@ -56,6 +58,37 @@ extension ProseStyles {
 		}
 
 	/**
+	A modifier key, like Command, with its glyph before its name, like “⌘ Command”, as the menus of macOS show only the glyphs, and the keys of a Mac keyboard show both. The glyph is only in the style, so a copied shortcut stays “Command+C”, and screen readers only read the name.
+
+	In a table on phones, the key only shows its glyph, like “⌘”, so the column of the actions has more space. A table of shortcuts is a reference, where the glyph is enough, like in the menus of macOS, and the text keeps the names, so a new user still learns them. The name stays in the HTML, but its font size is zero.
+	*/
+	static func modifierKeyStyle(_ modifier: KeyboardKey.Modifier) -> Style {
+		Style()
+			.before {
+				$0
+					.content(String(modifier.glyph), alternativeText: "")
+					.margin(.trailing, .em(0.3))
+			}
+			// The padding and the margin are in `rem`, the size of the other keys, as `em` is zero here. The `table` in the selector makes it as specific as the style of the keys (``keyboardKeys``), so it wins over that style.
+			.inside("table td, table th") {
+				$0.below(.smallTablet) {
+					// An inline block, like the keys of a shortcut, as a key alone in a cell, like `++Option++`, is inline, and its line box would be 0 px high.
+					$0
+						.display(.inlineBlock)
+						.lineHeight(1.2)
+						.font(size: .zero)
+						.padding(vertical: .rootEm(0.08), horizontal: .rootEm(0.4))
+						.margin(.horizontal, .rootEm(0.12))
+						.before {
+							$0
+								.font(size: .rootEm(0.8))
+								.margin(.zero)
+						}
+				}
+			}
+	}
+
+	/**
 	The `+` between the keys of a shortcut. It can be selected, so a copied shortcut is “Command+C”, not “CommandC”. Screen readers skip it, as they read each key.
 	*/
 	static let keySeparatorStyle = Style()
@@ -68,4 +101,22 @@ extension ProseStyles {
 		.inside("td, th") {
 			$0.textWrap(.nowrap)
 		}
+}
+
+extension KeyboardKey.Modifier {
+	/**
+	The style that shows the glyph of the modifier before its name (``ProseStyles/modifierKeyStyle(_:)``).
+	*/
+	var style: ProseStyles {
+		switch self {
+		case .control:
+			.controlKey
+		case .option:
+			.optionKey
+		case .shift:
+			.shiftKey
+		case .command:
+			.commandKey
+		}
+	}
 }

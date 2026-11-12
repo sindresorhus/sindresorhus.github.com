@@ -1,6 +1,7 @@
 ---
 title: 'Online Check'
 subtitle: 'Online status in your menu bar'
+description: 'Check if you are online directly from the Mac menu bar. The menu bar icon turns red when you are offline, and the app shows a notification.'
 publicationDate: 2024-06-23
 platforms: [
 	'macOS'
@@ -32,7 +33,7 @@ pressQuotes: [
 privacyNote: 'To check the connection, the app sends a small request to Apple or Cloudflare servers. No data is collected.'
 ---
 
-Check if you are online directly from the menu bar. The menu bar icon turns red when you are offline, and the app can optionally show a notification.
+Check if you are online directly from the menu bar. The menu bar icon turns red when you are offline, and the app shows a notification.
 
 Unlike just checking if Wi-Fi is connected, the app verifies actual internet connectivity through network tests.
 
@@ -47,6 +48,10 @@ You can have the app connect to a different Wi-Fi if the current one becomes off
 ### Restart Wi-Fi when status is offline
 
 You could also restart the Wi-Fi when it becomes offline. Add the [shortcut that restarts the Wi-Fi](https://www.icloud.com/shortcuts/8bbe914b13ff4f3ab9f063e835c92747), and select it in the “Run shortcut on status change” setting.
+
+### Make your own shortcut
+
+The shortcut gets the new status as its input: the text `true` when you are online again, and `false` when you go offline. Use an “If” action on the “Shortcut Input” to do something only for one of them.
 
 ## Frequently Asked Questions {#faq}
 
@@ -73,3 +78,5 @@ Not yet. The history is lost when the app quits. To keep it, export it as CSV fr
 ### Can you make the menu bar icon green when online? {#green-icon}
 
 No. Menu bar icons are intended to be mostly monotone, changing color only to indicate critical states. For example, the battery icon turns red when low but stays monochrome when full. Showing green also isn’t that useful as you can assume it’s connected when not red, and having a constant green color there could be distracting.
+
+If you only want to see the icon when something is wrong, set “Show icon” to “when offline” in the “Menu Bar” settings. While the icon is hidden, launch the app again to open its settings.

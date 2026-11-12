@@ -31,6 +31,11 @@ struct SiteSettings {
 	var supportEmailCount: Int
 
 	/**
+	The exact titles of App Store reviews to leave out across all apps, like a five-star review that reports a bug.
+	*/
+	var hiddenReviews = [String]()
+
+	/**
 	The path of the file, relative to the root of the project.
 	*/
 	static let path = "content/site.soml"
@@ -42,6 +47,12 @@ struct SiteSettings {
 
 	func validate(into problems: inout FrontmatterProblems<Self>) {
 		problems.addRepeatedItems(of: featuredApps, at: .featuredApps)
+		problems.addRepeatedItems(of: hiddenReviews, at: .hiddenReviews)
+
+		// A title must be the exact title of a review, so an empty one hides nothing.
+		for (index, title) in hiddenReviews.enumerated() where title.trimmingCharacters(in: .whitespaces).isEmpty {
+			problems.add("The title is empty. Write the exact title of the review to hide.", at: .hiddenReviews, index: index)
+		}
 
 		for (index, slug) in featuredApps.enumerated().dropFirst(Self.maximumFeaturedAppCount) {
 			problems.add("The apps page features at most \(Self.maximumFeaturedAppCount) apps. Remove `\(slug)` or another app.", at: .featuredApps, index: index)

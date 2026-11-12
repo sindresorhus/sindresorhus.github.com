@@ -67,7 +67,7 @@ struct Stat {
 	A count with its own label, like “5” and “of the 10 most-downloaded packages”.
 	*/
 	init(count: Int, label: String, isApproximate: Bool = false) {
-		// No thousands separator, as the large numbers read better without it, like “3467”.
+		// A thousands separator only from five digits, like “3467” and “51,254”, like the other numbers of the site.
 		self.init(count: count, value: isApproximate ? count.approximateCount : count.formatted(.siteNumber), label: label)
 	}
 

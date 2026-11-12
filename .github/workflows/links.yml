@@ -2,7 +2,7 @@ name: External links
 
 on:
   schedule:
-    - cron: '23 6 * * 1' # Every Monday, not on the full hour, when GitHub delays and drops more scheduled runs
+    - cron: '23 6 * * 1,4' # Every Monday and Thursday, not on the full hour, when GitHub delays and drops more scheduled runs. Two runs a week, so when GitHub drops a run, the next run is 3 or 4 days later, not 7.
   workflow_dispatch:
 
 permissions:

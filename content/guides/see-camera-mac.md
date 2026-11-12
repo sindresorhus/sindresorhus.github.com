@@ -1,6 +1,6 @@
 ---
 title: 'How to See Yourself on the Camera of Your Mac'
-description: 'Test the camera of your Mac, and check your hair and lighting before a video call, with Camera Preview, Photo Booth, or QuickTime Player.'
+description: 'Test the camera of your Mac, and flip it to see yourself like in a mirror before a video call, with Camera Preview, Photo Booth, or QuickTime Player.'
 publicationDate: 2026-10-29
 topic: 'mac'
 apps: [
@@ -26,10 +26,10 @@ screenshot: {
 }
 
 @Tips {
-- To show the camera from the menu bar, open the settings, and in “Show in”, choose “Menu Bar”. Then click the menu bar icon to show and hide the camera. You can also set a keyboard shortcut for “Toggle window” in the “Shortcuts” settings.
+- To show the camera from the menu bar, open the settings, and in “Show in”, choose “Menu Bar”. Then click the menu bar icon to show and hide the camera. You can also set a keyboard shortcut for “Toggle window” in the settings.
 - On a Mac with a notch, turn on “Toggle window when clicking notch” in the settings, and click the notch to show and hide the camera.
 - To use an external camera, choose it in the “Camera” menu.
-- Press ++Return++ or ++Space++ to take a photo. The photos go to the “Camera Preview” folder in your Pictures folder.
+- Press ++Return++ or ++Space++ to take a photo. The photos go to the “Camera Preview” folder in your Pictures folder. [How to take a photo with the camera.](take-photo-webcam-mac.md)
 }
 
 ## Without an app

@@ -39,7 +39,7 @@ struct NowPage: Page {
 					.style(Styles.updated)
 				}
 
-				AwakeStatus()
+				AwakeStatus(utcOffsetMinutes: content.recentActivity.commitTimes.first?.utcOffsetMinutes)
 			}
 			.style {
 				$0
@@ -76,6 +76,7 @@ struct NowPage: Page {
 			footerRow
 		}
 
+		JSONScript(id: IDs.data, ScriptData())
 		ModuleScript(#path("/scripts/now.js"))
 	}
 
@@ -139,7 +140,7 @@ struct NowPage: Page {
 	}
 
 	/**
-	The widths of the repo and the message of each placeholder commit, in `em` of the root. They are different, like real commits. There are five, as `now.js` shows at most five commits (`.slice(0, 5)`).
+	The widths of the repo and the message of each placeholder commit, in `em` of the root. They are different, like real commits. `now.js` shows at most as many commits as there are placeholders (``ScriptData/commitCount``).
 	*/
 	private static let placeholderCommitWidths: [(repository: Double, message: Double)] = [(5.5, 24), (4, 17), (7, 21), (5, 12), (6, 19)]
 
@@ -183,7 +184,7 @@ struct NowPage: Page {
 	/**
 	A part of a section: a small title above a card, or above other content. The parts of a section are in two columns on larger screens, and a wide part spans both.
 	*/
-	private func group(_ title: String, isWide: Bool = false, @HTMLBuilder content: () -> some HTML) -> some HTML {
+	private func group(_ title: String, isWide: Bool = false, @HTMLBuilder content: () -> some HTML) -> some HTML<HTMLTag.div> {
 		div {
 			h3 {
 				title
@@ -242,14 +243,14 @@ struct NowPage: Page {
 		let downloadStat = content.npmStatistics.downloadsPerSecond.map { Stat(perSecond: $0, label: "downloads of my packages while you have been here") }
 
 		return groupedSection("Building Now", id: ElementID("building-now")) {
-			// `now.js` fills in the commits, or shows a link to GitHub when it cannot get them. Without scripts, there are no commits to show.
+			// `now.js` fills in the commits, or shows an error when it cannot get them. Without scripts, there are no commits to show.
 			div(.id(IDs.latestCommits)) {
 				h3 {
 					"Right Now on GitHub"
 				}
 				.style(Styles.groupTitle)
 
-				// While the commits load, gray lines take the place of five of them, so the page does not move when they come in. Screen readers know that the list is loading, so they do not read the empty rows.
+				// While the commits load, gray lines take their place, so the page does not move when they come in. Screen readers know that the list is loading, so they do not read the empty rows.
 				ul(.ariaBusy()) {
 					ForEach(Self.placeholderCommitWidths) { widths in
 						placeholderCommit(repositoryWidth: widths.repository, messageWidth: widths.message)
@@ -259,13 +260,17 @@ struct NowPage: Page {
 
 				// `now.js` shows it instead of the commits when GitHub does not send them, like when the visitor has made too many searches. Without a token, GitHub allows 10 searches a minute.
 				p(.id(IDs.latestCommitsError), .hidden) {
-					"GitHub did not send the latest commits right now. "
-					a(.href(.url(Site.author.gitHubURL))) {
-						"See them on GitHub"
-					}
-					"."
+					"GitHub did not send the latest commits right now."
 				}
 				.style(Styles.card)
+
+				// In the HTML, so it is a way to the commits also when `now.js` fails to load (the group is hidden without scripting), and to more commits than the card has.
+				p {
+					a(.href(.url(Site.author.gitHubURL))) {
+						"All my recent commits on GitHub"
+					}
+				}
+				.style(Styles.caption)
 
 				// `now.js` fills in the repo, the message, and when it was committed.
 				template(.id(IDs.commitTemplate)) {
@@ -291,9 +296,13 @@ struct NowPage: Page {
 				$0.hiddenWithoutScripting()
 			}
 
+			// The count only goes up with JavaScript, so without it, the card would say 0 (``RunningCount``).
 			if let downloadStat {
 				group("Right Now on npm", isWide: true) {
 					StatCard(stats: [downloadStat])
+				}
+				.style {
+					$0.hiddenWithoutScripting()
 				}
 			}
 
@@ -331,6 +340,9 @@ struct NowPage: Page {
 						.style(Styles.caption)
 					}
 					.style(Styles.card)
+
+					// A card of its own, as it is about another time span, like the weeks below the numbers of the week.
+					CommitHours(times: content.recentActivity.commitTimes, dayFormat: dayFormat(for: content.recentActivity.commitTimes.suffix(1).map(\.day.foundationDate)))
 				}
 			}
 		}
@@ -945,6 +957,21 @@ struct NowPage: Page {
 		case commitTemplate = "commit-template"
 		case latestCommits = "latest-commits"
 		case latestCommitsError = "latest-commits-error"
+		case data = "now-data"
+	}
+
+	/**
+	The data of `now.js`: the requests that the build also makes, so the script asks for the same accounts, and the number of commit rows.
+	*/
+	private struct ScriptData: Encodable {
+		let blueskyFeedURL = BlueskyPost.feedURL
+		let blueskyProfileURL = BlueskyPost.profileURL
+		let gitHubAccount = GitHub.account
+
+		/**
+		The most commits that `now.js` shows, one for each placeholder row, so the card does not change its height when they come in.
+		*/
+		let commitCount = NowPage.placeholderCommitWidths.count
 	}
 
 	/**
@@ -1196,5 +1223,99 @@ struct NowPage: Page {
 					.preservesLineBreaks()
 			}
 		}
+	}
+}
+
+/**
+The number of days with a public commit in each hour of the day, in my time, as a bar chart in a card (``GitHub/CommitTime``), so the now page shows when I work. Nothing without commits, so there is no empty card.
+
+It is its own component, not a method of ``NowPage``, as the type of the page would then contain the type of the chart, and the type of the page is so deep that the debug build of the tests crashed.
+*/
+private struct CommitHours: HTML {
+	let times: [GitHub.CommitTime]
+
+	/**
+	The format of the day of the oldest commit, like the other dates of the page.
+	*/
+	let dayFormat: Date.FormatStyle
+
+	@ContentBuilder
+	var body: some HTML {
+		let counts = times.dayCountsByHour
+
+		if
+			let oldest = times.last,
+			let highest = counts.max(),
+			let lowest = counts.min(),
+			let busiestHour = counts.firstIndex(of: highest),
+			let quietestHour = counts.firstIndex(of: lowest)
+		{
+			// A bar from the bottom for each hour, with space between the bars.
+			let bars = counts.enumerated().map { hour, count in
+				"M\(Double(hour) + 0.15) \(highest)v-\(count)h0.7v\(count)Z"
+			}
+
+			let label = "Busiest hour: \(Self.hourText(busiestHour)), on \(highest.formatted(counting: "day")). Quietest hour: \(Self.hourText(quietestHour)), on \(lowest.formatted(counting: "day"))."
+			let oldestDay = oldest.day.foundationDate
+
+			figure {
+				// The scale of the drawing is not uniform, so it fills any width.
+				div {
+					SVG.svg(
+						.xmlns(),
+						.viewBox(
+							0,
+							0,
+							24,
+							.init(highest)
+						),
+						SVGAttribute(name: "preserveAspectRatio", value: "none")
+					) {
+						SVG.path(.fill("currentColor"), .d(bars.joined()))
+					}
+					.accessibleImage(label)
+				}
+				.style {
+					// The color of the sparkline of the weeks.
+					$0
+						.color(.accentMark)
+						.children("svg") {
+							$0
+								.display(.block)
+								.frame(width: .percent(100), height: .rootEm(4))
+						}
+				}
+
+				// The hours below the first bar of each quarter of the day. Screen readers have the busiest and the quietest hours instead.
+				div {
+					for hour in stride(from: 0, to: 24, by: 6) {
+						span {
+							Self.hourText(hour)
+						}
+					}
+				}
+				.accessibilityHidden()
+				.style {
+					$0
+						.grid(columns: 4)
+						.secondaryText(.extraSmall)
+						.monospacedDigit()
+				}
+
+				figcaption {
+					"Days with a public commit in each hour of the day, in my time, since \(oldestDay.formatted(dayFormat))."
+				}
+				.style(NowPage.Styles.caption)
+			}
+			.vstack(spacing: .rootEm(0.5))
+			.style(NowPage.Styles.card)
+		}
+	}
+
+	/**
+	The hour in the 24-hour format, like “15:00”, like the time in the chip at the top (``AwakeStatus``).
+	*/
+	private static func hourText(_ hour: Int) -> String {
+		"\(hour.formatted(.number.precision(.integerLength(2)).locale(.site))):00"
 	}
 }

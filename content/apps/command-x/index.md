@@ -1,6 +1,7 @@
 ---
 title: 'Command X'
 subtitle: 'Cut and paste files in Finder'
+description: 'Cut and paste files and folders in Finder on your Mac with Command+X and Command+V, instead of copying (Command+C) and then moving (Option+Command+V).'
 publicationDate: 2023-04-30
 platforms: [
 	'macOS'

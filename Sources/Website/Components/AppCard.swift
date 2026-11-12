@@ -143,6 +143,10 @@ struct AppCard: HTML {
 					.frame(size: .pixels(80))
 					.margin(.pixels(-4))
 					.filter(AppCard.iconShadow)
+					// On phones, the rows have no fill, so the icon starts where the text of the page starts, like the line above it.
+					.below(.smallTablet) {
+						$0.margin(.leading, .zero)
+					}
 					.from(.laptop) {
 						$0.frame(size: .pixels(104))
 					}

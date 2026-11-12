@@ -1,6 +1,7 @@
 ---
 title: 'UTC Time'
 subtitle: 'Show the time in UTC in the menu bar or a widget'
+description: 'See the time in UTC at a glance, in your Mac menu bar or a widget. Useful when you work with servers, logs, or people in many time zones.'
 publicationDate: 2021-03-16
 platforms: [
 	'macOS'

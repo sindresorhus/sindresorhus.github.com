@@ -1,6 +1,7 @@
 ---
 title: 'Pandan'
 subtitle: 'Time awareness in your menu bar'
+description: 'Pandan shows in the menu bar how long you have been actively using your Mac, so you know when it is time to take a break.'
 publicationDate: 2021-05-31
 platforms: [
 	'macOS'
@@ -63,7 +64,7 @@ It notices when you step away: by default, a session ends after 10 minutes witho
 
 It can also give you a gentle reminder at an interval you choose: a popover, a notification, a HUD, or only a change of the menu bar icon, with an optional sound, haptic feedback, or a shortcut that runs.
 
-The “History” window (in the menu) shows your sessions of the last 120 days, and you can export them as CSV or JSON.
+The “History” window (in the menu) shows your sessions of the last 120 days. Click the “…” button in it to add a session that Pandan did not see, like a meeting away from your Mac, or to export the history as CSV or JSON. Right-click a session to delete it.
 
 ## Frequently Asked Questions {#faq}
 
@@ -98,7 +99,7 @@ Pandan lets you run a single shortcut as a notification, but a shortcut can run 
 
 ### How can I use this as an eye-break reminder? {#eye-break-reminder}
 
-Set Pandan to remind you to take a break. Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan settings.
+Set Pandan to [remind you to take a break](../../guides/break-reminder-mac.md). Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan settings.
 
 ### How can I disable Pandan while using certain apps? {#disable-for-certain-apps}
 

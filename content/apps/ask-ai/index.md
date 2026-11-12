@@ -30,6 +30,8 @@ Ask [ChatGPT](https://en.wikipedia.org/wiki/ChatGPT) a question and get the answ
 
 Have it explain a topic, translate a phrase, recommend something, solve a math problem, or improve your writing.
 
+Tap an answer to hear it read aloud, or turn on “Auto-speak answer” in the settings to hear each answer right away. Add the Ask AI complication to your watch face to open the app with one tap.
+
 The app is in English, but you can ask questions in many languages, including: English, Spanish, French, German, Chinese, Japanese, Korean, Portuguese, Italian, Russian, Arabic, Dutch, Swedish, Norwegian, Danish, Finnish, Turkish, Hebrew, Hindi, Bengali, Thai, Greek, Polish, Romanian, Ukrainian, Vietnamese, Indonesian, Malay, Swahili, Tagalog, Tamil, Kannada, Telugu, Marathi, Gujarati, Punjabi, and Nepali.
 
 The app uses one of the fast [GPT models](https://platform.openai.com/docs/models) from OpenAI.
@@ -57,6 +59,7 @@ The app automatically uses the best voice for the language used in the answer. U
 Add the [“Open Ask AI” shortcut](https://www.icloud.com/shortcuts/6b890da159844407a6b39de454567c97) to one of your Apple devices (not the watch), and then on the watch, select the shortcut in the action button configuration.
 
 ### How is this different from Siri AI on watchOS 27? {#siri-ai}
+<!-- @faq.compares Siri AI -->
 
 watchOS 27 has [Siri AI](https://support.apple.com/127893), which also answers general questions. If it works for you, use it. Siri AI needs an Apple Watch Series 9 or later, Ultra 2 or later, or SE 3, paired with an iPhone that has Apple Intelligence. It is in English, French, Japanese, Korean, Portuguese, and Spanish, and it is not available on the Apple Watch in the EU.
 

@@ -50,6 +50,9 @@ extension SiteContent {
 			("Check content file names", ignoredContentFileWarnings),
 			("Check published site", { publishedSiteWarnings(published: published, routes: routes, onlyContentFiles: textFiles) }),
 			("Check duplicate titles and descriptions", { duplicateMetadataWarnings(published: published, routes: routes) }),
+			("Check guide steps", sameGuideStepsWarnings),
+			("Check free apps in guides", freePaidAppWarnings),
+			("Check hidden reviews", hiddenReviewWarnings),
 		]
 
 		// The checks of the text and of the published sitemap run at the same time as the other checks, and their warnings are last.
@@ -147,7 +150,7 @@ extension SiteContent {
 		var steps = StepTimes()
 
 		let bodies = steps.measure("Parse the content") {
-			contentFiles.map { CheckedText(file: $0, parsing: $0.body) }
+			contentFiles.map { CheckedText(body: $0) }
 		}
 
 		// The feedback notes of the apps are Markdown in the frontmatter. The lines of a block string are the lines of the file, so their problems are at their lines.
@@ -191,8 +194,10 @@ extension SiteContent {
 		warnings += steps.measure("Check frontmatter comments") { frontmatterTodoWarnings(in: contentFiles) }
 		warnings += steps.measure("Check plain-text shortcuts") { plainTextShortcutWarnings(in: files) }
 		warnings += steps.measure("Check raw links") { rawLinkWarnings(in: files) }
-		warnings += steps.measure("Check scheduled blocks") { pastScheduledBlockWarnings(in: files) }
+		warnings += steps.measure("Check scheduled blocks") { pastScheduledBlockWarnings(in: files) + scheduledDayWarnings(in: files) }
 		warnings += steps.measure("Check raw Markdown") { rawMarkdownWarnings(in: files) }
+		warnings += steps.measure("Check invisible characters") { invisibleCharacterWarnings(in: contentFiles) }
+		warnings += steps.measure("Check feature labels") { featureLabelWarnings(in: files) }
 		let spelling = steps.measure("Check repeated words") { spellingTexts(in: files + frontmatterTexts.filter(isChecked)) }
 		let unknownWords = await steps.measure("Check spelling") {
 			await unknownWordWarnings(in: spelling.map(\.texts))
@@ -207,13 +212,13 @@ extension SiteContent {
 	}
 
 	/**
-	Facts that the App Store knows better: whether the app exists, its price, its platforms, and its lowest OS version.
+	Facts that the App Store knows better: its price, its platforms, and its lowest OS version.
 	*/
 	private func appStoreWarnings() -> [Warning] {
 		var warnings = [Warning]()
 
 		for app in apps where !app.isArchived && app.appStoreID != nil {
-			// The build already warns about an app that the App Store does not have.
+			// The build already fails for an app that the App Store does not have, and the info is missing when the lookup failed.
 			guard let info = listing(of: app).appStoreInfo else {
 				continue
 			}
@@ -266,7 +271,7 @@ extension SiteContent {
 			var warnings = [Warning]()
 
 			if
-				let price = app.frontmatter.gumroad?.price,
+				let price = app.purchase.gumroad?.price,
 				let productPrice = product.price,
 				productPrice != price
 			{
@@ -593,11 +598,7 @@ extension SiteContent {
 		var warnings = [Warning]()
 
 		for file in files {
-			// The frontmatter starts on the line after `---`.
-			let lines = file.frontmatter.split(separator: "\n", omittingEmptySubsequences: false).enumerated().map { (line: SiteKit.SourceLocation.Line($0.offset + 2), text: $0.element) }
-				+ file.bodyLines.enumerated().map { (line: file.bodyStartLine.offset(by: $0.offset), text: $0.element) }
-
-			for (line, text) in lines {
+			for (line, text) in file.numberedLines {
 				for match in text.replacing(inlineCode, with: "").matches(of: urlPattern) {
 					let components = URLComponents(string: String(match.output))
 
@@ -706,11 +707,15 @@ extension SiteContent {
 	/**
 	Downloads of older versions and of the non-App Store version whose file name has another version, like `Dato.1.14.9.zip` for version `1.4.9`, so one of them is wrong. A file name without a version of the app, like the ones of some hosts, or one with only the macOS version, like `App-for-macOS-10.13.zip`, is not checked.
 
+	Also these downloads whose file name has another macOS version than their `macOS`, like `Velja.2.0.14.-.macOS.13.zip` for macOS 14, as a user would get a build for another macOS. A file name without “macOS” and a number is not checked.
+
 	Also these downloads and the trial when the file name starts with the title of another app and not with the title of its own app, like `Dato-5.8.4-trial.zip` for Velja, as from a copied frontmatter. Only the letters and digits count, in any case. A file name with no title of an app is not checked.
 	*/
 	private func downloadVersionWarnings() -> [Warning] {
 		// Before the loop, as Swift parses a regex literal each time the code runs.
 		let versionPattern = /\d+(?:\.\d+)+/
+		// Like `13` in `Velja.2.0.14.-.macOS.13.zip`, `10.15` in `Dato.1.0.-.macOS.10.15.zip`, or `15` in `Velja-3.0.1-macOS-15-1770405022.zip`.
+		let macOSPattern = /macos[^0-9a-z]?(\d+(?:\.\d+)?)/.ignoresCase()
 		var warnings = [Warning]()
 
 		// Only the letters and digits, in lowercase, like `colorpicker214macos15zip` for `Color.Picker.2.1.4.-.macOS.15.zip`.
@@ -725,7 +730,11 @@ extension SiteContent {
 				+ [app.frontmatter.nonAppStoreVersion].compactMap(\.self).map { (version: $0.version, macOS: String($0.macOS), url: $0.url, key: App.Frontmatter.CodingKeys.nonAppStoreVersion) }
 
 			// A TestFlight trial has no file.
-			let trialFiles = [app.frontmatter.trial].compactMap(\.self).filter { !$0.isTestFlight }.map { (url: $0.url, key: App.Frontmatter.CodingKeys.trial) }
+			let trialFiles: [(url: AbsoluteURL, key: App.Frontmatter.CodingKeys)] = if case .download(let url, _)? = app.frontmatter.trial?.kind {
+				[(url: url, key: .trial)]
+			} else {
+				[]
+			}
 
 			for file in downloads.map({ (url: $0.url, key: $0.key) }) + trialFiles {
 				let fileName = file.url.value.lastPathComponent
@@ -742,7 +751,16 @@ extension SiteContent {
 			}
 
 			for download in downloads {
-				let fileVersions = download.url.value.lastPathComponent.matches(of: versionPattern)
+				let fileName = download.url.value.lastPathComponent
+
+				if
+					let fileMacOS = fileName.firstMatch(of: macOSPattern).map({ String($0.output.1) }),
+					fileMacOS != download.macOS
+				{
+					warnings.append(app.warning(.downloadMacOS, at: download.key, "The download \(fileName) is for macOS \(fileMacOS), but `macOS` says \(download.macOS). One of them is wrong."))
+				}
+
+				let fileVersions = fileName.matches(of: versionPattern)
 					.map { String($0.output) }
 					.filter { $0 != download.macOS }
 
@@ -753,7 +771,7 @@ extension SiteContent {
 					continue
 				}
 
-				warnings.append(app.warning(.downloadVersion, at: download.key, "The version \(download.version) is not the version in the name of its download, \(download.url.value.lastPathComponent)."))
+				warnings.append(app.warning(.downloadVersion, at: download.key, "The version \(download.version) is not the version in the name of its download, \(fileName)."))
 			}
 		}
 
@@ -884,12 +902,7 @@ extension SiteContent {
 		*/
 		enum Place {
 			/**
-			The body of the file.
-			*/
-			case body
-
-			/**
-			Lines of the file from the given line, like a block string in the frontmatter, whose lines are the lines of the file.
+			Lines of the file from the given line, like the body, or a block string in the frontmatter, whose lines are the lines of the file.
 			*/
 			case lines(from: SiteKit.SourceLocation.Line)
 
@@ -933,10 +946,17 @@ extension SiteContent {
 
 		let place: Place
 
-		init(file: MarkdownFile, parsing markdown: String, place: Place = .body) {
+		init(file: MarkdownFile, parsing markdown: String, place: Place) {
 			self.file = file
 			self.markdown = Markdown.Document(parsing: markdown, options: [.parseBlockDirectives, .disableSmartOpts])
 			self.place = place
+		}
+
+		/**
+		The Markdown of the body of the file.
+		*/
+		init(body file: MarkdownFile) {
+			self.init(file: file, parsing: file.body, place: .lines(from: file.bodyStartLine))
 		}
 
 		/**
@@ -951,8 +971,6 @@ extension SiteContent {
 		*/
 		func line(of markup: any Markup) -> SiteKit.SourceLocation.Line {
 			switch place {
-			case .body:
-				file.line(of: markup)
 			case .lines(let firstLine):
 				firstLine.offset(by: (markup.range?.lowerBound.line ?? 1) - 1)
 			case .line(let line):
@@ -976,8 +994,7 @@ extension SiteContent {
 			text.descendants(BlockDirective.self).compactMap { directive in
 				// The build already reported invalid arguments.
 				guard
-					directive.siteName == .scheduled,
-					let arguments = try? directive.arguments(as: ScheduledArguments.self),
+					let arguments = directive.scheduled,
 					arguments.until.date < today
 				else {
 					return nil
@@ -985,6 +1002,216 @@ extension SiteContent {
 
 				return text.file.warning(.pastScheduledBlock, line: text.line(of: directive), "The last day of the `@Scheduled` block was \(SOML.Value.date(arguments.until.date)), so the page does not show it again. Remove it, or give it new dates.")
 			}
+		}
+	}
+
+	/**
+	`@Scheduled` blocks whose text names a day outside their dates, like “November 30” in a block through December 1, as the dates are written twice: the note of a sale on the app pages says the last day of the dates. The days are a month and a day, like “November 27”, the format of the note. Limitation: a day that is written in another way, like “Nov 27” or “the 27th”, is not found.
+	*/
+	private func scheduledDayWarnings(in files: [CheckedText]) -> [Warning] {
+		// Before the loop, as Swift parses a regex literal each time the code runs.
+		let monthAndDay = /\b([A-Z][a-z]+) (\d{1,2})\b/
+		let months = Set(Calendar.site.monthSymbols)
+
+		return files.flatMap { text in
+			text.descendants(BlockDirective.self).flatMap { directive -> [Warning] in
+				// The build already reported invalid arguments.
+				guard let arguments = directive.scheduled else {
+					return []
+				}
+
+				let firstDate = arguments.from.date.foundationDate
+				let lastDate = arguments.until.date.foundationDate
+				let days = sequence(first: firstDate) { Calendar.site.date(byAdding: .day, value: 1, to: $0) }
+					.prefix(while: { $0 <= lastDate })
+					.map { $0.formatted(.siteDayWithoutYear) }
+				let namedDays = directive.descendants(of: Markdown.Text.self).flatMap { textNode in
+					textNode.string.matches(of: monthAndDay)
+						.filter { months.contains(String($0.1)) }
+						.map { "\($0.1) \($0.2)" }
+				}
+
+				return namedDays.uniqued(by: \.self)
+					.filter { !days.contains($0) }
+					.map { text.file.warning(.scheduledDayOutsideDates, line: text.line(of: directive), "The text of the `@Scheduled` block says “\($0)”, but the block shows from \(firstDate.formatted(.siteDayWithoutYear)) through \(lastDate.formatted(.siteDayWithoutYear)). Change the text or the dates.") }
+			}
+		}
+	}
+
+	/**
+	`@Feature` sections whose title has their label as whole words, in any case, like “FINDER” above “Cut and paste files in Finder”, but not “AI” above a title with “Email”, as the label names what the feature is about, so the title can say what the feature does for the visitor.
+	*/
+	private func featureLabelWarnings(in files: [CheckedText]) -> [Warning] {
+		files.flatMap { text in
+			text.descendants(BlockDirective.self).compactMap { directive -> Warning? in
+				// The build already reported invalid arguments.
+				guard
+					directive.siteName == .feature,
+					let arguments = try? directive.arguments(as: FeatureArguments.self),
+					let label = arguments.label
+				else {
+					return nil
+				}
+
+				// Whole words, so a label like “AI” does not match “Email”.
+				let labelWords = Regex {
+					Anchor.wordBoundary
+					label
+					Anchor.wordBoundary
+				}
+				.ignoresCase()
+
+				guard arguments.title.contains(labelWords) else {
+					return nil
+				}
+
+				return text.file.warning(.featureLabelInTitle, line: text.line(of: directive), "The title “\(arguments.title)” already has the label “\(label)”. Remove the label, or make the title about what the feature does for the visitor.")
+			}
+		}
+	}
+
+	/**
+	Invisible characters in the file, like a zero-width space from a text that was pasted from a chat app or a web page, which splits a word for search and for the spelling check. Each line of the file is read, so the frontmatter, like a title or a description that goes to search results, and the headings, the links, and the code are checked too. The zero-width joiner is not one of them, as it joins emoji, like 🤷‍♂️.
+	*/
+	private func invisibleCharacterWarnings(in files: [MarkdownFile]) -> [Warning] {
+		let invisibleCharacters: [Unicode.Scalar: String] = [
+			"\u{200B}": "zero-width space (U+200B)",
+			"\u{2060}": "word joiner (U+2060)",
+			"\u{00AD}": "soft hyphen (U+00AD)",
+			"\u{FEFF}": "zero-width no-break space (U+FEFF)",
+		]
+
+		return files.flatMap { file in
+			file.numberedLines.flatMap { line in
+				Set(line.text.unicodeScalars.compactMap { invisibleCharacters[$0] })
+					.sorted()
+					.map { file.warning(.invisibleCharacter, line: line.line, "The line has an invisible \($0), like from a pasted text. Remove it.") }
+			}
+		}
+	}
+
+	/**
+	Guides whose first steps (`@Steps`) are the same as the steps of an older guide, like a guide for a second search that copies a guide, which search engines see as a copy of the page. Only the same steps are found, not similar ones, as the short steps of one app share most of their words.
+	*/
+	private func sameGuideStepsWarnings() -> [Warning] {
+		var olderGuides = [String: Guide]()
+		var warnings = [Warning]()
+
+		for guide in guides.sorted(using: KeyPathComparator(\.frontmatter.publicationDate)) {
+			guard
+				let steps = guide.markdown.blocks.first(where: { $0.siteDirectiveName == .steps }),
+				case .directive(_, let lines) = steps.kind
+			else {
+				continue
+			}
+
+			guard let olderGuide = olderGuides[steps.html] else {
+				olderGuides[steps.html] = guide
+				continue
+			}
+
+			warnings.append(guide.file.warning(.sameGuideSteps, line: lines?.lowerBound, "The steps are the same as in “\(olderGuide.frontmatter.title)”. Link to that guide, or make one guide."))
+		}
+
+		return warnings
+	}
+
+	/**
+	Guides that call a paid app free, like “the free [Menu Bar Calendar](…) app”, as a guide writes it by hand, so it stays when the app gets a price. The apps are the ones of the `apps` frontmatter and the others that the guide links to. The price is the one of the page (``AppListing/price``): of the App Store data that the build has, or of `gumroad`. Only the forms that the guides use are found, in paragraphs and headings, and in the `description`: “free App”, “App is free”, and “App, a free app”. Code, HTML, comments, and compound words like “ad-free” are left out.
+	*/
+	private func freePaidAppWarnings() -> [Warning] {
+		/**
+		The visible prose across links and emphasis, with a barrier where code or HTML would otherwise join unrelated words.
+		*/
+		func proseText(_ markup: any Markup) -> String {
+			switch markup {
+			case let text as Markdown.Text:
+				text.string
+			case is SoftBreak, is LineBreak:
+				" "
+			case is InlineCode, is InlineHTML, is Markdown.Image:
+				"\u{FFFC}"
+			default:
+				markup.children.map(proseText).joined()
+			}
+		}
+
+		var warnings = [Warning]()
+
+		for resolved in resolvedGuides {
+			let guide = resolved.guide
+			// Parse once before the apps of the guide, so every app checks the same visible text.
+			let text = CheckedText(body: guide.file)
+			let blocks: [any Markup] = text.descendants(Paragraph.self) + text.descendants(Markdown.Heading.self)
+
+			// The apps of the guide, and the other apps that it links to, like a second app for the same task.
+			let linkedApps = text.descendants(Markdown.Link.self).compactMap { link -> App? in
+				guard
+					let destination = link.destination,
+					let path = guide.file.linkedPagePath(destination, project: project)
+				else {
+					return nil
+				}
+
+				return document(at: path) as? App
+			}
+
+			for app in (resolved.apps + linkedApps).uniqued(by: \.slug) {
+				guard
+					let price = listing(of: app).price,
+					!price.isFree
+				else {
+					continue
+				}
+
+				// Before the checks, as Swift builds the regex program each time the code runs.
+				let phrases = Regex {
+					ChoiceOf {
+						Anchor.startOfSubject
+						CharacterClass(.word, .anyOf("-")).inverted
+					}
+					ChoiceOf {
+						"free \(app.title)"
+						"\(app.title) is free"
+						"\(app.title), a free app"
+					}
+					NegativeLookahead {
+						CharacterClass(.word, .anyOf("-"))
+					}
+				}
+				.ignoresCase()
+				let message = "\(app.title) costs \(price.formatted), so it is not free. Remove “free”."
+
+				if guide.frontmatter.description.contains(phrases) {
+					warnings.append(guide.warning(.freePaidApp, at: Guide.Frontmatter.CodingKeys.description, message))
+				}
+
+				for block in blocks where proseText(block).contains(phrases) {
+					warnings.append(guide.file.warning(.freePaidApp, line: text.line(of: block), message))
+				}
+			}
+		}
+
+		return warnings
+	}
+
+	/**
+	Titles of `hiddenReviews` in `content/site.soml` that match no App Store review, like after a typo, as the match is exact, so the review shows again. Nothing is checked when the build got no reviews, as Apple sometimes sends empty feeds.
+
+	Limitation: the titles are not of one app, so when only the feed of the app of a title is empty, the title gets a warning.
+	*/
+	private func hiddenReviewWarnings() -> [Warning] {
+		let titles = appStoreReviewTitles
+
+		guard
+			!titles.isEmpty,
+			let file = try? SOMLFile<SiteSettings>(url: project.root.appending(path: SiteSettings.path))
+		else {
+			return []
+		}
+
+		return settings.hiddenReviews.enumerated().compactMap { index, title in
+			titles.contains(title) ? nil : file.warning(.unknownHiddenReview, at: .hiddenReviews, index: index, "No App Store review has the title “\(title)”. Check the title, or remove it when the review is gone.")
 		}
 	}
 
@@ -1020,18 +1247,22 @@ extension SiteContent {
 	}
 
 	/**
-	Markdown that a mistake leaves as text, so the page shows its characters: a link with a space in its destination, like `[Velja](/velja page)`, a reference link without its definition, like `[Velja][velja-link]`, an unclosed `**` or backtick, a heading ID after text that is not a heading, like `Text {#text}`, and a heading without a space after its `#`, like `##Section`. Only the text of the parsed Markdown is read, so code is left out. Limitation: an escaped character that is meant as text, like `\*\*`, is reported too. Write it as code instead.
+	Markdown that a mistake leaves as text, so the page shows its characters: a link with a space in its destination, like `[Velja](/velja page)`, a reference link without its definition, like `[Velja][velja-link]`, a space between the text and the destination of a link, like `[Dato] (/dato)`, an unclosed `**` or backtick, a heading ID after text that is not a heading, like `Text {#text}`, a heading without a space after its `#`, like `##Section`, and a URL that is not a link, like `https://brew.sh` in a sentence, which the page shows as text that cannot be clicked. Only the text of the parsed Markdown is read, so code is left out. Limitation: an escaped character that is meant as text, like `\*\*`, is reported too. Write it as code instead.
 	*/
 	private func rawMarkdownWarnings(in files: [CheckedText]) -> [Warning] {
 		// Before the loop, as Swift parses a regex literal each time the code runs.
 		let mistakes = [
 			(/\]\(/, "The text has `](`, as the link is not parsed, like a link with a space in its destination. Write a space in a destination as `%20`."),
 			(/\]\[/, "The text has `][`, as the reference link has no definition, like `[velja-link]: /velja`. Add it, or write the link with its destination."),
+			// Only a destination that looks like a link, so a sentence like “[beta] (see below)” is text.
+			(/\] \((?:https?:|\/|#|\.{1,2}\/)/, "The text has `] (`, so the link is not parsed. Remove the space between `]` and `(`."),
 			(/\*\*/, "The text has a `**` without its closing `**`, so the page shows the asterisks."),
 			(/`/, "The text has a backtick without its closing backtick, so the page shows it."),
 		]
 		let headingID = /\{#[\w-]+\}\s*$/
 		let headingWithoutSpace = /^#{2,6}[^#\s]/
+		// Without the punctuation after it, like the period at the end of a sentence.
+		let bareURL = /https?:\/\/[^\s\)\]]*[^\s\)\].,;:!?]/
 		var warnings = [Warning]()
 
 		for text in files {
@@ -1056,6 +1287,14 @@ extension SiteContent {
 				}
 
 				warnings += messages.map { text.file.warning(.rawMarkdown, line: text.line(of: textNode), $0) }
+
+				// swift-markdown makes no link of a URL in the text, so the page shows it as text that cannot be clicked. The text of a link or an image is left out.
+				if
+					let url = string.firstMatch(of: bareURL),
+					!sequence(first: textNode as any Markup, next: \.parent).contains(where: { $0 is Markdown.Link || $0 is Markdown.Image })
+				{
+					warnings.append(text.file.warning(.bareURL, line: text.line(of: textNode), "The text has the URL \(url.output), which is not a link. Write it as a link, like `[Homebrew](https://brew.sh)`."))
+				}
 			}
 		}
 
@@ -1703,6 +1942,7 @@ extension Warning.Kind {
 	static let dropboxPreviewLink = Self("Dropbox link to the preview page")
 	static let downloadVersion = Self("Version that is not in the name of its download")
 	static let downloadOfOtherApp = Self("Download with the name of another app")
+	static let downloadMacOS = Self("macOS version that is not in the name of its download")
 	static let trialRequirement = Self("Trial requirement")
 	static let requirement = Self("Requirement")
 	static let vagueLinkText = Self("Vague link text")
@@ -1737,6 +1977,13 @@ extension Warning.Kind {
 	static let absoluteBundleLink = Self("Link to a file of the page bundle that is not relative")
 	static let lineBreakSpacer = Self("Line break as a spacer")
 	static let pastScheduledBlock = Self("`@Scheduled` block whose last day is over")
+	static let scheduledDayOutsideDates = Self("`@Scheduled` text with a day outside its dates")
+	static let featureLabelInTitle = Self("`@Feature` title that has its label")
+	static let invisibleCharacter = Self("Invisible character")
+	static let bareURL = Self("URL that is not a link")
+	static let sameGuideSteps = Self("Guide with the steps of another guide")
+	static let freePaidApp = Self("Paid app that a guide calls free")
+	static let unknownHiddenReview = Self("Hidden review title that matches no review")
 }
 
 extension MarkdownFile {

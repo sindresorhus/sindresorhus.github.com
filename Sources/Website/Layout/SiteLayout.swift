@@ -352,13 +352,14 @@ The speculation rules of every page: prefetch or prerender a page of the site wh
 */
 extension SpeculationRules.Rule {
 	/**
-	The links to the pages of the site, except the excluded pages. Not the links to files, like a photo, a download, or a feed, as the browser downloads the whole file, and does not use it when the visitor opens it. The paths of the pages have no dot, and the paths of the files have one. The pattern only looks for the dot in the path, not in the query or the fragment.
+	The links to the pages of the site, except the excluded pages. Not the links to files, like a photo, a download, or a feed, as the browser downloads the whole file, and does not use it when the visitor opens it. The paths of the pages have no dot, and the paths of the files have one. The pattern only looks for the dot in the path, not in the query or the fragment. Not a link with a text fragment, like the button of a sale note, as Chrome does not scroll to the text of a prerendered page.
 	*/
 	fileprivate init(excludedPaths: [RoutePath], eagerness: Eagerness) {
 		self.init(
 			condition: Condition(all: [
 				.hrefMatches("/*"),
 				.notMatching(["/*.*"] + excludedPaths.map(\.description)),
+				.notSelector("a[href*=\"\(LinkDestination.fragmentDirectiveDelimiter)\"]"),
 			]),
 			eagerness: eagerness
 		)

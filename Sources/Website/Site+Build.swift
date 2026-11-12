@@ -367,6 +367,12 @@ extension Site.Scripts {
 		for asset in publicScripts + elementScriptFiles {
 			let path = asset.path
 			let text = try String(contentsOf: asset.source, encoding: .utf8)
+
+			// A module with a syntax error does not run, so the page would silently lose its script.
+			if let error = text.conflictMarkerError(file: asset.source) {
+				throw error
+			}
+
 			var imports = Set<Import>()
 
 			// Only the lines with an import, as the word boundaries make the pattern slow on the whole text (about 1 s for all the scripts).

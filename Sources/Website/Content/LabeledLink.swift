@@ -46,6 +46,7 @@ extension LabeledLink {
 	static let feedback = Self("Feedback & Support", destination: .path(.feedback), description: "Ask a question or report a problem with an app")
 	static let appTimeline = Self("Timeline", destination: .path(.appTimeline), description: "Every app by the year it came out")
 	static let wallOfLove = Self("Wall of Love", destination: .path(.reviews), description: "What the press and App Store reviewers say")
+	static let tinyApps = Self("Tiny Apps", destination: .path(.tinyApps), description: "Smaller utilities")
 	static let olderVersions = Self("Older Versions", destination: .path(.olderVersions), description: "Apps for older macOS versions")
 	static let discounts = Self("Discounts", destination: .path(.discounts), description: "Student discounts and special offers for my apps")
 	static let termsOfUse = Self("Terms of Use", destination: .path(.terms), description: "Guidelines and conditions for using my apps")

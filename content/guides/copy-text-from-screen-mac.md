@@ -1,5 +1,5 @@
 ---
-title: 'How to Copy Text from the Screen on Mac'
+title: 'How to Copy Text from an Image or the Screen on Mac'
 description: 'Copy text that you cannot select, in an image, a video, or an app, with Text Lens, or with Live Text in Preview for a screenshot.'
 publicationDate: 2026-10-29
 topic: 'text-images-and-sound'
@@ -16,7 +16,7 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Use [Text Lens](../apps/text-lens/index.md): select an area of the screen, and the text is copied. Without an app, take a screenshot, open it in Preview, and select the text with Live Text.
+	Use [Text Lens](../apps/text-lens/index.md): select an area of the screen, and the text is copied. Without an app, open the image in Preview, and select the text with Live Text. For text on the screen, take a screenshot first.
 }
 
 ## With Text Lens

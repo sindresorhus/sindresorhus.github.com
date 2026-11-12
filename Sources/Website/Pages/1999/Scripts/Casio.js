@@ -170,7 +170,7 @@ class GeoCitiesCasio extends GeoCitiesElement {
 				parts.push(`CHORD ${chordRoot === undefined ? '-' : chordName(chordRoot)}`);
 			}
 
-			if (isRecording) {
+			if (recordingSession) {
 				parts.push('● REC');
 			}
 
@@ -192,10 +192,8 @@ class GeoCitiesCasio extends GeoCitiesElement {
 		};
 
 		// What the visitor plays is recorded as notes with their start and end, in seconds from the start of the recording.
-		let isRecording = false;
-		let recordingStart = 0;
+		let recordingSession;
 		let recording = [];
-		const openNotes = new Map();
 
 		const noteOn = note => {
 			if (!startAudio() || held.has(note)) {
@@ -227,8 +225,8 @@ class GeoCitiesCasio extends GeoCitiesElement {
 
 			held.set(note, startNote({note}));
 
-			if (isRecording) {
-				openNotes.set(note, {note, start: context.currentTime - recordingStart, tone: toneId});
+			if (recordingSession) {
+				recordingSession.openNotes.set(note, {note, start: context.currentTime - recordingSession.startedAt, tone: toneId});
 			}
 		};
 
@@ -236,11 +234,11 @@ class GeoCitiesCasio extends GeoCitiesElement {
 			light(note, false);
 			held.get(note)?.stop();
 			held.delete(note);
-			const open = openNotes.get(note);
+			const open = recordingSession?.openNotes.get(note);
 
 			if (open) {
-				openNotes.delete(note);
-				recording.push({...open, end: context.currentTime - recordingStart});
+				recordingSession.openNotes.delete(note);
+				recording.push({...open, end: context.currentTime - recordingSession.startedAt});
 			}
 		};
 
@@ -548,23 +546,21 @@ class GeoCitiesCasio extends GeoCitiesElement {
 		});
 
 		// The memory records up to a minute, and plays it back with the tones it was played with.
-		let recordTimer;
-
 		const stopRecording = () => {
-			isRecording = false;
-			recordTimer?.cancel();
+			recordingSession.timer.cancel();
 			recordButton.setAttribute('aria-pressed', 'false');
 
-			for (const note of [...openNotes.keys()]) {
+			for (const note of [...recordingSession.openNotes.keys()]) {
 				noteOff(note);
 			}
 
+			recordingSession = undefined;
 			playbackButton.disabled = recording.length === 0;
 			showDisplay();
 		};
 
 		this.on(recordButton, 'click', () => {
-			if (isRecording) {
+			if (recordingSession) {
 				stopRecording();
 				this.say(recording.length > 0 ? `Recorded ${recording.length} notes. Press Play Memory.` : 'Nothing recorded. Press Rec and play some keys.');
 				return;
@@ -574,15 +570,17 @@ class GeoCitiesCasio extends GeoCitiesElement {
 				return;
 			}
 
-			isRecording = true;
 			recording = [];
 			playbackButton.disabled = true;
-			recordingStart = context.currentTime;
 			recordButton.setAttribute('aria-pressed', 'true');
-			recordTimer = this.timeout(60_000, () => {
-				stopRecording();
-				this.say('The memory is full! One minute is all a Casio can hold.');
-			});
+			recordingSession = {
+				startedAt: context.currentTime,
+				openNotes: new Map(),
+				timer: this.timeout(60_000, () => {
+					stopRecording();
+					this.say('The memory is full! One minute is all a Casio can hold.');
+				}),
+			};
 			showDisplay();
 			this.say('Recording! Play some keys, then press Rec again.');
 		});

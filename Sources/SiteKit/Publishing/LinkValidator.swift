@@ -208,7 +208,8 @@ public struct LinkValidator: Sendable {
 
 			guard
 				kind == .navigation,
-				let fragment = resolved.fragment?.removingPercentEncoding,
+				// Only the ID, without the instructions for the browser after it, like a text fragment (`#:~:text=Velja`). Strip the raw directive before decoding, as a percent-encoded delimiter is part of the ID.
+				let fragment = resolved.fragment?.split(separator: LinkDestination.fragmentDirectiveDelimiter, maxSplits: 1, omittingEmptySubsequences: false).first.map(String.init)?.removingPercentEncoding,
 				!fragment.isEmpty,
 				// The browser scrolls to the top for `#top` when no element has that ID.
 				fragment.lowercased() != "top",

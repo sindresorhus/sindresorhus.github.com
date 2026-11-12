@@ -1,0 +1,11 @@
+{
+	"name": "sindresorhus-website",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "node node_modules/typescript/bin/tsc --version && swift test --disable-xctest --filter ScriptTypeTests"
+	},
+	"devDependencies": {
+		"typescript": "7.0.2"
+	}
+}

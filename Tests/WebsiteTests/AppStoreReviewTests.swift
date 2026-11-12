@@ -5,6 +5,22 @@ import Testing
 @testable import Website
 
 struct AppStoreReviewTests {
+	@Test(.temporaryDirectory)
+	func `cancelled review loading does not report a failed request`() async throws {
+		let responses = Dictionary(uniqueKeysWithValues: ["us", "gb", "ca", "au", "nz", "ie"].map { storefront in
+			("https://itunes.apple.com/\(storefront)/rss/customerreviews/page=1/id=1/sortBy=mostRecent/json", #"{"feed": {}}"#)
+		})
+		let cache = try ResponseCache(responses: responses)
+		let warnings = WarningCollector()
+		let task = Task {
+			withUnsafeCurrentTask { $0?.cancel() }
+			return await AppStoreReview.recentFiveStar(appIDs: [1], cache: cache, warnings: warnings)
+		}
+
+		#expect(await task.value[1]?.isEmpty == true)
+		#expect(warnings.all.isEmpty)
+	}
+
 	@Test(arguments: [1, 2, 3, 4, 5])
 	func `individual review stars encode and decode as whole numbers`(count: Int) throws {
 		let stars = try #require(ReviewStars(rawValue: count))

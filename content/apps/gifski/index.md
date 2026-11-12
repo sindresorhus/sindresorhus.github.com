@@ -73,6 +73,7 @@ It’s a macOS app for the [gifski encoder](https://gif.ski), which uses [pngqua
 - Change the speed and the frame rate, up to 50 FPS
 - Loop the GIF, bounce it back and forth, or add a delay between the loops
 - See a preview before you convert
+- Save the trimmed and cropped clip, at the speed you set, as a video without sound with “File › Export as Video…” (++Command+E++) on Mac
 - Make smaller GIFs with the quality slider
 - Convert video to GIF from the Share menu, the Services menu, or the Shortcuts app
 
@@ -108,3 +109,10 @@ You can also use the [gifski command-line tool](https://gif.ski):
 ```console
 for file in *.mp4; do gifski -o "$file.gif" "$file"; done
 ```
+
+### How is it different from ffmpeg? {#ffmpeg}
+<!-- @faq.compares ffmpeg -->
+
+ffmpeg is a command-line tool. With its `palettegen` filter, it makes one palette of at most 256 colors for the whole video by default. Gifski uses pngquant’s cross-frame palettes and temporal dithering, so it can use thousands of colors per frame, and gradients do not turn into bands.
+
+Websites like ezgif convert the video on their server, so you must upload it. Gifski converts the video on your device.

@@ -25,6 +25,7 @@ The app is simple by design.
 ## Frequently Asked Questions {#faq}
 
 ### How is this different from the Clock widget in visionOS 26? {#how-is-this-different-from-the-clock-widget-in-visionos-26}
+<!-- @faq.compares Clock widget -->
 
 Since visionOS 26, the built-in Clock app has a widget that you can put on a wall or another flat surface, where it stays. If that is what you want, use it.
 

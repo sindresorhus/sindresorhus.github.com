@@ -253,6 +253,52 @@ struct ResponseCacheTests {
 	}
 
 	@Test(.temporaryDirectory)
+	func `a rejected response preserves the disk cache and warns across builds until recovery`() async throws {
+		let server = try ETagServer(.etag(bodies: [#"{"value": 1}"#, #"{"value": 0}"#, #"{"value": 3}"#]))
+		let port = try await server.start()
+		defer {
+			server.stop()
+		}
+
+		let directory = try URL.temporaryDirectory()
+		let cache = ResponseCache(directory: directory, maximumAge: .seconds(60))
+		let url = try #require(URL(string: "http://127.0.0.1:\(port)/value"))
+		#expect(try await cache.decoded(Value.self, from: url) == Value(value: 1))
+		let file = try #require(try directory.filesRecursively().first)
+		let original = try Data(contentsOf: file)
+
+		let kept = try await cache.decoded(
+			from: url,
+			maximumAge: .zero,
+			keepsCached: { (cached: Value, new: Value) in
+				new.value < cached.value
+			}
+		) { data in
+			try JSONDecoder().decode(Value.self, from: data)
+		}
+		#expect(kept == Value(value: 1))
+		#expect(try Data(contentsOf: file) == original)
+		#expect(cache.warnings.first?.message.hasSuffix("the response has less data than the cached response.") == true)
+
+		let laterBuild = cache.forAnotherBuild
+		#expect(try await laterBuild.decoded(Value.self, from: url) == Value(value: 1))
+		#expect(laterBuild.warnings == cache.warnings)
+		#expect(server.answers == ["200", "200"])
+
+		let recovered = try await laterBuild.decoded(
+			Value.self,
+			from: url,
+			maximumAge: .zero,
+			keepsCached: { $1.value < $0.value }
+		)
+		#expect(recovered == Value(value: 3))
+		let freshCache = ResponseCache(directory: directory, maximumAge: .seconds(60))
+		#expect(try await freshCache.decoded(Value.self, from: url) == Value(value: 3))
+		#expect(freshCache.warnings.isEmpty)
+		#expect(server.answers == ["200", "200", "200"])
+	}
+
+	@Test(.temporaryDirectory)
 	func `a response that cannot be decoded keeps the cached response, and uses it`() async throws {
 		let server = try ETagServer(.etag(bodies: [#"{"value": 1}"#, #"{"errors": []}"#]))
 		let port = try await server.start()

@@ -136,6 +136,37 @@ struct DirectoryWatcherTests {
 		#expect(await finished.next() == nil)
 	}
 
+	@Test(.temporaryDirectory)
+	func `cancellation after delivery ends the wait and a new iterator receives later changes`() async throws {
+		let root = try URL.temporaryDirectory()
+		let watcher = DirectoryWatcher(directories: [root], latency: .milliseconds(20))
+		let changes = watcher.makeAsyncIterator()
+		let (deliveries, continuation) = AsyncStream.makeStream(of: Set<URL>.self)
+		let task = Task {
+			var changes = changes
+			continuation.yield(await changes.next() ?? [])
+			#expect(await changes.next() == nil)
+			return changes
+		}
+		defer {
+			task.cancel()
+			continuation.finish()
+		}
+
+		let first = root.appending(path: "first.txt")
+		try Data("First".utf8).write(to: first)
+		var delivered = deliveries.makeAsyncIterator()
+		#expect(await delivered.next()?.map(\.standardizedFileURL) == [first.standardizedFileURL])
+		task.cancel()
+		var finished = await task.value
+		#expect(await finished.next() == nil)
+
+		var later = watcher.makeAsyncIterator()
+		let second = root.appending(path: "second.txt")
+		try Data("Second".utf8).write(to: second)
+		#expect(await later.next()?.map(\.standardizedFileURL) == [second.standardizedFileURL])
+	}
+
 	/**
 	The system reports a moved directory without the files in it.
 	*/

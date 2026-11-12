@@ -18,17 +18,26 @@ struct GitHubRelease {
 	}
 
 	/**
-	A response of the API, before its notes are rendered. A missing publication date means it is not published, like a draft.
+	A release of the API, before its notes are rendered, from the list of releases of a repo or from a release event. A missing publication date means it is not published, like a draft.
 	*/
 	struct Response: Decodable {
 		let tagName: String
+		let url: URL
 		let publishedAt: Date?
 		let body: String?
 		let isDraft: Bool
 		let isPrerelease: Bool
 
+		/**
+		The publication date of a published release that is not a prerelease, else `nil`, so the site shows only such releases.
+		*/
+		var publishedDate: Date? {
+			isDraft || isPrerelease ? nil : publishedAt
+		}
+
 		enum CodingKeys: String, CodingKey {
 			case tagName = "tag_name"
+			case url = "html_url"
 			case publishedAt = "published_at"
 			case body
 			case isDraft = "draft"

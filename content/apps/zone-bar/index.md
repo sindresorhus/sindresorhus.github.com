@@ -9,22 +9,23 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6755328989
+hasNoNetworkAccess: true
 sharedQuestions: [
 	'blurry-secondary-display'
 	'menu-bar-icons'
 	'sync'
 	'backup-settings'
 ]
-# olderVersions: [
-# 	{
-# 		version: '',
-# 		macOS: '26',
-# 		url: '',
-# 	},
-# ]
+olderVersions: [
+	{
+		version: '1.0.4',
+		macOS: '26',
+		url: 'https://www.dropbox.com/scl/fi/l7gvphxs4uja5ckwzrqx4/Zone-Bar-1.0.4-macOS-26-1794678075.zip?rlkey=arv2jnrh07834zuk6auseqfkl&raw=1'
+	}
+]
 pressQuotes: [
 	{
-		quote: 'The app called Zone Bar, available on the Mac App Store, presents itself as a feature extension for the menu bar and lets you show several world clocks side by side there. “Zone Bar” lets you display up to eight time zones in the Mac menu bar at the same time.'
+		quote: '[…] presents itself as a feature extension for the menu bar and lets you show several world clocks side by side there. “Zone Bar” lets you display up to eight time zones in the Mac menu bar at the same time.'
 		source: 'ifun.de'
 		translatedFrom: 'German'
 		url: 'https://www.ifun.de/mac-apps-zone-bar-neu-und-update-fuer-folder-quick-look-269849/'
@@ -54,13 +55,15 @@ Simple by design. No sync, no widgets, no iOS version. Just your clocks, always 
 
 #### Privacy
 
-Your clocks never leave your device. The app is built without internet permissions (no network entitlement), so macOS prevents it from connecting to the internet even if it wanted to. The time zone search uses Apple Maps through macOS.
+Your clocks never leave your device. The time zone search uses Apple Maps through macOS.
 
 ## Tips
 
 - Right-click a time zone to see more info and copy.
 - The +1/−1 indicator shows when a time zone is in a different day.
 - Press ++Command+Plus++ when the time zone window is open to quickly add a new time zone.
+- Choose “Go to Date & Time…” in the `…` menu (++Command+G++) to see all time zones at an exact date and time.
+- Press ++◀++/++▶++ for 1-hour steps and ++▲++/++▼++ for 15-minute steps when time travelling.
 
 ## Frequently Asked Questions {#faq}
 
@@ -88,9 +91,9 @@ Yes. It follows macOS time zone rules, including daylight saving, so times updat
 
 This is a [macOS bug](https://github.com/feedback-assistant/reports/issues/462) when searching from China. You will have to pick a time zone manually using the `…` button.
 
-### Can you add half hour steps to the Time Travel slider? {#can-you-add-half-hour-steps-to-the-time-travel-slider}
+### Can you add half hour steps to the Time Travel slider? {#half-hour-steps}
 
-No. It’s meant for quick, rough shifts. Smaller steps slow it down. If you need an exact offset, just adjust the minutes yourself.
+The slider itself moves in whole hours for quick, rough shifts. Press ← or → while the window is open to move the time in 1-hour steps, and press ↑ or ↓ to move in 15-minute steps. The 15-minute steps are useful for meeting times on :15, :30, and :45 and for half-hour time zones. For an exact time, right-click a time zone and choose “Go to Date & Time…”.
 
 ### Does the app use CPU constantly to keep the time updated? {#cpu}
 
@@ -117,6 +120,7 @@ No. This is a simple menu bar app.
 No.
 
 ### I already own Dato. Does this offer any benefits over its similar feature? {#dato}
+<!-- @faq.compares Dato -->
 
 Compared to the similar feature in [Dato](/dato):
 

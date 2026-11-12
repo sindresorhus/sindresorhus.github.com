@@ -57,6 +57,10 @@ enum ProseStyles: String, StyleSet {
 	case footnoteReference
 	case popover
 	case keySeparator
+	case controlKey
+	case optionKey
+	case shiftKey
+	case commandKey
 	case keyboardShortcut
 	case keyboardShortcutWithPunctuation
 	case tableContainer
@@ -106,6 +110,14 @@ enum ProseStyles: String, StyleSet {
 			Self.popoverStyle
 		case .keySeparator:
 			Self.keySeparatorStyle
+		case .controlKey:
+			Self.modifierKeyStyle(.control)
+		case .optionKey:
+			Self.modifierKeyStyle(.option)
+		case .shiftKey:
+			Self.modifierKeyStyle(.shift)
+		case .commandKey:
+			Self.modifierKeyStyle(.command)
 		case .keyboardShortcut:
 			Self.keyboardShortcutStyle
 		case .keyboardShortcutWithPunctuation:
@@ -180,6 +192,8 @@ extension MarkdownTheme {
 			ProseStyles.popover.className
 		case .keySeparator:
 			ProseStyles.keySeparator.className
+		case .modifierKey(let modifier):
+			modifier.style.className
 		case .keyboardShortcut:
 			ProseStyles.keyboardShortcut.className
 		case .keyboardShortcutWithPunctuation:

@@ -22,7 +22,7 @@ Open the app and start drawing. For quick sketches, brainstorming, and doodles, 
 
 The app is intentionally simple.
 
-Choose “Save” in the `…` menu to save a PNG of the drawing, which you find in the Files app. To continue a drawing later, choose “Export” in the same menu, and “Import” to open it again. On Apple Vision Pro, “Save” is a button next to the canvas.
+Choose “Save” in the `…` menu to save a PNG of the drawing, which you find in the Files app. The app does not keep the drawing after you quit it, so to continue a drawing later, choose “Export” in the same menu. To open it again, choose “Import”, or tap the exported file in the Files app. On Apple Vision Pro, “Save” is a button next to the canvas.
 
 ## Frequently Asked Questions {#faq}
 

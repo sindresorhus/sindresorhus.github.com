@@ -1,6 +1,7 @@
 ---
 title: 'Folder Peek'
 subtitle: 'Put folders in your menu bar'
+description: 'Open the files in your favorite folders with one click from the Mac menu bar. Useful for project folders, downloads, screenshots, or anything you use often.'
 publicationDate: 2022-04-05
 platforms: [
 	'macOS'
@@ -58,7 +59,7 @@ It also works as an [app launcher](#app-launcher), now that macOS 26 has removed
 **Features**
 
 - Add multiple folders to the menu bar
-- Each folder can be individually customized
+- Give each folder its own title, icon (a symbol or your own image), color, sort order, and item limit, and choose if it shows hidden files and keeps folders on top
 - Show a folder’s contents as a submenu or directly in the menu
 - File preview
 - View and copy image & video dimensions
@@ -239,6 +240,7 @@ defaults write com.sindresorhus.Folder-Peek showFolderMoreMenu -bool false
 You can show the `…` menu item again by pressing the ++Option++ key.
 
 ### How is this better than having folders in the Dock? {#dock-folders}
+<!-- @faq.compares Dock folders -->
 
 Compared to [folders in the Dock](https://support.apple.com/guide/mac-help/use-folders-in-the-dock-mchl231f08fb/mac):
 
@@ -254,11 +256,12 @@ Compared to [folders in the Dock](https://support.apple.com/guide/mac-help/use-f
 - Shortcuts support.
 
 ### How is this better than XMenu? {#xmenu}
+<!-- @faq.compares XMenu -->
 
 Compared to [XMenu](https://apps.apple.com/app/xmenu/id419332741):
 
 - You can choose any folder and as many as you want, not just a few predefined ones and a single custom folder.
-- Each folder can be individually customized.
+- Each folder has its own icon, sort order, item limit, and keyboard shortcut.
 - Custom menu bar icon.
 - File preview.
 - Copy, share, and drag & drop a file.

@@ -36,9 +36,14 @@ struct GuidesPage: Page {
 
 			// A link to each topic, as the page is long, and then the page with the guides for people who come from Windows, when it has guides.
 			let topicLinks = topics.map { LabeledLink($0.topic.title, destination: .fragment($0.topic.rawValue)) }
-			let windowsLinks = content.guidesForWindowsUsers.isEmpty ? [] : [LabeledLink("For Windows Users", destination: .path(.guidesForWindowsUsers))]
+			let windowsLink: ChipNavigation.LastChip? = content.guidesForWindowsUsers.isEmpty ? nil : .pageLink(LabeledLink("For Windows Users", destination: .path(.guidesForWindowsUsers)))
 
-			ChipNavigation(label: "Topics", links: topicLinks + windowsLinks, scrollsOnPhones: true)
+			ChipNavigation(
+				label: "Topics",
+				links: topicLinks,
+				lastChip: windowsLink,
+				scrollsOnPhones: true
+			)
 				.style {
 					$0.justifyContent(.start)
 				}

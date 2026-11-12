@@ -69,9 +69,9 @@ The app uses iCloud syncing to securely send links from your iOS/visionOS device
 - Ensure Hyperduck is running on the Mac.
 - Hyperduck opens links in the background. Ensure you didn’t miss it.
 - If you enabled the “Pause receiving URLs while computer is locked” setting, links that you send while the Mac is locked open when you unlock it.
-- Try opening the Hyperduck iOS app to force a sync.
+- Try opening the Hyperduck iOS app to force a sync. On the Mac, choose “Force Sync” in the menu bar menu.
 - In the iOS app, if you triple-tap the text, it will show the most recently shared URLs, which may aid debugging.
-- On the Mac, the history is off by default. Enable “History” in the settings, and click “View” to see the last 30 links. It only has the links that come after you enable it.
+- On the Mac, the history is off by default. Enable “History” in the settings, and click “View” to see the last 30 links. It only has the links that come after you enable it. The menu bar menu then also shows the last link that the Mac received, and when.
 - For a few users, initial sync took up to 24 hours due to weird iCloud syncing behavior.
   - This is controlled by Apple’s iCloud system and outside the app’s control.
 - [More iCloud sync troubleshooting…](/apps/faq#icloud-sync)
@@ -142,6 +142,7 @@ You can then tap “Download on Mac” in the share sheet on your iOS device, an
 ## Frequently Asked Questions {#faq}
 
 ### How is it better than AirDrop? {#airdrop}
+<!-- @faq.compares AirDrop -->
 
 - Works when your Mac is turned off
 - Works when you are not near your Mac
@@ -150,6 +151,7 @@ You can then tap “Download on Mac” in the share sheet on your iOS device, an
 - AirDrop sometimes refuses to work; this always works.
 
 ### How is it better than iCloud Tabs? {#icloud-tabs}
+<!-- @faq.compares iCloud Tabs -->
 
 - Works in any app with a share sheet, not just Safari
 - Links are opened as tabs in your browser so you cannot miss them
@@ -158,12 +160,14 @@ You can then tap “Download on Mac” in the share sheet on your iOS device, an
 - You don’t need to keep the tab open on your iOS device for it to be available on your Mac
 
 ### How is it better than Safari Tab Groups? {#safari-tab-groups}
+<!-- @faq.compares Safari Tab Groups -->
 
 - Works in any app with a share sheet, not just Safari
 - Supports any browser on your Mac
 - You don’t need to keep the tab open on your iOS device for it to be available on your Mac
 
 ### How is it better than Safari Reading List? {#safari-reading-list}
+<!-- @faq.compares Safari Reading List -->
 
 - Links are opened right in your browser so you cannot miss them
 - No need to spend time looking for the link in a long list of links
@@ -175,6 +179,7 @@ You can then tap “Download on Mac” in the share sheet on your iOS device, an
 - Does not strain fingers and brain
 
 ### How is it better than Handoff? {#handoff}
+<!-- @faq.compares Handoff -->
 
 - Works in any app with a share sheet, not just a browser
 - Works when your Mac is turned off
@@ -185,6 +190,7 @@ You can then tap “Download on Mac” in the share sheet on your iOS device, an
 - Handoff sometimes refuses to work. This always works.
 
 ### How is it better than Universal Clipboard? {#universal-clipboard}
+<!-- @faq.compares Universal Clipboard -->
 
 Compared to [Universal Clipboard](https://support.apple.com/102430):
 
@@ -194,23 +200,27 @@ Compared to [Universal Clipboard](https://support.apple.com/102430):
 - Much faster
 
 ### How is it better than sending yourself links with iMessage? {#imessage}
+<!-- @faq.compares iMessage -->
 
 - Links are opened right in your browser so you cannot miss them (it’s easy to forget to check iMessage)
 - Opens links on your Mac in the background
 
 ### How is it better than sending yourself links with email? {#email}
+<!-- @faq.compares Email -->
 
 - Links are opened right in your browser so you cannot miss them (it’s easy to forget to check your email)
 - Opens links on your Mac in the background
 - Does not litter your email inbox with lots of random links
 
 ### How is it better than Pushbullet? {#pushbullet}
+<!-- @faq.compares Pushbullet -->
 
 - Works in any app with a share sheet
 - [Pushbullet](https://www.pushbullet.com) does not have an iOS or macOS app
 - Does not require signing up for another account
 
 ### How is it better than the Firefox Send Tabs feature? {#how-is-it-better-than-the-firefox-send-tabs-feature}
+<!-- @faq.compares Firefox Send Tabs -->
 
 Compared to the Firefox [Send Tabs](https://support.mozilla.org/kb/send-tab-firefox-ios-another-device) feature:
 
@@ -219,6 +229,7 @@ Compared to the Firefox [Send Tabs](https://support.mozilla.org/kb/send-tab-fire
 - Requires fewer taps
 
 ### How is it better than the Firefox tab sync? {#how-is-it-better-than-the-firefox-tab-sync}
+<!-- @faq.compares Firefox tab sync -->
 
 - Works in any app with a share sheet, not just Firefox
 - Supports any browser on your Mac

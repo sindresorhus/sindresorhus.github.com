@@ -13,3 +13,9 @@ appUserCount: 6_000_000
 
 # About how many support emails I have answered, updated by hand. The pages show it rounded down, like “10K+”.
 supportEmailCount: 10_000
+
+# App Store review titles to leave out across all apps (exact matches).
+hiddenReviews: [
+	'Such a powerful app! But it seems that there’s something broken in iOS26.'
+	'Stopped working for finder'
+]

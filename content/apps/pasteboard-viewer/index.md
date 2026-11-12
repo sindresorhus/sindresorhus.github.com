@@ -52,6 +52,8 @@ A developer utility that shows the contents of the system pasteboards live, with
 
 The sidebar lists the types of the current item, like `public.url`. Select a type to see its content. A `dyn.` type shows the type it stands for below its name.
 
+On Mac, right-click a type to copy its identifier, save its data as a file, or open it in another app. For a file URL, you can also show the file in Finder. The “Window › Stay on Top” (++Control+Command+T++) keeps the window in front of other windows. In the Shortcuts app, use the “Get Pasteboard Items”, “Get Pasteboard Contents as Files”, and “Clear Pasteboard” actions to get or clear the pasteboard in a shortcut.
+
 Use it to check that your app puts the correct data on [`NSPasteboard`](https://developer.apple.com/documentation/appkit/nspasteboard) or [`UIPasteboard`](https://developer.apple.com/documentation/uikit/uipasteboard).
 
 Note that this is not a clipboard manager. If you are not a developer, you probably don’t want this app. To only see the text or image on the clipboard, select “Edit › Show Clipboard” in Finder. To see what you copied before, use Spotlight on macOS 26 or later: press ++Command+Space++, and then ++Command+4++.

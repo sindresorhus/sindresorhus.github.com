@@ -31,7 +31,7 @@ Lungo is useful for presentations, long downloads, and reading without touching 
 - Turn on “Allow display to sleep while keeping computer awake”, so the screen turns off, but the downloads and other tasks continue.
 - Turn on “Deactivate when switching to battery”, so it does not empty the battery.
 
-For a duration that is not in the menu, use the “Set Enabled State” action of Lungo in the Shortcuts app.
+For a duration that is not in the menu, use the “Set Enabled State” action of Lungo in the Shortcuts app. The [“Enable Lungo until time” shortcut](https://www.icloud.com/shortcuts/9aa69e6db4ba48289e59214d10a405b2) asks for a time, and keeps the Mac awake until then.
 
 Amphetamine is a popular free app for this, with triggers and support for a closed lid. Its last update was in November 2023.
 
@@ -47,7 +47,7 @@ When you close the lid of a MacBook, macOS puts it to sleep. Lungo can keep it a
 caffeinate -di
 ```
 
-`-d` keeps the screen on, and `-i` keeps the Mac from going to sleep. Press ++Control+C++, or close the window, to stop it. To stop after a time, add the number of seconds, like `caffeinate -di -t 3600` for one hour. To keep the Mac awake only while a long task runs, put the command after it, like `caffeinate -i claude` for Claude Code. Your Mac stays awake until the command ends, like when the AI agent is done.
+`-d` keeps the screen on, and `-i` keeps the Mac from going to sleep. Press ++Control+C++, or close the window, to stop it. To stop after a time, add the number of seconds, like `caffeinate -di -t 3600` for one hour. To keep the Mac awake only while a long task runs, put the command of the task after `caffeinate -i`, like `caffeinate -i claude` for Claude Code. Your Mac stays awake until the command ends, like when the AI agent is done.
 
 **System Settings:** To change the sleep settings for all tasks, not only one:
 

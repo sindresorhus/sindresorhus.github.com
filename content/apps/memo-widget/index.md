@@ -67,6 +67,7 @@ Same answer as the above.
 No. A widget cannot have a text field. This is a macOS/iOS limitation. Tap the widget instead, and the app opens that note, ready to edit.
 
 ### How is this different from the built-in Stickies app on macOS? {#stickies}
+<!-- @faq.compares Stickies -->
 
 The Stickies app is a normal app and has to either float on top of everything or it has to be manually brought to the front when needed. Memo Widget always lives on your desktop or in the Notification Center, just a [gesture away](https://www.howtogeek.com/678073/how-to-quickly-show-your-desktop-on-mac/). The Stickies app also takes up space in your Dock. The Stickies app supports formatting, while Memo Widget keeps it simple with just plain text.
 
@@ -75,6 +76,7 @@ The Stickies app is a normal app and has to either float on top of everything or
 I don’t plan to add this. Check out my [Any Text app](/any-text), which has this.
 
 ### How is this different from your Any Text app? {#how-is-this-different-from-your-any-text-app}
+<!-- @faq.compares Any Text -->
 
 [Any Text](/any-text) has a lot of features and is very flexible. With this app, I wanted to make something simple and focused.
 

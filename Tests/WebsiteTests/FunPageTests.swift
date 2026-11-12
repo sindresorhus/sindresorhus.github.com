@@ -261,7 +261,7 @@ struct FunPageTests {
 		let id = ElementID("ordinary-app-icon")
 		let html = AppIcon(app, size: 64, imageID: id).render()
 		#expect(html.contains("id=\"\(id)\""))
-		let hero = AppHero(listing: AppListing(app: app), buildDate: .now, hasGuides: false).render()
+		let hero = AppHero(listing: AppListing(app: app), hasGuides: false).render()
 		#expect(hero.contains("id=\"\(AppHero.IDs.icon.id)\""))
 	}
 

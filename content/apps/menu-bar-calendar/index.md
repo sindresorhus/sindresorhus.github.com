@@ -1,13 +1,15 @@
 ---
 title: 'Menu Bar Calendar'
 subtitle: 'A monthly calendar, one click away'
+description: 'Click the Mac menu bar icon to see a monthly calendar. Click a date to open it in the Calendar app or Google Calendar, or right-click a day to create an event.'
 publicationDate: 2023-08-31
 platforms: [
 	'macOS'
 ]
 isPaid: true
 isMenuBarApp: true
-appStoreID: 155836038
+appStoreID: 1558360383
+hasNoNetworkAccess: true
 sharedQuestions: [
 	'week-53'
 	'december-week-1'
@@ -59,7 +61,7 @@ The calendar displays dates and days in your language, but the rest of the app i
 - **Open date in the Calendar app (or Google Calendar):** Click a date in the calendar.
 - **Open week in the Calendar app (or Google Calendar):** Click a week number in the calendar (turn on “Show week numbers” in the settings).
 - **Go to a specific date:** Right-click the month name or press ++G++.
-- **Create new event on a specific day:** Right-click the day in the calendar.
+- **Create new event on a specific day:** Right-click the day in the calendar. To create an event with one click, set “Clicking calendar day” to “Creates new event” in the settings.
 - **Copy the date for a day in the calendar:** Right-click the day in the calendar.
 
 ## Frequently Asked Questions {#faq}
@@ -101,7 +103,7 @@ Click the month name at the top of the calendar, or press the ++Space++ key.
 The calendar shows the month that you looked at last. [Go back to today.](#today)
 
 ### How do I close the calendar without clicking the menu bar icon? {#close}
-<!-- @faq.keywords dismiss hide escape esc click outside -->
+<!-- @faq.keywords dismiss hide escape esc outside -->
 
 Press the ++Esc++ key or click anywhere outside the calendar. You can also set the “Toggle calendar” keyboard shortcut in the settings to open and close it from any app.
 

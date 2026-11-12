@@ -74,6 +74,8 @@ You can also set a keyboard shortcut in the settings to start and stop recording
 - See the audio level in the menu bar and in the menu while you record
 - Set how loud the system audio is, relative to the microphone, when you record both
 - Choose the output folder and the format of the filenames
+- Hold ++Option++ while you click “Stop” in the menu to choose where to save one recording
+- Record in stereo when the input device supports it. If a stereo device sends sound on only one channel, like an audio splitter, choose “Force Mono” in the menu
 - Copy the recording or show it in Finder when done
 - Lossless quality (WAV) as an option
 - Shortcuts actions to start, stop, and pause a recording, and to get the previous recording
