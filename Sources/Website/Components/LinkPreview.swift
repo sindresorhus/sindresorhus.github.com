@@ -180,7 +180,13 @@ extension LinkPreview {
 		// The links to a section in the content, as the path and the fragment, like `/dato#refresh-interval` for `#refresh-interval` on the page of Dato. The feedback page shows the notes of the apps.
 		let sectionLinks = Set(
 			content.documents.flatMap { document in
-				document.markdown.links.map { $0.destination.hasPrefix("#") ? "\(document.path)\($0.destination)" : $0.destination }
+				document.markdown.links.map { link -> String in
+					guard link.destination.hasPrefix("#") else {
+						return link.destination
+					}
+
+					return "\(document.path)\(link.destination)"
+				}
 			}
 				+ content.apps.flatMap { $0.feedbackNote?.links.map(\.destination) ?? [] }
 		)
