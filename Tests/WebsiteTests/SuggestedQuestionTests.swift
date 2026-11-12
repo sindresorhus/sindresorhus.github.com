@@ -118,7 +118,7 @@ struct SuggestedQuestionTests {
 			// A guide about the app and a tip of the app are suggested like its questions.
 			(message: "How do I make Finder open files when I press Enter, instead of renaming them?", app: "Supercharge", answer: "/guides/open-files-with-enter-finder-mac"),
 			(message: "How can I batch transcribe a folder of audio files?", app: "Aiko", answer: "/aiko#batch"),
-			(message: "Sync between my iPhone and iPad does not work", app: "Any Text", answer: "/any-text#troubleshoot-syncing"),
+			(message: "Sync between my iPhone and iPad does not work", app: "Any Text", answer: "/apps/faq#icloud-sync"),
 		]
 
 		for (message, app, answer) in cases {
