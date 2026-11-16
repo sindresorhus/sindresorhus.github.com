@@ -26,6 +26,6 @@ Some automatic emails, like some bills, have no message ID, so Supercharge canno
 
 ## Without an app
 
-You can make a reminder with a link to it ([Apple’s instructions](https://support.apple.com/guide/reminders/remn1f735fdc/mac)): select the message, click the Share button, and choose Reminders. To open the message later, double-click the link in the reminder.
+You can make a reminder with a link to it ([Apple’s instructions](https://support.apple.com/guide/reminders/remn1f735fdc/mac)): select the message, click the Share button, and choose Reminders. To open the message later, click the link in the reminder.
 
 This is good for one message now and then. Supercharge is faster when you link to emails often, like from your tasks.

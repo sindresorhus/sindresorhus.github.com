@@ -112,7 +112,7 @@ struct FeedbackPage: Page {
 
 			// Without a selected app, the app is picked first, so the message says which app it is about. The script in the head marks the page when an app is selected, and the styles hide the picker and show the form.
 			// Without JavaScript, the picker shows, but not the form, so the note is above the picker, where it is seen. It also shows when `feedback.js` does not load, so its title is correct for the two causes. Not in the prose, so it lines up with the picker, and the address does not break with a hyphen.
-			// A warning alert with a title that says what is wrong, not only “WARNING”. The text only has a link, so it uses no styles or scripts of the Markdown that the page would need to add. It is not Markdown, so its link has the ID for the script in the head.
+			// A warning alert with a title that says what is wrong, not only “Warning”. The text only has a link, so it uses no styles or scripts of the Markdown that the page would need to add. It is not Markdown, so its link has the ID for the script in the head.
 			div {
 				HTMLRaw(MarkdownTheme.site.alert(.warning, title: "The form did not load", contentHTML: scriptingNoticeText.render()))
 			}
@@ -585,6 +585,10 @@ extension FeedbackPage {
 				Style()
 					.grid(minimumColumnWidth: .rootEm(9), maximumColumns: 3, spacing: .rootEm(0.5))
 					.margin(.bottom, .rootEm(1.5))
+					// A grid item, so the link fills the row, and the two tiles of a row have the same height when one name wraps.
+					.children("li") {
+						$0.display(.grid)
+					}
 			case .appPickerLink:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
@@ -661,7 +665,7 @@ extension FeedbackPage {
 							.gap(.rootEm(1.25))
 					}
 			case .submit:
-				// The button is disabled until the script runs, and while the form sends, when it shows the second label.
+				// The button is disabled until the script runs, and while the form sends, when it shows the second label almost at full strength, so it reads as progress, not as a disabled button.
 				Style()
 					.flexShrink(0)
 					.frame(width: .percent(100))
@@ -669,6 +673,10 @@ extension FeedbackPage {
 						$0
 							.opacity(0.5)
 							.allowsHitTesting(false)
+					}
+					// After the disabled style, which has the same specificity.
+					.when(States.sending) {
+						$0.opacity(0.8)
 					}
 					.from(.smallTablet) {
 						$0.frame(width: .auto)

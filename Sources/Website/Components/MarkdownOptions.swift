@@ -617,7 +617,7 @@ extension AppDownloadCard {
 					.vstack(alignment: .start, spacing: .rootEm(1.25))
 					.proseCard()
 					.backgroundImage(Self.light(strength: 0.1), dark: Self.light(strength: 0.16))
-					.nested(":target + &") {
+					.directlyAfter(":target") {
 						$0.targetHighlight()
 					}
 			case .actions:
@@ -882,7 +882,9 @@ private enum ColumnListStyles: String, StyleSet {
 					.children("li") {
 						$0
 							.keepsTogether()
-							.margin(top: .zero, horizontal: .zero, bottom: .rootEm(0.25))
+							.margin(top: .zero, horizontal: .zero, bottom: .rootEm(0.5))
+							// A wrapped name has its lines closer than the items, so it reads as one item.
+							.lineHeight(1.35)
 					}
 			}
 	}
@@ -914,11 +916,15 @@ enum CardListStyles: String, StyleSet {
 							.frame(width: .percent(100))
 							.verticalAlign(.top)
 							.margin(top: .zero, horizontal: .zero, bottom: .rootEm(1))
-							.padding(vertical: .rootEm(1.125), horizontal: .rootEm(1.25))
+							.padding(.cardPadding)
 							.cardSurface(isInteractive: false)
 							.keepsTogether()
 							.textStyle(.body, weight: .semibold)
 							.color(.primaryText)
+							// A link in the title has the weight of the title, as the underline already shows it.
+							.children("a") {
+								$0.inherits(.fontWeight)
+							}
 							.children("ul") {
 								$0
 									.detailsList()
@@ -955,6 +961,10 @@ enum StepListStyles: String, StyleSet {
 	var style: Style {
 		Style()
 			.proseBlockMargin()
+			// Right below a heading, the space of the heading, like the text, as the margin of this component wins over the rule of the prose.
+			.directlyAfter("h2, h3, h4, h5, h6") {
+				$0.margin(.top, .zero)
+			}
 			.children("ol") {
 				$0
 					.counterReset(Counters.step)
@@ -1206,6 +1216,9 @@ enum ChangelogStyles: String, StyleSet {
 									.detailsList()
 									.fontFamily(.system)
 									.textStyle(.body, weight: .regular)
+									// Not the letter spacing and the digits of the year.
+									.letterSpacing(.zero)
+									.fontVariantNumeric([])
 									.color(.bodyText)
 									// The badge hangs on the leading side, so the lines of a long change start after it, also on phones. The text starts 0.75 after the badge.
 									.children("li") {

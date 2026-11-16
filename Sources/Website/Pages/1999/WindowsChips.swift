@@ -43,14 +43,13 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 				.part(Parts.screen),
 				.width(416),
 				.height(288),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("Chip’s Challenge. The arrow keys move Chip one tile, and P pauses. A swipe or a tap on the board moves him too.")
+				.accessibilityLabel("Chip’s Challenge. The arrow keys move Chip one tile, and P pauses. A swipe or a tap on the board moves him too.", role: .application)
 				.style(Styles.screen)
 
 			// The empty corners of the grid make the shape of a plus.
-			div(.role(.group)) {
+			div {
 				for direction in Self.directions {
 					if let direction {
 						button(.type(.button), .hook(Hooks.move, value: direction.id)) {
@@ -64,7 +63,7 @@ struct GeoCitiesWindowsChips: ScriptedElement {
 					}
 				}
 			}
-			.accessibilityLabel("Move Chip")
+			.accessibilityLabel("Move Chip", role: .group)
 			.style(Styles.pad)
 		}
 		.style(Styles.board, GeoCitiesPage.Styles.scriptingOnly)

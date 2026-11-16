@@ -76,10 +76,9 @@ struct GeoCitiesMarbles: ScriptedElement {
 				.part(Parts.canvas),
 				.width(640),
 				.height(440),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The gravel of the school yard, seen from above. Drag back from your marble and let go to flick it. Or use the keys: Left and Right aim, Up and Down set the power, A and D move along the line, N picks the next marble, and Space or Enter flicks. After a game, a click or Space starts the next one.")
+				.accessibilityLabel("The gravel of the school yard, seen from above. Drag back from your marble and let go to flick it. Or use the keys: Left and Right aim, Up and Down set the power, A and D move along the line, N picks the next marble, and Space or Enter flicks. After a game, a click or Space starts the next one.", role: .application)
 				.style(Styles.canvas)
 
 			p(.part(Parts.status), .role(.status)) {}

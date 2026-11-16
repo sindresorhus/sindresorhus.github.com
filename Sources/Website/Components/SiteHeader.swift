@@ -5,55 +5,7 @@ import SiteKit
 The sticky site navigation. On small screens, the links are in a popover behind a menu button, which works without JavaScript, and closes with the Escape key or a click outside. On an app page, the popover also has the sections of the app. Its script also closes it when the keyboard focus moves out of it, after a tap on a section of the page, or when the window becomes as wide as a tablet, like a phone that rotates, and when it opens, it marks the section that the visitor is in.
 */
 struct SiteHeader: ScriptedElement {
-	static let script = ElementScript(inline: #"""
-	export default class extends HTMLElement {
-		connectedCallback() {
-			const menu = this.querySelector('[data-part="menu"]');
-			// The same functions, so connecting the element again does not add second listeners.
-			menu.addEventListener('focusout', this.#closeMenu);
-			menu.addEventListener('click', this.#closeForSection);
-			menu.addEventListener('beforetoggle', this.#markCurrentSection);
-
-			// From tablets, the menu is a row in the header, but a menu that is still open stays a layer on the page that takes every tap. So it closes when the window becomes wide, like when a phone rotates.
-			matchMedia('\#(MediaCondition.from(.tablet))').addEventListener('change', () => {
-				if (menu.matches(':popover-open')) {
-					menu.hidePopover();
-				}
-			});
-		}
-
-		// The scroll spy of the navigation of the app sets the section that the visitor is in on the header, so the menu marks it among the sections of the app when it opens.
-		#markCurrentSection = event => {
-			if (event.newState !== 'open') {
-				return;
-			}
-
-			for (const link of this.querySelectorAll('[data-part="appSectionLink"]')) {
-				link.ariaCurrent = link.hash === this.dataset.currentSection ? 'location' : null;
-			}
-		};
-
-		// A link to a section of the page, like the FAQ of an app, scrolls the page behind the menu, so the menu closes to show the section.
-		#closeForSection = event => {
-			const menu = event.currentTarget;
-
-			if (event.target.closest('a[href^="#"]') && menu.matches(':popover-open')) {
-				menu.hidePopover();
-			}
-		};
-
-		// The mobile menu covers the page, so it closes when keyboard focus moves out of it, like to a link behind it. Not when it moves to the menu button, which closes it itself.
-		#closeMenu = event => {
-			const menu = event.currentTarget;
-			const destination = event.relatedTarget;
-			const isLeaving = destination && !menu.contains(destination) && destination.popoverTargetElement !== menu;
-
-			if (isLeaving && menu.matches(':popover-open')) {
-				menu.hidePopover();
-			}
-		};
-	}
-	"""#)
+	static let script = ElementScript()
 
 	enum Variant {
 		case standard
@@ -105,6 +57,10 @@ struct SiteHeader: ScriptedElement {
 	static let height = LengthPercentage.rootEm(4)
 
 	@TaskLocalValue(requiring: RoutePath.$current) private var currentPath
+
+	var config: Config? {
+		Config()
+	}
 
 	var content: some HTML {
 		header {
@@ -166,7 +122,7 @@ struct SiteHeader: ScriptedElement {
 							.style(Styles.appSectionsTitle)
 
 							// Keep the list semantics in Safari, as the styles remove its bullets.
-							ul(.role(.list)) {
+							ul {
 								for link in app.links {
 									li {
 										Link(link)
@@ -175,7 +131,7 @@ struct SiteHeader: ScriptedElement {
 									}
 								}
 							}
-							.accessibilityLabel("\(app.title) sections")
+							.accessibilityLabel("\(app.title) sections", role: .list)
 							.style(Styles.appSectionLinks)
 						}
 						.style(Styles.appSections)
@@ -244,6 +200,13 @@ extension SiteHeader {
 	The ID of the menu, which its button shows and hides. It has a prefix, so it is not the same as the ID of a heading, like “Menu”.
 	*/
 	private static let menuID = ElementID("site-menu")
+
+	struct Config: Encodable {
+		/**
+		The media query of the width of a tablet, from which the menu is a row in the header, so the script closes a menu that is still open.
+		*/
+		let tabletQuery = MediaCondition.from(.tablet).description
+	}
 
 	enum Parts: String, ElementPartSet {
 		case menu
@@ -316,9 +279,6 @@ extension SiteHeader {
 					.background(.pageBackground)
 					.from(.tablet) {
 						$0.frostedBackground(Self.glassFill, opaque: .pageBackground, blur: Self.glassBlur)
-					}
-					.dark {
-						$0.border(.bottom, width: .zero)
 					}
 			case .transparentAtTop:
 				// The fill and the blur are on a layer behind the header, so they can fade in, as the backdrop filter of the header itself would also blur its links.
@@ -400,13 +360,13 @@ extension SiteHeader {
 			case .menuIcon:
 				Style()
 					.display(.flex)
-					.nested("\(Self.navigation.selector):has(\(Self.menu.selector):popover-open) &") {
+					.inside("\(Self.navigation.selector):has(\(Self.menu.selector):popover-open)") {
 						$0.hidden()
 					}
 			case .closeIcon:
 				Style()
 					.hidden()
-					.nested("\(Self.navigation.selector):has(\(Self.menu.selector):popover-open) &") {
+					.inside("\(Self.navigation.selector):has(\(Self.menu.selector):popover-open)") {
 						$0.display(.flex)
 					}
 			case .menu:
@@ -444,6 +404,8 @@ extension SiteHeader {
 					.frame(width: .percent(100))
 					.padding(.top, .rootEm(2))
 					.font(.extraLarge4)
+					// Large text has tighter letters, like the titles of the pages.
+					.letterSpacing(.em(-0.025))
 					.from(.tablet) {
 						$0
 							.flexDirection(.row)
@@ -452,6 +414,7 @@ extension SiteHeader {
 							.frame(width: .auto)
 							.padding(.top, .zero)
 							.textStyle(.caption)
+							.letterSpacing(.zero)
 					}
 			case .link:
 				// On small screens, in the menu, the text lines up with the site name, and the current page is in the color of headings. From tablets, the links are pills, like the chips of the site, and the current page has the stronger fill of a card under the pointer.
@@ -527,7 +490,8 @@ extension SiteHeader {
 		var keyframes: [Keyframe] {
 			switch self {
 			case .showBorder:
-				[.to(Style().borderColor(.separator))]
+				// Fainter than the separators in dark mode, where they are too strong on the near-black glass, but still a clear edge for the text that scrolls under it.
+				[.to(Style().borderColor(.lightDark(.separator, .white.opacity(0.07))))]
 			case .showFill:
 				[
 					.from(Style().opacity(0)),

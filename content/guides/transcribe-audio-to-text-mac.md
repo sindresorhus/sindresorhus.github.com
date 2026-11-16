@@ -38,7 +38,7 @@ Aiko is also on iPhone, iPad, and Apple Vision Pro. Try it free for 14 days with
 
 macOS can transcribe the recordings that you make in some of its apps:
 
-- **Voice Memos:** Record a memo, and click the transcription button to see the text. To copy the text, Control-click the recording in the list, and choose “Copy Transcript”. It needs a Mac with Apple silicon.
+- **Voice Memos:** Record a memo, and click the transcription button to see the text. To copy the text, select it, Control-click it, and choose “Copy”. It needs a Mac with Apple silicon.
 - **Notes:** Record audio in a note, and Notes writes a transcript while you record. It needs a Mac with Apple silicon, and the language of the Mac must be a supported one, like English, Spanish, French, German, Japanese, or Chinese.
 
 Audio transcription is not available in all countries or regions, and it supports fewer languages than Aiko. It is good for a quick memo in a supported language. For a file that you already have, like a recorded meeting, a lecture, or a video, or for subtitles, use Aiko.

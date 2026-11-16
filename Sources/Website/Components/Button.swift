@@ -124,7 +124,11 @@ enum ButtonStyles: String, StyleSet {
 				.color(.white)
 				// Also in prose, where links are underlined.
 				.noUnderline()
-				.transition(.backgroundColor, .shadow, timing: .stateChange)
+				.transition(.backgroundColor, .shadow, .filter, timing: .stateChange)
+				// A little darker while it is pressed, like the App Store badge next to it, in every fill.
+				.active {
+					$0.filter(.brightness(0.92))
+				}
 		case .primary:
 			// The accent of the page, like the color of the icon on an app page. It is dark enough for the white text. A soft light at the top, a thin light edge, and a small shadow in the accent give it some depth, like the glass of the cards.
 			Style()
@@ -185,9 +189,10 @@ enum ButtonStyles: String, StyleSet {
 				.padding(vertical: .rootEm(0.5), horizontal: .rootEm(1.25))
 				.textStyle(.caption, weight: .bold)
 		case .regular:
+			// A size of its own, like the other sizes, so a button in larger text, like the trial card of an app page, is as large as the other buttons.
 			Style()
 				.padding(vertical: .rootEm(0.625), horizontal: .rootEm(1.25))
-				.fontWeight(.semibold)
+				.font(.regular, weight: .semibold)
 				.lineHeight(1.375)
 		case .large:
 			Style()

@@ -60,7 +60,7 @@ struct NowPage: Page {
 
 			page.markdown.content
 
-			for (label, items) in [("Reading", page.frontmatter.reading), ("Listening to", page.frontmatter.listening)] where !items.isEmpty {
+			for (label, items) in [("Reading", page.frontmatter.now?.reading ?? []), ("Listening to", page.frontmatter.now?.listening ?? [])] where !items.isEmpty {
 				p {
 					strong {
 						"\(label): "
@@ -668,7 +668,7 @@ struct NowPage: Page {
 	The newest blog post. Posts that only send visitors to another page, like an app page, are left out.
 	*/
 	private var latestBlogPost: BlogPost? {
-		content.listedPosts.first { !$0.isRedirect }
+		content.listedPostsWithPages.first
 	}
 
 	/**
@@ -1169,7 +1169,7 @@ struct NowPage: Page {
 				Style()
 					.display(.inlineBlock)
 					.padding(vertical: .zero, horizontal: .rootEm(0.375))
-					.cornerRadius(.rootEm(0.375))
+					.cornerRadius(.smallRadius)
 					.fontFamily(.monospace)
 					.font(size: .rootEm(0.75), lineHeight: 1.6)
 					.fontWeight(.medium)

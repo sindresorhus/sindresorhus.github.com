@@ -361,13 +361,6 @@ extension HTMLAttribute where Tag: HTMLTrait.Attributes.Global {
 	}
 
 	/**
-	The name that screen readers say for the element, like for an icon or a region.
-	*/
-	public static func ariaLabel(_ label: String) -> Self {
-		.custom(name: "aria-label", value: label)
-	}
-
-	/**
 	How the element announces a change while the visitor reads the page, like a status line that a script fills.
 	*/
 	public static func ariaLive(_ value: ARIALive) -> Self {
@@ -412,10 +405,10 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 	}
 
 	/**
-	The name that screen readers say for the element, like SwiftUI's `accessibilityLabel(_:)`. Use it when the visible content does not describe the element, like an icon.
+	The role and the name that screen readers say for an element whose tag has no role that can have a name (``HTMLTrait/Attributes/Nameable``), like a `div` of an image that CSS draws (`.image`), or a `div` that groups the buttons of a tool (`.group`). Screen readers ignore the label of a `div` or a `span` without a role. Without a label, the element gets neither, like a decorative image.
 	*/
-	public func accessibilityLabel(_ label: String) -> _AttributedContent<Self> {
-		attributes(.ariaLabel(label))
+	public func accessibilityLabel(_ label: String?, role: MarkupAttributeValue.Role) -> _AttributedContent<Self> {
+		attributes(contentsOf: label.map { [.role(role), .custom(name: "aria-label", value: $0)] } ?? [])
 	}
 
 	/**
@@ -740,5 +733,56 @@ extension HTMLAttribute where Tag == HTMLTag.link {
 	*/
 	public static func type(_ mediaType: MediaType) -> Self {
 		.custom(name: "type", value: mediaType.rawValue)
+	}
+}
+
+extension HTMLTrait.Attributes {
+	/**
+	A marker for the tags whose role can have a name that screen readers say (`aria-label`), like a link, a button, a list, or a landmark. A `div`, a `span`, a `p`, or a `pre` has no such role, so it needs one with its label: ``HTML/accessibilityLabel(_:role:)``.
+	*/
+	public protocol Nameable: Global {}
+}
+
+extension HTMLTag.a: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.article: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.aside: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.audio: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.button: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.dialog: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.fieldset: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.figure: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.form: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.iframe: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.img: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.input: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.main: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.meter: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.nav: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.output: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.ol: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.progress: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.section: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.select: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.table: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.textarea: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.th: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.ul: HTMLTrait.Attributes.Nameable {}
+extension HTMLTag.video: HTMLTrait.Attributes.Nameable {}
+
+extension HTMLAttribute where Tag: HTMLTrait.Attributes.Nameable {
+	/**
+	The name that screen readers say for the element, like for an icon or a region.
+	*/
+	public static func ariaLabel(_ label: String) -> Self {
+		.custom(name: "aria-label", value: label)
+	}
+}
+
+extension HTML where Tag: HTMLTrait.Attributes.Nameable {
+	/**
+	The name that screen readers say for the element, like SwiftUI's `accessibilityLabel(_:)`. Use it when the visible content does not describe the element, like an icon.
+	*/
+	public func accessibilityLabel(_ label: String) -> _AttributedContent<Self> {
+		attributes(.ariaLabel(label))
 	}
 }

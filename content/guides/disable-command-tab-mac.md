@@ -27,7 +27,7 @@ To get the app switcher back, turn the setting off. The setting is for when you 
 macOS lets you turn off some of its own keyboard shortcuts:
 
 @Steps {
-1. Open “[System Settings › Keyboard](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”, and click “Keyboard Shortcuts”.
+1. Open “[System Settings › Keyboard](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”, and click “Keyboard Shortcuts…”.
 1. Select a category in the sidebar, like “Mission Control” or “Spotlight”.
 1. Deselect the checkbox next to the shortcut.
 }

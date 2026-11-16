@@ -25,7 +25,7 @@ struct OlderVersionsPage: Page {
 			// A link to each version, as the page is long, and a visitor only needs the version of their Mac.
 			ChipNavigation(label: "macOS versions", links: versions.map { LabeledLink($0.title, destination: .fragment($0.id)) }, scrollsOnPhones: true)
 				.style {
-					$0.justifyContent(.start)
+					$0.textAlign(.leading)
 				}
 
 			for version in versions {

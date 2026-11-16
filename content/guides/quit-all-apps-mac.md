@@ -21,7 +21,7 @@ apps: [
 
 The apps quit like when you press ++Command+Q++, so an app with changes that are not saved asks you to save them. Supercharge also closes all Finder windows. It does not quit menu bar apps.
 
-“Quit All Apps Except Frontmost”, in the same menu, keeps the app that you use now open. To set a keyboard shortcut, or to choose apps that must stay open, open the Supercharge settings, click “Shortcuts”, and go to “Quit all apps”.
+“Quit All Apps Except Frontmost”, in the same menu, keeps the app that you use now open. To set a keyboard shortcut, open the Supercharge settings, click “Shortcuts”, and set a shortcut for “Quit all apps”. To choose apps that must stay open, click the settings button next to it, and add them in “Excluded apps”.
 
 ## Without an app
 

@@ -16,7 +16,7 @@ apps: [
 
 @Steps {
 1. Open [Supercharge](../apps/supercharge/index.md), click its icon in the menu bar, and choose “Capture & Translate”. The first time, give it the screen recording access that it asks for. It only captures the area that you select.
-1. Drag over the text. The translation shows in a window.
+1. Drag over the text. The translation shows below the Supercharge icon in the menu bar.
 1. For a keyboard shortcut, open the Supercharge settings, click “Shortcuts”, and set a shortcut for “Capture & translate”.
 }
 

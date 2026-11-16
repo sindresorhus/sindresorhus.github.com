@@ -98,10 +98,9 @@ struct GeoCitiesWorms: ScriptedElement {
 				.part(Parts.screen),
 				.width(320),
 				.height(200),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The island of Wurms ’99. The left and right arrow keys walk, the up and down arrow keys aim, hold Space to charge and let go to fire, Enter jumps, Backspace does a backflip, the keys 1 to 5 set the fuse, and W picks the next weapon. Drag to look around.")
+				.accessibilityLabel("The island of Wurms ’99. The left and right arrow keys walk, the up and down arrow keys aim, hold Space to charge and let go to fire, Enter jumps, Backspace does a backflip, the keys 1 to 5 set the fuse, and W picks the next weapon. Drag to look around.", role: .application)
 				.style(Styles.screen, GeoCitiesPage.Styles.scriptingOnly)
 
 			p(.part(Parts.status), .role(.status)) {
@@ -130,8 +129,7 @@ struct GeoCitiesWorms: ScriptedElement {
 				}
 				.style(Styles.control, Styles.fire)
 			}
-			.attributes(.role(.group))
-			.accessibilityLabel("Controls")
+			.accessibilityLabel("Controls", role: .group)
 			.style(Styles.pad, GeoCitiesPage.Styles.scriptingOnly)
 
 			div {
@@ -168,8 +166,7 @@ struct GeoCitiesWorms: ScriptedElement {
 				}
 				.style(Styles.weapon)
 			}
-			.attributes(.role(.group))
-			.accessibilityLabel("Weapons")
+			.accessibilityLabel("Weapons", role: .group)
 			.style(Styles.weapons, GeoCitiesPage.Styles.scriptingOnly)
 
 			div {

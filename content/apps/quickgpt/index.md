@@ -12,6 +12,9 @@ gumroad: {
 	price: 6
 }
 releasesRepository: 'sindresorhus/quickgpt-meta'
+categories: [
+	'ai'
+]
 olderVersions: [
 	{
 		version: '1.7.0'

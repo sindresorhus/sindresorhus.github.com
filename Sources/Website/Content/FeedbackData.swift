@@ -16,6 +16,11 @@ struct FeedbackData: Encodable {
 		let iconURL: RoutePath
 
 		/**
+		The accent of the app page (``App/tint``), like `#6448d6` for Dato, which the page takes while the form is for the app. `nil` for a gray icon, which keeps the color of the site.
+		*/
+		let accent: String?
+
+		/**
 		The FAQ section of the app page, when it has one.
 		*/
 		let faqURL: LinkDestination?
@@ -40,6 +45,11 @@ struct FeedbackData: Encodable {
 	*/
 	let sentStorageKey = FeedbackPage.sentStorageKey
 
+	/**
+	The custom property of the accent of a page (``Color/accent``), which `feedback.js` sets to the ``AppData/accent`` of the app.
+	*/
+	let accentProperty = Color.accent.name.description
+
 	init(listings: [AppListing]) {
 		self.apps = listings.map { listing in
 			let app = listing.app
@@ -48,6 +58,7 @@ struct FeedbackData: Encodable {
 				title: app.title,
 				names: app.feedbackLookupNames,
 				iconURL: app.iconPath,
+				accent: app.tint?.description,
 				faqURL: app.faqDestination,
 				repositoryURL: app.repositoryURL,
 				olderVersions: MacOSVersion.allCases.compactMap { macOS in

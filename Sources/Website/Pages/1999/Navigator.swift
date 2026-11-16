@@ -45,7 +45,7 @@ struct GeoCitiesNavigator: HTML {
 
 		div(.id(IDs.toolbar)) {
 			div {
-				div(.role(.group)) {
+				div {
 					for item in Self.buttons {
 						button(.type(.button), .hook(Hooks.button, value: item.id)) {
 							span {
@@ -62,7 +62,7 @@ struct GeoCitiesNavigator: HTML {
 						.style(Styles.button)
 					}
 				}
-				.accessibilityLabel("Navigator toolbar")
+				.accessibilityLabel("Navigator toolbar", role: .group)
 				.style(Styles.buttons)
 
 				// The N of Netscape on a planet, where meteors rain down while the page loads.
@@ -102,8 +102,8 @@ struct GeoCitiesNavigator: HTML {
 
 			// The certificate of the dot matrix printer, on paper with green bars and the holes of the tractor feed. `geocities-effects.js` prints it line by line.
 			div(.id(IDs.printout), .hidden) {
-				div(.id(IDs.printoutPaper), .role(.group), .tabindex(-1)) {}
-					.accessibilityLabel("Printout")
+				div(.id(IDs.printoutPaper), .tabindex(-1)) {}
+					.accessibilityLabel("Printout", role: .group)
 					.style(Styles.paper)
 
 				button(.id(IDs.tearOff), .type(.button), .hidden) {

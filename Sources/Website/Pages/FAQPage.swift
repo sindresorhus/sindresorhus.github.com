@@ -38,7 +38,7 @@ struct FAQPage: Page {
 					.style {
 						$0
 							.margin(.top, .rootEm(2))
-							.justifyContent(.start)
+							.textAlign(.leading)
 					}
 
 				sections

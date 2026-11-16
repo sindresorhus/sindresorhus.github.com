@@ -277,7 +277,8 @@ struct FunPageTests {
 		let components = try #require(detail["components"] as? [[String: Any]])
 		let component = try #require(components.first)
 		#expect(component["?"] as? [String: String] == [SudokuBoard.queryName: "?*"])
-		#expect(try SudokuBoard.script.source.contains(".get('\(SudokuBoard.queryName)')"))
+		// The script reads the name from the config of the element.
+		#expect(SudokuBoard().render().contains(#"data-config="{&quot;queryName&quot;:&quot;\#(SudokuBoard.queryName)&quot;}""#))
 	}
 
 	/**

@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	In [Zone Bar](../apps/zone-bar/index.md), right-click the time zone of the time that you have, choose “Go to Date & Time…”, and set the day and the time. All your clocks then show that moment in their time zone. Without an app, the World Clock of the Clock app shows the time now in each city.
+	In [Zone Bar](../apps/zone-bar/index.md), right-click the time zone of the time that you have, choose “Go to Date & Time…”, and set the day and the time. All your clocks then show that moment in their time zone. Without an app, the World Clock of the Clock app shows the time now in each city, and the Calendar app can show an event in another time zone at your time.
 }
 
 ## With Zone Bar
@@ -38,4 +38,12 @@ The Clock app of macOS shows the time now in each city:
 1. Add the cities, and compare their times with yours.
 }
 
-This is enough to see the difference between two cities now. To find the time of a meeting on another day, like after a change to daylight saving time, you must count the hours yourself.
+This is enough to see the difference between two cities now. For a time on another day, use the Calendar app:
+
+@Steps {
+1. In Calendar, choose “Calendar › Settings”, click “Advanced”, and select “Turn on time zone support”.
+1. Choose the time zone of the other city in the pop-up menu to the left of the search field, and add the event at its time there.
+1. Choose your own time zone again. The event keeps its time zone, so Calendar shows it at your time.
+}
+
+[Apple’s instructions.](https://support.apple.com/guide/calendar/icl1030/mac) This works, but it takes more steps than moving a clock to the time.

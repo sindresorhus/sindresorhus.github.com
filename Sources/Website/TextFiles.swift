@@ -213,7 +213,7 @@ extension Site {
 			"",
 			"## Optional",
 			"",
-			Self.llmsLink("Everything", url: Self.llmsFullPath.absoluteURL, description: "All the app pages, lists of apps, guides, pages, open-source projects, and blog posts as Markdown, in one file (\(megabytes) MB, about \(tokens) tokens). To read one page, use its link above."),
+			Self.llmsLink("Everything", url: Self.llmsFullPath.absoluteURL, description: "All the app pages, guides, pages, open-source projects, and blog posts as Markdown, in one file (\(megabytes) MB, about \(tokens) tokens). To read one page, use its link above."),
 			Self.llmsLink("Apps as JSON", url: Self.appsJSONPath.absoluteURL, description: "The facts of each app as data, for a tool that filters the apps: the name, the platforms, the categories, the price, the requirement, the version, the bundle identifier, and the links to the stores, the download, the trial, and the Markdown copy of the page."),
 		]
 		return lines.joined(separator: "\n") + "\n"
@@ -259,9 +259,16 @@ extension Site {
 	}
 
 	/**
-	The app pages, the archived app pages, the guides, the pages, the lists of apps, the open-source projects, and the blog posts as Markdown, in the order of `llms-full.txt`.
+	Every page that has a Markdown copy: the documents of `llms-full.txt` (``fullTextCopies``) and the lists of apps (``appListCopies``).
 	*/
 	private var markdownCopies: [MarkdownCopy] {
+		fullTextCopies + appListCopies
+	}
+
+	/**
+	The app pages, the archived app pages, the guides, the pages, the open-source projects, and the blog posts as Markdown, in the order of `llms-full.txt`.
+	*/
+	private var fullTextCopies: [MarkdownCopy] {
 		let project = content.project
 
 		let apps = content.activeAppsWithPages.map { app in
@@ -319,27 +326,13 @@ extension Site {
 			}
 		}
 
-		// The apps page and the pages of its categories, with the item of each app in `llms.txt`, like the open-source page (``OpenSourcePage/plainMarkdown``), as the pages are only cards. The apps page has the featured apps first, like `llms.txt`, as the page shows other featured apps each day. Limitation: the free and the paid apps are one list, not grouped by platform like on their pages, as each item has its platforms.
-		func appListCopy(of page: some Page, apps: [App]) -> MarkdownCopy {
-			let markdown = "# \(page.metadata.title)\n\nURL: \(page.path.absoluteURL.absoluteString)\n\n\(page.metadata.description ?? "")\n\n\(apps.map(llmsLine(of:)).joined(separator: "\n"))"
-
-			return MarkdownCopy(page: page.path) { _ in
-				markdown
-			}
-		}
-
-		let appLists = [appListCopy(of: AppsPage(content: content), apps: content.activeApps.startingWith(content.featuredApps))]
-			+ AppCategory.allCases.map { category in
-				appListCopy(of: AppCategoryPage(category: category, content: content), apps: category.apps(in: content))
-			}
-
 		// The projects of the open-source page, grouped like on the page.
 		let openSourcePage = OpenSourcePage(content: content)
 		let openSource = MarkdownCopy(page: openSourcePage.path) { _ in
 			openSourcePage.plainMarkdown
 		}
 
-		let posts = content.listedPosts.filter { !$0.isRedirect }.map { post in
+		let posts = content.listedPostsWithPages.map { post in
 			MarkdownCopy(page: post.path) { copiedPages in
 				post.exportedMarkdown(
 					body: post.file.plainMarkdown,
@@ -350,16 +343,34 @@ extension Site {
 			}
 		}
 
-		return apps + archivedApps + guides + pages + appLists + [openSource] + posts
+		return apps + archivedApps + guides + pages + [openSource] + posts
 	}
 
 	/**
-	All the app pages, lists of apps, guides, pages, open-source projects, and blog posts as Markdown, in one file. The documents are made at the same time, as the file is the slowest route.
+	The apps page and the pages of its categories, with the item of each app in `llms.txt`, like the open-source page (``OpenSourcePage/plainMarkdown``), as the pages are only cards. The apps page has the featured apps first, like `llms.txt`, as the page shows other featured apps each day. They are not in `llms-full.txt`, as each of their items is already there, at the start of the app page. Limitation: the free and the paid apps are one list, not grouped by platform like on their pages, as each item has its platforms.
+	*/
+	private var appListCopies: [MarkdownCopy] {
+		func appListCopy(of page: some Page, apps: [App]) -> MarkdownCopy {
+			let markdown = "# \(page.metadata.title)\n\nURL: \(page.path.absoluteURL.absoluteString)\n\n\(page.metadata.description ?? "")\n\n\(apps.map(llmsLine(of:)).joined(separator: "\n"))"
+
+			return MarkdownCopy(page: page.path) { _ in
+				markdown
+			}
+		}
+
+		return [appListCopy(of: AppsPage(content: content), apps: content.activeApps.startingWith(content.featuredApps))]
+			+ AppCategory.allCases.map { category in
+				appListCopy(of: AppCategoryPage(category: category, content: content), apps: category.apps(in: content))
+			}
+	}
+
+	/**
+	All the app pages, guides, pages, open-source projects, and blog posts as Markdown, in one file (``fullTextCopies``). The documents are made at the same time, as the file is the slowest route. Their links go to the Markdown copies of all pages, also of the lists of apps.
 	*/
 	private var llmsFull: String {
 		get async {
-			let copies = markdownCopies
-			let copiedPages = Set(copies.map(\.page))
+			let copies = fullTextCopies
+			let copiedPages = Set((copies + appListCopies).map(\.page))
 			let documents = await copies.concurrentMap { $0.markdown(copiedPages) }
 			return (["# \(Self.name)\n\n> \(Self.description)"] + documents).joined(separator: "\n\n---\n\n") + "\n"
 		}
@@ -536,29 +547,11 @@ extension ContentDocument {
 
 extension AppListing {
 	/**
-	The facts of the app for `llms.txt` and `llms-full.txt`, like “Price: Free. Platforms: macOS, iOS. Get it from: [App Store](https://apps.apple.com/app/id1519522160). Free trial: [download](https://sindresorhus.com/dato#trial). Requires macOS or iOS 26 or later. Free older versions for macOS 15 and 14: [download](https://sindresorhus.com/dato#older-versions).”, as assistants otherwise quote wrong facts from other sites. An app without network access (`hasNoNetworkAccess`) also says that it cannot connect, as assistants are asked whether an app sends data. The stores, the trial, and the older versions are links, so an assistant can give the link without the page, and does not say that the app cannot run on an older macOS version. An app that is in no store links to its download on GitHub, like App Buddy, or else to its page. The price is left out when it is unknown, like for a paid app when the App Store did not answer.
+	The facts of the app for `llms.txt` and `llms-full.txt`, like “Price: Free. Platforms: macOS, iOS. Get it from: [App Store](https://apps.apple.com/app/id1519522160). Free trial: [download](https://sindresorhus.com/dato#trial). Requires macOS or iOS 26 or later. Free older versions for macOS 15 and 14: [download](https://sindresorhus.com/dato#older-versions).”, as assistants otherwise quote wrong facts from other sites. An app without network access (`hasNoNetworkAccess`) also says that it cannot connect, as assistants are asked whether an app sends data. The stores, the trial, and the older versions are links, so an assistant can give the link without the page, and does not say that the app cannot run on an older macOS version. An app that is in no store links to its download on GitHub, like App Buddy. The price is left out when it is unknown, like for a paid app when the App Store did not answer.
 	*/
 	fileprivate var llmsFacts: String {
-		// Gumroad before Setapp, like the buttons of an app that is not on the App Store, so the first link is the one-time purchase of the price, not the subscription of Setapp.
-		var stores = [
-			app.appStoreURL?.markdownLink("App Store"),
-			app.gumroadURL?.markdownLink("Gumroad"),
-			app.setappURL?.markdownLink("Setapp"),
-		]
-		.compactMap(\.self)
-
-		if
-			stores.isEmpty,
-			let gitHubDownload = app.frontmatter.gitHubDownload
-		{
-			stores.append(gitHubDownload.url.markdownLink("download"))
-		} else if
-			stores.isEmpty,
-			app.ownDownloadURL != nil
-		{
-			stores.append(app.absoluteURL.markdownLink("the app page"))
-		}
-
+		// The places in the order of the buttons of the page, like Gumroad before Setapp for an app that is not on the App Store, so the first link is the one-time purchase of the price, not the subscription of Setapp.
+		let stores = app.downloadOptions.compactMap(\.llmsLink)
 		let olderMacOSVersions = app.olderVersions.map(\.macOS.rawValue).formattedList(.and)
 
 		return [
@@ -575,6 +568,28 @@ extension AppListing {
 		]
 		.compactMap(\.self)
 		.joined(separator: " ")
+	}
+}
+
+extension DownloadOption {
+	/**
+	The link of a place to get the app for the facts of the app (``AppListing/llmsFacts``), named by the place, like `[Gumroad](https://sindresorhus.gumroad.com/l/supercharge?wanted=true)`, not by the text of its button, like “Buy”. The App Store link has no campaign, as the link is not on a page of the site. `nil` for the source code, which is not a place to get the app (``isPlaceToGet``), and for the trial, which has its own sentence.
+	*/
+	fileprivate var llmsLink: String? {
+		switch self {
+		case .appStore(let id, _):
+			id.url.markdownLink("App Store")
+		case .setapp(let id):
+			id.referralURL.markdownLink("Setapp")
+		case .gumroad(let url):
+			url.markdownLink("Gumroad")
+		case .gitHubDownload(let url):
+			url.markdownLink("download")
+		case .website(let url):
+			url.value.markdownLink("website")
+		case .sourceCode, .trial:
+			nil
+		}
 	}
 }
 

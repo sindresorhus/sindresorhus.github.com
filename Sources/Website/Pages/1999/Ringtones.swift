@@ -112,8 +112,7 @@ struct GeoCitiesRingtones: ScriptedElement {
 						.accessibilityLabel("C, delete")
 						.style(Styles.key, Styles.wideKey)
 					}
-					.attributes(.role(.group))
-					.accessibilityLabel("Keypad. Works with the number keys of the computer too.")
+					.accessibilityLabel("Keypad. Works with the number keys of the computer too.", role: .group)
 					.style(Styles.keypad)
 				}
 				.style(Styles.phone)

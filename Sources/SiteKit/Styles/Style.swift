@@ -440,6 +440,20 @@ extension Style {
 		nested("&::after", content)
 	}
 
+	/**
+	The `::highlight()` pseudo-element: the ranges of text that a script marks with the CSS Custom Highlight API under the name, like the words of a filter: `CSS.highlights.set(name, new Highlight(…ranges))`.
+	*/
+	public func highlight(_ name: String, _ content: (Self) -> Self) -> Self {
+		nested("&::highlight(\(raw: name))", content)
+	}
+
+	/**
+	The clear button of a search field (`::-webkit-search-cancel-button`), which Safari and Chrome show when the field has text.
+	*/
+	public func searchCancelButton(_ content: (Self) -> Self) -> Self {
+		nested("&::-webkit-search-cancel-button", content)
+	}
+
 	public func dark(_ content: (Self) -> Self) -> Self {
 		media(.dark, content)
 	}
@@ -481,6 +495,13 @@ extension Style {
 	*/
 	public func directlyInside(_ parent: CSSSelector, _ content: (Self) -> Self) -> Self {
 		nested("\(parent.groupedForCombinator) > &", content)
+	}
+
+	/**
+	Styles for when the element comes directly after an element that matches the selector, like a box directly after a paragraph: `selector + &`. A list of selectors is in `:is()`, so it cannot have a pseudo-element.
+	*/
+	public func directlyAfter(_ sibling: CSSSelector, _ content: (Self) -> Self) -> Self {
+		nested("\(sibling.groupedForCombinator) + &", content)
 	}
 
 	/**

@@ -197,10 +197,9 @@ struct GeoCitiesVCR: ScriptedElement {
 					.part(Parts.antenna),
 					.width(400),
 					.height(130),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The rabbit ears on top of the TV. Drag the end of a rod to turn it for a better picture. With the keyboard, the left and right arrows turn a rod, and Space changes the rod.")
+					.accessibilityLabel("The rabbit ears on top of the TV. Drag the end of a rod to turn it for a better picture. With the keyboard, the left and right arrows turn a rod, and Space changes the rod.", role: .application)
 					.style(Styles.antenna)
 
 				television
@@ -249,10 +248,9 @@ struct GeoCitiesVCR: ScriptedElement {
 					.part(Parts.screen),
 					.width(640),
 					.height(480),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The screen of the TV. The up and down arrows change the channel, and Space shows the next picture.")
+					.accessibilityLabel("The screen of the TV. The up and down arrows change the channel, and Space shows the next picture.", role: .application)
 					.style(Styles.screen)
 			}
 			.style(Styles.bezel)
@@ -349,8 +347,7 @@ struct GeoCitiesVCR: ScriptedElement {
 					.style(Styles.recordButton, when: button.id == "record")
 				}
 			}
-			.attributes(.role(.group))
-			.accessibilityLabel("Buttons of the VCR")
+			.accessibilityLabel("Buttons of the VCR", role: .group)
 			.style(Styles.transport)
 
 			div {
@@ -399,8 +396,7 @@ struct GeoCitiesVCR: ScriptedElement {
 						.style(Styles.flapKey, Styles.digitKey)
 					}
 				}
-				.attributes(.role(.group))
-				.accessibilityLabel("Number keys")
+				.accessibilityLabel("Number keys", role: .group)
 				.style(Styles.flapRow)
 			}
 			.style(Styles.flap)
@@ -428,10 +424,9 @@ struct GeoCitiesVCR: ScriptedElement {
 				.part(Parts.rescueCanvas),
 				.width(240),
 				.height(150),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The tape that the VCR ate, with a pencil in the reel. Drag around in circles to turn the pencil, or press the right arrow.")
+				.accessibilityLabel("The tape that the VCR ate, with a pencil in the reel. Drag around in circles to turn the pencil, or press the right arrow.", role: .application)
 				.style(Styles.rescueCanvas)
 
 			button(.part(Parts.pencil), .type(.button)) {
@@ -468,8 +463,7 @@ struct GeoCitiesVCR: ScriptedElement {
 				.style(Styles.rentalTape, when: tape.id == "rental")
 			}
 		}
-		.attributes(.role(.group))
-		.accessibilityLabel("The shelf with the tapes. Drag a tape into the slot of the VCR, or press it.")
+		.accessibilityLabel("The shelf with the tapes. Drag a tape into the slot of the VCR, or press it.", role: .group)
 		.style(Styles.shelf)
 	}
 

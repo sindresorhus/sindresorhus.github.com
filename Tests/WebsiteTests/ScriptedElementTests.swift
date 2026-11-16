@@ -105,10 +105,7 @@ struct ScriptedElementTests {
 		var scriptsOfElements = Set<RoutePath>()
 
 		for element in elements {
-			guard let path = element.script.path else {
-				continue
-			}
-
+			let path = element.script.path
 			scriptsOfElements.insert(path)
 
 			guard let script = Self.scripts.first(where: { $0.path == path }) else {
@@ -703,32 +700,11 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	An inline script is for a small element, so it extends `HTMLElement`, and the page writes it in a `<script>` element as it is, so `</script` in it would end the element early.
-	*/
-	@Test
-	func `every inline script extends HTMLElement and fits in a script element`() async throws {
-		let inlineElements = try await Self.site.value.elements.filter { $0.script.path == nil }
-
-		#expect(inlineElements.count >= 5)
-
-		for element in inlineElements {
-			#expect(throws: Never.self, "The inline script of \(element) must have one `export default class extends HTMLElement {` line. A script that needs a base class of the site is a script file.") {
-				try element.generatedScript()
-			}
-
-			#expect(try !element.script.source.localizedCaseInsensitiveContains("</script"), "The inline script of \(element) has `</script`, which ends the script element of the page.")
-		}
-	}
-
-	/**
 	A syntax error stops the whole script, like every element of a script file, and only a browser would show it. JavaScriptCore checks the syntax without Node.js: the scripts of the elements, the published script files, like the page scripts and the scripts of the page bundles, and the inline scripts of the pages.
 	*/
 	@Test
 	func `every script is valid JavaScript`() async throws {
 		let site = try await Self.site.value
-		let inlineElementScripts = try site.elements
-			.filter { $0.script.path == nil }
-			.map { (name: "The inline script of \($0)", text: try $0.generatedScript()) }
 		let publishedScripts = try Project.website.publicFiles()
 			.filter { $0.source.pathExtension == "js" }
 			.map { (name: $0.path.description, text: try String(contentsOf: $0.source, encoding: .utf8)) }
@@ -739,7 +715,7 @@ struct ScriptedElementTests {
 		#expect(publishedScripts.count > 20)
 		#expect(!pageScripts.isEmpty)
 
-		for script in Self.scripts.map({ (name: $0.path.description, text: $0.text) }) + inlineElementScripts + publishedScripts + pageScripts {
+		for script in Self.scripts.map({ (name: $0.path.description, text: $0.text) }) + publishedScripts + pageScripts {
 			let error = script.text.javaScriptSyntaxError
 			#expect(error == nil, "\(script.name) has a syntax error at line \(error ?? "")")
 		}
@@ -755,10 +731,16 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The board decodes the codes of Pipoku, which are the same as in the tests of the app, and rejects every other code, so it shows the puzzles that the app opens. It runs the script of the element in `node`, with only the parts of the DOM that it uses.
+	The board decodes the codes of Pipoku, which are the same as in the tests of the app, and rejects every other code, so it shows the puzzles that the app opens. It runs the script of the element in `node`, with only the parts of the DOM that it uses, and stand-ins for the helpers of `dom.js` that it imports.
 	*/
 	@Test(.enabled(if: Self.checksScripts, "Install Node.js to run the script of the sudoku board."))
 	func `the sudoku board shows the puzzle of a Pipoku code`() throws {
+		// Without its imports, which a function body cannot have, so the harness passes stand-ins for them.
+		let script = try SudokuBoard.script.source
+			.split(separator: "\n", omittingEmptySubsequences: false)
+			.filter { !$0.hasPrefix("import ") }
+			.joined(separator: "\n")
+
 		let validCodes = [
 			"KkpNhsgJsNkpKgAyaTURhkgSl4Z4ImlYI5UTYQ": "003020600900305001001806400008102900700000008006708200002609500800203009005010300",
 			"_____________4BIOSFleWc0WCElGHZJNUgTKXZylWQTgTZ5gkU3JolRSBQlN2lpVBc4IAU": "483921657967345821251876493548132976729564138136798245372689514814253769695417382",
@@ -792,7 +774,6 @@ struct ScriptedElementTests {
 
 		let harness = """
 		globalThis.HTMLElement = class {};
-		globalThis.customElements = {define() {}};
 
 		const element = () => ({
 			hidden: true,
@@ -809,15 +790,28 @@ struct ScriptedElementTests {
 			},
 		});
 
-		const {default: SudokuBoard} = await import('data:text/javascript,' + encodeURIComponent(\(JSONEncoder.pageJSON(try SudokuBoard.generatedScript()))));
+		// The stand-ins for `cloneTemplate` and `parts` of `dom.js`, and the definition of the element, which gives the harness its class.
+		let SudokuBoard;
+		new Function('cloneTemplate', 'parts', 'customElements', \(JSONEncoder.pageJSON(script)))(
+			template => template.content.firstElementChild.cloneNode(true),
+			board => board.parts,
+			{
+				define(name, constructor) {
+					SudokuBoard = constructor;
+				},
+			},
+		);
+
+		const queryName = \(JSONEncoder.pageJSON(SudokuBoard.queryName));
 
 		// The cells in reading order, with 0 for an empty cell, or `undefined` when the board shows that the link is invalid.
 		const show = code => {
-			globalThis.location = {search: '?' + new URLSearchParams({p: code})};
-			const parts = {board: element(), invalid: element()};
+			globalThis.location = {search: '?' + new URLSearchParams({[queryName]: code})};
 			const template = {content: {firstElementChild: element()}};
+			const parts = {board: element(), invalid: element(), boxTemplate: template, cellTemplate: template};
 			const board = new SudokuBoard();
-			board.querySelector = selector => parts[selector.match(/data-part="(\\w+)"/)[1]] ?? template;
+			board.parts = parts;
+			board.dataset = {config: JSON.stringify({queryName})};
 			board.connectedCallback();
 
 			if (!parts.invalid.hidden) {
@@ -1078,6 +1072,7 @@ struct ScriptedElementTests {
 			let Component;
 			let focused;
 			let opened;
+			let highlights;
 			vm.runInNewContext(script, {
 				HTMLElement: class {},
 				customElements: {
@@ -1089,6 +1084,42 @@ struct ScriptedElementTests {
 				searchKey,
 				filterByWords,
 				history,
+				document: {
+					createTreeWalker(node) {
+						let visited = false;
+						return {
+							currentNode: node,
+							nextNode() {
+								const hasNext = !visited;
+								visited = true;
+								return hasNext;
+							},
+						};
+					},
+				},
+				NodeFilter: {SHOW_TEXT: 4},
+				CSS: {
+					highlights: {
+						set() {},
+					},
+				},
+				Highlight: class {
+					constructor(...ranges) {
+						highlights = ranges.map(range => range.node.data.slice(range.start, range.end));
+					}
+				},
+				Range: class {
+					setStart(node, offset) {
+						assert.ok(offset >= 0 && offset <= node.data.length);
+						this.node = node;
+						this.start = offset;
+					}
+					setEnd(node, offset) {
+						assert.equal(node, this.node);
+						assert.ok(offset >= this.start && offset <= node.data.length);
+						this.end = offset;
+					}
+				},
 			});
 			const control = () => ({
 				hidden: false,
@@ -1103,7 +1134,12 @@ struct ScriptedElementTests {
 			const rows = Array.from({length: 45}, (_, index) => ({
 				hidden: false,
 				parts: {
-					text: {textContent: `package-${index} ${index >= 40 ? 'unique description' : 'common description'}`},
+					text: {
+						textContent: `package-${index} ${index >= 40 ? 'unique description' : 'common description'}`,
+						get data() {
+							return this.textContent;
+						},
+					},
 					link: {
 						textContent: `package-${index}`,
 						focus() {
@@ -1116,7 +1152,7 @@ struct ScriptedElementTests {
 				},
 			}));
 			// A description match must follow the package whose name matches, even when it has more downloads.
-			rows[0].parts.text.textContent += ' package-42';
+			rows[0].parts.text.textContent += ' package-42 İ MATCH MATCH a+b';
 			const orderedRows = [];
 			const element = new Component();
 			element.parts = {
@@ -1182,10 +1218,19 @@ struct ScriptedElementTests {
 			assert.equal(showMore.hidden, true);
 			filter.listeners.keydown({key: 'Enter', isComposing: false});
 			assert.equal(opened, 42);
+			assert.deepEqual(highlights, []);
+			// Case conversion can change UTF-16 length, so ranges must use the original text offsets.
+			filter.value = 'a+b';
+			filter.listeners.input();
+			assert.deepEqual(highlights, ['a+b']);
+			filter.value = 'match';
+			filter.listeners.input();
+			assert.deepEqual(highlights, ['MATCH', 'MATCH']);
 			filter.value = '';
 			filter.listeners.input();
 			assert.equal(visible().length, 20);
 			assert.equal(showMore.hidden, false);
+			assert.deepEqual(highlights, []);
 		});
 		"""#
 		let error = try Self.syntaxError(checking: ["--input-type=module"], input: harness)

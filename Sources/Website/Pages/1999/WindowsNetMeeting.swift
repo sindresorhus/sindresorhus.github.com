@@ -65,7 +65,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 		AudioBar()
 
 		div {
-			div(.role(.group)) {
+			div {
 				for (index, view) in GeoCitiesWindowsNetMeeting.views.enumerated() {
 					button(.type(.button), .hook(Hooks.view, value: view.value), .ariaPressed(index == 0)) {
 						span {
@@ -81,7 +81,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.style(Styles.navButton)
 				}
 			}
-			.accessibilityLabel("Views")
+			.accessibilityLabel("Views", role: .group)
 			.style(Styles.nav)
 
 			div {
@@ -115,7 +115,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 
 	private struct Toolbar: HTML {
 		var body: some HTML {
-			div(.role(.group)) {
+			div {
 				for item in GeoCitiesWindowsNetMeeting.toolbar {
 					button(.part(item.part), .type(.button)) {
 						span {
@@ -149,7 +149,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 				.help("Plays the ringing, the modem, and Mormor’s voice")
 				.style(GeoCitiesWindows.Styles.toolbarButton)
 			}
-			.accessibilityLabel("Toolbar")
+			.accessibilityLabel("Toolbar", role: .group)
 			.style(GeoCitiesWindows.Styles.toolbar, Styles.toolbar, GeoCitiesPage.Styles.scriptingOnly)
 		}
 	}
@@ -328,10 +328,9 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					canvas(
 						.part(Parts.remoteVideo),
 						.width(160),
-						.height(120),
-						.role(.image)
+						.height(120)
 					) {}
-						.accessibilityLabel("Mormor’s video")
+						.accessibilityLabel("Mormor’s video", role: .image)
 						.style(Styles.video)
 
 					figcaption {
@@ -355,10 +354,9 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					canvas(
 						.part(Parts.localVideo),
 						.width(160),
-						.height(120),
-						.role(.image)
+						.height(120)
 					) {}
-						.accessibilityLabel("My video: a drawing of Sindre")
+						.accessibilityLabel("My video: a drawing of Sindre", role: .image)
 						.style(Styles.video)
 
 					figcaption {
@@ -392,14 +390,14 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 				div(.part(Parts.callArea), .hidden) {
 					Videos()
 
-					div(.role(.group)) {
+					div {
 						p(.part(Parts.subtitleMormor)) {}
 						p(.part(Parts.subtitleYou)) {}
 					}
-					.accessibilityLabel("What we say")
+					.accessibilityLabel("What we say", role: .group)
 					.style(Styles.subtitles)
 
-					div(.role(.group)) {
+					div {
 						for (value, title) in GeoCitiesWindowsNetMeeting.lines {
 							button(.type(.button), .hook(Hooks.say, value: value)) {
 								title
@@ -407,7 +405,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 							.style(GeoCitiesPage.Styles.smallButton, Styles.sayButton)
 						}
 					}
-					.accessibilityLabel("Say")
+					.accessibilityLabel("Say", role: .group)
 					.style(GeoCitiesWindows.Styles.wrapRow)
 
 					div {
@@ -447,8 +445,8 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 	private struct ChatPanel: HTML {
 		var body: some HTML {
 			GeoCitiesWindowsNetMeeting.toolPanel("chat", title: "Chat - 2 people") {
-				div(.part(Parts.chatLog), .role(.log), .tabindex(0)) {}
-					.accessibilityLabel("Chat")
+				div(.part(Parts.chatLog), .tabindex(0)) {}
+					.accessibilityLabel("Chat", role: .log)
 					.style(Styles.chatLog)
 
 				form(.part(Parts.chatForm)) {
@@ -484,7 +482,7 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 	private struct WhiteboardPanel: HTML {
 		var body: some HTML {
 			GeoCitiesWindowsNetMeeting.toolPanel("whiteboard", title: "Untitled - Whiteboard") {
-				div(.role(.group)) {
+				div {
 					for (index, color) in GeoCitiesWindowsNetMeeting.colors.enumerated() {
 						button(.type(.button), .hook(Hooks.color, value: color.name), .ariaPressed(index == 0)) {}
 							.accessibilityLabel(color.name.capitalized)
@@ -497,17 +495,16 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.smallButton)
 				}
-				.accessibilityLabel("Pen")
+				.accessibilityLabel("Pen", role: .group)
 				.style(GeoCitiesWindows.Styles.wrapRow)
 
 				canvas(
 					.part(Parts.board),
 					.width(320),
 					.height(200),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("Whiteboard. Draw with the mouse or a finger, or move the pen with the arrow keys. Space lifts the pen and puts it down.")
+					.accessibilityLabel("Whiteboard. Draw with the mouse or a finger, or move the pen with the arrow keys. Space lifts the pen and puts it down.", role: .application)
 					.style(Styles.board)
 			}
 		}
@@ -520,10 +517,9 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					.part(Parts.shareScreen),
 					.width(320),
 					.height(200),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("My shared desktop, as Mormor sees it. While Mormor has the control, Escape, Enter, or a click takes it back. Otherwise, Enter or a click on the Recycle Bin gets back what she threw away.")
+					.accessibilityLabel("My shared desktop, as Mormor sees it. While Mormor has the control, Escape, Enter, or a click takes it back. Otherwise, Enter or a click on the Recycle Bin gets back what she threw away.", role: .application)
 					.style(Styles.shareScreen)
 
 				p {
@@ -541,10 +537,9 @@ struct GeoCitiesWindowsNetMeeting: ScriptedElement {
 					canvas(
 						.part(Parts.photo),
 						.width(80),
-						.height(60),
-						.role(.image)
+						.height(60)
 					) {}
-						.accessibilityLabel("The photo, not received yet")
+						.accessibilityLabel("The photo, not received yet", role: .image)
 						.style(Styles.photo)
 
 					div {

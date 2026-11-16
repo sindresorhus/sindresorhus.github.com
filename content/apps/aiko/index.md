@@ -9,6 +9,9 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 1672085276
+categories: [
+	'ai'
+]
 trial: {
 	url: 'https://testflight.apple.com/join/P1qnhHCC'
 }
@@ -429,7 +432,7 @@ This is called [Diarization](https://en.wikipedia.org/wiki/Speaker_diarisation).
 
 ### How can I transcribe a Zoom meeting? {#zoom}
 
-The app does not support live transcription, but you could record the Zoom meeting, and after the meeting is finished, drop the recording into the Aiko window to transcribe.
+The app does not support live transcription, but you could record the Zoom meeting, and after the meeting is finished, drop the recording into the Aiko window to transcribe. *([guide](../../guides/transcribe-zoom-recording-mac.md))*
 
 ### How can I transcribe a Messages voice note? {#messages}
 

@@ -51,10 +51,9 @@ struct GeoCitiesRoomToys: ScriptedElement {
 				.part(Parts.bedCanvas),
 				.width(320),
 				.height(180),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("Under my bed, in the dark. Move the flashlight with the arrow keys, and press Enter to pick up what it shines on.")
+				.accessibilityLabel("Under my bed, in the dark. Move the flashlight with the arrow keys, and press Enter to pick up what it shines on.", role: .application)
 				.style(Styles.canvas, Styles.bedCanvas)
 
 			ul(.part(Parts.bedList)) {}
@@ -91,10 +90,9 @@ struct GeoCitiesRoomToys: ScriptedElement {
 				.part(Parts.ceilingCanvas),
 				.width(320),
 				.height(200),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The ceiling over my bed. Move with the arrow keys, and press Enter to stick on a star, or in the dark, to join it to the last one.")
+				.accessibilityLabel("The ceiling over my bed. Move with the arrow keys, and press Enter to stick on a star, or in the dark, to join it to the last one.", role: .application)
 				.style(Styles.canvas, Styles.ceilingCanvas)
 
 			div {
@@ -140,10 +138,9 @@ struct GeoCitiesRoomToys: ScriptedElement {
 				.part(Parts.sketchCanvas),
 				.width(280),
 				.height(220),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The Magic Screen. The left and right arrow keys turn the left knob, and the up and down arrow keys turn the right knob.")
+				.accessibilityLabel("The Magic Screen. The left and right arrow keys turn the left knob, and the up and down arrow keys turn the right knob.", role: .application)
 				.style(Styles.sketchCanvas)
 
 			div {

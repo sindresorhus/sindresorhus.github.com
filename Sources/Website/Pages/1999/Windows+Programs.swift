@@ -42,7 +42,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.calcTopRow)
 
-			div(.role(.group)) {
+			div {
 				for (key, name) in Self.calculatorKeys {
 					button(.type(.button), .hook(Hooks.calcKey, value: key)) {
 						key
@@ -51,7 +51,7 @@ extension GeoCitiesWindows {
 					.style(key.first?.isNumber == true || key == "." ? Styles.calcBlueKey : Styles.calcRedKey)
 				}
 			}
-			.accessibilityLabel("Keys")
+			.accessibilityLabel("Keys", role: .group)
 			.style(Styles.calcKeys)
 
 			button(.id(IDs.calcFlip), .type(.button), .ariaPressed(false)) {
@@ -145,8 +145,8 @@ extension GeoCitiesWindows {
 				}
 				.style(Styles.wordpadText)
 
-				p(.id(IDs.wordpadWingdings), .hidden, .role(.image)) {}
-					.accessibilityLabel("My letter to Santa, in Wingdings")
+				p(.id(IDs.wordpadWingdings), .hidden) {}
+					.accessibilityLabel("My letter to Santa, in Wingdings", role: .image)
 					.style(Styles.wordpadText, Styles.wingdings)
 
 				div(.id(IDs.assistant), .hidden) {
@@ -241,11 +241,10 @@ extension GeoCitiesWindows {
 
 			div(
 				.id(IDs.iePage),
-				.role(.region),
 				.tabindex(-1),
 				.ariaLive(.polite)
 			) {}
-				.accessibilityLabel("Web page")
+				.accessibilityLabel("Web page", role: .region)
 				.style(Styles.iePage)
 
 			div {
@@ -665,10 +664,9 @@ extension GeoCitiesWindows {
 				canvas(
 					.id(IDs.soundWave),
 					.width(160),
-					.height(48),
-					.role(.image)
+					.height(48)
 				) {}
-					.accessibilityLabel("The green line of the sound")
+					.accessibilityLabel("The green line of the sound", role: .image)
 					.style(Styles.soundWave)
 
 				p {
@@ -682,7 +680,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.soundTop)
 
-			div(.role(.group)) {
+			div {
 				for (action, title, icon) in [("start", "Seek to Start", "⏮"), ("end", "Seek to End", "⏭"), ("play", "Play", "▶"), ("stop", "Stop", "⏹"), ("record", "Record", "⏺")] {
 					button(.type(.button), .hook(Hooks.soundAction, value: action)) {
 						icon
@@ -692,10 +690,10 @@ extension GeoCitiesWindows {
 					.style(action == "record" ? Styles.recordButton : Styles.soundButton)
 				}
 			}
-			.accessibilityLabel("Controls")
+			.accessibilityLabel("Controls", role: .group)
 			.style(Styles.soundControls)
 
-			div(.role(.group)) {
+			div {
 				for (effect, title) in [("louder", "Louder"), ("faster", "Faster"), ("slower", "Slower"), ("echo", "Echo"), ("reverse", "Reverse"), ("tada", "TADA.WAV")] {
 					button(.type(.button), .hook(Hooks.soundEffect, value: effect)) {
 						title
@@ -703,7 +701,7 @@ extension GeoCitiesWindows {
 					.style(GeoCitiesPage.Styles.smallButton)
 				}
 			}
-			.accessibilityLabel("Effects")
+			.accessibilityLabel("Effects", role: .group)
 			.style(Styles.wrapRow)
 
 			p(.id(IDs.soundStatus), .role(.status)) {
@@ -721,14 +719,14 @@ extension GeoCitiesWindows {
 		div {
 			div {
 				div {
-					div(.role(.group)) {
+					div {
 						for index in 0..<4 {
 							button(.type(.button), .hook(Hooks.freecellCell, value: "\(index)")) {}
 								.accessibilityLabel("Free cell \(index + 1), empty")
 								.style(Styles.cardSlot)
 						}
 					}
-					.accessibilityLabel("Free cells")
+					.accessibilityLabel("Free cells", role: .group)
 					.style(Styles.cardSlots)
 
 					span(.id(IDs.freecellKing)) {
@@ -737,7 +735,7 @@ extension GeoCitiesWindows {
 					.accessibilityHidden()
 					.style(Styles.freecellKing)
 
-					div(.role(.group)) {
+					div {
 						for (index, suit) in ["♣", "♦", "♥", "♠"].enumerated() {
 							button(.type(.button), .hook(Hooks.freecellHome, value: "\(index)")) {
 								span {
@@ -749,18 +747,18 @@ extension GeoCitiesWindows {
 							.style(Styles.cardSlot)
 						}
 					}
-					.accessibilityLabel("Home cells")
+					.accessibilityLabel("Home cells", role: .group)
 					.style(Styles.cardSlots)
 				}
 				.style(Styles.freecellTop)
 
-				div(.role(.group)) {
+				div {
 					for index in 0..<8 {
 						button(.type(.button), .hook(Hooks.freecellColumn, value: "\(index)")) {}
 							.style(Styles.freecellColumn)
 					}
 				}
-				.accessibilityLabel("Columns")
+				.accessibilityLabel("Columns", role: .group)
 				.style(Styles.freecellColumns)
 			}
 			.style(Styles.freecellTable)
@@ -1574,7 +1572,6 @@ extension GeoCitiesWindows {
 		div(
 			.id(IDs.boot),
 			.hidden,
-			.role(.dialog),
 			.tabindex(-1)
 		) {
 			p(.id(IDs.bootText)) {
@@ -1598,7 +1595,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.bootLogo)
 		}
-		.accessibilityLabel("Windows 98 is starting")
+		.accessibilityLabel("Windows 98 is starting", role: .dialog)
 		.style(Styles.boot)
 
 		div(
@@ -1637,7 +1634,6 @@ extension GeoCitiesWindows {
 		div(
 			.id(IDs.maze),
 			.hidden,
-			.role(.dialog),
 			.tabindex(-1)
 		) {
 			canvas(.id(IDs.mazeCanvas), .width(320), .height(200)) {}
@@ -1649,7 +1645,7 @@ extension GeoCitiesWindows {
 			}
 			.style(Styles.mazeText)
 		}
-		.accessibilityLabel("The 3D Maze screen saver")
+		.accessibilityLabel("The 3D Maze screen saver", role: .dialog)
 		.style(Styles.maze)
 
 		template(.id(IDs.fileTemplate)) {

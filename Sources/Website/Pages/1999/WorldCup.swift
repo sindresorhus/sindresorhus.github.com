@@ -94,10 +94,9 @@ struct GeoCitiesWorldCup: ScriptedElement {
 				.part(Parts.canvas),
 				.width(640),
 				.height(480),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The TV in the living room, with the match and the family in the sofa. Press Space or Enter, or tap the TV, to kick, and hold it to fill a meter. The arrow keys aim a shot, set a meter, or pick where the keeper dives.")
+				.accessibilityLabel("The TV in the living room, with the match and the family in the sofa. Press Space or Enter, or tap the TV, to kick, and hold it to fill a meter. The arrow keys aim a shot, set a meter, or pick where the keeper dives.", role: .application)
 				.style(Styles.canvas)
 
 			div {
@@ -150,7 +149,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 				for (identifier, name, how) in Self.stickers {
 					figure {
 						canvas(.width(120), .height(160), .hook(Hooks.sticker, value: identifier)) {}
-							.accessibilityLabel("The sticker of \(name)")
+							.accessibilityLabel("The sticker of \(name)", role: .image)
 							.style(Styles.stickerCanvas)
 
 						figcaption {
@@ -186,7 +185,7 @@ struct GeoCitiesWorldCup: ScriptedElement {
 
 			figure {
 				canvas(.part(Parts.photo), .width(320), .height(192)) {}
-					.accessibilityLabel("The photo on the front page: the goal on the TV in the living room")
+					.accessibilityLabel("The photo on the front page: the goal on the TV in the living room", role: .image)
 					.style(Styles.photo)
 
 				figcaption(.part(Parts.photoCaption)) {}

@@ -18,7 +18,7 @@ extension ProseStyles {
 				.color(.bodyText)
 				.border(keyEdgeColor)
 				.shadow(BoxShadow(y: .pixels(-1), color: keyEdgeColor, isInset: true))
-				.cornerRadius(.pixels(5))
+				.cornerRadius(.smallRadius)
 				.padding(vertical: .em(0.1), horizontal: .em(0.45))
 				.margin(.horizontal, .em(0.15))
 				// A key with a name of two words, like “Caps Lock”, goes to the next line as a whole, so the key cap is not cut in two.

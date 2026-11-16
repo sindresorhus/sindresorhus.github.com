@@ -116,10 +116,9 @@ struct GeoCitiesRubik: ScriptedElement {
 				.part(Parts.canvas),
 				.width(1080),
 				.height(810),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("Pappa’s Rubik’s Cube. Drag a face to turn that layer, or drag beside the cube to turn the whole cube. The keys R, L, U, D, F, B, M, E, and S turn the layers, and X, Y, and Z turn the whole cube, with Shift for the other way. The arrow keys turn the cube in the hand, Home shows the front, and Backspace undoes a turn.")
+				.accessibilityLabel("Pappa’s Rubik’s Cube. Drag a face to turn that layer, or drag beside the cube to turn the whole cube. The keys R, L, U, D, F, B, M, E, and S turn the layers, and X, Y, and Z turn the whole cube, with Shift for the other way. The arrow keys turn the cube in the hand, Home shows the front, and Backspace undoes a turn.", role: .application)
 				.style(Styles.canvas)
 
 			Display()
@@ -238,8 +237,7 @@ struct GeoCitiesRubik: ScriptedElement {
 						.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 					}
 				}
-				.attributes(.role(.group))
-				.accessibilityLabel("Patterns")
+				.accessibilityLabel("Patterns", role: .group)
 				.style(GeoCitiesPage.Styles.buttonRow)
 
 				Cheats()

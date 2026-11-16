@@ -183,7 +183,7 @@ extension ProseStyles {
 		.allowsHitTesting(false)
 		.transition(.opacity, .color, timing: .stateChange)
 		// The link of a closed question is not in the tab order, so a keyboard user does not press Tab twice for each question of a long FAQ, like the 75 of Dato. It is there when the question is open, and under the pointer. In `:where()`, so it adds no specificity, and the hovered section below wins.
-		.nested(":where(\(ProseStyles.anchoredSection.selector):not(:has(> details[open]))) > &") {
+		.directlyInside(":where(\(ProseStyles.anchoredSection.selector):not(:has(> details[open])))") {
 			$0.visibility(false)
 		}
 		.before {
@@ -275,13 +275,13 @@ extension ProseStyles {
 }
 
 /**
-A short highlight of the section or heading that a link points to, like the FAQ question that a suggestion on the feedback page opens.
+A short highlight of the section or heading that a link points to, like the FAQ question that a suggestion on the feedback page opens. In the colors of the selection, so it has the accent of the page, like the color of the app on an app page.
 */
 enum ProseAnimations: String, KeyframeSet {
 	case targetHighlight
 
 	var keyframes: [Keyframe] {
-		[.from(Style().background(.secondary(200), dark: .secondary(800)))]
+		[.from(Style().background(.selectionFill))]
 	}
 }
 

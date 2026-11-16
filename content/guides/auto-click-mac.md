@@ -35,7 +35,7 @@ Dwell of the Accessibility Keyboard clicks for you when you hold the pointer sti
 
 @Steps {
 1. Open “System Settings › Accessibility › Keyboard”, and turn on “Accessibility Keyboard”.
-1. In its options, go to Dwell, and turn on “Show dwell actions in menu bar”.
+1. Click the info button next to it, go to Dwell, and turn on “Show dwell actions in menu bar”.
 1. Choose “Left Click” in the Dwell menu, and hold the pointer still on an item.
 }
 

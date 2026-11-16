@@ -205,10 +205,9 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.part(Parts.screen),
 					.width(384),
 					.height(272),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The screen of the Commodore 64. Click it and type. Enter is RETURN, Backspace is DEL, Escape is RUN/STOP, Page Up is RESTORE, and the arrow keys move the cursor. In a game, the arrow keys are the joystick, and Space fires.")
+					.accessibilityLabel("The screen of the Commodore 64. Click it and type. Enter is RETURN, Backspace is DEL, Escape is RUN/STOP, Page Up is RESTORE, and the arrow keys move the cursor. In a game, the arrow keys are the joystick, and Space fires.", role: .application)
 					.style(Styles.screen, Styles.aboveStatus)
 			}
 			.style(Styles.tube)
@@ -385,10 +384,10 @@ struct GeoCitiesCommodore: ScriptedElement {
 					.style(Styles.reels)
 
 					// A timer, as a plain paragraph cannot have a name, and a timer does not announce each change.
-					p(.part(Parts.counter), .role(.timer)) {
+					p(.part(Parts.counter)) {
 						"000"
 					}
-					.accessibilityLabel("Tape counter")
+					.accessibilityLabel("Tape counter", role: .timer)
 					.style(GeoCitiesPage.Styles.lcd, Styles.counter)
 				}
 				.style(Styles.tapeWindow)

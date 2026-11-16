@@ -78,8 +78,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 						.style(GeoCitiesPage.Styles.smallButton)
 					}
 				}
-				.accessibilityLabel("Lesson")
-				.attributes(.role(.group))
+				.accessibilityLabel("Lesson", role: .group)
 				.style(Styles.row)
 
 				div {
@@ -110,10 +109,9 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.part(Parts.paper),
 					.width(320),
 					.height(240),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The note, on a page torn out of my school notebook. Drag on it, or press the arrow keys, to doodle with the pencil. The text, the doodles, and the folds are next to it.")
+					.accessibilityLabel("The note, on a page torn out of my school notebook. Drag on it, or press the arrow keys, to doodle with the pencil. The text, the doodles, and the folds are next to it.", role: .application)
 					.style(Styles.paper)
 
 				div {
@@ -200,8 +198,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 			}
-			.accessibilityLabel("Doodle on the note")
-			.attributes(.role(.group))
+			.accessibilityLabel("Doodle on the note", role: .group)
 			.style(Styles.row)
 		}
 	}
@@ -219,8 +216,7 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 				}
 			}
-			.accessibilityLabel("Fold the note")
-			.attributes(.role(.group))
+			.accessibilityLabel("Fold the note", role: .group)
 			.style(Styles.row)
 		}
 	}
@@ -238,10 +234,9 @@ struct GeoCitiesClassNotes: ScriptedElement {
 					.part(Parts.room),
 					.width(480),
 					.height(400),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("My classroom from above, with the teacher at the blackboard. Click a desk next to the note to pass it there, or press an arrow key to pass it that way. With the paper airplane, click a desk to throw it there, or press Enter to throw it to the one the note is for.")
+					.accessibilityLabel("My classroom from above, with the teacher at the blackboard. Click a desk next to the note to pass it there, or press an arrow key to pass it that way. With the paper airplane, click a desk to throw it there, or press Enter to throw it to the one the note is for.", role: .application)
 					.style(Styles.room)
 
 				p {

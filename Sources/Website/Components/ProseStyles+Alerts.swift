@@ -16,6 +16,10 @@ extension ProseStyles {
 	*/
 	static let alertStyle = Style()
 		.proseBlockMargin()
+		// An alert after the text is a note apart from it, like the tip about other apps at the end of the features of an app, so it gets twice the space of a block above it.
+		.directlyAfter("p, ul, ol") {
+			$0.margin(.top, .em(3.5))
+		}
 		.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1.125))
 		.border(.leading, width: alertBorderWidth)
 		.widerThanProse()
@@ -29,6 +33,20 @@ extension ProseStyles {
 			$0.margin(.zero)
 		}
 		.flowSpacing(.rootEm(0.25))
+		// The text of a list starts where the title starts, after the icon (1rem) and the gap (0.5rem), at all widths.
+		.children("ul, ol") {
+			$0
+				.padding(.leading, .rootEm(1))
+				.children("li") {
+					$0.padding(.leading, .rootEm(0.5))
+				}
+				// A list at the end, like the tips of a guide, has no space below its last item, so the box has the same space below a list as below a paragraph.
+				.lastChild {
+					$0.children("li:last-child") {
+						$0.margin(.bottom, .zero)
+					}
+				}
+		}
 		// Important, as the hover style of links in the prose is more specific, and would replace the color of the alert. So the underline is thicker under the pointer and with the focus of the keyboard instead, like the links of blog posts.
 		.nested("a") {
 			$0

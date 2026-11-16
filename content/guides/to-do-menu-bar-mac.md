@@ -34,7 +34,7 @@ macOS cannot show a reminder in the menu bar, but it can show your reminders in 
 @Steps {
 1. Control-click the desktop, and choose “Edit Widgets…”.
 1. Click “Reminders”, and drag a widget to the desktop, or to Notification Center.
-1. Control-click the widget, and choose the edit item to choose the list that it shows.
+1. To show another list, Control-click the widget, choose “Edit “List”…”, and click the highlighted list.
 }
 
 Click the circle of a reminder in the widget to complete it. The widget shows a list, with due dates, which is better when you plan many tasks. But windows cover the desktop, and Notification Center is closed most of the time, so you do not see the task while you work.

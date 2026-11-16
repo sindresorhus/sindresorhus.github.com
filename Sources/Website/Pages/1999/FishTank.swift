@@ -47,10 +47,9 @@ struct GeoCitiesFishTank: ScriptedElement {
 				.part(Parts.tank),
 				.width(640),
 				.height(360),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The fish tank. The fish follow your pointer or finger. Click or press Space to drop food, and move your finger with the arrow keys.")
+				.accessibilityLabel("The fish tank. The fish follow your pointer or finger. Click or press Space to drop food, and move your finger with the arrow keys.", role: .application)
 				.style(Styles.tank, GeoCitiesPage.Styles.scriptingOnly)
 
 			p(.part(Parts.stats)) {}

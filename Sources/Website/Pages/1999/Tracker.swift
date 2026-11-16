@@ -92,8 +92,7 @@ struct GeoCitiesTracker: ScriptedElement {
 							.style(Styles.instrument)
 						}
 					}
-					.attributes(.role(.group))
-					.accessibilityLabel("Instruments")
+					.accessibilityLabel("Instruments", role: .group)
 					.style(Styles.instruments)
 				}
 				.style(Styles.panel)
@@ -114,7 +113,7 @@ struct GeoCitiesTracker: ScriptedElement {
 				}
 				.style(Styles.row, Styles.header)
 
-				div(.part(Parts.pattern), .tabindex(0), .role(.application)) {
+				div(.part(Parts.pattern), .tabindex(0)) {
 					for row in 0..<Self.rowCount {
 						div(.hook(Hooks.row, value: "\(row)")) {
 							span {
@@ -132,7 +131,7 @@ struct GeoCitiesTracker: ScriptedElement {
 						.style(Styles.row, row.isMultiple(of: 4) ? Styles.beatRow : Styles.plainRow)
 					}
 				}
-				.accessibilityLabel("Pattern. Type notes with Z to M and Q to U, move with the arrow keys, Delete erases, Space plays.")
+				.accessibilityLabel("Pattern. Type notes with Z to M and Q to U, move with the arrow keys, Delete erases, Space plays.", role: .application)
 				.style(Styles.pattern)
 
 				div {
@@ -158,8 +157,7 @@ struct GeoCitiesTracker: ScriptedElement {
 					}
 					.style(Styles.noteButton)
 				}
-				.attributes(.role(.group))
-				.accessibilityLabel("Notes")
+				.accessibilityLabel("Notes", role: .group)
 				.style(Styles.notes)
 
 				div {

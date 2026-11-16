@@ -20,7 +20,7 @@ apps: [
 1. Select the photos in Finder, right-click, and choose “Remove Location Metadata” or “Remove All Metadata”.
 }
 
-The items work for JPEG, HEIC, PNG, and TIFF images that have the metadata. Supercharge puts a copy of each original image in the Trash, so you can get it back. “Remove All Metadata” keeps the orientation, so the photo does not turn.
+The items work for JPEG, JPEG XL, HEIC, PNG, and TIFF images that have the metadata. Supercharge puts a copy of each original image in the Trash, so you can get it back. “Remove All Metadata” keeps the orientation, so the photo does not turn.
 
 The right-click items cannot show in synced folders, like iCloud Drive and Dropbox. Move the photos to another folder first.
 

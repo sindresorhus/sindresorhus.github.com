@@ -17,7 +17,7 @@ apps: [
 @Steps {
 1. Install [Actions](../apps/actions/index.md), and open it once.
 1. In the Shortcuts app, make a new shortcut, and add the “Get Barometric Pressure” action.
-1. Add the “Show Result” action.
+1. Add the “Show Content” action.
 1. Run the shortcut. The first time, allow access to Motion & Fitness.
 }
 

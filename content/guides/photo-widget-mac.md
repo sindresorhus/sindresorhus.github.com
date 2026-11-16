@@ -18,7 +18,7 @@ apps: [
 1. Open [Photo Widget](../apps/photo-widget/index.md), click the add button (“Add Photos”), choose “Photo Library” or “Files”, and choose the photos. The app can have up to 100 photos.
 1. Control-click the wallpaper, and choose “Edit Widgets”.
 1. Search for “Photo Widget”, choose a size, and click the “Photos” widget. Click “Done”.
-1. Control-click the widget, and choose “Edit “Photos””. Turn off “All Photos”, and choose the photos for this widget in “Selected Photos”.
+1. Control-click the widget, and choose “Edit “Photos”…”. Turn off “All Photos”, and choose the photos for this widget in “Selected Photos”.
 }
 
 With more than one photo, the widget shows a different photo at each refresh. “Crop” is on at first, so the photo fills the widget. Turn it off to show all of the photo on the color of “Background Color”.
@@ -38,7 +38,7 @@ The Photos app has two widgets: “Featured” shows Memories and Featured Photo
 @Steps {
 1. Control-click the wallpaper, choose “Edit Widgets”, and click Photos in the list.
 1. Click the “Album” widget in the size you want, and click “Done”.
-1. Control-click the widget, choose “Edit “Album””, and choose the album, like “Favorites” or one below “My Albums”.
+1. Control-click the widget, choose “Edit “Album”…”, and choose the album, like “Favorites” or one below “My Albums”.
 }
 
 To show only some photos, put them in an album of their own. This is free and works well. The widget has no setting for the crop or for how often the photo changes.

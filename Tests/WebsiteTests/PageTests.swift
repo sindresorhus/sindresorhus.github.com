@@ -758,11 +758,7 @@ struct PageTests {
 		#expect(appPage.contains(#"class="code-block""#))
 		#expect(!appPage.contains(#"href="/assets/icons.svg#"#))
 
-		// An element with an inline script, like the header of the site, has its script in the page, once, and no script file.
-		#expect(appPage.ranges(of: "customElements.define('site-header'").count == 1)
-		#expect(!output.appending(path: "scripts/elements/SiteHeader.js").exists)
-
-		// An element with a script file, like the copy button, loads the published file once.
+		// An element loads its published script file once, like the copy button.
 		let contact = try String(contentsOf: output.appending(path: "contact.html"), encoding: .utf8)
 		#expect(contact.ranges(of: "/scripts/elements/CopyButton.js?v=").count == 1)
 		#expect(output.appending(path: "scripts/elements/CopyButton.js").exists)
@@ -1103,10 +1099,10 @@ struct PageTests {
 	}
 
 	/**
-	An assistant can read one page without the whole `llms-full.txt`, so each page has a Markdown copy next to it, which is its section of the file. An archived app says that it is no longer available, and a post has its date, as it is advice of its time.
+	An assistant can read one page without the whole `llms-full.txt`, so each document has a Markdown copy next to it, which is its section of the file. The lists of apps have copies too, but stay out of the combined file, where the apps already have their facts. An archived app says that it is no longer available, and a post has its date, as it is advice of its time.
 	*/
 	@Test
-	func `the Markdown copy of a page is its section of llms-full.txt`() async throws {
+	func `the Markdown copies preserve document sections and publish app lists separately`() async throws {
 		let routes = try await Self.site().routes()
 
 		func text(_ path: RoutePath) async throws -> String {
@@ -1114,12 +1110,25 @@ struct PageTests {
 		}
 
 		let dato = try await text(#path("/dato.md"))
-		#expect(try await text(#path("/llms-full.txt")).contains("\n\n---\n\n\(dato)\n\n---\n\n"))
+		let fullText = try await text(#path("/llms-full.txt"))
+		#expect(fullText.contains("\n\n---\n\n\(dato)\n\n---\n\n"))
 		#expect(dato.hasPrefix("# Dato\n\n"))
 		#expect(dato.contains(" Free trial: [download](https://sindresorhus.com/dato#trial)."))
 		#expect(try await text(#path("/jiffy.md")).contains("The app is archived, so it is no longer available."))
 		#expect(try await text(#path("/blog/small-focused-modules.md")).contains("Published: October 2018"))
 		#expect(try await text(#path("/llms.txt")).contains("](https://sindresorhus.com/blog/small-focused-modules.md): Make small focused modules for reusability and to make it possible to build larger more advanced things that are easier to reason about. (2018)"))
+
+		for path in [RoutePath.apps] + AppCategory.allCases.map(\.path) {
+			let copy = try await text(path.markdownCopy)
+			let source = "\nURL: \(path.absoluteURL.absoluteString)\n"
+			#expect(copy.contains(source))
+			#expect(!fullText.contains(source))
+		}
+
+		let about = try await text(#path("/about.md"))
+		#expect(about.contains("](https://sindresorhus.com/dato.md)"))
+		#expect(about.contains("](https://sindresorhus.com/apps.md)"))
+		#expect(about.contains("](https://sindresorhus.com/apps/paid.md)"))
 	}
 
 	/**
@@ -1342,8 +1351,7 @@ struct PageComponentTests {
 				page: MetadataPage(),
 				bodyHTML: try RenderedHTML {
 					EmptyHTML()
-				},
-				inlineScripts: []
+				}
 			)
 			.head
 			.render()

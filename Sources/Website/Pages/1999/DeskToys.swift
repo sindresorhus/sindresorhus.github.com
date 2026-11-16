@@ -29,10 +29,9 @@ struct GeoCitiesDeskToys: ScriptedElement {
 					.part(canvas),
 					.width(480),
 					.height(360),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel(accessibilityLabel)
+					.accessibilityLabel(accessibilityLabel, role: .application)
 					.style(Styles.canvas, touch)
 
 				p {

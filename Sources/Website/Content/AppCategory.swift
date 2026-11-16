@@ -16,6 +16,8 @@ enum AppCategory: String, ContentEnum, Encodable {
 	case visionOS = "visionos"
 	case shortcuts
 	case developerTools = "developer-tools"
+	case clockAndCalendar = "clock-and-calendar"
+	case ai
 	case noNetworkAccess = "no-internet"
 	case archived
 
@@ -27,10 +29,10 @@ enum AppCategory: String, ContentEnum, Encodable {
 	}
 
 	/**
-	The categories that the apps page shows as chips: all that visitors browse, except the Apple Vision apps, as there are only a few of them, and the apps that cannot connect, which only some visitors look for.
+	The categories that the apps page shows as chips: all that visitors browse, except the Apple Vision apps, as there are only a few of them, and the clock and calendar apps, the AI apps, and the apps that cannot connect, which only some visitors look for. So the chips stay at two balanced rows.
 	*/
 	static var chips: [Self] {
-		browsable.filter { ![.visionOS, .noNetworkAccess].contains($0) }
+		browsable.filter { ![.visionOS, .clockAndCalendar, .ai, .noNetworkAccess].contains($0) }
 	}
 
 	/**
@@ -69,6 +71,10 @@ enum AppCategory: String, ContentEnum, Encodable {
 			"Shortcuts"
 		case .developerTools:
 			"Dev Tools"
+		case .clockAndCalendar:
+			"Clock & Calendar"
+		case .ai:
+			"AI"
 		case .noNetworkAccess:
 			"No Internet"
 		case .archived:
@@ -139,6 +145,10 @@ enum AppCategory: String, ContentEnum, Encodable {
 			"related to the Shortcuts app"
 		case .developerTools:
 			"for developers"
+		case .clockAndCalendar:
+			"that show the time, the date, or your calendar"
+		case .ai:
+			"that use AI"
 		case .noNetworkAccess:
 			"that cannot connect to the internet"
 		case .archived:
@@ -180,6 +190,10 @@ enum AppCategory: String, ContentEnum, Encodable {
 			"Apps related to the [Shortcuts app](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac)."
 		case .developerTools:
 			"The apps of mine for developers, from the “Developer Tools” category of the App Store."
+		case .clockAndCalendar:
+			"The apps of mine that show the time, the date, or your calendar."
+		case .ai:
+			"The apps of mine that use AI. Some of them run the AI model on your device, so your data stays there. Others send your input to an AI service, like ChatGPT."
 		case .noNetworkAccess:
 			"The apps of mine that cannot connect to the internet. They have no network permission, so the macOS app sandbox stops all their connections, and your data stays on your Mac. The privacy policy of each app shows how to check it."
 		}
@@ -198,7 +212,7 @@ enum AppCategory: String, ContentEnum, Encodable {
 			"""
 		case .paid:
 			"You can find my free apps [here](\(Self.free.path))."
-		case .setapp, .macOS, .iOS, .watchOS, .visionOS, .menuBar, .archived, .shortcuts, .developerTools, .noNetworkAccess:
+		case .setapp, .macOS, .iOS, .watchOS, .visionOS, .menuBar, .archived, .shortcuts, .developerTools, .clockAndCalendar, .ai, .noNetworkAccess:
 			nil
 		}
 	}
@@ -230,7 +244,7 @@ enum AppCategory: String, ContentEnum, Encodable {
 			.watchOS
 		case .visionOS:
 			.visionOS
-		case .free, .paid, .setapp, .menuBar, .shortcuts, .developerTools, .noNetworkAccess, .archived:
+		case .free, .paid, .setapp, .menuBar, .shortcuts, .developerTools, .clockAndCalendar, .ai, .noNetworkAccess, .archived:
 			nil
 		}
 	}
@@ -248,7 +262,7 @@ enum AppCategory: String, ContentEnum, Encodable {
 			["apple-watch", "watch"]
 		case .visionOS:
 			["apple-vision", "vision-pro"]
-		case .free, .paid, .setapp, .menuBar, .shortcuts, .developerTools, .noNetworkAccess, .archived:
+		case .free, .paid, .setapp, .menuBar, .shortcuts, .developerTools, .clockAndCalendar, .ai, .noNetworkAccess, .archived:
 			[]
 		}
 	}
@@ -270,8 +284,8 @@ enum AppCategory: String, ContentEnum, Encodable {
 			app.isMenuBarApp
 		case .noNetworkAccess:
 			app.hasNoNetworkAccess
-		case .shortcuts:
-			app.categories.contains(.shortcuts)
+		case .shortcuts, .clockAndCalendar, .ai:
+			app.categories.contains { $0.category == self }
 		// The category of the App Store, which the build fetches, so an app that is not on the App Store is not in it.
 		case .developerTools:
 			content.listing(of: app).appStoreInfo?.schemaApplicationCategory == .developer
@@ -310,4 +324,20 @@ A category that the frontmatter of an app puts it in (`categories`), as no field
 */
 enum HandPickedCategory: String, ContentEnum {
 	case shortcuts
+	case clockAndCalendar = "clock-and-calendar"
+	case ai
+
+	/**
+	The category of the apps page that the app is in.
+	*/
+	var category: AppCategory {
+		switch self {
+		case .shortcuts:
+			.shortcuts
+		case .clockAndCalendar:
+			.clockAndCalendar
+		case .ai:
+			.ai
+		}
+	}
 }

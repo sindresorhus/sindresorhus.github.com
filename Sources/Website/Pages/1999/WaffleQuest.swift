@@ -89,8 +89,7 @@ struct GeoCitiesWaffleQuest: ScriptedElement {
 				.style(GeoCitiesPage.Styles.smallButton, Styles.quickButton)
 			}
 		}
-		.accessibilityLabel("Quick commands")
-		.attributes(.role(.group))
+		.accessibilityLabel("Quick commands", role: .group)
 		.style(GeoCitiesPage.Styles.buttonRow, GeoCitiesPage.Styles.scriptingOnly)
 
 		p {

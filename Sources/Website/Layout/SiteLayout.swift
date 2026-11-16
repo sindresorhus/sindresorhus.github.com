@@ -21,11 +21,6 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 		bodyHTML.resources
 	}
 
-	/**
-	The scripts of the elements with an inline script that the body shows (``ScriptedElement/generatedScript()``).
-	*/
-	let inlineScripts: [String]
-
 	@TaskLocalValue(requiring: Site.Scripts.$published) private var publishedScripts
 
 	/**
@@ -94,12 +89,6 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 
 		for path in scripts {
 			script(.src(publishedScripts.versioned(path).description), .type(.module)) {}
-		}
-
-		for inlineScript in inlineScripts {
-			script(.type(.module)) {
-				HTMLRaw(inlineScript)
-			}
 		}
 	}
 }
@@ -304,8 +293,8 @@ extension Stylesheet {
 			.fontFamily(.system)
 			.declaration(raw: .webkitTextSizeAdjust, .percent(100))
 			.declaration(raw: .webkitTapHighlightColor, .transparent)
-			// Section links scroll the section a little below the header. The scroll spy of ``AppSecondaryNavigation`` reads it.
-			.scrollPadding(top: SiteHeader.height + .rootEm(0.5))
+			// Section links scroll the section a little below the header, with space between them, so the section and its highlight do not touch the header. The scroll spy of ``AppSecondaryNavigation`` reads it.
+			.scrollPadding(top: SiteHeader.height + .rootEm(1.5))
 			// On a short screen, the header is not sticky, so it covers no section.
 			.media(.shortScreen) {
 				$0.scrollPadding(top: .rootEm(0.5))

@@ -120,8 +120,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 					.style(GeoCitiesPage.Styles.smallButton)
 				}
 			}
-			.accessibilityLabel("Put a slice in the box with")
-			.attributes(.role(.group))
+			.accessibilityLabel("Put a slice in the box with", role: .group)
 			.style(Styles.choices)
 
 			div {
@@ -206,10 +205,9 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				.part(Parts.crabCanvas),
 				.width(400),
 				.height(200),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The dock and the sea. Press Enter to lower the line, and hold Space or the up arrow to reel it in.")
+				.accessibilityLabel("The dock and the sea. Press Enter to lower the line, and hold Space or the up arrow to reel it in.", role: .application)
 				.style(Styles.canvas)
 
 			div {
@@ -247,10 +245,9 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 				.part(Parts.cheeseCanvas),
 				.width(320),
 				.height(180),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The brown cheese and the cheese slicer. Press the up and down arrow keys to tilt the slicer, and Enter to cut a slice.")
+				.accessibilityLabel("The brown cheese and the cheese slicer. Press the up and down arrow keys to tilt the slicer, and Enter to cut a slice.", role: .application)
 				.style(Styles.canvas, Styles.cheeseCanvas)
 
 			div {
@@ -286,8 +283,7 @@ struct GeoCitiesNorwayDays: ScriptedElement {
 					.style(GeoCitiesPage.Styles.smallButton)
 				}
 			}
-			.accessibilityLabel("Put in the bag")
-			.attributes(.role(.group))
+			.accessibilityLabel("Put in the bag", role: .group)
 			.style(Styles.choices)
 
 			div {

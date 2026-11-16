@@ -320,8 +320,7 @@ struct GeoCitiesGameRoom: ScriptedElement {
 					.style(Styles.letterKey)
 				}
 			}
-			.attributes(.role(.group))
-			.accessibilityLabel("Letters")
+			.accessibilityLabel("Letters", role: .group)
 			.style(Styles.letterKeys)
 
 			p(.part(Parts.hangmanStatus), .role(.status)) {}

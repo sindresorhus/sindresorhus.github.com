@@ -121,7 +121,6 @@ struct GeoCitiesMailOrder: ScriptedElement {
 
 			div(
 				.part(Parts.mamma),
-				.role(.alertDialog),
 				.custom(name: "aria-describedby", value: "geocities-mail-order-mamma-text"),
 				.hidden
 			) {
@@ -146,7 +145,7 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.buttonRow)
 			}
-			.accessibilityLabel("Mamma")
+			.accessibilityLabel("Mamma", role: .alertDialog)
 			.style(Styles.mamma)
 
 			div {
@@ -247,10 +246,9 @@ struct GeoCitiesMailOrder: ScriptedElement {
 						canvas(
 							.part(Parts.art),
 							.width(480),
-							.height(300),
-							.role(.image)
+							.height(300)
 						) {}
-							.accessibilityLabel(ad.picture)
+							.accessibilityLabel(ad.picture, role: .image)
 							.style(Styles.art)
 
 						h3 {
@@ -310,10 +308,9 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				.part(Parts.tableCanvas),
 				.width(360),
 				.height(240),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The kitchen table. With a coupon, drag the scissors along the dashed line, or press Space to cut. With a package, press Space to tear the paper, and then the arrow keys and Space to pop the bubble wrap.")
+				.accessibilityLabel("The kitchen table. With a coupon, drag the scissors along the dashed line, or press Space to cut. With a package, press Space to tear the paper, and then the arrow keys and Space to pop the bubble wrap.", role: .application)
 				.style(Styles.canvas, Styles.tableCanvas)
 
 			div {
@@ -341,10 +338,9 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				.part(Parts.mailboxCanvas),
 				.width(360),
 				.height(240),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The mailbox outside the house, in the rain. Press Enter to check the mailbox.")
+				.accessibilityLabel("The mailbox outside the house, in the rain. Press Enter to check the mailbox.", role: .application)
 				.style(Styles.canvas, Styles.mailboxCanvas)
 
 			div {
@@ -368,8 +364,8 @@ struct GeoCitiesMailOrder: ScriptedElement {
 
 	private var stuff: some HTML {
 		div {
-			div(.part(Parts.stuffTabs), .role(.group)) {}
-				.accessibilityLabel("My stuff")
+			div(.part(Parts.stuffTabs)) {}
+				.accessibilityLabel("My stuff", role: .group)
 				.style(Styles.tabs)
 
 			// The script adds a copy for each thing that came in the mail, and for each tool of the thing.
@@ -382,10 +378,9 @@ struct GeoCitiesMailOrder: ScriptedElement {
 				.part(Parts.stuffCanvas),
 				.width(640),
 				.height(360),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The thing from the mail. Use the buttons under it, drag on it, or move with the arrow keys and press Space. Hold Shift with the arrow keys to drag. To draw, press Space first.")
+				.accessibilityLabel("The thing from the mail. Use the buttons under it, drag on it, or move with the arrow keys and press Space. Hold Shift with the arrow keys to drag. To draw, press Space first.", role: .application)
 				.style(Styles.canvas, Styles.stuffCanvas)
 
 			div(.part(Parts.stuffTools)) {}

@@ -53,7 +53,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 	*/
 	private struct MenuBar: HTML {
 		var body: some HTML {
-			div(.role(.toolbar)) {
+			div {
 				goButton("home", "🏠 Home")
 				goButton("timeline", "⏳ Timeline")
 				goButton("maze", "🏰 MindMaze")
@@ -69,7 +69,7 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 				.help("Plays sounds")
 				.style(Styles.menuButton)
 			}
-			.accessibilityLabel("Encarta")
+			.accessibilityLabel("Encarta", role: .toolbar)
 			.style(Styles.menuBar, GeoCitiesPage.Styles.scriptingOnly)
 		}
 
@@ -394,19 +394,17 @@ struct GeoCitiesWindowsEncarta: ScriptedElement {
 						.part(Parts.mazeScreen),
 						.width(480),
 						.height(236),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("MindMaze castle. The Left, Up, and Right arrow keys pick the door on that wall, Down turns around, 1 to 4 answer a question, H asks the jester, T talks, M shows the map, and Escape steps back.")
+						.accessibilityLabel("MindMaze castle. The Left, Up, and Right arrow keys pick the door on that wall, Down turns around, 1 to 4 answer a question, H asks the jester, T talks, M shows the map, and Escape steps back.", role: .application)
 						.style(Styles.mazeScreen)
 
 					canvas(
 						.part(Parts.mazeMap),
 						.width(120),
-						.height(120),
-						.role(.image)
+						.height(120)
 					) {}
-						.accessibilityLabel("Map of the castle")
+						.accessibilityLabel("Map of the castle", role: .image)
 						.style(Styles.mazeMap)
 
 					p(.part(Parts.mazeBalloon), .hidden) {}

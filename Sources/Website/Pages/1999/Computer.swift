@@ -137,14 +137,13 @@ struct GeoCitiesComputer: ScriptedElement {
 		// The screen of the BIOS while the computer restarts. The script moves it to the end of the page, as it covers the whole window, writes the lines one after the other, and any key or click skips to the end.
 		div(
 			.part(Parts.bios),
-			.role(.dialog),
 			.ariaModal,
 			.tabindex(-1),
 			.hidden
 		) {
 			p(.part(Parts.biosText)) {}
 		}
-		.accessibilityLabel("The computer restarts")
+		.accessibilityLabel("The computer restarts", role: .dialog)
 		.style(Styles.bios)
 	}
 

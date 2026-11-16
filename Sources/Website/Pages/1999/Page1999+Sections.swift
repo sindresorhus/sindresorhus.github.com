@@ -762,10 +762,10 @@ extension GeoCitiesPage {
 							.style(Styles.factLabel)
 
 							dd {
-								span(.id(IDs.petFood), .role(.image)) {
+								span(.id(IDs.petFood)) {
 									"♥♥♡♡"
 								}
-								.accessibilityLabel("2 of 4 hearts")
+								.accessibilityLabel("2 of 4 hearts", role: .image)
 							}
 							.style(Styles.factValue)
 						}
@@ -777,10 +777,10 @@ extension GeoCitiesPage {
 							.style(Styles.factLabel)
 
 							dd {
-								span(.id(IDs.petFun), .role(.image)) {
+								span(.id(IDs.petFun)) {
 									"♥♥♡♡"
 								}
-								.accessibilityLabel("2 of 4 hearts")
+								.accessibilityLabel("2 of 4 hearts", role: .image)
 							}
 							.style(Styles.factValue)
 						}
@@ -1062,7 +1062,7 @@ extension GeoCitiesPage {
 
 			p {
 				"You are visitor number "
-				span(.id(IDs.counter), .role(.image)) {
+				span(.id(IDs.counter)) {
 					for digit in "001999" {
 						span {
 							String(digit)
@@ -1070,7 +1070,7 @@ extension GeoCitiesPage {
 						.style(Styles.counterDigit)
 					}
 				}
-				.accessibilityLabel("1999")
+				.accessibilityLabel("1999", role: .image)
 				.style(Styles.counter)
 				"! I counted most of them myself, to make sure the counter works."
 			}
@@ -1236,10 +1236,10 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.heading)
 
-			pre(.role(.image)) {
+			pre {
 				Self.asciiUnicorn
 			}
-			.accessibilityLabel("A unicorn, drawn with letters and symbols")
+			.accessibilityLabel("A unicorn, drawn with letters and symbols", role: .image)
 			.style(Styles.ascii)
 
 			p {

@@ -51,7 +51,7 @@ Copy the text you cannot select, in images, videos, PDFs, presentations, or anyw
 - Extract text from images on clipboard or files
 - Extract text directly from photo taken with iPhone/iPad camera
 - Drag and drop images onto menu bar icon to extract text
-- Preserves tables (as tab-separated values)
+- Preserves tables (as tab-separated values) *([guide](../../guides/copy-table-from-image-mac.md))*
 - Optionally shows captured text in a window with the ability to edit
 	- Enables doing multiple captures and copy as a single text
 - [Privacy focused](#privacy)

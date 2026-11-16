@@ -16,7 +16,7 @@ releasesRepository: 'sindresorhus/supercharge-meta'
 downloadCount: 13000
 hasSentry: true
 trial: {
-	url: 'https://www.dropbox.com/scl/fi/58ujynvqo09r1ni8ywl0n/Supercharge-1.30.1-trial-1790570015.zip?rlkey=bgo4hf47jnmqqrxxleilcferf&raw=1'
+	url: 'https://www.dropbox.com/scl/fi/mc4x8hv0fmlwjz82b4fic/Supercharge-1.31.0-trial-1794849814.zip?rlkey=49q7pvg4tbu0g389h14kn5xcu&raw=1'
 	limitations: 'The keyboard shortcut inspector, and the export and import of app settings, work 4 times each.'
 }
 announcement: {
@@ -32,6 +32,11 @@ sharedQuestions: [
 	'why-cut-and-paste'
 ]
 olderVersions: [
+	{
+		version: '1.30.1'
+		macOS: '26'
+		url: 'https://www.dropbox.com/scl/fi/tdutisvk0tmhkvmwigzud/Supercharge-1.30.1-macOS-26-1794857233.zip?rlkey=ak50uelrt5kb2ref1rxlqil1z&raw=1'
+	}
 	{
 		version: '1.26.0'
 		macOS: '15'

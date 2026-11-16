@@ -9,6 +9,9 @@ platforms: [
 isMenuBarApp: true
 appStoreID: 6502579523
 hasNoNetworkAccess: true
+categories: [
+	'clock-and-calendar'
+]
 nonAppStoreVersion: {
 	version: '1.3.0'
 	macOS: 26

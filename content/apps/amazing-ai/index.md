@@ -9,6 +9,9 @@ platforms: [
 ]
 appStoreID: 1660147028
 hasSentry: true
+categories: [
+	'ai'
+]
 nonAppStoreVersion: {
 	version: '1.7.0'
 	macOS: 26

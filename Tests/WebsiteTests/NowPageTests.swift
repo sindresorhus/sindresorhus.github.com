@@ -134,7 +134,7 @@ struct NowPageTests {
 		}
 
 		let section = try buildingNow(npmStatistics: npmStatistics)
-		#expect(section.html.contains(#"<running-count class="running-count" data-config="{&quot;perSecond&quot;:1}">0</running-count>"#))
+		#expect(section.html.contains(#"<running-count class="running-count" data-config="{&quot;groupingThreshold&quot;:10000,&quot;locale&quot;:&quot;en-US&quot;,&quot;perSecond&quot;:1}">0</running-count>"#))
 		#expect(!section.isHidden)
 
 		let withoutNPM = try buildingNow(npmStatistics: NPMStatistics())
@@ -266,7 +266,7 @@ struct NowPageTests {
 	@Test
 	func `only the now page can have a status`() async throws {
 		let error = try await #require(throws: ContentError.self) {
-			try await MarkdownPage(markdown: "---\ntitle: 'About'\nstatus: 'Busy'\n---\n\nText.", slug: "about")
+			try await MarkdownPage(markdown: "---\ntitle: 'About'\nnow: {\n\tstatus: 'Busy'\n}\n---\n\nText.", slug: "about")
 		}
 
 		#expect(error.line == 3)

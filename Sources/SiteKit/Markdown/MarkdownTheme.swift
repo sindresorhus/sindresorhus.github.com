@@ -9,9 +9,16 @@ public enum MarkdownAlert: String, CaseIterable, Sendable {
 	case caution
 
 	/**
-	The label, like `NOTE`.
+	The label, like “Note”, in sentence case like the titles that the content gives a box, like “Tips”, and like GitHub shows it.
 	*/
 	var title: String {
+		rawValue.prefix(1).uppercased() + rawValue.dropFirst()
+	}
+
+	/**
+	The name in the marker, like `NOTE` in `> [!NOTE]`.
+	*/
+	var markerName: String {
 		rawValue.uppercased()
 	}
 
@@ -85,6 +92,16 @@ public enum MarkdownElement: Hashable, Sendable {
 	A keyboard shortcut of more than one key and the punctuation right before and after it, like the comma in “Press Control+C, or close the window” and the parentheses in “copy (Command+C)”, which stay on one line, so the next line does not start with the comma, and no line ends with the opening parenthesis.
 	*/
 	case keyboardShortcutWithPunctuation
+
+	/**
+	An item of a menu path in typographic quotes, like “General ›” in “System Settings › General › Date & Time”, with the arrow after it, so a line breaks only after an arrow, not inside the name of an item.
+	*/
+	case menuPathItem
+
+	/**
+	The `›` between the items of a menu path.
+	*/
+	case menuPathSeparator
 
 	/**
 	The container of a table, which scrolls a table that is wider than the content. It has keyboard focus and a label, so keyboard and screen reader users can scroll it too.
@@ -247,7 +264,7 @@ extension MarkdownTheme {
 	/**
 	A box with the look of a GitHub alert, like for a `@Tips` directive.
 
-	- Parameter title: The title, which is the title of the kind by default, like `NOTE`.
+	- Parameter title: The title, which is the title of the kind by default, like “Note”.
 	*/
 	public func alert(_ kind: MarkdownAlert, title: String? = nil, contentHTML: String) -> String {
 		#"<div\#(classAttribute(.alert(kind))) dir="auto"><p\#(classAttribute(.alertTitle)) dir="auto"><svg\#(classAttribute(.alertIcon)) viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="\#(kind.iconPath)"></path></svg>\#((title ?? kind.title).escapedForHTML)</p>\#(contentHTML)</div>"#
@@ -290,6 +307,22 @@ extension MarkdownTheme {
 		}
 
 		return #"<span\#(classAttribute(.keyboardShortcutWithPunctuation))>\#(html)</span>"#
+	}
+
+	/**
+	A menu path in typographic quotes, like “System Settings › General › Date & Time”, as one inline block per item (``MarkdownElement/menuPathItem``), with the arrow (``MarkdownElement/menuPathSeparator``) at the end of the item before it, after a no-break space. So a line breaks only after an arrow, not inside the name of an item, like “Allow Access When Locked”. The copied text has the no-break spaces.
+
+	- Parameter openingPunctuation: The opening quote, and a parenthesis before it, which are in the first item, as a browser can break a line after the punctuation before an inline block.
+	- Parameter closingPunctuation: The closing quote, and the punctuation after it, like `”.`, which are in the last item, as a browser can break a line before the punctuation after an inline block.
+	*/
+	func menuPath(_ items: [Substring], openingPunctuation: Substring, closingPunctuation: Substring) -> String {
+		let separatorHTML = "\u{00A0}<span\(classAttribute(.menuPathSeparator))>›</span>"
+		return items.enumerated().map { index, item in
+			let before = index == 0 ? String(openingPunctuation).escapedForHTML : ""
+			let after = index == items.count - 1 ? String(closingPunctuation).escapedForHTML : separatorHTML
+			return #"<span\#(classAttribute(.menuPathItem))>\#(before)\#(String(item).escapedForHTML)\#(after)</span>"#
+		}
+		.joined(separator: " ")
 	}
 
 	/**

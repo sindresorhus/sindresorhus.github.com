@@ -58,34 +58,6 @@ sponsorTiers: [
 				}
 			}
 			{
-				name: 'Fame Helsinki'
-				url: 'https://www.fame.fi'
-				logo: {
-					path: '/assets/thanks/fame-logo-light.svg'
-					width: 200
-					height: 84
-				}
-			}
-			{
-				name: 'FetchFox'
-				url: 'https://fetchfox.ai?ref=sindre'
-				logo: {
-					path: '/assets/thanks/fetchfox-logo.svg'
-					width: 120
-					height: 155
-				}
-				showsName: true
-			}
-			{
-				name: 'nitric'
-				url: 'https://nitric.io'
-				logo: {
-					path: '/assets/thanks/nitric-logo.svg'
-					width: 240
-					height: 92
-				}
-			}
-			{
 				name: 'KRUU'
 				url: 'https://kruu.com'
 				logo: {

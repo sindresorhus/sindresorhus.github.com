@@ -9,6 +9,9 @@ platforms: [
 isMenuBarApp: true
 appStoreID: 6443714928
 hasSentry: true
+categories: [
+	'clock-and-calendar'
+]
 nonAppStoreVersion: {
 	version: '1.8.0'
 	macOS: 26

@@ -31,9 +31,7 @@ struct OpenSourcePage: Page {
 	Marks the page when the script of the npm list does not load, so the list shows all the packages, like without JavaScript, and not only the first batch.
 	*/
 	var head: some HTML {
-		if let scriptPath = NPMPackageList.script.path {
-			ScriptLoadFailure(scriptPath)
-		}
+		ScriptLoadFailure(NPMPackageList.script.path)
 	}
 
 	var body: some HTML {
@@ -68,7 +66,7 @@ struct OpenSourcePage: Page {
 			// A link to each group, as the page is long.
 			ChipNavigation(label: "Groups of projects", links: OpenSourceProject.Group.allCases.map(\.link), scrollsOnPhones: true)
 				.style {
-					$0.justifyContent(.start)
+					$0.textAlign(.leading)
 				}
 
 			for group in OpenSourceProject.Group.allCases {

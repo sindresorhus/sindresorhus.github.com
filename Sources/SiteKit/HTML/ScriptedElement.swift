@@ -6,7 +6,7 @@ A component that is a custom element with a script: Swift renders all its markup
 
 The element replaces the root element of the component: it renders `content` inside the custom element, with the `root` style of the component. The tag name comes from the type name, like the class names of a ``StyleSet``, so it is the class name of the root style too, like `feed-ticker` for `FeedTicker`.
 
-The script is the `.js` file with the same name in the `Scripts` folder next to the Swift file, or a short script inline in the Swift file (``ElementScript``).
+The script is the `.js` file with the same name in the `Scripts` folder next to the Swift file (``ElementScript``).
 
 A script file is a module that defines its element, with the tag name of the element, and a class named like the type. It extends a base class of the site, or `HTMLElement` for a small element that needs none of its helpers:
 
@@ -24,9 +24,7 @@ class FeedTicker extends ScriptedElement {
 customElements.define('feed-ticker', FeedTicker);
 ```
 
-The build publishes every script file unchanged at `/scripts/elements/<file name>`, like `/scripts/elements/FeedTicker.js` (``Project/elementScripts()``), and the page loads it like a ``ModuleScript``. So the build needs no list of the elements: it finds the scripts in the `Scripts` folders. The tag name is written twice, in the type name and in the script, so the site tests that each element on a page is defined.
-
-An inline script is for a small element: it only has the class, `export default class extends HTMLElement {`, and the page that shows the element gets it once, with the definition of the element (``generatedScript()``), so its tag name is never written by hand.
+The build publishes every script file unchanged at `/scripts/elements/<file name>`, like `/scripts/elements/FeedTicker.js` (``Project/elementScripts()``), and the page loads it like a ``ModuleScript``. So the build needs no list of the elements: it finds the scripts in the `Scripts` folders. The tag name is written twice, in the type name and in the script, so the site tests that each element on a page is defined. A value of Swift that the script needs, like a media query or the name of a query parameter, is in ``config``, not written in the script again.
 
 ```swift
 struct FeedTicker: ScriptedElement {
@@ -149,57 +147,18 @@ extension ScriptedElement {
 			return name
 		}
 	}
-
-	/**
-	The script that the page writes for an element with an inline script: the class with the name of the type, so it can be defined, and the definition of the element. A script file defines its element itself.
-
-	An inline script is for a small element, so it extends `HTMLElement` and imports nothing. Throws when it does not have exactly one `export default class extends HTMLElement {` line.
-	*/
-	public static func generatedScript() throws -> String {
-		var source = try script.source
-		let declarations = source.ranges(of: inlineClassDeclaration)
-
-		guard
-			declarations.count == 1,
-			let declaration = declarations.first
-		else {
-			throw ElementScriptError.classDeclaration("The inline script of \(Self.self)")
-		}
-
-		let className = String(describing: Self.self)
-		source.replaceSubrange(declaration, with: "export default class \(className) extends HTMLElement {")
-
-		return """
-		\(source)
-		customElements.define('\(tagName)', \(className));
-
-		"""
-	}
 }
 
 /**
-The line that declares the class of an inline script (``ScriptedElement/generatedScript()``). Not a literal in the function, as Swift parses a regex literal each time the code runs, and the function runs for each page that shows the element.
-*/
-nonisolated(unsafe) private let inlineClassDeclaration = /^export default class extends HTMLElement \{$/.anchorsMatchLineEndings()
+The script of a ``ScriptedElement``: the `.js` file with the same name as the Swift file that creates it, in the `Scripts` folder next to it, like `Scripts/Clock.js` for `Clock.swift`.
 
-/**
-The script of a ``ScriptedElement``: the `.js` file with the same name as the Swift file that creates it, in the `Scripts` folder next to it, like `Scripts/Clock.js` for `Clock.swift`, or a short script inline in the Swift file.
-
-The build reads a file from the source directory, so the preview server shows a change to it without building the tool again. The target of the Swift file excludes the `Scripts` folder in `Package.swift`, so the scripts need no entry each. An inline script needs neither, but a change to it builds the tool again, and it has no syntax highlighting, so use it only for a few lines.
+The build reads the file from the source directory, so the preview server shows a change to it without building the tool again. The target of the Swift file excludes the `Scripts` folder in `Package.swift`, so the scripts need no entry each.
 */
 public struct ElementScript: Sendable {
 	/**
-	The script's source, with a nonoptional payload for each alternative. Inline text has already passed the closing-script check when the enclosing script is constructed.
+	The file of the script.
 	*/
-	public enum Source: Sendable {
-		case file(URL)
-		case inline(String)
-	}
-
-	/**
-	The file or inline text that owns the script.
-	*/
-	public let location: Source
+	public let file: URL
 
 	/**
 	The path that the build publishes a script file at, like `/scripts/elements/Clock.js` for `Scripts/Clock.js` (``Project/elementScripts()``).
@@ -213,44 +172,14 @@ public struct ElementScript: Sendable {
 	*/
 	public init(swiftFile: String = #filePath) {
 		let swiftFile = URL(filePath: swiftFile)
-		self.location = .file(swiftFile.deletingLastPathComponent().appending(path: "Scripts").appending(path: swiftFile.nameWithoutExtension).appendingPathExtension("js"))
+		self.file = swiftFile.deletingLastPathComponent().appending(path: "Scripts").appending(path: swiftFile.nameWithoutExtension).appendingPathExtension("js")
 	}
 
 	/**
-	A short script in the Swift file, as a raw string, so backslashes and `${}` stay as they are:
-
-	```swift
-	static let script = ElementScript(inline: #"""
-	export default class extends HTMLElement {
-		connectedCallback() {}
-	}
-	"""#)
-	```
-
-	The page writes it in a `<script>` element as it is, so it must not contain `</script`.
+	The path that the build publishes the script file at, like `/scripts/elements/Clock.js`.
 	*/
-	public init(inline source: String) {
-		precondition(!source.lowercased().contains("</script"), "An inline element script must not contain </script, in any letter case.")
-		self.location = .inline(source)
-	}
-
-	/**
-	The file of the script, or `nil` for an inline script.
-	*/
-	public var file: URL? {
-		switch location {
-		case .file(let file):
-			file
-		case .inline:
-			nil
-		}
-	}
-
-	/**
-	The path that the build publishes the script file at, like `/scripts/elements/Clock.js`, or `nil` for an inline script.
-	*/
-	public var path: RoutePath? {
-		file.map(Self.publishedPath(of:))
+	public var path: RoutePath {
+		Self.publishedPath(of: file)
 	}
 
 	/**
@@ -258,27 +187,7 @@ public struct ElementScript: Sendable {
 	*/
 	public var source: String {
 		get throws {
-			switch location {
-			case .file(let file):
-				try String(contentsOf: file, encoding: .utf8)
-			case .inline(let source):
-				source
-			}
-		}
-	}
-}
-
-public enum ElementScriptError: Error, CustomStringConvertible, LocalizedError {
-	case classDeclaration(String)
-
-	public var errorDescription: String? {
-		description
-	}
-
-	public var description: String {
-		switch self {
-		case .classDeclaration(let script):
-			"\(script) must have one line “export default class extends HTMLElement {”. A script that needs a base class of the site, like ScriptedElement, is a script file."
+			try String(contentsOf: file, encoding: .utf8)
 		}
 	}
 }

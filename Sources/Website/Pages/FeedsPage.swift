@@ -115,8 +115,10 @@ extension FeedsPage {
 					.secondaryText()
 					.textWrap(.pretty)
 			case .appCard:
+				// A compact card has the corners of a box, so they are parallel to the corners of the icon, which is close to the edge.
 				Style()
 					.cardSurface()
+					.cornerRadius(.boxRadius)
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
 					.padding(.rootEm(0.75))
 			case .appIcon:

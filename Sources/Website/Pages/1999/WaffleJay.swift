@@ -69,8 +69,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 						.style(Styles.group)
 					}
 				}
-				.attributes(.role(.group))
-				.accessibilityLabel("Samples")
+				.accessibilityLabel("Samples", role: .group)
 				.style(Styles.palette)
 
 				div {
@@ -95,8 +94,7 @@ struct GeoCitiesWaffleJay: ScriptedElement {
 						}
 					}
 				}
-				.attributes(.role(.group))
-				.accessibilityLabel("Tracks")
+				.accessibilityLabel("Tracks", role: .group)
 				.style(Styles.tracks)
 
 				div {

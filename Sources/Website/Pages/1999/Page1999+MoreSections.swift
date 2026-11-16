@@ -171,10 +171,9 @@ extension GeoCitiesPage {
 					.id(IDs.lakeCanvas),
 					.width(320),
 					.height(240),
-					.hidden,
-					.role(.image)
+					.hidden
 				) {}
-					.accessibilityLabel("A fjord in Norway at sunset, with Glitter on the shore, and its reflection in rippling water")
+					.accessibilityLabel("A fjord in Norway at sunset, with Glitter on the shore, and its reflection in rippling water", role: .image)
 					.style(Styles.lakeCanvas)
 
 				p(.id(IDs.lakeStatus), .role(.status)) {
@@ -390,10 +389,10 @@ extension GeoCitiesPage {
 				gif(.candleTall)
 				gif(.candle)
 
-				pre(.role(.image)) {
+				pre {
 					Self.asciiWaffle
 				}
-				.accessibilityLabel("A waffle in the shape of a heart, drawn with letters and symbols")
+				.accessibilityLabel("A waffle in the shape of a heart, drawn with letters and symbols", role: .image)
 				.style(Styles.waffle)
 
 				gif(.candle)
@@ -454,10 +453,10 @@ extension GeoCitiesPage {
 				"Glitter too much work? Rocky needs no food, no walks, and no love. But he appreciates it."
 			}
 
-			div(.role(.image)) {
+			div {
 				gif(.googlyEyes, style: .rockEyes)
 			}
-			.accessibilityLabel("Rocky, a gray rock with googly eyes")
+			.accessibilityLabel("Rocky, a gray rock with googly eyes", role: .image)
 			.style(Styles.rock)
 
 			dl {

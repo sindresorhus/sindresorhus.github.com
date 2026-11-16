@@ -147,8 +147,8 @@ struct GeoCitiesBuddyList: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.caption)
 
-					div(.part(Parts.log), .role(.log)) {}
-						.accessibilityLabel("Conversation")
+					div(.part(Parts.log)) {}
+						.accessibilityLabel("Conversation", role: .log)
 						.style(Styles.log)
 
 					// The script adds a copy for each message of the chat.

@@ -111,11 +111,14 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.margin(vertical: .rootEm(-0.25), horizontal: .rootEm(-0.5))
 					.focusFill()
-					// On phones, the name can be cut off, but never pushes the “Get” button out.
+					// On phones, the name never pushes the “Get” button out. Where the name does not fit next to the icon, like a long name on a narrow phone or with large text, it wraps to a second line, which the identity clips, so only the icon shows. The link keeps the name as its label. The maximum height is the icon and the padding above and below it, and the space between the lines is as large, so no part of a second line shows, also with large text, as the icon has a size in pixels.
 					.below(.tablet) {
 						$0
 							.flexShrink(1)
-							.frame(minWidth: .zero)
+							.frame(minWidth: .zero, maxHeight: .rootEm(2.5))
+							.flexWrap()
+							.gap(row: .rootEm(2.5))
+							.overflow(.hidden)
 							.allowsHitTesting(true)
 					}
 			case .name:
@@ -128,14 +131,9 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.media(.from(.tablet) && .below(.laptop)) {
 						$0.hidden()
 					}
+					// Whole or not at all on phones (``identity``).
 					.below(.tablet) {
-						$0
-							.overflow(.hidden)
-							.textOverflow(.ellipsis)
-					}
-					// Where the name would be cut off, like on narrow phones or with large text, only the icon shows. The link keeps the name as its label.
-					.below(Self.nameWidth) {
-						$0.hidden()
+						$0.flexShrink(0)
 					}
 			case .link:
 				// Pills like the site navigation, with the section in view in a tint of the accent of the app.
@@ -158,10 +156,5 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.allowsHitTesting(true)
 			}
 		}
-
-		/**
-		The width from which the bar shows the name of the app next to its icon. A rem breakpoint, so it follows the text size. At 100% text, the longest names, like “System Color Picker”, fit from a 390 px wide phone (24.375 rem).
-		*/
-		static let nameWidth = Breakpoint(minimumWidthInRem: 24.375)
 	}
 }

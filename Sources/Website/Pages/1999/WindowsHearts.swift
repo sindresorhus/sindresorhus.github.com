@@ -47,8 +47,8 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 		}
 		.style(Styles.table, GeoCitiesPage.Styles.scriptingOnly)
 
-		div(.part(Parts.hand), .role(.group)) {}
-			.accessibilityLabel("Your cards")
+		div(.part(Parts.hand)) {}
+			.accessibilityLabel("Your cards", role: .group)
 			.style(Styles.hand, GeoCitiesPage.Styles.scriptingOnly)
 
 		template(.part(Parts.cardTemplate)) {
@@ -179,7 +179,7 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 	The cards of the trick, each in front of the player who played it: across at the top, the left and the right at the sides, and mine at the bottom.
 	*/
 	private var trick: some HTML {
-		div(.role(.group)) {
+		div {
 			div {}
 			trickSlot(2)
 			div {}
@@ -190,13 +190,13 @@ struct GeoCitiesWindowsHearts: ScriptedElement {
 			trickSlot(0)
 			div {}
 		}
-		.accessibilityLabel("Cards on the table")
+		.accessibilityLabel("Cards on the table", role: .group)
 		.style(Styles.trick)
 	}
 
 	private func trickSlot(_ seat: Int) -> some HTML {
-		p(.hook(Hooks.trickSlot, value: "\(seat)"), .role(.image)) {}
-			.accessibilityLabel("No card")
+		p(.hook(Hooks.trickSlot, value: "\(seat)")) {}
+			.accessibilityLabel("No card", role: .image)
 			.style(Styles.trickSlot)
 	}
 

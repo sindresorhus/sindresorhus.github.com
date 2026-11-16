@@ -48,10 +48,9 @@ struct GeoCitiesVisualizer: ScriptedElement {
 				canvas(
 					.part(Parts.canvas),
 					.width(320),
-					.height(200),
-					.role(.image)
+					.height(200)
 				) {}
-					.accessibilityLabel("The visualizer")
+					.accessibilityLabel("The visualizer", role: .image)
 					.style(Styles.screen)
 
 				div {
@@ -62,8 +61,7 @@ struct GeoCitiesVisualizer: ScriptedElement {
 						.style(Styles.preset)
 					}
 				}
-				.attributes(.role(.group))
-				.accessibilityLabel("Presets")
+				.accessibilityLabel("Presets", role: .group)
 				.style(GeoCitiesPage.Styles.formRow)
 
 				div {

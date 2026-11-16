@@ -94,10 +94,9 @@ struct GeoCitiesCoaster: ScriptedElement {
 						.part(Parts.canvas),
 						.width(640),
 						.height(360),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("Fløyen Park, with my roller coaster. Click a guest to read what they think. Keys: B builds the selected piece, Backspace demolishes the last piece, T tests the ride, O opens it, X closes it, C turns on the ride camera, G reads the thoughts of the next guest, and Space moves one step while paused.")
+						.accessibilityLabel("Fløyen Park, with my roller coaster. Click a guest to read what they think. Keys: B builds the selected piece, Backspace demolishes the last piece, T tests the ride, O opens it, X closes it, C turns on the ride camera, G reads the thoughts of the next guest, and Space moves one step while paused.", role: .application)
 						.style(Styles.canvas)
 
 					p(.part(Parts.status), .role(.status)) {
@@ -363,7 +362,7 @@ struct GeoCitiesCoaster: ScriptedElement {
 			.style(Styles.label, Styles.row)
 
 			canvas(.part(Parts.graph), .width(320), .height(110)) {}
-				.accessibilityLabel("A graph of the last test run.")
+				.accessibilityLabel("A graph of the last test run.", role: .image)
 				.style(Styles.graph)
 
 			label {

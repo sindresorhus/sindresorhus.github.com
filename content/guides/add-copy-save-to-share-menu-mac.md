@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	Install the free [Shareful](../apps/shareful/index.md), and turn on its items in the share menu: click “Edit Extensions” at the bottom of a share menu, and turn on “Copy”, “Save As…”, “Save to Downloads”, and “Open In…”. Without an app, you can only turn on the share items of the apps that you have.
+	Install the free [Shareful](../apps/shareful/index.md), and turn on its items in the share menu: click “Edit Extensions…” at the bottom of a share menu, and turn on “Copy”, “Save As…”, “Save to Downloads”, and “Open In…”. Without an app, you can only turn on the share items of the apps that you have.
 }
 
 ## With Shareful
 
 @Steps {
 1. Install [Shareful](../apps/shareful/index.md), and open it one time.
-1. In an app with a share button, like Safari or Photos, click the share button, and click “Edit Extensions” at the bottom of the menu.
+1. In an app with a share button, like Safari or Photos, click the share button, and click “Edit Extensions…” at the bottom of the menu.
 1. Turn on the items of Shareful, which have its icon, and click “Done”.
 1. Click the share button again, and choose an item.
 }

@@ -76,10 +76,9 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 				.part(Parts.screen),
 				.width(320),
 				.height(240),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The screen of the dance machine. Press Enter to start. Step with the arrow keys or with W, A, S, and D when the arrows reach the target arrows at the top.")
+				.accessibilityLabel("The screen of the dance machine. Press Enter to start. Step with the arrow keys or with W, A, S, and D when the arrows reach the target arrows at the top.", role: .application)
 				.style(Styles.screen)
 		}
 		.style(Styles.cabinet)
@@ -98,7 +97,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 	}
 
 	private var pad: some HTML {
-		div(.role(.group)) {
+		div {
 			plate
 			arrow("▲", lane: 2, name: "Up")
 			plate
@@ -109,7 +108,7 @@ struct GeoCitiesDanceRevolution: ScriptedElement {
 			arrow("▼", lane: 1, name: "Down")
 			plate
 		}
-		.accessibilityLabel("The dance pad")
+		.accessibilityLabel("The dance pad", role: .group)
 		.style(Styles.pad)
 	}
 

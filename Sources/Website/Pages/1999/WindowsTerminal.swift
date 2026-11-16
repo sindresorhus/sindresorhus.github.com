@@ -123,8 +123,8 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 		.style(GeoCitiesWindows.Styles.stack, Styles.setup, GeoCitiesPage.Styles.scriptingOnly)
 
 		div(.part(Parts.monitor)) {
-			div(.part(Parts.screen), .role(.log), .tabindex(0)) {}
-				.accessibilityLabel("The screen of the terminal")
+			div(.part(Parts.screen), .tabindex(0)) {}
+				.accessibilityLabel("The screen of the terminal", role: .log)
 				.style(Styles.screen)
 
 			span {
@@ -161,8 +161,8 @@ struct GeoCitiesWindowsTerminal: ScriptedElement {
 		}
 		.style(GeoCitiesWindows.Styles.nowrapRow, GeoCitiesPage.Styles.scriptingOnly)
 
-		div(.part(Parts.keys), .role(.group)) {}
-			.accessibilityLabel("Keys")
+		div(.part(Parts.keys)) {}
+			.accessibilityLabel("Keys", role: .group)
 			.style(GeoCitiesWindows.Styles.wrapRow, GeoCitiesPage.Styles.scriptingOnly)
 
 		p(.part(Parts.statusBar)) {

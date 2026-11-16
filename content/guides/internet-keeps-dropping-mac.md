@@ -35,7 +35,7 @@ Wireless Diagnostics of macOS can watch the Wi-Fi connection ([Apple’s guide](
 @Steps {
 1. Hold ++Option++, click Wi-Fi in the menu bar, and choose “Open Wireless Diagnostics”.
 1. Follow the steps on the screen. When it finds no problem, choose “Monitor my Wi-Fi connection”.
-1. Keep it open while you work.
+1. Keep it open while you work. When the connection drops, it shows the time of the drop.
 }
 
-It is free, and it can find problems of the Wi-Fi, like interference. But it does not keep a list of the times that you can send to your provider.
+It is free, and it can find problems of the Wi-Fi, like interference. It can also save a report with technical details for your provider. But it does not show a list of all the drops.

@@ -29,9 +29,9 @@ extension App {
 	*/
 	var ownOptions: [DownloadOption] {
 		[
-			frontmatter.redirectURL.map { .link(LabeledLink("Learn More", url: $0)) },
-			frontmatter.gitHubDownload.map { .link(LabeledLink("Download", url: $0.url)) },
-			gumroadURL.map { .link(LabeledLink("Buy", url: $0)) },
+			frontmatter.redirectURL.map(DownloadOption.website),
+			frontmatter.gitHubDownload.map { .gitHubDownload($0.url) },
+			gumroadURL.map(DownloadOption.gumroad),
 			frontmatter.redirectURL == nil ? frontmatter.repositoryURL.map(DownloadOption.sourceCode) : nil,
 		]
 		.compactMap(\.self)
@@ -253,9 +253,19 @@ enum DownloadOption: Hashable {
 	case setapp(SetappID)
 
 	/**
-	A custom download button, like “Download” or “Buy”.
+	The “Learn More” button, which links to the site of an app whose page is on another site (`redirectURL`).
 	*/
-	case link(LabeledLink)
+	case website(AbsoluteURL)
+
+	/**
+	The “Download” button, which links to the file of the latest release on GitHub (`gitHubDownload`).
+	*/
+	case gitHubDownload(URL)
+
+	/**
+	The “Buy” button, which links to the product on Gumroad (``App/gumroadURL``).
+	*/
+	case gumroad(URL)
 
 	/**
 	The “Source Code” button, which links to the repo of an open-source app.
@@ -268,7 +278,7 @@ enum DownloadOption: Hashable {
 	case trial(appPath: RoutePath)
 
 	/**
-	The badge image of a store, like “Download on the App Store”. Custom links are buttons instead.
+	The badge image of a store, like “Download on the App Store”. The other options are buttons instead.
 	*/
 	struct Badge {
 		static let appStore = Self(imagePath: #path("/assets/download-on-app-store-badge.svg"), label: "Download on the App Store", width: 180)
@@ -288,7 +298,7 @@ enum DownloadOption: Hashable {
 	*/
 	var isPlaceToGet: Bool {
 		switch self {
-		case .appStore, .setapp, .link:
+		case .appStore, .setapp, .website, .gitHubDownload, .gumroad:
 			true
 		case .sourceCode, .trial:
 			false
@@ -301,10 +311,10 @@ enum DownloadOption: Hashable {
 			.url(id.url(placement: placement))
 		case .setapp(let id):
 			.url(id.referralURL)
-		case .sourceCode(let url):
+		case .website(let url), .sourceCode(let url):
 			.url(url)
-		case .link(let link):
-			link.destination
+		case .gitHubDownload(let url), .gumroad(let url):
+			.url(url)
 		case .trial(let appPath):
 			.path(appPath, fragment: App.Section.trial.id)
 		}

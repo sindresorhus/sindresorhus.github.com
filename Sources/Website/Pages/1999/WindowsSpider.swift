@@ -32,7 +32,7 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 	]
 
 	var content: some HTML {
-		div(.role(.group)) {
+		div {
 			menu(
 				"Game",
 				button: .gameMenuButton,
@@ -48,23 +48,23 @@ struct GeoCitiesWindowsSpider: ScriptedElement {
 				commands: Self.helpCommands
 			)
 		}
-		.accessibilityLabel("Menu bar")
+		.accessibilityLabel("Menu bar", role: .group)
 		.style(Styles.menuBar, GeoCitiesPage.Styles.scriptingOnly)
 
 		div(.part(Parts.table)) {
-			div(.part(Parts.columns), .role(.group)) {
+			div(.part(Parts.columns)) {
 				for index in 0..<10 {
 					button(.type(.button), .hook(Hooks.column, value: "\(index)"), .tabindex(index == 0 ? 0 : -1)) {}
 						.accessibilityLabel("Column \(index + 1)")
 						.style(Styles.column)
 				}
 			}
-			.accessibilityLabel("Columns. Left and Right pick a column, Up and Down pick a card, Enter moves the cards to the best place, Space picks them up and puts them down on another column, and Escape puts them back.")
+			.accessibilityLabel("Columns. Left and Right pick a column, Up and Down pick a card, Enter moves the cards to the best place, Space picks them up and puts them down on another column, and Escape puts them back.", role: .group)
 			.style(Styles.columns)
 
 			div {
-				p(.part(Parts.foundation), .role(.image)) {}
-					.accessibilityLabel("No completed suits")
+				p(.part(Parts.foundation)) {}
+					.accessibilityLabel("No completed suits", role: .image)
 					.style(Styles.foundation)
 
 				div {

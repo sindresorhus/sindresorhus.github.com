@@ -204,7 +204,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 - Get/Set Screenshot Format
 	: View or change the file format used when saving screenshots
 	:: Choose from PNG, JPG, TIFF, or HEIC.
-- Get/Set Screenshot Location
+- Get/Set Screenshot Location *([guide](../../guides/change-screenshot-location-mac.md))*
 	: View or change the folder where screenshots are saved
 - Get/Set Dock Position
 	: View or change the position of the Dock

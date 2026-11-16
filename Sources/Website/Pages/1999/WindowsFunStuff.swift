@@ -303,10 +303,9 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 				canvas(
 					.part(Parts.movieCanvas),
 					.width(160),
-					.height(120),
-					.role(.image)
+					.height(120)
 				) {}
-					.accessibilityLabel("The video")
+					.accessibilityLabel("The video", role: .image)
 					.style(Styles.movieCanvas)
 			}
 			.style(GeoCitiesWindows.Styles.mediaScreen)
@@ -352,10 +351,9 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 			canvas(
 				.part(Parts.happyCanvas),
 				.width(240),
-				.height(160),
-				.role(.image)
+				.height(160)
 			) {}
-				.accessibilityLabel("Fireworks, and the words Happy New Year 1999 !!")
+				.accessibilityLabel("Fireworks, and the words Happy New Year 1999 !!", role: .image)
 				.style(Styles.happyCanvas)
 
 			p(.part(Parts.happyStatus), .role(.status)) {}
@@ -537,11 +535,10 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 						.style(GeoCitiesPage.Styles.retroButton)
 					}
 				}
-				.attributes(.role(.group))
-				.accessibilityLabel("Keypad")
+				.accessibilityLabel("Keypad", role: .group)
 				.style(Styles.keypad)
 
-				div(.role(.group)) {
+				div {
 					p {
 						"Speed dial"
 					}
@@ -554,7 +551,7 @@ struct GeoCitiesWindowsFunStuff: ScriptedElement {
 						.style(GeoCitiesPage.Styles.smallButton)
 					}
 				}
-				.accessibilityLabel("Speed dial")
+				.accessibilityLabel("Speed dial", role: .group)
 				.style(GeoCitiesWindows.Styles.stack)
 			}
 			.style(Styles.dialerColumns)

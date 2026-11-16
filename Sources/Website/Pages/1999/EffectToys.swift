@@ -232,13 +232,10 @@ struct GeoCitiesEffectToys: ScriptedElement {
 				.style(GeoCitiesPage.Styles.titleBar, Styles.windowTitle)
 
 				div {
-					canvas(
-						.part(toy.id),
-						.role(toy.takesKeys ? "application" : "img")
-					) {}
+					canvas(.part(toy.id)) {}
 						.bitmapSize(toy.size)
 						.attributes(.tabindex(0), when: toy.takesKeys)
-						.accessibilityLabel(toy.label)
+						.accessibilityLabel(toy.label, role: toy.takesKeys ? .application : .image)
 						.style(Styles.canvas, toy.isPixelArt ? Styles.pixelArt : Styles.smooth, toy.touch == .none ? Styles.drawing : Styles.steering)
 
 					p {

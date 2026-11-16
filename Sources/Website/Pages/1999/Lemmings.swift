@@ -37,10 +37,9 @@ struct GeoCitiesLemmings: ScriptedElement {
 					.part(Parts.screen),
 					.width(512),
 					.height(288),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The lemmings. The arrow keys pick a lemming, the keys 1 to 6 pick a job, Space gives the job, and P pauses.")
+					.accessibilityLabel("The lemmings. The arrow keys pick a lemming, the keys 1 to 6 pick a job, Space gives the job, and P pauses.", role: .application)
 					.style(Styles.screen)
 			}
 			.style(Styles.scroller, GeoCitiesPage.Styles.scriptingOnly)

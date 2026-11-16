@@ -48,6 +48,10 @@ extension ProseStyles {
 				.color(.primaryText)
 				.fontWeight(.semibold)
 		}
+		// A link in bold text has the weight of the text, as the underline already shows it. After the rule of links, so it wins.
+		.descendants("strong a") {
+			$0.inherits(.fontWeight)
+		}
 		// Headings, and the headers of tables.
 		.descendants("h1, h2, h3, h4, h5, h6, th") {
 			$0
@@ -160,11 +164,9 @@ extension ProseStyles {
 				$0.content(.closeQuote)
 			}
 		}
-		// App icons (`icon.png`) have their own shape and shadow.
+		// The look of a picture of a window, like the screenshots of a guide, so a white image has an edge on the white page. App icons (`icon.png`) have their own shape and shadow.
 		.descendants("img:not([src$='/icon.png'])") {
-			$0
-				.cornerRadius(.rootEm(0.375))
-				.shadow(.large)
+			$0.windowSurface()
 		}
 		.descendants("figcaption") {
 			$0
@@ -172,11 +174,14 @@ extension ProseStyles {
 				.font(size: smallTextSize, lineHeight: 1.5)
 				.color(.secondaryText)
 		}
-		// Code is not hyphenated, like the prose on phones, as a hyphen would change it.
+		// Code is not hyphenated, like the prose on phones, as a hyphen would change it. A faint fill shows the code, not a heavier weight, so a sentence or a table with much code is not a wall of bold text.
 		.descendants("code") {
 			$0
 				.font(size: smallTextSize)
-				.fontWeight(.semibold)
+				.padding(vertical: .em(0.125), horizontal: .em(0.375))
+				.cornerRadius(.smallRadius)
+				// Code that wraps over two lines has one fill, which the line break cuts, so the pieces of a long URL in a table do not become pills of their own.
+				.background(.black.opacity(0.05), dark: .white.opacity(0.09))
 				.color(.primaryText)
 				.hyphenation(false)
 		}
@@ -188,9 +193,11 @@ extension ProseStyles {
 		.descendants("pre") {
 			$0.codeSurface()
 		}
-		// The code in a code block has the font of the block, not of inline code.
+		// The code in a code block has the font of the block, not of inline code, and no fill.
 		.descendants("pre code") {
 			$0
+				.padding(.zero)
+				.background(.transparent)
 				.inheritsFont()
 				.inherits(.color)
 		}
@@ -206,10 +213,6 @@ extension ProseStyles {
 		// The first heading below chips to the sections, like on the general FAQ, has the space between the parts of a page instead of the space of a new section, like the first section below the chips of the guides, so the chips read as the contents of the sections below them.
 		.descendants("\(class: ChipNavigation.Styles.root) + h2, \(class: ChipNavigation.Styles.root) + section > h2:first-child") {
 			$0.margin(.top, .rootEm(2.5))
-		}
-		// An alert after the text is a note apart from it, like the tip about other apps at the end of the features of an app, so it gets twice the space of a block above it.
-		.descendants(":is(p, ul, ol) + \(class: ProseStyles.alert)") {
-			$0.margin(.top, .length(.em(3.5)))
 		}
 		// Low specificity, so a block that sets its own margin, like an alert, keeps it.
 		.children(":where(:first-child)") {
@@ -235,7 +238,7 @@ extension ProseStyles {
 		.display(.block)
 		.listDetailText()
 		// Slightly more spacing when both are used, and the description is smaller.
-		.nested("\(ProseStyles.listSubtitle.selector) + &") {
+		.directlyAfter(ProseStyles.listSubtitle.selector) {
 			$0
 				.margin(.top, .rootEm(0.5))
 				.font(.extraSmall)
@@ -251,12 +254,25 @@ extension ProseStyles {
 		}
 
 	/**
-	Blog posts: colored links, oldstyle numerals, and optimized legibility. The hyphenation and hanging punctuation are in ``typography``, for all prose.
+	An item of a menu path, like “General ›” in “System Settings › General › Date & Time”, which goes to the next line as a whole, so a line breaks only after an arrow, not inside the name of an item. An item that is wider than the column still wraps inside. A quote at its start does not hang outside it.
+	*/
+	static let menuPathItemStyle = Style()
+		.display(.inlineBlock)
+		.frame(maxWidth: .percent(100))
+		.hangingPunctuation([])
+
+	/**
+	The arrow between the items of a menu path, in the color of secondary text, so the levels are easy to see.
+	*/
+	static let menuPathSeparatorStyle = Style()
+		.color(.secondaryText)
+
+	/**
+	Blog posts: colored links and optimized legibility. The hyphenation and hanging punctuation are in ``typography``, for all prose.
 	*/
 	static let articleStyle = Style()
 		.padding(.bottom, .rootEm(5))
-		// Oldstyle numerals. Ligatures and kerning are on by default.
-		.fontVariantNumeric(.oldstyleNumbers)
+		// Ligatures and kerning are on by default.
 		.declaration(raw: .textRendering, "optimizeLegibility")
 		.descendants("a") {
 			$0

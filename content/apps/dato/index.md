@@ -11,6 +11,9 @@ isMenuBarApp: true
 appStoreID: 1470584107
 setappID: 571
 hasSentry: true
+categories: [
+	'clock-and-calendar'
+]
 trial: {
 	url: 'https://www.dropbox.com/scl/fi/0xedw304pw2kwe1tpdboc/Dato-5.8.4-trial-1793864419.zip?rlkey=9eeqpucwp670peb26wp8gcqzl&raw=1'
 }

@@ -95,7 +95,39 @@ class NPMPackageList extends HTMLElement {
 		this.#showMore.hidden = matches.length <= this.#visibleCount;
 		// Each batch is as large as all the rows before it, so the next click shows as many rows as show now, or the rest.
 		this.#showMore.textContent = `Show ${Math.min(this.#visibleCount, matches.length - this.#visibleCount)} more`;
+
+		this.#markWords(isClosest);
 	};
+
+	/*
+	Marks the words of the filter in the names and the descriptions of the shown rows, so the visitor sees why each package matches, like “promise” in the description of p-limit. It is a highlight of the text (`npm-filter-match`, styled in Swift), so the text, find in page, and screen readers stay the same. Nothing is marked without a filter, or when the row is only the closest name.
+
+	Limitation: a word that matches only without the spaces, the punctuation, or the accents of the text, like “promiselimit”, is not marked.
+	*/
+	#markWords(isClosest) {
+		const patterns = isClosest ? [] : this.#filter.value.split(/\s+/).filter(Boolean).map(word => new RegExp(RegExp.escape(word), 'giu'));
+		const ranges = [];
+
+		for (const {row} of this.#shownRows) {
+			const walker = document.createTreeWalker(parts(row).text, NodeFilter.SHOW_TEXT);
+
+			while (walker.nextNode()) {
+				const node = walker.currentNode;
+
+				for (const pattern of patterns) {
+					// Match the original text, as case conversion can change its length, like “İ” to “i̇”.
+					for (const match of node.data.matchAll(pattern)) {
+						const range = new Range();
+						range.setStart(node, match.index);
+						range.setEnd(node, match.index + match[0].length);
+						ranges.push(range);
+					}
+				}
+			}
+		}
+
+		CSS.highlights.set('npm-filter-match', new Highlight(...ranges));
+	}
 
 	// The number of matching packages while the filter has text, like “49 packages”, so screen readers hear that the filter worked. Nothing without a filter, where the list has all the packages.
 	#statusText(isFiltering, matchCount) {

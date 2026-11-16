@@ -151,10 +151,9 @@ struct GeoCitiesSkater: ScriptedElement {
 					.part(Parts.screen),
 					.width(400),
 					.height(240),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The screen of Sindre Hawk’s Pro Skater. The left and right arrows push and spin, Space ollies (hold it to jump higher), Z flips, X grabs, C grinds, and V does a special trick when the meter is full. Up and then down starts a manual. Enter or a click starts a run.")
+					.accessibilityLabel("The screen of Sindre Hawk’s Pro Skater. The left and right arrows push and spin, Space ollies (hold it to jump higher), Z flips, X grabs, C grinds, and V does a special trick when the meter is full. Up and then down starts a manual. Enter or a click starts a run.", role: .application)
 					.style(Styles.screen)
 			}
 			.style(Styles.bezel)

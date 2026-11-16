@@ -25,7 +25,7 @@ Text from AI chatbots, like ChatGPT and Claude, can have invisible characters. T
 
 Pure Paste removes zero-width spaces and joiners, direction marks, line and paragraph separators, and control characters that cause problems. It keeps accents (like “café”), normal spaces, tabs, and new lines. An emoji that is made of more than one emoji, like 👨‍👩‍👧, becomes separate emoji, as the joiner between them is an invisible character too.
 
-Pure Paste cleans text only while “Automatically clear formatting” is on (it is on by default), and not in the apps in the “Exclude” settings. [How to paste without formatting.](paste-without-formatting-mac.md)
+Pure Paste cleans the text each time that it clears the formatting. With “Automatically clear formatting” on (the default), it does this when you copy, but not in the apps in the “Exclude” settings. With that setting off, choose “Clear Formatting Now” in its menu. [How to paste without formatting.](paste-without-formatting-mac.md)
 
 ## Without an app
 

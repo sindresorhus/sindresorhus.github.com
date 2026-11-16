@@ -32,7 +32,7 @@ The answers are short, to fit the screen of the watch. You can ask in many langu
 
 ## Without an app
 
-On watchOS 27, [Siri AI](https://support.apple.com/127893) answers general questions, like ChatGPT. If it works for you, use it. It needs:
+On watchOS 27, [Siri AI](https://support.apple.com/127893), which is in beta, answers general questions, like ChatGPT. If it works for you, use it. It needs:
 
 - An Apple Watch Series 9 or later, Ultra 2 or later, or SE 3.
 - An iPhone with Apple Intelligence, paired with the watch, with Siri AI turned on.

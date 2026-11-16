@@ -54,10 +54,9 @@ struct GeoCitiesBergenTrail: ScriptedElement {
 					.part(Parts.canvas),
 					.width(280),
 					.height(160),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The picture of the trip. Press Enter or Space for the main choice of the screen: to continue, to stop the car and size up the situation (or with reduced motion, to drive on for a day), and while fishing, to pull the line when the float goes under. The number keys pick a choice, and Escape keeps the trip when “Start a New Trip” asks.")
+					.accessibilityLabel("The picture of the trip. Press Enter or Space for the main choice of the screen: to continue, to stop the car and size up the situation (or with reduced motion, to drive on for a day), and while fishing, to pull the line when the float goes under. The number keys pick a choice, and Escape keeps the trip when “Start a New Trip” asks.", role: .application)
 					.style(Styles.canvas)
 
 				div(.part(Parts.screen)) {}

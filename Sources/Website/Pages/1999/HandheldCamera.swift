@@ -100,10 +100,9 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 							.part(Parts.screen),
 							.width(160),
 							.height(144),
-							.tabindex(0),
-							.role(.application)
+							.tabindex(0)
 						) {}
-							.accessibilityLabel("The screen of the camera. The arrow keys are the D-pad, X or Space is A, Z is B, Enter is Start, and Backspace is Select. In Shoot, A takes a photo, up and down change the brightness, and left and right the contrast.")
+							.accessibilityLabel("The screen of the camera. The arrow keys are the D-pad, X or Space is A, Z is B, Enter is Start, and Backspace is Select. In Shoot, A takes a photo, up and down change the brightness, and left and right the contrast.", role: .application)
 							.style(Styles.screen)
 
 						GeoCitiesHandheld.Brand()
@@ -206,10 +205,9 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 							canvas(
 								.part(Parts.print),
 								.width(176),
-								.height(176),
-								.role(.image)
+								.height(176)
 							) {}
-								.accessibilityLabel("The paper of the printer")
+								.accessibilityLabel("The paper of the printer", role: .image)
 								.style(Styles.printCanvas)
 						}
 						.style(Styles.paper)
@@ -271,8 +269,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
 				}
 			}
-			.accessibilityLabel("The paper")
-			.attributes(.role(.group))
+			.accessibilityLabel("The paper", role: .group)
 			.style(Styles.printerButtons)
 
 			div {
@@ -308,8 +305,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 					.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
 				}
 			}
-			.accessibilityLabel("The menu of the camera")
-			.attributes(.role(.group))
+			.accessibilityLabel("The menu of the camera", role: .group)
 			.style(GeoCitiesPage.Styles.buttonRow)
 
 			div {
@@ -376,8 +372,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 						.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
 					}
 				}
-				.accessibilityLabel("What the camera looks at")
-				.attributes(.role(.group))
+				.accessibilityLabel("What the camera looks at", role: .group)
 				.style(GeoCitiesPage.Styles.buttonRow)
 
 				div {
@@ -435,8 +430,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 						.accessibilityLabel("Photo \(index + 1), empty")
 					}
 				}
-				.accessibilityLabel("The album")
-				.attributes(.role(.group))
+				.accessibilityLabel("The album", role: .group)
 				.style(Styles.album, Styles.belowButtons)
 
 				div {
@@ -503,8 +497,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 						.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
 					}
 				}
-				.accessibilityLabel("The stamps")
-				.attributes(.role(.group))
+				.accessibilityLabel("The stamps", role: .group)
 				.style(GeoCitiesPage.Styles.buttonRow)
 
 				div {
@@ -632,8 +625,7 @@ struct GeoCitiesHandheldCamera: ScriptedElement {
 						}
 						.style(Styles.wallEmpty)
 					}
-					.accessibilityLabel("The stickers inside my wardrobe door")
-					.attributes(.role(.group))
+					.accessibilityLabel("The stickers inside my wardrobe door", role: .group)
 					.style(Styles.wall)
 
 					div {

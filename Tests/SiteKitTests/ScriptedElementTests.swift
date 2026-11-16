@@ -6,27 +6,15 @@ import SiteKit
 
 struct ScriptedElementTests {
 	@Test
-	func `script source alternatives expose their applicable nonoptional payload`() throws {
-		let fileScript = ElementScript(swiftFile: "/example/Widget.swift")
-		guard case .file(let file) = fileScript.location else {
-			Issue.record("Expected a script file.")
-			return
-		}
-		#expect(file.path() == "/example/Scripts/Widget.js")
-
-		let script = ElementScript(inline: "export default class extends HTMLElement {}")
-		guard case .inline(let text) = script.location else {
-			Issue.record("Expected inline script text.")
-			return
-		}
-		#expect(text == "export default class extends HTMLElement {}")
+	func `the script is the file with the name of the Swift file in the Scripts folder next to it`() {
+		#expect(ElementScript(swiftFile: "/example/Widget.swift").file.path() == "/example/Scripts/Widget.js")
 	}
 
 	@Test
-	func `rendered element fragments replay inline and file script requirements`() throws {
+	func `rendered element fragments replay their script requirements`() throws {
 		let fragment = try RenderedHTML {
 			FeedTicker(config: nil)
-			InlineTicker()
+			PlainTicker()
 		}
 		let resources = PageResources()
 		_ = try resources.collect {
@@ -36,8 +24,7 @@ struct ScriptedElementTests {
 			}.render()
 		}
 		#expect(resources.elements.count == 2)
-		#expect(resources.scripts == [try #require(FeedTicker.script.path)])
-		#expect(resources.inlineScriptElements.map { ObjectIdentifier($0) } == [ObjectIdentifier(InlineTicker.self)])
+		#expect(resources.scripts == [FeedTicker.script.path, PlainTicker.script.path])
 	}
 
 	@Test
@@ -109,19 +96,11 @@ struct ScriptedElementTests {
 		#expect(PlainTicker.tagName == "plain-ticker")
 	}
 
-	@Test(arguments: ["</script>", "</SCRIPT>", "text </ScRiPt suffix"])
-	func `inline element scripts reject HTML closing tags at construction`(source: String) async {
-		await #expect(processExitsWith: .failure) { [source] in
-			_ = ElementScript(inline: source)
-		}
-	}
-
 	@Test
 	func `the tag name comes from the type, like the class name of the root style, and the path of the script from its file`() {
 		#expect(FeedTicker.tagName == "feed-ticker")
 		#expect(FeedTicker.tagName == FeedTicker.Styles.root.className)
 		#expect(FeedTicker.script.path == #path("/scripts/elements/FeedTicker.js"))
-		#expect(InlineTicker.script.path == nil)
 	}
 
 	/**
@@ -155,7 +134,7 @@ struct ScriptedElementTests {
 		}
 
 		#expect(html == #"<feed-ticker class="feed-ticker" data-config="{&quot;speed&quot;:2}"><button data-part="refresh" data-state="idle" class="feed-ticker-refresh">Refresh</button></feed-ticker>"#)
-		#expect(resources.scripts == [try #require(FeedTicker.script.path)])
+		#expect(resources.scripts == [FeedTicker.script.path])
 
 		let css = Stylesheet {
 			resources.styleNodes
@@ -181,31 +160,6 @@ struct ScriptedElementTests {
 		#expect(PlainTicker().attributes(.id("plain")).render() == #"<plain-ticker class="plain-ticker" id="plain"></plain-ticker>"#)
 	}
 
-	@Test
-	func `an inline script gets the class name of the type and the definition of the element`() throws {
-		#expect(try InlineTicker.generatedScript() == """
-		export default class InlineTicker extends HTMLElement {
-			connectedCallback() {}
-		}
-		customElements.define('inline-ticker', InlineTicker);
-
-		""")
-	}
-
-	/**
-	An inline script is for a small element, so it extends `HTMLElement` and imports nothing. A script that needs a base class of the site is a script file.
-	*/
-	@Test
-	func `an inline script needs one class that extends HTMLElement`() {
-		#expect(throws: ElementScriptError.self) {
-			try BaseTicker.generatedScript()
-		}
-
-		#expect(throws: ElementScriptError.self) {
-			try NamedTicker.generatedScript()
-		}
-	}
-
 	/**
 	The elements of the pages that render inside a collector are collected in it too, like the elements of all the pages of the site in a test.
 	*/
@@ -216,26 +170,23 @@ struct ScriptedElementTests {
 
 		try outer.collect {
 			_ = try inner.collect {
-				(FeedTicker(config: FeedTicker.Config(speed: 1)).render(), InlineTicker().render())
+				(FeedTicker(config: FeedTicker.Config(speed: 1)).render(), PlainTicker().render())
 			}
 		}
 
-		#expect(outer.elements.map { ObjectIdentifier($0) } == [ObjectIdentifier(FeedTicker.self), ObjectIdentifier(InlineTicker.self)])
-		#expect(outer.scripts == [try #require(FeedTicker.script.path)])
-		#expect(outer.inlineScriptElements.map { ObjectIdentifier($0) } == [ObjectIdentifier(InlineTicker.self)])
+		#expect(outer.elements.map { ObjectIdentifier($0) } == [ObjectIdentifier(FeedTicker.self), ObjectIdentifier(PlainTicker.self)])
+		#expect(outer.scripts == [FeedTicker.script.path, PlainTicker.script.path])
 	}
 
 	@Test
-	func `an inline script is added to the page once, instead of a script file`() throws {
+	func `the script of an element is added to the page once`() throws {
 		let resources = PageResources()
 		let html = try resources.collect {
-			(InlineTicker().render(), InlineTicker().render())
+			(PlainTicker().render(), PlainTicker().render())
 		}
 
-		#expect(html.0 == #"<inline-ticker class="inline-ticker"></inline-ticker>"#)
-		#expect(resources.scripts == [])
-		#expect(resources.inlineScriptElements.map { ObjectIdentifier($0) } == [ObjectIdentifier(InlineTicker.self)])
-		#expect(InlineTicker.script.file == nil)
+		#expect(html.0 == #"<plain-ticker class="plain-ticker"></plain-ticker>"#)
+		#expect(resources.scripts == [PlainTicker.script.path])
 	}
 }
 
@@ -291,72 +242,6 @@ private enum FeedTickerStyles: String, StyleSet {
 
 	var style: Style {
 		Style().display(.inline)
-	}
-}
-
-/**
-An element with an inline script that extends the base class of the site.
-*/
-private struct BaseTicker: ScriptedElement {
-	static let script = ElementScript(inline: """
-	// The ticker.
-	export default class extends ScriptedElement {
-		connected() {}
-	}
-	""")
-
-	var content: some HTML {
-		EmptyHTML()
-	}
-
-	enum Styles: String, ElementStyleSet {
-		case root
-
-		var style: Style {
-			Style().display(.contents)
-		}
-	}
-}
-
-/**
-An element with an inline script with a named class, which the page cannot define.
-*/
-private struct NamedTicker: ScriptedElement {
-	static let script = ElementScript(inline: "export class Ticker extends HTMLElement {}")
-
-	var content: some HTML {
-		EmptyHTML()
-	}
-
-	enum Styles: String, ElementStyleSet {
-		case root
-
-		var style: Style {
-			Style().display(.contents)
-		}
-	}
-}
-
-/**
-An element with an inline script and no parts.
-*/
-private struct InlineTicker: ScriptedElement {
-	static let script = ElementScript(inline: """
-	export default class extends HTMLElement {
-		connectedCallback() {}
-	}
-	""")
-
-	var content: some HTML {
-		EmptyHTML()
-	}
-
-	enum Styles: String, ElementStyleSet {
-		case root
-
-		var style: Style {
-			Style().display(.contents)
-		}
 	}
 }
 
@@ -420,7 +305,7 @@ private struct NullableTicker: ScriptedElement {
 }
 
 private struct Clock: ScriptedElement {
-	static let script = ElementScript(inline: "export default class extends HTMLElement {}")
+	static let script = ElementScript()
 	typealias Styles = PlainTicker.Styles
 
 	var content: some HTML {
@@ -429,7 +314,7 @@ private struct Clock: ScriptedElement {
 }
 
 private struct FontFace: ScriptedElement {
-	static let script = ElementScript(inline: "export default class extends HTMLElement {}")
+	static let script = ElementScript()
 	typealias Styles = PlainTicker.Styles
 
 	var content: some HTML {

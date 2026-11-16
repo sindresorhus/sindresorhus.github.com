@@ -135,9 +135,8 @@ struct ReleaseNotesPage: Page {
 				Style()
 					.margin(.zero)
 					.font(.extraLarge2)
-					.from(.laptop) {
-						$0.font(size: .em(1.8), lineHeight: 1.1111)
-					}
+					// Digits of one width, so the dates after versions of the same length line up.
+					.monospacedDigit()
 					// Smaller in the column, so the notes, not the versions, draw the eye.
 					.from(.desktop) {
 						$0.font(size: .em(1.5), lineHeight: 1.2)

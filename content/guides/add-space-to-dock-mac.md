@@ -15,9 +15,7 @@ apps: [
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
-1. Click its icon in the menu bar, and open its settings.
-1. Click “Tools”.
+1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tools”.
 1. In “Dock spacers”, click “Add Regular” or “Add Small” in “Main section” for the apps, or in “Trash section” for the side with the Trash.
 1. Drag the spacer in the Dock to where you want it.
 }

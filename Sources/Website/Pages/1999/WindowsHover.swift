@@ -33,13 +33,12 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 			.part(Parts.screen),
 			.width(320),
 			.height(200),
-			.tabindex(0),
-			.role(.application)
+			.tabindex(0)
 		) {}
-			.accessibilityLabel("Hover! The arrow keys or W, A, S, and D steer the hovercraft, Space uses a power-up, and Enter starts.")
+			.accessibilityLabel("Hover! The arrow keys or W, A, S, and D steer the hovercraft, Space uses a power-up, and Enter starts.", role: .application)
 			.style(Styles.screen, GeoCitiesPage.Styles.scriptingOnly)
 
-		div(.role(.group)) {
+		div {
 			for control in Self.controls {
 				button(.type(.button), .hook(Hooks.control, value: control.id)) {
 					control.symbol
@@ -49,7 +48,7 @@ struct GeoCitiesWindowsHover: ScriptedElement {
 				.style(Styles.control)
 			}
 		}
-		.accessibilityLabel("Controls")
+		.accessibilityLabel("Controls", role: .group)
 		.style(Styles.controls, GeoCitiesPage.Styles.scriptingOnly)
 
 		div {

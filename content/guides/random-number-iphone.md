@@ -39,7 +39,7 @@ To copy the number, touch and hold it. Randa is free, and also works on iPad, Ma
 @Steps {
 1. Open the Shortcuts app, tap the add button, and add the “Random Number” action.
 1. Set the minimum and the maximum in the action. Both numbers can come.
-1. Add the “Show Result” action, and tap the run button.
+1. Add the “Show Content” action, and tap the run button.
 }
 
 Add the shortcut to the Home Screen to get a number with one tap.

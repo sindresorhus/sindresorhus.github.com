@@ -62,8 +62,8 @@ struct GeoCitiesComicChat: ScriptedElement {
 				" and you point at yourself. SHOUT IN CAPITALS. LOL works too. Smileys like :-) change your face."
 			}
 
-			div(.part(Parts.strip), .role(.log)) {}
-				.accessibilityLabel("The comic strip of the chat")
+			div(.part(Parts.strip)) {}
+				.accessibilityLabel("The comic strip of the chat", role: .log)
 				.style(Styles.strip, GeoCitiesPage.Styles.scriptingOnly)
 
 			form(.part(Parts.form)) {

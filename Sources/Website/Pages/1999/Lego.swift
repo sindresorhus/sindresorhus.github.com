@@ -70,8 +70,7 @@ struct GeoCitiesLego: ScriptedElement {
 							.style(Styles.toolButton)
 						}
 					}
-					.accessibilityLabel("Brick")
-					.attributes(.role(.group))
+					.accessibilityLabel("Brick", role: .group)
 					.style(Styles.toolRow)
 
 					div {
@@ -85,8 +84,7 @@ struct GeoCitiesLego: ScriptedElement {
 							.style(Styles.swatch, color.style)
 						}
 					}
-					.accessibilityLabel("Color")
-					.attributes(.role(.group))
+					.accessibilityLabel("Color", role: .group)
 					.style(Styles.toolRow)
 				}
 				.style(Styles.toolbar)
@@ -96,10 +94,9 @@ struct GeoCitiesLego: ScriptedElement {
 					.part(Parts.canvas),
 					.width(640),
 					.height(480),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The LEGO baseplate. Move with the arrow keys, press Enter to put the brick on, R to turn it, and Delete to take the top brick off.")
+					.accessibilityLabel("The LEGO baseplate. Move with the arrow keys, press Enter to put the brick on, R to turn it, and Delete to take the top brick off.", role: .application)
 					.style(Styles.canvas)
 
 				p(.part(Parts.step), .hidden) {}

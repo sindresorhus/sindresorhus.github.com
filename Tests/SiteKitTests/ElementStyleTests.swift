@@ -5,7 +5,7 @@ import SiteKit
 
 struct ElementStyleTests {
 	@Test
-	func `requesting inline scripts does not generate unrelated CSS rules`() throws {
+	func `requesting the scripts does not generate unrelated CSS rules`() throws {
 		let resources = PageResources()
 		_ = try resources.collect {
 			div {}
@@ -14,7 +14,7 @@ struct ElementStyleTests {
 		}
 
 		#expect(ScriptQueryStyles.evaluations.withLock { $0 } == 0)
-		#expect(resources.inlineScriptElements.isEmpty)
+		#expect(resources.scripts.isEmpty)
 		#expect(ScriptQueryStyles.evaluations.withLock { $0 } == 0)
 		#expect(!resources.styleNodes.isEmpty)
 		#expect(ScriptQueryStyles.evaluations.withLock { $0 } == 1)

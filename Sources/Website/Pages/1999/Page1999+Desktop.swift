@@ -174,10 +174,9 @@ extension GeoCitiesPage {
 					canvas(
 						.id(IDs.snakeScreen),
 						.width(84),
-						.height(48),
-						.role(.image)
+						.height(48)
 					) {}
-						.accessibilityLabel("The screen of the phone, with the snake")
+						.accessibilityLabel("The screen of the phone, with the snake", role: .image)
 						.style(Styles.phoneCanvas)
 
 					p(.id(IDs.snakeStatus), .role(.status)) {
@@ -358,7 +357,7 @@ extension GeoCitiesPage {
 	*/
 	var paint: some HTML {
 		div {
-			div(.role(.group)) {
+			div {
 				for tool in Self.paintTools {
 					button(.type(.button), .hook(Hooks.paintTool, value: tool.id), .ariaPressed(tool.id == "pencil")) {
 						tool.icon
@@ -389,10 +388,10 @@ extension GeoCitiesPage {
 				.help("Save the picture")
 				.style(Styles.paintButton)
 			}
-			.accessibilityLabel("Tools")
+			.accessibilityLabel("Tools", role: .group)
 			.style(Styles.paintTools)
 
-			div(.id(IDs.paintStamps), .role(.group), .hidden) {
+			div(.id(IDs.paintStamps), .hidden) {
 				for (index, stamp) in Self.paintStamps.enumerated() {
 					button(.type(.button), .hook(Hooks.paintStamp, value: stamp.gif.stillPath.description), .ariaPressed(index == 0)) {
 						gif(stamp.gif, style: .paintStampPicture)
@@ -401,7 +400,7 @@ extension GeoCitiesPage {
 					.style(Styles.paintButton)
 				}
 			}
-			.accessibilityLabel("Stamps")
+			.accessibilityLabel("Stamps", role: .group)
 			.style(Styles.paintTools)
 
 			div {
@@ -409,10 +408,9 @@ extension GeoCitiesPage {
 					.id(IDs.paintCanvas),
 					.width(320),
 					.height(200),
-					.tabindex(0),
-					.role(.image)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("Your picture. Draw with the mouse or a finger, or move the brush with the arrow keys and paint with Space.")
+					.accessibilityLabel("Your picture. Draw with the mouse or a finger, or move the brush with the arrow keys and paint with Space.", role: .image)
 					.style(Styles.paintCanvas)
 
 				span(.id(IDs.paintCursor), .hidden) {}
@@ -421,7 +419,7 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.paintCanvasFrame)
 
-			div(.role(.group)) {
+			div {
 				for color in Self.paintColors {
 					button(.type(.button), .hook(Hooks.paintColor, value: color.hex), .ariaPressed(color.hex == "#000000")) {}
 						.accessibilityLabel(color.name)
@@ -429,7 +427,7 @@ extension GeoCitiesPage {
 						.style(Styles.paintSwatch)
 				}
 			}
-			.accessibilityLabel("Colors")
+			.accessibilityLabel("Colors", role: .group)
 			.style(Styles.paintPalette)
 
 			p(.id(IDs.paintStatus), .role(.status)) {
@@ -446,10 +444,10 @@ extension GeoCitiesPage {
 	var sweeper: some HTML {
 		div {
 			div {
-				p(.id(IDs.sweeperBugs), .role(.image)) {
+				p(.id(IDs.sweeperBugs)) {
 					"010"
 				}
-				.accessibilityLabel("10 bugs left")
+				.accessibilityLabel("10 bugs left", role: .image)
 				.style(Styles.sweeperLED)
 
 				button(.id(IDs.sweeperFace), .type(.button)) {
@@ -466,14 +464,14 @@ extension GeoCitiesPage {
 			}
 			.style(Styles.sweeperBar)
 
-			div(.id(IDs.sweeperGrid), .role(.group)) {
+			div(.id(IDs.sweeperGrid)) {
 				for index in 0..<(Self.sweeperSize * Self.sweeperSize) {
 					button(.type(.button), .hook(Hooks.sweeperCell, value: "\(index)"), .tabindex(index == 0 ? 0 : -1)) {}
 						.accessibilityLabel("Row \(index / Self.sweeperSize + 1), column \(index % Self.sweeperSize + 1)")
 						.style(Styles.sweeperCell)
 				}
 			}
-			.accessibilityLabel("Minefield of 9 by 9 squares")
+			.accessibilityLabel("Minefield of 9 by 9 squares", role: .group)
 			.style(Styles.sweeperGrid)
 
 			button(.id(IDs.sweeperFlag), .type(.button), .ariaPressed(false)) {
@@ -564,10 +562,10 @@ extension GeoCitiesPage {
 	var solitaire: some HTML {
 		div {
 			for suit in [(symbol: "♠", name: "spades", isRed: false), (symbol: "♥", name: "hearts", isRed: true), (symbol: "♣", name: "clubs", isRed: false), (symbol: "♦", name: "diamonds", isRed: true)] {
-				p(.hook(Hooks.solitairePile), .role(.image)) {
+				p(.hook(Hooks.solitairePile)) {
 					"K\(suit.symbol)"
 				}
-				.accessibilityLabel("King of \(suit.name)")
+				.accessibilityLabel("King of \(suit.name)", role: .image)
 				.style(suit.isRed ? Styles.redCard : Styles.card)
 			}
 		}

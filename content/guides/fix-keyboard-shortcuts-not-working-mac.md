@@ -25,7 +25,7 @@ An app must turn Secure Input off again when you leave the password field. Some 
 1. Install [Shortcutie](../apps/shortcutie/index.md), and open it once.
 1. In the Shortcuts app, make a new shortcut, and add the “Get Apps Using Secure Input” action.
 1. Keep “Only Non-Active Apps” on. These are the apps that block keys while they are not in front.
-1. Add the “Show Result” action, and run the shortcut.
+1. Add the “Show Content” action, and run the shortcut.
 1. Quit the app that it shows, and try the keyboard shortcut again.
 }
 

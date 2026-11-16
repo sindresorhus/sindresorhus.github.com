@@ -94,7 +94,9 @@ Learn more in the [Hyperduck review by MacStories](https://www.macstories.net/re
 
 ### Shut down Mac
 
-You can use the Shortcuts support mentioned above to shut down your computer remotely from your iOS device. Just follow the above steps and use the “Shut Down” action in the Shortcuts app or the AppleScript action with the following: `tell app "System Events" to shut down`.
+You can use the Shortcuts support mentioned above to shut down your computer remotely from your iOS device. Just follow the above steps and use the “Shut Down” action in the Shortcuts app or the AppleScript action with the following: `tell app "System Events" to shut down`. *([guide](../../guides/shut-down-mac-from-iphone.md))*
+
+To lock the Mac, use the “Lock Screen” action instead. *([guide](../../guides/lock-mac-from-iphone.md))*
 
 ### Trigger Raycast deeplinks {#raycast}
 

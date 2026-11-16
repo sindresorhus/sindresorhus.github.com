@@ -180,7 +180,8 @@ struct AppCard: HTML {
 				Style()
 					.font(size: .rootEm(1), lineHeight: 1.35)
 					.color(.bodyText)
-					.textWrap(.pretty)
+					// Balanced, as the subtitle is short, and with `pretty`, Chrome often leaves one word alone on the second line.
+					.textWrap(.balance)
 					.from(.laptop) {
 						$0.font(size: .rootEm(1.0625), lineHeight: 1.4)
 					}

@@ -48,10 +48,9 @@ struct GeoCitiesHandheld: ScriptedElement {
 					.part(Parts.screen),
 					.width(160),
 					.height(144),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The screen of the game console. Use the arrow keys to run, the up arrow or X to jump, Z to run faster, and Enter to start or pause.")
+					.accessibilityLabel("The screen of the game console. Use the arrow keys to run, the up arrow or X to jump, Z to run faster, and Enter to start or pause.", role: .application)
 					.style(Styles.screen)
 
 				GeoCitiesHandheld.Brand()

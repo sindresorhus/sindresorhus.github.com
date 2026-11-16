@@ -50,12 +50,7 @@ struct BlogPostPage: Page {
 
 				Prose(markdown: post.markdown.content, variant: .article)
 					.style {
-						$0
-							.margin(.top, .rootEm(2))
-							// A post that starts with an image moves up, so the gap below the header is the same as with text.
-							.nested("&:has(> p:first-child > img)") {
-								$0.margin(.top, .pixels(-16))
-							}
+						$0.margin(.top, .rootEm(2))
 					}
 			}
 

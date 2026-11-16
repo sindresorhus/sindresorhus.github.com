@@ -51,7 +51,7 @@ struct StarRating: HTML {
 
 		div {}
 			// The stars are a mask, so screen readers do not see them, and a decorative row is silent without a label.
-			.attributes(.role(.image), .ariaLabel("\(rating.formatted(.number.locale(.site))) out of 5 stars"), when: !isDecorative)
+			.accessibilityLabel(isDecorative ? nil : "\(rating.formatted(.number.locale(.site))) out of 5 stars", role: .image)
 			.style(Styles.root)
 			.style {
 				$0.setting(Self.fillWidth, to: .rootEm(filledEnd))

@@ -55,7 +55,7 @@ struct AppPage: Page {
 
 	var body: some HTML {
 		section {
-			// The random app page links to `#another-random-app`, which shows the “Another Random App” button. The ID is at the top, so the page does not scroll.
+			// The random app page links to `#another-random-app`, which shows the “Another Random App” button. The ID is at the top, and its scroll margin is taller than the screen, so the page does not scroll, not even by the space that the sticky header keeps above a target.
 			article(.id(AppHero.anotherRandomAppID)) {
 				let separatedContent = app.markdown.contentSeparatingIntroduction
 
@@ -108,7 +108,7 @@ struct AppPage: Page {
 
 						ChipNavigation(label: "Compared with", links: comparisonLinks)
 							.style {
-								$0.justifyContent(.start)
+								$0.textAlign(.leading)
 							}
 					}
 					.style {
@@ -220,6 +220,8 @@ extension AppPage {
 				// The parts of the page have no outer margins, so the page spaces them here. Some parts get more space around them, which the body sets where it shows them. The margins collapse, so the space between two parts is the larger of the bottom margin of the first and the top margin of the second, and the margins of the Markdown inside collapse into it too.
 				Style()
 					.flowSpacing(.rootEm(5))
+					// The random app page links to the article (``AppHero/anotherRandomAppID``), and the page must stay at the top.
+					.scrollMargin(top: .viewportHeight(100))
 			}
 		}
 	}

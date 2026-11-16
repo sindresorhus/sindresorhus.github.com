@@ -56,10 +56,9 @@ struct GeoCitiesMusic: ScriptedElement {
 						.part(Parts.discmanCanvas),
 						.width(240),
 						.height(240),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("My Discman. Drag it around to shake it, or press the arrow keys to bump it.")
+						.accessibilityLabel("My Discman. Drag it around to shake it, or press the arrow keys to bump it.", role: .application)
 						.style(Styles.discman)
 
 					div {
@@ -104,10 +103,9 @@ struct GeoCitiesMusic: ScriptedElement {
 						.part(Parts.walkmanCanvas),
 						.width(280),
 						.height(200),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("My Walkman. With the pencil in, drag around the pencil in circles to wind the tape in, or press the arrow keys.")
+						.accessibilityLabel("My Walkman. With the pencil in, drag around the pencil in circles to wind the tape in, or press the arrow keys.", role: .application)
 						.style(Styles.walkman)
 
 					div {

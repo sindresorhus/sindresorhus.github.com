@@ -36,12 +36,11 @@ struct ContentLoadingTests {
 		let second = ContentError(file: file, line: 4, reason: "Second mistake.")
 		let aggregate = ContentErrors([first, second])
 		let publishing = PublishingError.renderFailed(#path("/test"), first)
-		let script = ElementScriptError.classDeclaration("The test script")
 
 		#expect(aggregate.errors.map(\.reason) == ["First mistake.", "Second mistake."])
 		#expect(aggregate.description == "/content/test.md:3: First mistake.\n/content/test.md:4: Second mistake.")
 
-		for error in [first, aggregate, publishing, script] as [any Error] {
+		for error in [first, aggregate, publishing] as [any Error] {
 			#expect((error as NSError).localizedDescription == String(describing: error))
 		}
 	}

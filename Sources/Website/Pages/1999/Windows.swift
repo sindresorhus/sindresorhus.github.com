@@ -550,8 +550,8 @@ extension GeoCitiesWindows {
 	*/
 	struct TaskButtons: HTML {
 		var body: some HTML {
-			div(.id(IDs.tasks), .role(.group)) {}
-				.accessibilityLabel("Open windows")
+			div(.id(IDs.tasks)) {}
+				.accessibilityLabel("Open windows", role: .group)
 				.style(Styles.tasks)
 
 			template(.id(IDs.taskTemplate)) {
@@ -566,7 +566,7 @@ extension GeoCitiesWindows {
 	*/
 	struct QuickLaunch: HTML {
 		var body: some HTML {
-			div(.role(.group)) {
+			div {
 				button(.id(IDs.showDesktop), .type(.button), .ariaPressed(false)) {
 					"🖥️"
 				}
@@ -581,7 +581,7 @@ extension GeoCitiesWindows {
 				.help("Launch Internet Explorer Browser")
 				.style(Styles.trayButton)
 			}
-			.accessibilityLabel("Quick Launch")
+			.accessibilityLabel("Quick Launch", role: .group)
 			.style(Styles.quickLaunch)
 
 			p(.id(IDs.beginHint), .hidden) {
@@ -629,7 +629,7 @@ extension GeoCitiesWindows {
 				.help("Volume")
 				.style(Styles.trayButton)
 
-				div(.id(IDs.volume), .hidden, .role(.group)) {
+				div(.id(IDs.volume), .hidden) {
 					GeoCitiesWindows.hiddenLabel("Volume", for: .volumeLevel)
 
 					input(
@@ -646,7 +646,7 @@ extension GeoCitiesWindows {
 						" Mute"
 					}
 				}
-				.accessibilityLabel("Volume")
+				.accessibilityLabel("Volume", role: .group)
 				.style(Styles.volumePopup)
 			}
 			.style(Styles.tray)

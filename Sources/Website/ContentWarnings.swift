@@ -1361,7 +1361,6 @@ extension SiteContent {
 		let glyphShortcut = /[⌃⌥⇧⌘](?:\+?[⌃⌥⇧⌘])*(?:\+?(?:F\d{1,2}\b|(?:Space|Return|Enter|Tab|Esc|Escape|Delete)\b|[A-Za-z0-9]\b|[◀▶▲▼⌫⌦↩⇥⎋]))?/
 		// A phrase in straight double quotes, like `"Settings"`. The first quote starts a word, so the inch marks of `13" and 15"` or `13", 15"` are not a phrase.
 		let straightQuotes = /(?:^|[\s(\[])("\S(?:[^"]*\S)?")/
-		let htmlComment = /(?s)<!--.*?-->/
 		let todoComment = /(?s)<!--\s*(TODO\b.*?)\s*-->/
 		let lineBreak = /(?i)^\s*<br\s*\/?>\s*$/
 		let rawLinkDestination = /\s(?:href|src)="([^"]*)"/
@@ -1443,7 +1442,7 @@ extension SiteContent {
 					file.todoWarning(note: match.1, line: text.line(of: markup))
 				}
 
-				let html = html.replacing(htmlComment, with: "")
+				let html = html.removingHTMLComments
 				let mistakes = rawHTMLMistakes.filter { html.contains($0.0) }.map { file.warning(.rawScriptOrStyle, line: text.line(of: markup), $0.1) }
 				let links = html.matches(of: rawLinkDestination).compactMap { localizedAppleLinkWarning(String($0.1), at: markup) }
 				return todos + imageWarnings(html, at: markup) + mistakes + links
@@ -1589,6 +1588,16 @@ extension SiteContent {
 					}
 				case let html as HTMLBlock:
 					warnings += rawHTMLWarnings(html.rawHTML, at: html) + [lineBreakSpacerWarning(html.rawHTML, at: html)].compactMap(\.self)
+
+					// A comment at the start of a line can end a list, and the page leaves the comment out, so a comment between two items can show the list as two lists, with a larger space between them. Only lists of the same kind are checked, and only the first comment of a run, so a split gets one warning. The parser does not retain the list marker, so the guidance is conditional.
+					if
+						html.isCommentOnly,
+						let previousList = html.previousSibling as? any ListItemContainer,
+						let nextList = html.parent?.children.dropFirst(html.indexInParent + 1).first(where: { !$0.isCommentOnly }) as? any ListItemContainer,
+						type(of: previousList) == type(of: nextList)
+					{
+						warnings.append(file.warning(.commentSplitsList, line: text.line(of: html), "Two lists have only a comment between them. If they should be one list, use the same list marker and indent each line of the comment like the text of the items, so it stays in the item above."))
+					}
 				case let footnote as FootnoteReference:
 					warnings.append(file.warning(.footnote, line: text.line(of: footnote), "Write the footnote `[^\(footnote.footnoteID)]` as a note, like `^[text](note: \"The note.\")`, which needs no definition in another place."))
 				// The text of a raw `<kbd>` has its own warning, which corrects the glyphs.
@@ -1984,6 +1993,7 @@ extension Warning.Kind {
 	static let sameGuideSteps = Self("Guide with the steps of another guide")
 	static let freePaidApp = Self("Paid app that a guide calls free")
 	static let unknownHiddenReview = Self("Hidden review title that matches no review")
+	static let commentSplitsList = Self("Comment that splits a list")
 }
 
 extension MarkdownFile {

@@ -69,7 +69,7 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 			}
 			.style(Styles.options)
 
-			div(.role(.group)) {
+			div {
 				for tool in Self.tools {
 					button(.type(.button), .hook(Hooks.tool, value: tool.id), .ariaPressed(tool.id == "smear")) {
 						span {
@@ -85,17 +85,16 @@ struct GeoCitiesWindowsGoo: ScriptedElement {
 					.style(Styles.tool)
 				}
 			}
-			.accessibilityLabel("Tools")
+			.accessibilityLabel("Tools", role: .group)
 			.style(Styles.tools)
 
 			canvas(
 				.part(Parts.canvas),
 				.width(256),
 				.height(256),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The face. Drag on it to goo it with the tool. With the keyboard, the arrow keys move the brush, and holding Space down goos.")
+				.accessibilityLabel("The face. Drag on it to goo it with the tool. With the keyboard, the arrow keys move the brush, and holding Space down goos.", role: .application)
 				.style(Styles.canvas)
 
 			div {

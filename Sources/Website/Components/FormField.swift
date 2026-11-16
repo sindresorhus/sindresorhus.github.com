@@ -135,6 +135,11 @@ enum FormFieldStyles: String, StyleSet {
 
 	case errorMessage
 
+	/**
+	The close icon, for the clear button of a search field.
+	*/
+	private static let closeMask = CSSImage.url(svg: Icon.close.standaloneSVG)
+
 	var style: Style {
 		switch self {
 		case .root:
@@ -167,7 +172,8 @@ enum FormFieldStyles: String, StyleSet {
 				.frame(width: .percent(100))
 				.padding(.rootEm(0.625))
 				.border()
-				.borderColor(.gray(300), dark: .white.opacity(0.1))
+				// In dark mode as visible as in light mode, so an empty field does not look like a card.
+				.borderColor(.gray(300), dark: .white.opacity(0.16))
 				.cornerRadius(.fieldRadius)
 				.textStyle(.lead)
 				.color(.primaryText)
@@ -177,6 +183,15 @@ enum FormFieldStyles: String, StyleSet {
 					$0
 						.color(.secondaryText)
 						.opacity(1)
+				}
+				// The clear button of a search field, like the filters of the feedback page and the open source page, is the thin close icon of the site in the color of the placeholder, not the bold blue × of Chrome. Firefox has no clear button.
+				.searchCancelButton {
+					$0
+						.declaration(raw: .appearance, .none)
+						.frame(size: .rootEm(1.125))
+						.cursor(.pointer)
+						.background(.secondaryText)
+						.maskImage(Self.closeMask)
 				}
 				// The ring covers the border, so the focused field has one thicker line, not two lines with a gap.
 				.focus {

@@ -202,10 +202,9 @@ struct GeoCitiesArcade: ScriptedElement {
 					.part(Parts.screen),
 					.width(448),
 					.height(576),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The screen of the arcade. Use the arrow keys to move, Space to fire, and Enter to start.")
+					.accessibilityLabel("The screen of the arcade. Use the arrow keys to move, Space to fire, and Enter to start.", role: .application)
 					.style(Styles.screen)
 			}
 			.style(Styles.bezel)

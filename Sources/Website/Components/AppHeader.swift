@@ -124,17 +124,20 @@ private enum AppHeaderStyles: String, StyleSet {
 	var style: Style {
 		switch self {
 		case .root:
-			// The text goes below the icon when it has too little room next to it, like on a phone with large text (``text``).
+			// The text goes below the icon when it has too little room next to it, like on a phone with large text (``text``). Less space on phones, so the titles of two words, like “Release Notes”, fit on one line next to the icon from 360 px.
 			Style()
 				.hstack(alignment: .center, spacing: .rootEm(1.25))
 				.flexWrap()
+				.below(.smallTablet) {
+					$0.gap(.rootEm(0.75))
+				}
 		case .icon:
-			// About as tall as the name and the title next to it, with the shadow of the icons of the app cards.
+			// About as tall as the name and the title next to it, with the shadow of the icons of the app cards. On phones, smaller, so the title has room.
 			Style()
 				.frame(width: .rootEm(5.5), height: .rootEm(5.5), minWidth: .rootEm(5.5))
 				.filter(AppCard.iconShadow)
 				.below(.smallTablet) {
-					$0.frame(width: .rootEm(4), height: .rootEm(4), minWidth: .rootEm(4))
+					$0.frame(width: .rootEm(3), height: .rootEm(3), minWidth: .rootEm(3))
 				}
 		case .text:
 			// Below the icon when it has less than 10em of room next to it, so the title does not break inside its words.

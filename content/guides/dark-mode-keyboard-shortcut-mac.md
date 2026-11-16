@@ -1,6 +1,6 @@
 ---
 title: 'How to Turn On Dark Mode with a Keyboard Shortcut on Mac'
-description: 'macOS has no keyboard shortcut for Dark Mode. Set one in Supercharge, or turn Dark Mode on in Control Center or automatically at sunset.'
+description: 'macOS has no keyboard shortcut for Dark Mode. Set one in Supercharge or in the Shortcuts app, or turn Dark Mode on automatically at sunset.'
 publicationDate: 2026-11-11
 topic: 'keyboard-and-trackpad'
 apps: [
@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	macOS has no keyboard shortcut for Dark Mode. In the “Shortcuts” settings of [Supercharge](../apps/supercharge/index.md), set a shortcut for “Dark mode”, and press it to switch between the light and the dark appearance. Without an app, click Control Center in the menu bar, click the arrow next to “Display”, and click “Dark Mode”.
+	macOS has no keyboard shortcut for Dark Mode. In the “Shortcuts” settings of [Supercharge](../apps/supercharge/index.md), set a shortcut for “Dark mode”, and press it to switch between the light and the dark appearance. Without an app, make a shortcut with the “Set Appearance” action in the Shortcuts app, and give it a keyboard shortcut.
 }
 
 ## With Supercharge
@@ -24,7 +24,8 @@ The same section has shortcuts for “Night Shift”, “True Tone”, “Graysc
 
 ## Without an app
 
+- **Shortcuts app:** Make a new shortcut in the Shortcuts app, and add the “Set Appearance” action. In the action, click “Turn”, and choose “Toggle”. Then click the details button in the sidebar, click “Add Keyboard Shortcut”, and press the keys.
 - **Control Center:** Click Control Center in the menu bar, click the arrow next to “Display”, and click “Dark Mode”.
 - **System Settings:** Open “System Settings › Appearance”, and choose “Light”, “Dark”, or “Auto”. “Auto” changes the appearance with your Night Shift schedule, like from sunset to sunrise.
 
-[Apple’s instructions.](https://support.apple.com/guide/mac-help/mchl52e1c2d2/mac) “Auto” is enough when you only want the dark appearance at night. Supercharge is for when you change the appearance often, like to test a design in both.
+[Apple’s instructions.](https://support.apple.com/guide/mac-help/mchl52e1c2d2/mac) “Auto” is enough when you only want the dark appearance at night. The shortcut of the Shortcuts app is free. Supercharge is for when you already use it and do not want to make a shortcut.

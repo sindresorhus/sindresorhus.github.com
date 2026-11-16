@@ -291,7 +291,7 @@ struct AppHero: HTML {
 					.hidden()
 					.justifyContent(.center)
 					// Only the target of the random app page (``AppHero/anotherRandomAppID``), not another target around it, like the content that the skip link goes to.
-					.nested("#\(raw: AppHero.anotherRandomAppID.rawValue):target &") {
+					.inside("#\(raw: AppHero.anotherRandomAppID.rawValue):target") {
 						$0.display(.flex)
 					}
 			case .anotherRandomAppButton:
@@ -312,8 +312,9 @@ struct AppHero: HTML {
 					.popoverSurface()
 					.secondaryText()
 					.textAlign(.center)
+					// Darker in dark mode, as a light dim hardly shows on the near-black page.
 					.backdrop {
-						$0.background(.black.opacity(0.3))
+						$0.background(.black.opacity(0.3), dark: .black.opacity(0.6))
 					}
 			case .qrCodeImage:
 				Style()
@@ -705,6 +706,8 @@ struct AppFacts: HTML {
 					.hoverOrFocusVisible {
 						$0.underlineColor(.currentColor)
 					}
+					// A short value, like “Yes”, is a small target on a touch screen.
+					.minimumTapArea()
 			}
 		}
 	}

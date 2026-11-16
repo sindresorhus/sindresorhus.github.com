@@ -92,7 +92,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 	*/
 	private var computer: some HTML {
 		div {
-			div(.part(Parts.screen), .role(.group)) {
+			div(.part(Parts.screen)) {
 				p(.part(Parts.title)) {
 					"The Print Shop"
 				}
@@ -142,7 +142,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				}
 				.style(Styles.screenFooter)
 			}
-			.accessibilityLabel("The screen of the school computer, with The Print Shop. The arrow keys move between the choices, Return picks one, and Escape goes back.")
+			.accessibilityLabel("The screen of the school computer, with The Print Shop. The arrow keys move between the choices, Return picks one, and Escape goes back.", role: .group)
 			.style(Styles.screen)
 
 			div {
@@ -298,10 +298,9 @@ struct GeoCitiesPrintShop: ScriptedElement {
 			canvas(
 				.part(Parts.preview),
 				.width(320),
-				.height(200),
-				.role(.image)
+				.height(200)
 			) {}
-				.accessibilityLabel("The preview of what will be printed")
+				.accessibilityLabel("The preview of what will be printed", role: .image)
 				.style(Styles.preview)
 
 			p(.part(Parts.previewNote)) {}
@@ -363,13 +362,12 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				.part(Parts.printerCanvas),
 				.width(600),
 				.height(560),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The dot matrix printer on the desk, with the paper coming out of the top and piling up on the floor. To tear off the printout, drag sideways along the top of the printer, or press T.")
+				.accessibilityLabel("The dot matrix printer on the desk, with the paper coming out of the top and piling up on the floor. To tear off the printout, drag sideways along the top of the printer, or press T.", role: .application)
 				.style(Styles.printerCanvas)
 
-			div(.role(.group)) {
+			div {
 				div {
 					light("Power", part: nil)
 					light("On Line", part: .onlineLight)
@@ -401,7 +399,7 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				.accessibilityHidden()
 				.style(Styles.printerBrand)
 			}
-			.accessibilityLabel("The panel of the printer")
+			.accessibilityLabel("The panel of the printer", role: .group)
 			.style(Styles.panel)
 
 			p(.part(Parts.status), .role(.status)) {
@@ -481,10 +479,9 @@ struct GeoCitiesPrintShop: ScriptedElement {
 					.part(Parts.printoutCanvas),
 					.width(400),
 					.height(300),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The printout. Drag a strip with the holes sideways to peel it off, or press P.")
+					.accessibilityLabel("The printout. Drag a strip with the holes sideways to peel it off, or press P.", role: .application)
 					.style(Styles.printoutCanvas)
 			}
 			.style(Styles.printoutScroller)
@@ -524,19 +521,17 @@ struct GeoCitiesPrintShop: ScriptedElement {
 				canvas(
 					.part(Parts.cardFront),
 					.width(320),
-					.height(208),
-					.role(.image)
+					.height(208)
 				) {}
-					.accessibilityLabel("The front of the card")
+					.accessibilityLabel("The front of the card", role: .image)
 					.style(Styles.cardFace, Styles.cardFront)
 
 				canvas(
 					.part(Parts.cardInside),
 					.width(320),
-					.height(208),
-					.role(.image)
+					.height(208)
 				) {}
-					.accessibilityLabel("The other half of the card, with the message")
+					.accessibilityLabel("The other half of the card, with the message", role: .image)
 					.style(Styles.cardFace, Styles.cardInside)
 			}
 			.style(Styles.cardStage)
@@ -560,10 +555,9 @@ struct GeoCitiesPrintShop: ScriptedElement {
 			canvas(
 				.part(Parts.hangingCanvas),
 				.width(680),
-				.height(120),
-				.role(.image)
+				.height(120)
 			) {}
-				.accessibilityLabel("A banner that I printed on The Print Shop, hanging across the top of the page")
+				.accessibilityLabel("A banner that I printed on The Print Shop, hanging across the top of the page", role: .image)
 				.style(Styles.hangingCanvas)
 
 			button(.part(Parts.takeDown), .type(.button)) {

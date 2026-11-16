@@ -17,7 +17,7 @@ apps: [
 @Steps {
 1. Install [Actions](../apps/actions/index.md), and open it once.
 1. In the Shortcuts app, make a new shortcut, and add the “Delete Empty Contacts” action.
-1. Add the “Show Result” action, and run the shortcut. The first time, allow access to your contacts. The result is the number of deleted contacts.
+1. Add the “Show Content” action, and run the shortcut. The first time, allow access to your contacts. The result is the number of deleted contacts.
 }
 
 A contact that has only a phone number or an email is not empty, so it stays. A contact that has only a note counts as empty, so it is deleted too. Your own contact card always stays. The contacts are deleted at once, with no question first, so look at your contacts first if you are not sure.

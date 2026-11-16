@@ -269,7 +269,7 @@ struct GalleryPage: Page {
 
 			// Without footnotes and notes, as their IDs would be the same as the ones of the sample above.
 			Section("Article Prose", id: ElementID("article-prose")) {
-				Prose(markdown: MarkdownDocument(parsing: "“The text of a blog post”, with an opening quote that hangs into the margin in Safari, a [colored link](#article-prose), and oldstyle numerals, like 1234567890.", options: .gallery).content, variant: .article)
+				Prose(markdown: MarkdownDocument(parsing: "“The text of a blog post”, with an opening quote that hangs into the margin in Safari, and a [colored link](#article-prose).", options: .gallery).content, variant: .article)
 			}
 		}
 		.style(Styles.root)

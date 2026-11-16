@@ -37,10 +37,9 @@ struct GeoCitiesWindowsJezzBall: ScriptedElement {
 			.part(Parts.screen),
 			.width(480),
 			.height(300),
-			.tabindex(0),
-			.role(.application)
+			.tabindex(0)
 		) {}
-			.accessibilityLabel("JezzBall. The arrow keys move the crosshair, Space or Enter builds a wall, R turns the wall, and P pauses.")
+			.accessibilityLabel("JezzBall. The arrow keys move the crosshair, Space or Enter builds a wall, R turns the wall, and P pauses.", role: .application)
 			.style(Styles.screen, GeoCitiesPage.Styles.scriptingOnly)
 
 		div {

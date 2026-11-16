@@ -45,7 +45,7 @@ struct GuidesPage: Page {
 				scrollsOnPhones: true
 			)
 				.style {
-					$0.justifyContent(.start)
+					$0.textAlign(.leading)
 				}
 
 			for (topic, guides) in topics {
@@ -58,9 +58,14 @@ struct GuidesPage: Page {
 		// The column of the blog index, and on laptops, the wide column of the open-source page, for the two columns of guides.
 		.style(BlogIndexPage.Styles.root)
 		.style {
-			$0.from(.laptop) {
-				$0.frame(maxWidth: .length(Style.ColumnWidth.page.maximum))
-			}
+			$0
+				.from(.laptop) {
+					$0.frame(maxWidth: .length(Style.ColumnWidth.page.maximum))
+				}
+				// Twice the space between the guides, so a new topic reads as a new group, not as one more row. The first topic keeps the space below the chips.
+				.children("section + section") {
+					$0.margin(.top, .rootEm(5))
+				}
 		}
 	}
 }

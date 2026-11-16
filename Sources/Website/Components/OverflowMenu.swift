@@ -205,7 +205,7 @@ struct OverflowMenu: ScriptedElement {
 		}
 		.style(Styles.container)
 		.style(Styles.title, when: variant == .title)
-		.style(Styles.chip, when: variant == .chip || pickerTitle != nil)
+		.style(variant == .chip || pickerTitle != nil ? Styles.chip : Styles.dots)
 	}
 
 	/**
@@ -242,6 +242,11 @@ struct OverflowMenu: ScriptedElement {
 		case chip
 
 		/**
+		The “…” in a circle, without a chip, next to a row of links or a title.
+		*/
+		case dots
+
+		/**
 		The invisible `<select>` over the icon, so the native menu opens on click.
 		*/
 		case select
@@ -262,7 +267,10 @@ struct OverflowMenu: ScriptedElement {
 							.allowsHitTesting(false)
 							.color(OverflowMenu.color.value(default: .link))
 					}
-					// The select is invisible, and the icon has no focus ring, like the rest of the site. Chrome also shows the focus of a clicked `<select>` as `:focus-visible`, so a ring would show after every click.
+					// The select is invisible, so its container shows keyboard focus with a fill. Chrome also shows the focus of a clicked `<select>` as `:focus-visible`.
+					.descendantFocusVisible {
+						$0.background(.cardHover)
+					}
 					// A larger target for fingers, without moving the layout.
 					.media(.coarsePointer) {
 						$0
@@ -289,6 +297,15 @@ struct OverflowMenu: ScriptedElement {
 					.chip(hasIcon: true)
 					.margin(.zero)
 					.setting(OverflowMenu.color, to: .currentColor)
+			case .dots:
+				// A round fill under the pointer, like the links next to it in the bar of an app page. A ring of the same fill makes the circle larger than the icon without moving the layout. The ring is always there, so only its color fades.
+				Style()
+					.hoverFill(.card, color: .primaryText)
+					.shadow(BoxShadow(y: .zero, spread: .rootEm(0.375), color: .transparent))
+					.transition(.shadow, timing: .stateChange)
+					.hover {
+						$0.shadow(BoxShadow(y: .zero, spread: .rootEm(0.375), color: .card))
+					}
 			case .select:
 				Style()
 					.position(.absolute)
@@ -299,6 +316,10 @@ struct OverflowMenu: ScriptedElement {
 					.cursor(.pointer)
 					.fontFamily(.systemUI)
 					.fontWeight(.regular)
+					// At least 16 px on touch screens, as Safari on iPhone zooms in on a form control with smaller text when it gets focus. The select is invisible, so only the menu changes.
+					.media(.coarsePointer) {
+						$0.font(size: .max(.rootEm(1), .percent(100)))
+					}
 					// Chrome and Firefox on Windows and Linux draw the menu with the colors of the select. The base styles make it transparent and give it the color of the text around it, so in dark mode, the options were light text on white.
 					.color("FieldText")
 					.background("Field")

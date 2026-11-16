@@ -168,9 +168,10 @@ struct SiteFooter: HTML {
 					.border(.top, .separator)
 			case .content:
 				// On phones, the link groups and the social links are a grid of two columns, two groups in each row, or one column when two columns would be narrower than the longest links, like with large text. From tablets, they are four columns of the same width, spread over the width of the header, so there is no empty space between them. The space between the rows and the margin of the quote add up to the space above the quote.
+				// 9.3125rem is about the width of the longest link, “Feedback & Support”, so a phone of 375px, like the iPhone mini, gets two columns, and a phone of 360px keeps one column, where the link would break.
 				Style()
 					.pageWidth()
-					.grid(minimumColumnWidth: .max(.rootEm(9.5), (.percent(100) - Self.columnSpacing) * 0.5))
+					.grid(minimumColumnWidth: .max(.rootEm(9.3125), (.percent(100) - Self.columnSpacing) * 0.5))
 					.gap(row: .rootEm(2.5), column: Self.columnSpacing)
 					.padding(vertical: .rootEm(3), horizontal: .pageGutter)
 					.from(.tablet) {
@@ -196,6 +197,8 @@ struct SiteFooter: HTML {
 					.below(.smallTablet) {
 						$0.textStyle(.body)
 					}
+					// On touch screens, the tap areas of the links touch each other, so a tap between two links still opens one of them.
+					.minimumTapArea()
 			case .bottom:
 				Style()
 					.gridColumnSpanAll()

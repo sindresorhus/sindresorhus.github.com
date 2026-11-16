@@ -24,10 +24,9 @@ struct GeoCitiesWindowsPinball: ScriptedElement {
 					.part(Parts.table),
 					.width(400),
 					.height(640),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The pinball table. Z or the left arrow flips the left flipper, slash or the right arrow flips the right one. Hold Space or the down arrow to pull the plunger, and let go to launch. X, period, or the up arrow nudges the table. F2 starts a new game, and P pauses.")
+					.accessibilityLabel("The pinball table. Z or the left arrow flips the left flipper, slash or the right arrow flips the right one. Hold Space or the down arrow to pull the plunger, and let go to launch. X, period, or the up arrow nudges the table. F2 starts a new game, and P pauses.", role: .application)
 					.style(Styles.table)
 
 				div {

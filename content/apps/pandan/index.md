@@ -60,7 +60,7 @@ feedbackNote: '[The app randomly disappears/quits](/pandan#randomly-quits)'
 
 Pandan shows in the menu bar how long you have been actively using your computer, so you know when it is time to take a break.
 
-It notices when you step away: by default, a session ends after 10 minutes without the keyboard or the mouse. The menu bar shows the time of the current session or the total of today, with or without an icon.
+It notices when you step away: by default, a session ends after 10 minutes without the keyboard or the mouse. The menu bar shows the time of the current session or the total of today, with or without an icon *([guide](../../guides/mac-usage-time-today.md))*.
 
 It can also give you a gentle reminder at an interval you choose: a popover, a notification, a HUD, or only a change of the menu bar icon, with an optional sound, haptic feedback, or a shortcut that runs.
 

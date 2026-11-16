@@ -36,8 +36,8 @@ struct GeoCitiesTekstTV: ScriptedElement {
 						.accessibilityHidden()
 						.style(Styles.line)
 
-					div(.part(Parts.page), .role(.region)) {}
-						.accessibilityLabel("Teletext page")
+					div(.part(Parts.page)) {}
+						.accessibilityLabel("Teletext page", role: .region)
 						.style(Styles.page)
 				}
 				.style(Styles.screen)
@@ -62,8 +62,7 @@ struct GeoCitiesTekstTV: ScriptedElement {
 						.style(Styles.key)
 					}
 				}
-				.attributes(.role(.group))
-				.accessibilityLabel("Page number")
+				.accessibilityLabel("Page number", role: .group)
 				.style(Styles.keypad)
 
 				div {
@@ -94,12 +93,10 @@ struct GeoCitiesTekstTV: ScriptedElement {
 						.style(Styles.key, button.style)
 					}
 				}
-				.attributes(.role(.group))
-				.accessibilityLabel("Colored buttons")
+				.accessibilityLabel("Colored buttons", role: .group)
 				.style(Styles.keyRow)
 			}
-			.attributes(.role(.group))
-			.accessibilityLabel("Remote control")
+			.accessibilityLabel("Remote control", role: .group)
 			.style(Styles.remote)
 		}
 		.style(Styles.player, GeoCitiesPage.Styles.scriptingOnly)

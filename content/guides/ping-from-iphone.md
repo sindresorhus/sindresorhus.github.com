@@ -18,7 +18,7 @@ apps: [
 1. Install [Actions](../apps/actions/index.md), and open it once.
 1. In the Shortcuts app, make a new shortcut, and add the “Ping” action.
 1. Type a domain or an IP address, like `192.168.1.1` or `apple.com`.
-1. Add the “Show Result” action, and run the shortcut.
+1. Add the “Show Content” action, and run the shortcut.
 }
 
 The result is like “12.3ms average” with “0% packet loss”, or “Unreachable”. The action sends 5 pings, and waits up to 10 seconds for each. Expand the action to change the count and the timeout.

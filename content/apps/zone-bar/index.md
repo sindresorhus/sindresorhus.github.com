@@ -10,6 +10,9 @@ isPaid: true
 isMenuBarApp: true
 appStoreID: 6755328989
 hasNoNetworkAccess: true
+categories: [
+	'clock-and-calendar'
+]
 sharedQuestions: [
 	'blurry-secondary-display'
 	'menu-bar-icons'
@@ -18,8 +21,8 @@ sharedQuestions: [
 ]
 olderVersions: [
 	{
-		version: '1.0.4',
-		macOS: '26',
+		version: '1.0.4'
+		macOS: '26'
 		url: 'https://www.dropbox.com/scl/fi/l7gvphxs4uja5ckwzrqx4/Zone-Bar-1.0.4-macOS-26-1794678075.zip?rlkey=arv2jnrh07834zuk6auseqfkl&raw=1'
 	}
 ]

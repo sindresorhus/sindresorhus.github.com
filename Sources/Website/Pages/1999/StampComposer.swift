@@ -71,8 +71,7 @@ struct GeoCitiesStampComposer: ScriptedElement {
 				.help("Eraser")
 				.style(Styles.stamp)
 			}
-			.attributes(.role(.group))
-			.accessibilityLabel("Stamps")
+			.accessibilityLabel("Stamps", role: .group)
 			.style(Styles.stamps)
 
 			div {
@@ -86,10 +85,9 @@ struct GeoCitiesStampComposer: ScriptedElement {
 					.part(Parts.staff),
 					.width(1872),
 					.height(340),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("Staff. Arrow keys move, Enter stamps, Delete erases.")
+					.accessibilityLabel("Staff. Arrow keys move, Enter stamps, Delete erases.", role: .application)
 					.style(Styles.staff)
 			}
 			.style(Styles.scroller)

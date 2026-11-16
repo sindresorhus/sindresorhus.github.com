@@ -319,7 +319,7 @@ extension ContactPage {
 						$0.transition(.transform, timing: .timingCurve(raw: "linear(0, .5 7.7%, .9 14.4%, 1.04 19.4%, 1.06 23.7%, 1.02 30%, 1 35%, .99 45%, 1)", duration: .milliseconds(600))).transition(.color, .textShadow, timing: .default(duration: .milliseconds(500)))
 					}
 					// The rainbow only turns when the visitor allows motion (`contact.js` only sets `data-rainbow` then). The focus of the keyboard shows the colors also with reduced motion, as they do not move then.
-					.nested(":is(\(Hooks.rainbow.selector()), \(Self.email.selector):focus-visible) &") {
+					.inside("\(Hooks.rainbow.selector()), \(Self.email.selector):focus-visible") {
 						$0.combined(with: Self.rainbowLetter)
 					}
 					.media(.allowsMotion) {

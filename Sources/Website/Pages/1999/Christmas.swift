@@ -150,10 +150,9 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.part(Parts.house),
 					.width(360),
 					.height(270),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("My gingerbread house on the cake board. Pick a piece or a candy, and click or tap the board to put it there. With the piping bag, drag to pipe icing on the seams. With the keys, the arrow keys move the piping bag, and Space or Enter puts the piece or the candy there. Hold Space while you move to pipe icing.")
+					.accessibilityLabel("My gingerbread house on the cake board. Pick a piece or a candy, and click or tap the board to put it there. With the piping bag, drag to pipe icing on the seams. With the keys, the arrow keys move the piping bag, and Space or Enter puts the piece or the candy there. Hold Space while you move to pipe icing.", role: .application)
 					.style(Styles.house)
 
 				p(.part(Parts.houseStatus), .role(.status)) {
@@ -180,8 +179,7 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 				}
 			}
-			.accessibilityLabel("Pieces and candy")
-			.attributes(.role(.group))
+			.accessibilityLabel("Pieces and candy", role: .group)
 			.style(Styles.row)
 		}
 	}
@@ -261,10 +259,9 @@ struct GeoCitiesChristmas: ScriptedElement {
 			canvas(
 				.part(Parts.town),
 				.width(360),
-				.height(180),
-				.role(.image)
+				.height(180)
 			) {}
-				.accessibilityLabel("Pepperkakebyen, the gingerbread town of Bergen, with Bryggen, the church, the houses of other kids, my houses with their signs, and a little train that goes around.")
+				.accessibilityLabel("Pepperkakebyen, the gingerbread town of Bergen, with Bryggen, the church, the houses of other kids, my houses with their signs, and a little train that goes around.", role: .image)
 				.style(Styles.town)
 
 			div {
@@ -297,10 +294,9 @@ struct GeoCitiesChristmas: ScriptedElement {
 					.part(Parts.lane),
 					.width(320),
 					.height(400),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The bowling lane, with Julenissen at the front and ten nisser at the end. The left and right arrow keys move Julenissen, and steer the ball while it rolls. A and D set the spin, and Space or Enter bowls.")
+					.accessibilityLabel("The bowling lane, with Julenissen at the front and ten nisser at the end. The left and right arrow keys move Julenissen, and steer the ball while it rolls. A and D set the spin, and Space or Enter bowls.", role: .application)
 					.style(Styles.lane)
 
 				// Right under the lane, so a phone shows the lane, what happened, the buttons, and the score sheet together.
@@ -405,10 +401,9 @@ struct GeoCitiesChristmas: ScriptedElement {
 				canvas(
 					.part(Parts.barn),
 					.width(320),
-					.height(200),
-					.role(.image)
+					.height(200)
 				) {}
-					.accessibilityLabel("The kitchen at Mormor’s farm on Christmas Eve, the table, and the barn in the snow, where the nisse lives.")
+					.accessibilityLabel("The kitchen at Mormor’s farm on Christmas Eve, the table, and the barn in the snow, where the nisse lives.", role: .image)
 					.style(Styles.barn)
 
 				PorridgeControls()

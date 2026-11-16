@@ -145,10 +145,9 @@ struct GeoCitiesWinterGames: ScriptedElement {
 					.part(Parts.screen),
 					.width(320),
 					.height(200),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The screen of the Winter Games. Use the arrow keys, and Space for the button of the event. Escape leaves an event.")
+					.accessibilityLabel("The screen of the Winter Games. Use the arrow keys, and Space for the button of the event. Escape leaves an event.", role: .application)
 					.style(Styles.screen)
 			}
 			.style(Styles.bezel)
@@ -520,8 +519,7 @@ struct GeoCitiesWinterGames: ScriptedElement {
 							.style(GeoCitiesPage.Styles.smallButton)
 					}
 				}
-				.accessibilityLabel("Your answer")
-				.attributes(.role(.group))
+				.accessibilityLabel("Your answer", role: .group)
 				.style(Styles.answers)
 
 				p(.part(Parts.reply), .role(.status)) {}

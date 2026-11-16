@@ -845,7 +845,8 @@ struct HTMLRenderer: MarkupWalker {
 					reportProblem("The text has a `++` without its closing `++`, so the page shows the plus signs. Write a keyboard shortcut like `++Command+N++`.", line: line)
 				}
 
-				renderPlainText(text)
+				// A slash between two shortcuts, like “++Option+Command+◀++ / ++Option+Command+▶++” in a table, or between two codes, stays on the line of the first one, as a slash at the start of a line, alone between two shortcuts, reads as a separate item. The line can still break after the slash. Limitation: a browser can still break a line before the slash after an inline block, like a shortcut outside a table.
+				renderTextWithMenuPaths(text == " / " ? "\u{00A0}/ " : text)
 			case .shortcut(let text, let openingPunctuation, let punctuation):
 				// The punctuation right before and after a shortcut is rendered with the shortcut, so it stays on its line.
 				reportWrongKeyNames(in: String(text), line: line)
@@ -861,6 +862,38 @@ struct HTMLRenderer: MarkupWalker {
 
 	private mutating func renderPlainText(_ text: Substring) {
 		html += String(text).escapedForHTML
+	}
+
+	/**
+	A menu path in typographic quotes, like “System Settings › General › Date & Time”, with the opening quote and a parenthesis before it, and the closing quote and the punctuation after it, like `”.`, which stay with the first and the last item.
+	*/
+	nonisolated(unsafe) private static let menuPath = /(?<opening>\(?“)(?<items>[^“”\n]+? › [^“”\n]+?)(?<closing>”[,.;:!?)]*)/
+
+	/**
+	Plain text with each menu path in typographic quotes, like “System Settings › General › Date & Time”, as its items (``MarkdownTheme/menuPath(_:openingPunctuation:closingPunctuation:)``), so a line breaks only after an arrow, not inside the name of an item, like “Allow Access When Locked”. Not in a link, as the underline of the link does not go into the inline block of an item, and not in the title of a collapsible section or the text of a note, which count as links (``linkDepth``).
+	*/
+	private mutating func renderTextWithMenuPaths(_ text: Substring) {
+		// Most text has no menu path, and the search is slow.
+		guard
+			linkDepth == 0,
+			text.contains(" › ")
+		else {
+			renderPlainText(text)
+			return
+		}
+
+		var remainder = text
+		while let match = remainder.firstMatch(of: Self.menuPath) {
+			renderPlainText(remainder[..<match.range.lowerBound])
+			html += theme.menuPath(
+				match.items.split(separator: " › "),
+				openingPunctuation: match.opening,
+				closingPunctuation: match.closing
+			)
+			remainder = remainder[match.range.upperBound...]
+		}
+
+		renderPlainText(remainder)
 	}
 
 	/**
@@ -1429,7 +1462,7 @@ struct HTMLRenderer: MarkupWalker {
 		}
 
 		let marker = "`\(match.0)`"
-		let names = MarkdownAlert.allCases.map(\.title)
+		let names = MarkdownAlert.allCases.map(\.markerName)
 
 		guard names.contains(match.1.uppercased()) else {
 			let known = names.map { "`[!\($0)]`" }.formattedList(.or)
@@ -1653,7 +1686,7 @@ extension String {
 	/**
 	The HTML without `<!-- … -->` comments.
 	*/
-	var removingHTMLComments: String {
+	public var removingHTMLComments: String {
 		contains("<!--") ? replacing(Self.htmlComment, with: "") : self
 	}
 

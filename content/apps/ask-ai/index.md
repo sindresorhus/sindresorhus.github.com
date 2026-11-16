@@ -7,6 +7,9 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 6446167837
+categories: [
+	'ai'
+]
 pressQuotes: [
 	{
 		quote: 'This app, developed for Apple Watch, gives instant answers to your questions, offers recommendations, solves calculation problems, and much more.'

@@ -68,7 +68,7 @@ You can also set a keyboard shortcut in the settings to start and stop recording
 
 - Record the microphone, the audio of your Mac, or both
 - Pause and resume a recording
-- Listen to the microphone while you record (input monitoring)
+- Listen to the microphone while you record (input monitoring) *([guide](../../guides/hear-microphone-in-headphones-mac.md))*
 - Keyboard shortcuts to start, stop, pause, and resume a recording
 - Show the duration in the menu bar while recording
 - See the audio level in the menu bar and in the menu while you record

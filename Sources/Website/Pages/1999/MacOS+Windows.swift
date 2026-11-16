@@ -97,8 +97,8 @@ struct GeoCitiesMacOSWindows: HTML {
 	*/
 	@HTMLBuilder
 	static func iconGrid() -> some HTML {
-		div(.hook(Hooks.part, value: "grid"), .role(.group)) {}
-			.accessibilityLabel("Items")
+		div(.hook(Hooks.part, value: "grid")) {}
+			.accessibilityLabel("Items", role: .group)
 			.style(Styles.grid)
 
 		p(.hook(Hooks.part, value: "status")) {}
@@ -258,7 +258,7 @@ struct GeoCitiesMacOSWindows: HTML {
 				.style(Styles.windowStatus)
 
 			canvas(.width(160), .height(100), .hook(Hooks.part, value: "clip")) {}
-				.accessibilityLabel("The picture on the clipboard")
+				.accessibilityLabel("The picture on the clipboard", role: .image)
 				.style(Styles.clipCanvas)
 
 			p(.hook(Hooks.part, value: "text")) {}
@@ -266,8 +266,8 @@ struct GeoCitiesMacOSWindows: HTML {
 		})
 
 		GeoCitiesPage.Deferred(Self.window(.switcher, width: .small) {
-			div(.hook(Hooks.part, value: "apps"), .role(.group)) {}
-				.accessibilityLabel("Running programs")
+			div(.hook(Hooks.part, value: "apps")) {}
+				.accessibilityLabel("Running programs", role: .group)
 				.style(Styles.switcherApps)
 		})
 
@@ -326,7 +326,7 @@ struct GeoCitiesMacOSWindows: HTML {
 		})
 
 		GeoCitiesPage.Deferred(Self.window(.appearance, width: .large) {
-			div(.role(.group)) {
+			div {
 				for (part, title) in [("themes", "Themes"), ("desktop", "Desktop"), ("sound", "Sound")] {
 					Elementary.button(.type(.button), .hook(Hooks.part, value: "tab-\(part)"), .ariaPressed(part == "themes")) {
 						title
@@ -334,7 +334,7 @@ struct GeoCitiesMacOSWindows: HTML {
 					.style(Styles.tab)
 				}
 			}
-			.accessibilityLabel("Appearance tabs")
+			.accessibilityLabel("Appearance tabs", role: .group)
 			.style(Styles.tabs)
 
 			div(.hook(Hooks.part, value: "panel-themes")) {
@@ -490,10 +490,9 @@ struct GeoCitiesMacOSWindows: HTML {
 				.width(160),
 				.height(160),
 				.tabindex(0),
-				.role(.application),
 				.hook(Hooks.part, value: "board")
 			) {}
-				.accessibilityLabel("The Puzzle. Use the arrow keys to slide a piece into the empty place, or click a piece next to it.")
+				.accessibilityLabel("The Puzzle. Use the arrow keys to slide a piece into the empty place, or click a piece next to it.", role: .application)
 				.style(Styles.puzzleBoard)
 
 			div {
@@ -540,7 +539,7 @@ struct GeoCitiesMacOSWindows: HTML {
 
 		GeoCitiesPage.Deferred(Self.window(.scrapbook) {
 			canvas(.width(240), .height(150), .hook(Hooks.part, value: "clip")) {}
-				.accessibilityLabel("The picture of the clipping")
+				.accessibilityLabel("The picture of the clipping", role: .image)
 				.style(Styles.clipCanvas)
 
 			p(.hook(Hooks.part, value: "text"), .hidden) {}
@@ -573,12 +572,12 @@ struct GeoCitiesMacOSWindows: HTML {
 		})
 
 		GeoCitiesPage.Deferred(Self.window(.keyCaps, width: .large) {
-			p(.hook(Hooks.part, value: "display"), .role(.status)) {}
-				.accessibilityLabel("What you typed")
+			p(.hook(Hooks.part, value: "display")) {}
+				.accessibilityLabel("What you typed", role: .status)
 				.style(Styles.keyCapsDisplay)
 
-			div(.hook(Hooks.part, value: "keyboard"), .role(.group)) {}
-				.accessibilityLabel("Keyboard")
+			div(.hook(Hooks.part, value: "keyboard")) {}
+				.accessibilityLabel("Keyboard", role: .group)
 				.style(Styles.keyboard)
 
 			div {
@@ -664,7 +663,7 @@ struct GeoCitiesMacOSWindows: HTML {
 
 		GeoCitiesPage.Deferred(Self.window(.pageSetup, width: .small) {
 			canvas(.width(160), .height(120), .hook(Hooks.part, value: "dogcow")) {}
-				.accessibilityLabel("Clarus the dogcow, on the page")
+				.accessibilityLabel("Clarus the dogcow, on the page", role: .image)
 				.style(Styles.clipCanvas)
 
 			for (part, title) in [("flip-h", "Flip Horizontal"), ("flip-v", "Flip Vertical"), ("invert", "Invert Image"), ("precision", "Precision Bitmap Alignment (4% reduction)")] {
@@ -702,7 +701,7 @@ struct GeoCitiesMacOSWindows: HTML {
 	@HTMLBuilder
 	private var applications: some HTML {
 		GeoCitiesPage.Deferred(Self.window(.sherlock, width: .large) {
-			div(.role(.group)) {
+			div {
 				for (part, title) in [("internet", "🌐 Search Internet"), ("content", "📄 Find by Content")] {
 					Elementary.button(.type(.button), .hook(Hooks.part, value: "tab-\(part)"), .ariaPressed(part == "internet")) {
 						title
@@ -710,7 +709,7 @@ struct GeoCitiesMacOSWindows: HTML {
 					.style(Styles.tab)
 				}
 			}
-			.accessibilityLabel("Kind of search")
+			.accessibilityLabel("Kind of search", role: .group)
 			.style(Styles.tabs)
 
 			form(.hook(Hooks.part, value: "form")) {
@@ -797,7 +796,7 @@ struct GeoCitiesMacOSWindows: HTML {
 			.style(Styles.searchForm)
 
 			canvas(.width(320), .height(220), .hook(Hooks.part, value: "plot")) {}
-				.accessibilityLabel("The graph")
+				.accessibilityLabel("The graph", role: .image)
 				.style(Styles.plot)
 
 			p(.hook(Hooks.part, value: "status"), .role(.status)) {
@@ -811,10 +810,9 @@ struct GeoCitiesMacOSWindows: HTML {
 				.width(320),
 				.height(240),
 				.tabindex(0),
-				.role(.application),
 				.hook(Hooks.part, value: "game")
 			) {}
-				.accessibilityLabel("Bugdom Jr. Use the arrow keys to walk, and the space bar to roll up into a ball.")
+				.accessibilityLabel("Bugdom Jr. Use the arrow keys to walk, and the space bar to roll up into a ball.", role: .application)
 				.style(Styles.game)
 
 			div {
@@ -885,8 +883,7 @@ struct GeoCitiesMacOSWindows: HTML {
 					}
 				}
 			}
-			.attributes(.role(.group))
-			.accessibilityLabel("Read Me")
+			.accessibilityLabel("Read Me", role: .group)
 			.style(Styles.document)
 
 			div {

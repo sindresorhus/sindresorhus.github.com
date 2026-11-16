@@ -39,7 +39,13 @@ struct CareerQuiltPage: Page {
 
 			// The contributions of a day for each color, below the introduction, so the colors are clear before the first patch.
 			div {
-				"Contributions a day:"
+				// The label is a line of its own, so the five colors stay on one line.
+				span {
+					"Contributions a day:"
+				}
+				.style {
+					$0.frame(width: .percent(100))
+				}
 
 				for level in ContributionScale.Level.allCases {
 					if let countText = scale.countText(of: level) {
@@ -120,6 +126,8 @@ extension CareerQuiltPage {
 				Style()
 					.margin(bottom: .rootEm(0.75))
 					.secondaryText()
+					// Balanced, so the date of the busiest day stays on one line, and the two lines have about the same length.
+					.textWrap(.balance)
 			case .calendar:
 				// Weeks are columns and weekdays are rows, like on GitHub. A year has up to 54 weeks, and a year that is not over keeps the width of a whole year.
 				Style()
@@ -156,7 +164,7 @@ extension CareerQuiltPage {
 				Style()
 					.vstack(justification: .end, spacing: .rootEm(0.375))
 					.padding(vertical: .rootEm(0.25), horizontal: .zero)
-					.cornerRadius(.rootEm(0.375))
+					.cornerRadius(.smallRadius)
 					.secondaryText(.extraSmall)
 					.below(.smallTablet) {
 						$0

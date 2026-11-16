@@ -25,7 +25,7 @@ struct GeoCitiesTheremin: ScriptedElement {
 		}
 		.style(GeoCitiesPage.Styles.centeredText)
 
-		div(.part(Parts.pad), .tabindex(0), .role(.application)) {
+		div(.part(Parts.pad), .tabindex(0)) {
 			span(.part(Parts.hand)) {}
 				.accessibilityHidden()
 				.style(Styles.hand)
@@ -36,7 +36,7 @@ struct GeoCitiesTheremin: ScriptedElement {
 			.accessibilityHidden()
 			.style(Styles.padText)
 		}
-		.accessibilityLabel("The theremin. Hold the pointer or a finger on it and move. With the keyboard, Space plays, and the arrow keys change the pitch and the volume.")
+		.accessibilityLabel("The theremin. Hold the pointer or a finger on it and move. With the keyboard, Space plays, and the arrow keys change the pitch and the volume.", role: .application)
 		.style(Styles.pad)
 
 		p(.part(Parts.readout)) {

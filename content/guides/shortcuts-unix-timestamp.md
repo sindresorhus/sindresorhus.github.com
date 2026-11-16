@@ -21,9 +21,9 @@ apps: [
 1. Use its result, “Unix Timestamp”, in the next action, like in the request to a web API.
 }
 
-The result is in seconds. For milliseconds, which JavaScript uses, expand the action, and turn on the milliseconds option.
+The result is in seconds. For milliseconds, which JavaScript uses, expand the action, and turn on “Use Milliseconds”.
 
-To read a timestamp, like one from a web API, add the “Convert Unix Timestamp to Date” action, and give it the number. It also has an option for a timestamp in milliseconds. The result is a date that the other actions of Shortcuts can use, like “Format Date”.
+To read a timestamp, like one from a web API, add the “Convert Unix Timestamp to Date” action, and give it the number. For a timestamp in milliseconds, turn on “Is Milliseconds”. The result is a date that the other actions of Shortcuts can use, like “Format Date”.
 
 ## Without an app
 

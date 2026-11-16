@@ -19,7 +19,7 @@ A Hyper key is one key that presses all four modifier keys. A shortcut with it, 
 @Steps {
 1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
-1. In the Experimental section, turn on “Caps Lock as Hyper key”. You can also search for “hyper” in the settings.
+1. In the “Experimental” section, turn on “Caps Lock as Hyper key”. You can also search for “hyper” in the settings.
 1. In any app that lets you record a keyboard shortcut, like a launcher or the Shortcuts app, hold ++Caps Lock++, and press a key.
 }
 

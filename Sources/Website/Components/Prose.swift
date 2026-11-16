@@ -63,6 +63,8 @@ enum ProseStyles: String, StyleSet {
 	case commandKey
 	case keyboardShortcut
 	case keyboardShortcutWithPunctuation
+	case menuPathItem
+	case menuPathSeparator
 	case tableContainer
 	case alert
 	case alertNote
@@ -122,6 +124,10 @@ enum ProseStyles: String, StyleSet {
 			Self.keyboardShortcutStyle
 		case .keyboardShortcutWithPunctuation:
 			Self.keyboardShortcutWithPunctuationStyle
+		case .menuPathItem:
+			Self.menuPathItemStyle
+		case .menuPathSeparator:
+			Self.menuPathSeparatorStyle
 		case .tableContainer:
 			Self.tableContainerStyle
 		case .alert:
@@ -198,6 +204,10 @@ extension MarkdownTheme {
 			ProseStyles.keyboardShortcut.className
 		case .keyboardShortcutWithPunctuation:
 			ProseStyles.keyboardShortcutWithPunctuation.className
+		case .menuPathItem:
+			ProseStyles.menuPathItem.className
+		case .menuPathSeparator:
+			ProseStyles.menuPathSeparator.className
 		case .tableContainer:
 			ProseStyles.tableContainer.className
 		case .collapsibleSections:

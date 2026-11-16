@@ -48,13 +48,6 @@ public final class PageResources: Sendable {
 		public let scripts: [RoutePath]
 		public let elements: [any ScriptedElement.Type]
 		fileprivate let replays: [@Sendable (PageResources) -> Void]
-
-		/**
-		Elements whose script is inline, in first-use order.
-		*/
-		public var inlineScriptElements: [any ScriptedElement.Type] {
-			elements.inlineScriptElements
-		}
 	}
 
 	/**
@@ -197,12 +190,7 @@ public final class PageResources: Sendable {
 			return
 		}
 
-		switch Element.script.location {
-		case .file(let file):
-			require(script: ElementScript.publishedPath(of: file))
-		case .inline:
-			break
-		}
+		require(script: Element.script.path)
 	}
 
 	/**
@@ -250,28 +238,6 @@ public final class PageResources: Sendable {
 	*/
 	public var elements: [any ScriptedElement.Type] {
 		state.withLock(\.elements)
-	}
-
-	/**
-	The elements with an inline script (``ElementScript/init(inline:)``) that the page shows, in the order the page first showed them, each once, as an element can only be defined once.
-	*/
-	public var inlineScriptElements: [any ScriptedElement.Type] {
-		elements.inlineScriptElements
-	}
-}
-
-/**
-Script classification shared by a live collector and a frozen snapshot, without generating unrelated style rules.
-*/
-extension [any ScriptedElement.Type] {
-	fileprivate var inlineScriptElements: Self {
-		filter {
-			if case .inline = $0.script.location {
-				return true
-			}
-
-			return false
-		}
 	}
 }
 

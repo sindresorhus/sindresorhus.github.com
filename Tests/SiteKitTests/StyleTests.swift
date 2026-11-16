@@ -211,6 +211,25 @@ struct StyleTests {
 	}
 
 	@Test
+	func `a style directly after a list of siblings applies to each selector`() {
+		let css = Stylesheet {
+			Rule(
+				".steps",
+				Style()
+				.directlyAfter("h2, h3") {
+					$0.margin(.top, .zero)
+				}
+				.directlyAfter("p") {
+					$0.margin(.top, .rootEm(1))
+				}
+			)
+		}.css
+
+		#expect(css.contains(":is(h2, h3) + & {"))
+		#expect(css.contains("p + & {"))
+	}
+
+	@Test
 	func `a style inside a list of ancestors applies at any depth`() {
 		let css = Stylesheet {
 			Rule(

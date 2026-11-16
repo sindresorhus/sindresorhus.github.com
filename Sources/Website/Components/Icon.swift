@@ -101,10 +101,10 @@ enum Icon: HTML, CaseIterable, Encodable {
 	}
 
 	/**
-	The icon as an SVG file of its own, like for a mask in a style.
+	The icon as an SVG file of its own, like for a mask in a style. A file does not get the styles of the page, so it has the look of the lines of the stylesheet itself, in black, with the default width of ``size(_:strokeWidth:)``.
 	*/
 	var standaloneSVG: String {
-		#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">\#(shapes)</svg>"#
+		#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\#(shapes)</svg>"#
 	}
 
 	var symbolID: String {

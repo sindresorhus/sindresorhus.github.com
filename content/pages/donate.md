@@ -6,9 +6,9 @@ photo: '/assets/sindre-sorhus-small.jpg'
 
 # Donate ❤️
 
-I’m a full-time open-sourcerer and my work is funded by the community. [Read more about me and what I do.](https://github.com/sponsors/sindresorhus)
+I’m a full-time open-sourcerer and my work is funded by the community. [Read more about me and what I do.](/about)
 
-If you or your company are using any of my projects, consider supporting me so I can continue [my open source work](https://github.com/sindresorhus).
+If you or your company are using any of my projects, consider supporting me so I can continue [my open source work](/open-source).
 
 ## Monthly donations
 

@@ -9,6 +9,23 @@ import UniformTypeIdentifiers
 
 struct ContentWarningTests {
 	@Test(arguments: [
+		("- First\n\n<!-- A note -->\n\n- Second", 1),
+		("1. First\n\n<!-- A note -->\n\n2. Second", 1),
+		("- First\n\n<!-- A note -->\n\n<!-- Another note -->\n\n- Second", 1),
+		("- First\n  <!-- A note -->\n- Second", 0),
+		("1. First\n\n<!-- A note -->\n\n- Second", 0),
+		("- First\n\n<!-- A note -->\n\n1. Second", 0),
+		("- First\n\n<!-- A note -->\n\nA paragraph.\n\n- Second", 0),
+	])
+	func `comments between lists warn once only for the same kind of list`(body: String, expectedCount: Int) async throws {
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .commentSplitsList)
+
+		#expect(warnings.count == expectedCount)
+		#expect(warnings.allSatisfy { $0.contains("If they should be one list, use the same list marker") })
+	}
+
+	@Test(arguments: [
 		("The free [Test](/test) app.", true),
 		("### The free [Test](/test) app", true),
 		("Test is free.", true),

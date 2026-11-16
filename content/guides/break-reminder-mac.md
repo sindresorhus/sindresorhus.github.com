@@ -16,11 +16,11 @@ apps: [
 
 @Steps {
 1. Open [Pandan](../apps/pandan/index.md). The time that you have used the Mac shows in the menu bar.
-1. Open its settings, and choose an interval in “Show a gentle reminder”, like every 25 minutes.
+1. Open its settings, click “Notifications”, and choose an interval in “Show a gentle reminder”, like “every 25 minutes”.
 1. In “Type”, choose how the reminder shows: a popover, a notification, or a HUD in the middle of all screens.
 }
 
-Pandan knows that you are away when you do not use the keyboard or the mouse, and it starts a new session when you come back, so a break resets the time. Set how long you must be away in “End session when idle for”. On a video call, where you only listen and talk, make it longer, so the call does not end the session.
+Pandan knows that you are away when you do not use the keyboard or the mouse, and it starts a new session when you come back, so a break resets the time. Set how long you must be away in “End session when idle for” in the “General” settings. On a video call, you only listen and talk, so the session can end. To prevent this, make the time longer, or set “End active session” to “only when Mac is locked or sleeping”.
 
 The reminder can also play a sound, or run a shortcut from the Shortcuts app, like one that plays your own sound. The “History” window shows your sessions of the last 120 days.
 

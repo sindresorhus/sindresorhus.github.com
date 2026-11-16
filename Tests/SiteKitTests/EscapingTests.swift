@@ -50,6 +50,18 @@ struct EscapingTests {
 
 struct HTMLAttributeTests {
 	@Test
+	func `a label on a generic element sets its role and escapes its attribute value`() {
+		let html = div().accessibilityLabel(#"News "today" & <updates>"#, role: .region).render()
+
+		#expect(html == #"<div role="region" aria-label="News &quot;today&quot; &amp; <updates>"></div>"#)
+	}
+
+	@Test
+	func `an absent accessibility label omits both the name and the role`() {
+		#expect(div().accessibilityLabel(nil, role: .image).render() == "<div></div>")
+	}
+
+	@Test
 	func `pressed states support mixed toggles while preserving Boolean output`() {
 		#expect(button(.ariaPressed(.on)) {}.render() == #"<button aria-pressed="true"></button>"#)
 		#expect(button(.ariaPressed(.off)) {}.render() == #"<button aria-pressed="false"></button>"#)

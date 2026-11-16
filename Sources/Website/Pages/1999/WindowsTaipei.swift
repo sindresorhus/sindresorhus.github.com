@@ -190,10 +190,9 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 					.part(Parts.screen),
 					.width(1200),
 					.height(780),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("Taipei. Pick two free tiles that match to take them off. The arrow keys move the cursor, Space or Enter picks the tile, H shows a hint, U undoes, P peeks under the tile while Peek is on, Escape lets go of the tile, and B is the boss key.")
+					.accessibilityLabel("Taipei. Pick two free tiles that match to take them off. The arrow keys move the cursor, Space or Enter picks the tile, H shows a hint, U undoes, P peeks under the tile while Peek is on, Escape lets go of the tile, and B is the boss key.", role: .application)
 					.style(Styles.screen)
 
 				div {
@@ -306,7 +305,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 			}
 			.style(Styles.gridScroll)
 
-			div(.role(.group)) {
+			div {
 				for (tab, title) in [("ark1", "Budsjett 1999"), ("ark2", "Ark2"), ("taipei", "Taipei")] {
 					button(.type(.button), .hook(Hooks.tab, value: tab)) {
 						title
@@ -315,7 +314,7 @@ struct GeoCitiesWindowsTaipei: ScriptedElement {
 					.style(Styles.tab)
 				}
 			}
-			.accessibilityLabel("Sheets")
+			.accessibilityLabel("Sheets", role: .group)
 			.style(Styles.tabs)
 
 			p(.part(Parts.sheetStatus), .role(.status)) {

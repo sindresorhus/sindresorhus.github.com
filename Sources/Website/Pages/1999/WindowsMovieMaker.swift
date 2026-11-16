@@ -104,10 +104,9 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 			.part(Parts.screen),
 			.width(480),
 			.height(300),
-			.tabindex(0),
-			.role(.application)
+			.tabindex(0)
 		) {}
-			.accessibilityLabel("The movie. Click an actor to pick it, and drag it on the floor to record its path while the clock runs. The arrow keys move the picked actor and record one frame, N picks the next actor, Delete removes it, comma and period go back and forward a frame, and Space plays the movie.")
+			.accessibilityLabel("The movie. Click an actor to pick it, and drag it on the floor to record its path while the clock runs. The arrow keys move the picked actor and record one frame, N picks the next actor, Delete removes it, comma and period go back and forward a frame, and Space plays the movie.", role: .application)
 			.style(Styles.screen)
 
 		div {
@@ -171,7 +170,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 	*/
 	@HTMLBuilder
 	private var toolbar: some HTML {
-		div(.role(.group)) {
+		div {
 			for tool in Tool.allCases {
 				button(.type(.button), .hook(Hooks.tool, value: tool.rawValue), .ariaPressed(tool == .scenes)) {
 					span {
@@ -185,7 +184,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 				.style(Styles.toolButton)
 			}
 		}
-		.accessibilityLabel("Tools")
+		.accessibilityLabel("Tools", role: .group)
 		.style(Styles.tools)
 	}
 
@@ -230,7 +229,7 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 				.style(GeoCitiesWindows.Styles.toolbarSelect)
 			}
 
-			div(.role(.group)) {
+			div {
 				for camera in 0..<4 {
 					button(.type(.button), .hook(Hooks.camera, value: "\(camera)"), .ariaPressed(camera == 0)) {
 						"📷 \(camera + 1)"
@@ -239,14 +238,14 @@ struct GeoCitiesWindowsMovieMaker: ScriptedElement {
 					.style(Styles.toolButton)
 				}
 			}
-			.accessibilityLabel("Camera angle")
+			.accessibilityLabel("Camera angle", role: .group)
 			.style(GeoCitiesWindows.Styles.wrapRow)
 		}
 		.style(GeoCitiesWindows.Styles.wrapRow)
 
 		div {
-			div(.part(Parts.scenes), .role(.group)) {}
-				.accessibilityLabel("Scenes")
+			div(.part(Parts.scenes)) {}
+				.accessibilityLabel("Scenes", role: .group)
 				.style(Styles.sceneStrip)
 
 			template(.part(Parts.sceneTemplate)) {

@@ -208,7 +208,7 @@ struct GeoCitiesCasio: ScriptedElement {
 	}
 
 	private var keyboard: some HTML {
-		div(.part(Parts.keyboard), .tabindex(0), .role(.application)) {
+		div(.part(Parts.keyboard), .tabindex(0)) {
 			for whiteKey in Self.whiteKeys {
 				div {
 					Key(index: whiteKey.index, isBlack: false)
@@ -220,7 +220,7 @@ struct GeoCitiesCasio: ScriptedElement {
 				.style(Styles.whiteKeySlot)
 			}
 		}
-		.accessibilityLabel("Keys. Play with the keys A to ’ of the computer.")
+		.accessibilityLabel("Keys. Play with the keys A to ’ of the computer.", role: .application)
 		.style(Styles.keyboard)
 	}
 

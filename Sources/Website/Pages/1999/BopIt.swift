@@ -57,10 +57,9 @@ struct GeoCitiesBopIt: ScriptedElement {
 						.part(Parts.canvas),
 						.width(480),
 						.height(360),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("The Bop It. Space bops it, the left and right arrow keys twist it, Enter or the down arrow key pulls it, the up arrow key flicks it, S spins it, and Y shouts it.")
+						.accessibilityLabel("The Bop It. Space bops it, the left and right arrow keys twist it, Enter or the down arrow key pulls it, the up arrow key flicks it, S spins it, and Y shouts it.", role: .application)
 						.style(Styles.canvas)
 
 					p(.part(Parts.stats)) {

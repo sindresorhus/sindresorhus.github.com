@@ -65,10 +65,9 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 						.part(Parts.egg),
 						.width(320),
 						.height(260),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("The kitchen table with my Kinderegg. Drag over the foil to peel it, click to break and to bite, drag around the capsule to twist it open, and drag the parts together. Or use the keys: Enter or Space does the next step, B takes a bite, the number keys add a part, Escape folds away the paper, and P plays with the new toy.")
+						.accessibilityLabel("The kitchen table with my Kinderegg. Drag over the foil to peel it, click to break and to bite, drag around the capsule to twist it open, and drag the parts together. Or use the keys: Enter or Space does the next step, B takes a bite, the number keys add a part, Escape folds away the paper, and P plays with the new toy.", role: .application)
 						.style(Styles.canvas, Styles.eggCanvas)
 
 					EggButtons()
@@ -162,10 +161,9 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 						.part(Parts.yoyo),
 						.width(320),
 						.height(320),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("My yo-yo on my finger. Drag down to throw it (further is harder), and click or tap to tug it back. Or use the keys: Down Arrow or S throws, Up Arrow or Enter tugs, Space throws or tugs, D walks the dog, W goes around the world, B rocks the baby, and U untangles.")
+						.accessibilityLabel("My yo-yo on my finger. Drag down to throw it (further is harder), and click or tap to tug it back. Or use the keys: Down Arrow or S throws, Up Arrow or Enter tugs, Space throws or tugs, D walks the dog, W goes around the world, B rocks the baby, and U untangles.", role: .application)
 						.style(Styles.canvas, Styles.yoyoCanvas)
 
 					YoyoButtons()
@@ -295,10 +293,9 @@ struct GeoCitiesKinderEgg: ScriptedElement {
 					canvas(
 						.part(Parts.shelf),
 						.width(320),
-						.height(250),
-						.role(.image)
+						.height(250)
 					) {}
-						.accessibilityLabel("The shelf over my bed with my Kinderegg toys: a row for the Happy Hippos, a row for the crocodiles, and a row for the other toys.")
+						.accessibilityLabel("The shelf over my bed with my Kinderegg toys: a row for the Happy Hippos, a row for the crocodiles, and a row for the other toys.", role: .image)
 						.style(Styles.canvas, Styles.shelfCanvas)
 
 					p(.part(Parts.shelfCount)) {}

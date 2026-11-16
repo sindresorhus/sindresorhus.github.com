@@ -103,7 +103,7 @@ extension Stylesheet {
 		Rule(
 			"::selection",
 			Style()
-			.background(Color.pageAccent.opacity(0.22), dark: Color.darkModeAccent.opacity(0.35))
+			.background(.selectionFill)
 		)
 
 		// The text that a link to a text fragment points to, like from search results (`#:~:text=`), like the selection, but stronger, so it is found on the page.
@@ -111,7 +111,7 @@ extension Stylesheet {
 			"::target-text",
 			Style()
 			.inherits(.color)
-			.background(Color.pageAccent.opacity(0.35), dark: Color.darkModeAccent.opacity(0.5))
+			.background(Color.pageAccent.opacity(0.35), dark: Color.darkModeHighlightAccent.opacity(0.5))
 		)
 
 		Rule(

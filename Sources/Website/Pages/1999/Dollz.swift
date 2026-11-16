@@ -351,10 +351,9 @@ struct GeoCitiesDollz: ScriptedElement {
 						.part(Parts.canvas),
 						.width(128),
 						.height(200),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("The doll. The left and right arrow keys change the tab, the up and down arrow keys change the piece of the tab, R makes a random doll, G turns the glitter on or off, and Z undoes.")
+						.accessibilityLabel("The doll. The left and right arrow keys change the tab, the up and down arrow keys change the piece of the tab, R makes a random doll, G turns the glitter on or off, and Z undoes.", role: .application)
 						.style(Styles.canvas)
 
 					p(.part(Parts.status), .role(.status)) {
@@ -653,7 +652,7 @@ struct GeoCitiesDollz: ScriptedElement {
 		var body: some HTML {
 			div(.part(Parts.certificateBox)) {
 				canvas(.part(Parts.certificate), .width(288), .height(208)) {}
-					.accessibilityLabel("The adoption certificate")
+					.accessibilityLabel("The adoption certificate", role: .image)
 					.style(Styles.certificate)
 
 				div {

@@ -131,7 +131,7 @@ enum SemanticColor: String, CaseIterable {
 	case card
 
 	/**
-	The fill of a card while the pointer is over it.
+	The fill of a card while the pointer is over it, with a light tint of the accent of the page in light mode.
 	*/
 	case cardHover
 
@@ -157,8 +157,9 @@ enum SemanticColor: String, CaseIterable {
 		// See-through, so a card takes a little of the color behind it.
 		case .card:
 			(.lightDark(.black.opacity(0.035), .white.opacity(0.065)), .lightDark(.black.opacity(0.07), .white.opacity(0.12)))
+		// In light mode, the accent of the page, like the underlines and the buttons, so an app page in purple does not get blue fills. An app page sets the accent on the root, where the custom property of the fill is, so the fill follows it, but a card with an accent of its own does not change it.
 		case .cardHover:
-			(.lightDark(.primary(500).opacity(0.06), .white.opacity(0.095)), .lightDark(.primary(500).opacity(0.12), .white.opacity(0.17)))
+			(.lightDark(Color.lightModeTintAccent.opacity(0.06), .white.opacity(0.095)), .lightDark(Color.lightModeTintAccent.opacity(0.12), .white.opacity(0.17)))
 		}
 	}
 
@@ -214,10 +215,11 @@ extension Color {
 	}
 
 	/**
-	A light tint of the accent, or the fallback, with at least the lightness and at most the chroma, so it works as text on a dark tint of the accent, like the text of a secondary button in dark mode.
+	The accent, or the fallback, with at least the lightness, so a see-through tint of a dark accent shows on the dark page. With the chroma, it is a light tint with at most that chroma, so it works as text on a dark tint of the accent, like the text of a secondary button in dark mode.
 	*/
-	static func accent(fallback: Color, minimumLightness: Double, maximumChroma: Double) -> Self {
-		Self(raw: "oklch(from \(accent.value(default: fallback)) max(l, \(minimumLightness)) min(c, \(maximumChroma)) h)")
+	static func accent(fallback: Color, minimumLightness: Double, maximumChroma: Double? = nil) -> Self {
+		let chroma = maximumChroma.map { "min(c, \($0))" } ?? "c"
+		return Self(raw: "oklch(from \(accent.value(default: fallback)) max(l, \(minimumLightness)) \(chroma) h)")
 	}
 
 	/**
@@ -234,6 +236,21 @@ extension Color {
 	The accent in dark mode, where the lighter brand color is the fallback, so it stands out on the dark background.
 	*/
 	static let darkModeAccent = accent.value(default: .primary(400))
+
+	/**
+	The accent of a see-through tint on the light page, like the underline of a link and the fill of a card under the pointer, with the brand color as the fallback. The lightness is limited, so a light accent, like yellow, still shows on white.
+	*/
+	static let lightModeTintAccent = accent(fallback: .primary(500), maximumLightness: 0.65)
+
+	/**
+	The accent of a see-through highlight on the dark page, like the selection and the section that a link opens (``Style/targetHighlight()``). A dark accent, like the purple of Short Run, gets some lightness, so the highlight shows, but does not glare. The blue of the site and the light accents keep their color.
+	*/
+	static let darkModeHighlightAccent = accent(fallback: .primary(400), minimumLightness: 0.6)
+
+	/**
+	The see-through fill of the selection, in the accent of the page, so the text keeps its color. Also for text that the page marks, like the section that a link opens (``Style/targetHighlight()``) and the words of a filter.
+	*/
+	static let selectionFill = lightDark(pageAccent.opacity(0.22), darkModeHighlightAccent.opacity(0.35))
 
 	/**
 	The accent, with the brand color as the fallback, for tints of the accent in both modes, like the light of a card and the fill of a secondary button.
@@ -845,6 +862,11 @@ extension LengthPercentage {
 	Form fields, and the boxes of a form next to them, like the files to attach and the help that the feedback page suggests, so they look like one form (0.75rem).
 	*/
 	static let fieldRadius = rootEm(0.75)
+
+	/**
+	Small boxes in a line of text or in a row, like keyboard keys, version numbers, and thumbnails (0.375rem).
+	*/
+	static let smallRadius = rootEm(0.375)
 }
 
 /**
@@ -1001,7 +1023,11 @@ extension Style {
 		// A faint edge gives the light fill a clear outline, like the materials of Apple platforms. With more contrast, the edge has the color of the separators, which is strong then.
 		let style = background(.card)
 			.cornerRadius(.cardRadius)
-			.shadow(.edge(.lightDark(.black.opacity(0.04), .white.opacity(0.06))))
+			// In dark mode, the top edge catches a little light, like the glass of the primary button. It is in the same shadow, so a style that sets its own shadow replaces it too.
+			.shadow(
+				.edge(.lightDark(.black.opacity(0.04), .white.opacity(0.06))),
+				BoxShadow(y: .pixels(1), color: .lightDark(.transparent, .white.opacity(0.08)), isInset: true)
+			)
 			.media(.moreContrast) {
 				$0.shadow(.edge(.separator))
 			}
@@ -1084,13 +1110,13 @@ extension Style {
 	}
 
 	/**
-	A see-through fill that blurs what is behind it, like the materials of Apple platforms, such as the bar of the site header. When the visitor prefers reduced transparency, the fill is opaque and nothing is blurred.
+	A see-through fill that blurs what is behind it, like the materials of Apple platforms, such as the bar of the site header. The colors behind it are more saturated, like the bars of Apple, so the fill does not wash them out to gray. When the visitor prefers reduced transparency, the fill is opaque and nothing is blurred.
 
 	- Parameter opaque: The fill with reduced transparency, usually the see-through fill without its opacity.
 	*/
 	func frostedBackground(_ fill: Color, opaque: Color, blur radius: Length) -> Self {
 		background(fill)
-			.backdropFilter(.blur(radius: radius))
+			.backdropFilter(.saturation(1.8), .blur(radius: radius))
 			.reducedTransparency {
 				$0
 					.background(opaque)
@@ -1120,13 +1146,16 @@ extension Style {
 	}
 
 	/**
-	Fills the element while the pointer is over it, or while it has the focus of the keyboard, with a quick transition, like a chip or a row of a list.
+	Fills the element while the pointer is over it, while it has the focus of the keyboard, or while it is pressed, with a quick transition, like a chip or a row of a list. So a tap on a phone, where nothing hovers, shows the fill too.
 
 	- Parameter color: The text color with the fill, like the primary text color for a control in the secondary color.
 	*/
 	func hoverFill(_ fill: Color, color: Color? = nil) -> Self {
 		let style = transition(.backgroundColor, timing: .stateChange)
 			.hoverOrFocusVisible {
+				$0.background(fill)
+			}
+			.active {
 				$0.background(fill)
 			}
 
@@ -1136,6 +1165,9 @@ extension Style {
 
 		return style.transition(.color, timing: .stateChange)
 			.hoverOrFocusVisible {
+				$0.color(color)
+			}
+			.active {
 				$0.color(color)
 			}
 	}
@@ -1219,7 +1251,7 @@ extension Style {
 		color(.primaryText)
 			.fontWeight(.medium)
 			.underline(thickness: .pixels(2))
-			.underlineColor(.lightDark(Color.accent(fallback: .primary(500), maximumLightness: 0.65).opacity(0.5), Color.darkModeAccent.opacity(0.55)))
+			.underlineColor(.lightDark(Color.lightModeTintAccent.opacity(0.5), Color.darkModeAccent.opacity(0.55)))
 			.underlineOffset(.pixels(4))
 			.transition(.underlineColor, timing: .stateChange)
 			.hoverOrFocusVisible {
@@ -1360,6 +1392,8 @@ extension Style {
 
 		if hasIcon {
 			style = style.hstack(alignment: .center, spacing: .rootEm(0.375), isInline: true)
+				// As tall as a chip with text, also when the icon is alone and shorter than a line of text.
+				.frame(minHeight: .length(LengthPercentage.lineHeight(1) + .rootEm(0.75)))
 		}
 
 		guard isInteractive else {

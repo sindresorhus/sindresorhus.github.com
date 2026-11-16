@@ -16,7 +16,7 @@ apps: [
 
 @Steps {
 1. Get an API key in the [Claude Console](https://platform.claude.com/settings/keys). Anthropic bills the API separately from a Claude plan, so you pay for what you use.
-1. Open [AI Actions](../apps/ai-actions/index.md), open “Settings”, and paste the key in “Anthropic API Key”.
+1. Open [AI Actions](../apps/ai-actions/index.md), open its settings (the first time, tap or click “Set API key (required)”), and paste the key in “Anthropic API Key”.
 1. In the Shortcuts app, make a new shortcut, and add the “Ask Claude” action of AI Actions.
 1. Type your prompt, or insert a variable, like the text that the shortcut gets. Expand the action to choose the model, and to add a system prompt, images, or PDFs.
 1. Run the shortcut. The result, “Claude Reply”, is text that the next action can use.

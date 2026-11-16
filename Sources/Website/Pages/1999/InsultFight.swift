@@ -29,10 +29,9 @@ struct GeoCitiesInsultFight: ScriptedElement {
 				canvas(
 					.part(Parts.canvas),
 					.width(200),
-					.height(80),
-					.role(.image)
+					.height(80)
 				) {}
-					.accessibilityLabel("Sindre with an umbrella and a seagull with a mackerel, fighting on the quay of the fish market.")
+					.accessibilityLabel("Sindre with an umbrella and a seagull with a mackerel, fighting on the quay of the fish market.", role: .image)
 					.style(Styles.fightCanvas)
 
 				p(.part(Parts.tally)) {
@@ -51,8 +50,7 @@ struct GeoCitiesInsultFight: ScriptedElement {
 							.style(Styles.fightChoice)
 					}
 				}
-				.accessibilityLabel("What to say")
-				.attributes(.role(.group))
+				.accessibilityLabel("What to say", role: .group)
 				.style(Styles.fightChoices)
 
 				div {

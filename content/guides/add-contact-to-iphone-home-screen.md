@@ -28,7 +28,7 @@ Tap the widget to call or message the person. The widget shows the photo and the
 @Tips {
 - iOS asks before each call. To call with one tap, open the app, tap “Quick Call”, and follow the steps there.
 - Add one widget for each person. To put many people in a row, use the small size.
-- The widget also works on the Lock Screen. Touch and hold the Lock Screen, tap “Customize”, tap the Lock Screen, and tap the area of the widgets to add it.
+- The widget also works on the Lock Screen. Touch and hold the Lock Screen, tap “Customize”, and tap “Add Widgets” (or the row of widgets, when it already has widgets) to add it.
 - A widget can also open WhatsApp or Telegram, open a URL, or run a shortcut.
 - If a contact is not in the list, make sure that it has a phone number or an email address. To find a contact that is not shown, search for it in the list.
 }

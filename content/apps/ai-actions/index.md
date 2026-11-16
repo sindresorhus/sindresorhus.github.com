@@ -10,6 +10,7 @@ platforms: [
 appStoreID: 6465250302
 categories: [
 	'shortcuts'
+	'ai'
 ]
 nonAppStoreVersion: {
 	version: '1.5.2'

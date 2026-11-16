@@ -46,13 +46,13 @@ struct GeoCitiesDJBooth: HTML {
 			.style(GeoCitiesPage.Styles.centeredText)
 
 			div {
-				div(.part(Parts.record), .tabindex(0), .role(.application)) {
+				div(.part(Parts.record), .tabindex(0)) {
 					div {
 						"SINDRE RECORDS ★ WAFFLE BREAKS VOL. 1"
 					}
 					.style(Styles.label)
 				}
-				.accessibilityLabel("The record. Drag it back and forth to scratch, or use the left and right arrow keys.")
+				.accessibilityLabel("The record. Drag it back and forth to scratch, or use the left and right arrow keys.", role: .application)
 				.style(Styles.record)
 			}
 			.style(Styles.deck)

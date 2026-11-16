@@ -677,6 +677,13 @@ extension SiteContent {
 	}
 
 	/**
+	Listed blog posts that have a page of their own, not a redirect to another page, like an app page.
+	*/
+	var listedPostsWithPages: [BlogPost] {
+		listedPosts.filter { !$0.isRedirect }
+	}
+
+	/**
 	The app with the data that the build fetched for it.
 	*/
 	func listing(of app: App) -> AppListing {

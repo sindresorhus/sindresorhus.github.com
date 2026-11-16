@@ -674,7 +674,7 @@ struct MarkdownTests {
 	}
 
 	@Test
-	func `alerts keep all paragraphs and uppercase labels`() {
+	func `alerts keep all paragraphs and sentence case labels`() {
 		let document = MarkdownDocument(parsing: """
 		> [!IMPORTANT]
 		> First paragraph.
@@ -683,7 +683,7 @@ struct MarkdownTests {
 		""")
 
 		#expect(document.html.contains(#"<div class="alert alert-important" dir="auto"><p class="alert-title" dir="auto"><svg class="alert-icon""#))
-		#expect(document.html.contains("</svg>IMPORTANT</p><p>First paragraph.</p>"))
+		#expect(document.html.contains("</svg>Important</p><p>First paragraph.</p>"))
 		#expect(document.html.contains("<p>Second paragraph.</p>"))
 		#expect(!document.html.contains("<blockquote>"))
 	}
@@ -1301,6 +1301,46 @@ struct MarkdownTests {
 		#expect(document.problems.map(\.line) == [1])
 		#expect(document.problems.map(\.reason) == ["The image `\(source)` is a HEIC file, which only Safari shows. Export it as JPEG or PNG."])
 		#expect(MarkdownDocument(parsing: "![Photo](photo.jpg)").problems.isEmpty)
+	}
+
+	@Test
+	func `menu path items keep their arrows and surrounding punctuation together`() {
+		let document = MarkdownDocument(parsing: "Choose (“System Settings › Privacy & Security › Full Disk Access”).")
+
+		#expect(document.problems.isEmpty)
+		#expect(document.html == "<p>Choose <span class=\"menu-path-item\">(“System Settings\u{00A0}<span class=\"menu-path-separator\">›</span></span> <span class=\"menu-path-item\">Privacy &amp; Security\u{00A0}<span class=\"menu-path-separator\">›</span></span> <span class=\"menu-path-item\">Full Disk Access”).</span></p>\n")
+	}
+
+	@Test
+	func `each quoted menu path in a sentence is rendered and its text is escaped`() {
+		let document = MarkdownDocument(parsing: "Choose “File › Open &lt;Recent&gt;”, then “Edit › Copy”.")
+
+		#expect(document.problems.isEmpty)
+		#expect(document.html == "<p>Choose <span class=\"menu-path-item\">“File\u{00A0}<span class=\"menu-path-separator\">›</span></span> <span class=\"menu-path-item\">Open &lt;Recent&gt;”,</span> then <span class=\"menu-path-item\">“Edit\u{00A0}<span class=\"menu-path-separator\">›</span></span> <span class=\"menu-path-item\">Copy”.</span></p>\n")
+	}
+
+	@Test
+	func `menu paths stay plain in links summaries and the text that opens a note`() {
+		let link = MarkdownDocument(parsing: "[“System Settings › General”](/settings)")
+		let summary = MarkdownDocument(parsing: "## “System Settings › General”\n\nDetails.", options: .init(collapsibleSections: .init(level: .h2)))
+		let note = MarkdownDocument(parsing: #"^[“System Settings › General”](note: "Details.")"#)
+
+		for document in [link, summary, note] {
+			#expect(document.problems.isEmpty)
+			#expect(document.html.contains("“System Settings › General”"))
+			#expect(!document.html.contains("menu-path-item"))
+		}
+	}
+
+	@Test
+	func `unquoted menu paths inline code and release notes stay plain`() {
+		let plain = MarkdownDocument(parsing: "System Settings › General")
+		let code = MarkdownDocument(parsing: "`“System Settings › General”`")
+		let releaseNotes = MarkdownDocument(releaseNotes: "Choose “System Settings › General”.")
+
+		#expect(plain.html == "<p>System Settings › General</p>\n")
+		#expect(code.html.contains("<code translate=\"no\">“System Settings › General”</code>"))
+		#expect(releaseNotes.html == "<p>Choose “System Settings › General”.</p>\n")
 	}
 
 	@Test

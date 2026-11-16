@@ -916,10 +916,9 @@ extension GeoCitiesCalculator {
 						.part(Parts.screen),
 						.width(384),
 						.height(256),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("The screen of the TI-83. Type numbers and + − * / ^ ( ), Enter to calculate, Backspace for DEL, Escape for CLEAR, the arrow keys to move, F1 to F5 for Y=, WINDOW, ZOOM, TRACE, and GRAPH, F6 for MODE, F7 for PRGM, F8 for MATH, Home for ON, letters for ALPHA, and Shift for 2nd. In the games, the arrow keys move, and Space or Enter shoots or jumps.")
+						.accessibilityLabel("The screen of the TI-83. Type numbers and + − * / ^ ( ), Enter to calculate, Backspace for DEL, Escape for CLEAR, the arrow keys to move, F1 to F5 for Y=, WINDOW, ZOOM, TRACE, and GRAPH, F6 for MODE, F7 for PRGM, F8 for MATH, Home for ON, letters for ALPHA, and Shift for 2nd. In the games, the arrow keys move, and Space or Enter shoots or jumps.", role: .application)
 						.style(Styles.screen)
 				}
 				.style(Styles.bezel)

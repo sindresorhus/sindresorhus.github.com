@@ -48,10 +48,9 @@ struct GeoCitiesCracktro: ScriptedElement {
 				canvas(
 					.part(Parts.screen),
 					.width(320),
-					.height(200),
-					.role(.image)
+					.height(200)
 				) {}
-					.accessibilityLabel("The intro of TEAM WAFFLE, with copper bars, plasma, a tunnel, a spinning unicorn, and a scroller with greetings")
+					.accessibilityLabel("The intro of TEAM WAFFLE, with copper bars, plasma, a tunnel, a spinning unicorn, and a scroller with greetings", role: .image)
 					.style(Styles.screen)
 
 				// The script shows it when the visitor makes the intro too fast, like the crash screen of the Amiga.

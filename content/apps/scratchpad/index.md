@@ -116,7 +116,7 @@ Scratchpad also makes a backup before “Clear Text”, and before the “Set Te
 
 ### Launch app from Lock Screen
 
-Quickly open the app using the built-in Lock Screen widget. For more customization options, you can also use my [Quick Launch](/quick-launch) app.
+Quickly open the app using the built-in Lock Screen widget *([guide](../../guides/quick-notes-iphone.md))*. For more customization options, you can also use my [Quick Launch](/quick-launch) app.
 
 ### Quickly add text to the scratchpad
 

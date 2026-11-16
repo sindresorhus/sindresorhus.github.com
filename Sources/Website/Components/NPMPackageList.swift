@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-All the npm packages, most downloaded first, each as a row with its name, which links to the package on npm, its description, and its weekly downloads, with a field above them that filters the rows by name and description. JavaScript shows the first 20, with a button that says how many more it shows, twice as many each time, and filtering searches the whole list, with the packages whose name has the words first. After a reload, the list shows as many rows as before, so the visitor is back at the package they read. The matching rows that the list does not show yet are hidden “until found”, so find in page also finds them. When no package matches, the package with the closest name shows, so a small typo still finds the package, and Enter opens the first package that shows. All the rows are in the HTML, so search engines and visitors without JavaScript see the whole list. Without JavaScript, there is no filter.
+All the npm packages, most downloaded first, each as a row with its name, which links to the package on npm, its description, and its weekly downloads, with a field above them that filters the rows by name and description. JavaScript shows the first 20, with a button that says how many more it shows, twice as many each time, and filtering searches the whole list, with the packages whose name has the words first, and marks the words in the names and the descriptions that show. After a reload, the list shows as many rows as before, so the visitor is back at the package they read. The matching rows that the list does not show yet are hidden “until found”, so find in page also finds them. When no package matches, the package with the closest name shows, so a small typo still finds the package, and Enter opens the first package that shows. All the rows are in the HTML, so search engines and visitors without JavaScript see the whole list. Without JavaScript, there is no filter.
 */
 struct NPMPackageList: ScriptedElement {
 	static let script = ElementScript()
@@ -160,6 +160,7 @@ struct NPMPackageList: ScriptedElement {
 					.fontWeight(.semibold)
 					.color(.primaryText)
 					.overflowWrap(.anywhere)
+					.filterMatchHighlight()
 					.noUnderline()
 					.hoverColor(.link)
 					.after {
@@ -174,12 +175,24 @@ struct NPMPackageList: ScriptedElement {
 					.display(.block)
 					.secondaryText(.body)
 					.overflowWrap(.anywhere)
+					.filterMatchHighlight()
 			case .downloads:
 				Style()
 					.flexShrink(0)
 					.secondaryText()
 					.monospacedDigit()
 			}
+		}
+	}
+}
+
+extension Style {
+	/**
+	Marks the words of the filter in the text, which the script of ``NPMPackageList`` finds (`npm-filter-match`), in the color of the selection.
+	*/
+	fileprivate func filterMatchHighlight() -> Self {
+		highlight("npm-filter-match") {
+			$0.background(.selectionFill)
 		}
 	}
 }

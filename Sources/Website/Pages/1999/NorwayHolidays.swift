@@ -107,10 +107,9 @@ struct GeoCitiesNorwayHolidays: ScriptedElement {
 				.part(Parts.skiCanvas),
 				.width(400),
 				.height(160),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The ski track to the cabin. Press the left and right arrow keys one after the other to kick, and K to eat a Kvikk Lunsj.")
+				.accessibilityLabel("The ski track to the cabin. Press the left and right arrow keys one after the other to kick, and K to eat a Kvikk Lunsj.", role: .application)
 				.style(Styles.canvas)
 
 			div {

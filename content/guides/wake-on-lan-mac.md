@@ -22,7 +22,7 @@ apps: [
 1. Run the shortcut.
 }
 
-The computer must have Wake on LAN turned on. A success only means that the packet was sent, not that the computer woke up. To wake it in one click, [put the shortcut in the menu bar](add-shortcut-to-menu-bar-mac.md). The action is only on Mac, as iOS needs a special permission for it.
+The computer must have Wake on LAN turned on. A success only means that the packet was sent, not that the computer woke up. If the action cannot send the packet, turn on Actions in “System Settings › Privacy & Security › Local Network”. To wake it in one click, [put the shortcut in the menu bar](add-shortcut-to-menu-bar-mac.md). The action is only on Mac, as iOS needs a special permission for it.
 
 ## Without an app
 

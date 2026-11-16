@@ -47,10 +47,9 @@ struct GeoCitiesBeeper: ScriptedElement {
 						.part(Parts.table),
 						.width(320),
 						.height(220),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("My beeper on the kitchen table. Press R to read the pages, M to change between beep, vibrate, and silent, L for the light, C to clear a page, and U to turn it upside down.")
+						.accessibilityLabel("My beeper on the kitchen table. Press R to read the pages, M to change between beep, vibrate, and silent, L for the light, C to clear a page, and U to turn it upside down.", role: .application)
 						.style(Styles.canvas, Styles.tableCanvas)
 
 					PagerButtons()
@@ -74,7 +73,7 @@ struct GeoCitiesBeeper: ScriptedElement {
 	*/
 	private struct PagerButtons: HTML {
 		var body: some HTML {
-			div(.role(.group)) {
+			div {
 				button(.part(Parts.read), .type(.button)) {
 					"Read"
 				}
@@ -95,7 +94,7 @@ struct GeoCitiesBeeper: ScriptedElement {
 				}
 				.style(Styles.pagerButton)
 			}
-			.accessibilityLabel("The buttons of the beeper")
+			.accessibilityLabel("The buttons of the beeper", role: .group)
 			.style(Styles.pagerButtons)
 		}
 	}
@@ -164,10 +163,9 @@ struct GeoCitiesBeeper: ScriptedElement {
 						.part(Parts.booth),
 						.width(320),
 						.height(240),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("The red Telenor phone booth on the corner, in the rain. Press H to lift or hang up the handset, type digits, star, and pound to dial, and press B for the phone book.")
+						.accessibilityLabel("The red Telenor phone booth on the corner, in the rain. Press H to lift or hang up the handset, type digits, star, and pound to dial, and press B for the phone book.", role: .application)
 						.style(Styles.canvas, Styles.boothCanvas)
 
 					Phone()
@@ -212,7 +210,7 @@ struct GeoCitiesBeeper: ScriptedElement {
 				.accessibilityLabel("The display of the phone")
 				.style(Styles.phoneDisplay)
 
-				div(.role(.group)) {
+				div {
 					for key in Self.keys {
 						button(.type(.button), .hook(Hooks.key, value: key.key)) {
 							key.key
@@ -221,7 +219,7 @@ struct GeoCitiesBeeper: ScriptedElement {
 						.style(Styles.key)
 					}
 				}
-				.accessibilityLabel("The keypad")
+				.accessibilityLabel("The keypad", role: .group)
 				.style(Styles.keypad)
 
 				div {
@@ -266,12 +264,12 @@ struct GeoCitiesBeeper: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.caption)
 
-				div(.role(.group)) {
+				div {
 					coin(1, style: Styles.oneKrone, hasHole: true)
 					coin(5, style: Styles.fiveKroner, hasHole: true)
 					coin(10, style: Styles.tenKroner, hasHole: false)
 				}
-				.accessibilityLabel("Coins")
+				.accessibilityLabel("Coins", role: .group)
 				.style(Styles.coins)
 
 				p(.part(Parts.pocket)) {}
@@ -383,13 +381,13 @@ struct GeoCitiesBeeper: ScriptedElement {
 					}
 					.style(GeoCitiesPage.Styles.lcd, Styles.decodeCode)
 
-					div(.role(.group)) {
+					div {
 						for index in 0..<3 {
 							button(.type(.button), .hook(Hooks.choice, value: "\(index)"), .hidden) {}
 								.style(Styles.choice)
 						}
 					}
-					.accessibilityLabel("What it means")
+					.accessibilityLabel("What it means", role: .group)
 					.style(Styles.choices)
 
 					// What the guess was is right under the guesses, as the status of the beeper is far up on a phone.

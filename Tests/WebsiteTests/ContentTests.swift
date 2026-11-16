@@ -183,11 +183,11 @@ struct ContentTests {
 
 		#expect(paidApp.isPaid)
 		#expect(freeApp.ownOptions == [
-			.link(LabeledLink("Download", url: try #require(URL(string: "https://github.com/sindresorhus/test-meta/releases/latest/download/Test.App.zip")))),
+			.gitHubDownload(try #require(URL(string: "https://github.com/sindresorhus/test-meta/releases/latest/download/Test.App.zip"))),
 			.sourceCode(AbsoluteURL(#URL("https://github.com/sindresorhus/test"))),
 		])
-		#expect(paidApp.ownOptions == [.link(LabeledLink("Buy", url: try #require(URL(string: "https://sindresorhus.gumroad.com/l/test?wanted=true"))))])
-		#expect(freeApp.placesToGet == [.link(LabeledLink("Download", url: try #require(URL(string: "https://github.com/sindresorhus/test-meta/releases/latest/download/Test.App.zip"))))])
+		#expect(paidApp.ownOptions == [.gumroad(try #require(URL(string: "https://sindresorhus.gumroad.com/l/test?wanted=true")))])
+		#expect(freeApp.placesToGet == [.gitHubDownload(try #require(URL(string: "https://github.com/sindresorhus/test-meta/releases/latest/download/Test.App.zip")))])
 	}
 
 	/**
@@ -1320,7 +1320,7 @@ struct ContentTests {
 
 		_ = try await BlogPost(markdown: "---\ntitle: '5* hotels, and a * b'\npublicationDate: 2026-01-01\n---\n\nText.")
 
-		let now = try await MarkdownPage(markdown: "---\ntitle: 'Now'\nstatus: 'Working on [SOML](https://soml.sh) and **apps**.'\n---\n\nText.", slug: "now")
+		let now = try await MarkdownPage(markdown: "---\ntitle: 'Now'\nnow: {\n\tstatus: 'Working on [SOML](https://soml.sh) and **apps**.'\n}\n---\n\nText.", slug: "now")
 		#expect(now.status?.inlineHTML == #"Working on <a href="https://soml.sh">SOML</a> and <strong>apps</strong>."#)
 		#expect(now.status?.introduction == "Working on SOML and apps.")
 	}
@@ -1712,7 +1712,7 @@ struct ContentTests {
 		let setapp = DownloadOption.setapp(try #require(gumroadApp.frontmatter.setappID))
 		let appStore = DownloadOption.appStore(try #require(appStoreApp.appStoreID), placement: .downloadButton)
 
-		#expect(gumroadApp.downloadOptions == [.link(LabeledLink("Buy", url: try #require(gumroadApp.gumroadURL))), .trial(appPath: gumroadApp.path), setapp])
+		#expect(gumroadApp.downloadOptions == [.gumroad(try #require(gumroadApp.gumroadURL)), .trial(appPath: gumroadApp.path), setapp])
 		#expect(appStoreApp.downloadOptions == [appStore, setapp, .trial(appPath: appStoreApp.path)])
 		#expect(appStoreApp.placesToGet == [appStore, setapp])
 	}

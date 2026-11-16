@@ -68,7 +68,7 @@ struct GeoCitiesMacOS: HTML {
 				// The StyleWriter II on the desk, next to the iMac, which prints what the visitor prints, when it has ink.
 				div(.id(IDs.printer), .hidden) {
 					canvas(.id(IDs.printout), .width(240), .height(300)) {}
-						.accessibilityLabel("The printed page")
+						.accessibilityLabel("The printed page", role: .image)
 						.style(Styles.printout)
 
 					p {
@@ -92,7 +92,7 @@ struct GeoCitiesMacOS: HTML {
 				}
 				.style(GeoCitiesPage.Styles.caption)
 
-				div(.role(.group)) {
+				div {
 					for (key, title) in Self.startupKeys {
 						button(.type(.button), .hook(Hooks.startupKey, value: key), .ariaPressed(false)) {
 							title
@@ -100,7 +100,7 @@ struct GeoCitiesMacOS: HTML {
 						.style(Styles.keyCap)
 					}
 				}
-				.accessibilityLabel("Keys to hold at startup")
+				.accessibilityLabel("Keys to hold at startup", role: .group)
 				.style(Styles.keyRow)
 
 				p(.id(IDs.status), .role(.status)) {}
@@ -184,8 +184,8 @@ struct GeoCitiesMacOS: HTML {
 
 				GeoCitiesPage.Deferred(menuBar)
 
-				div(.id(IDs.icons), .role(.group)) {}
-					.accessibilityLabel("Desktop")
+				div(.id(IDs.icons)) {}
+					.accessibilityLabel("Desktop", role: .group)
 					.style(Styles.icons)
 
 				GeoCitiesPage.Deferred(GeoCitiesMacOSWindows())
@@ -205,7 +205,6 @@ struct GeoCitiesMacOS: HTML {
 			div(
 				.id(IDs.alert),
 				.hidden,
-				.role(.alertDialog),
 				.ariaModal,
 				.tabindex(-1),
 				.ariaDescribedBy(IDs.alertText.id)
@@ -228,7 +227,7 @@ struct GeoCitiesMacOS: HTML {
 				div(.id(IDs.alertButtons)) {}
 					.style(Styles.alertButtons)
 			}
-			.accessibilityLabel("Alert")
+			.accessibilityLabel("Alert", role: .alertDialog)
 			.style(Styles.alert)
 
 			GeoCitiesPage.Deferred(templates)

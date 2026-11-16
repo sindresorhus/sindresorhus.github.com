@@ -17,7 +17,7 @@ apps: [
 @Steps {
 1. Install [Actions](../apps/actions/index.md), and open it one time.
 1. In the Shortcuts app, make a new shortcut, and add the “Get Device Details (Extended)” action.
-1. Add the “Show Result” action, and run the shortcut.
+1. Add the “Show Content” action, and run the shortcut.
 }
 
 The result shows “Uptime (with sleep)” and “Uptime (without sleep)” in days, hours, and minutes. The time with sleep is the time since the device started. The time without sleep is the time that it was awake.

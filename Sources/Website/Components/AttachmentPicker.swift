@@ -50,12 +50,15 @@ struct AttachmentPicker: ScriptedElement {
 				)
 					.style(Styles.thumbnail)
 
-				// The icon is raw SVG, so the span has the part, and it is laid out as if it were not there.
+				// The icon is raw SVG, so the span has the part. It is as large as a thumbnail, so the names of all files start at the same place.
 				span(.part(Parts.fileIcon)) {
 					Icon.file.size(.rootEm(1))
 				}
 				.style {
-					$0.display(.contents)
+					$0
+						.hstack(alignment: .center, justification: .center)
+						.flexShrink(0)
+						.frame(size: .rootEm(1.75))
 				}
 
 				// The name in two parts, so a long name is cut in the middle, like in Finder, and the end and the extension stay visible, where macOS puts the details, like the time of a screen recording. The remove button has the full name in its label.
@@ -194,10 +197,12 @@ struct AttachmentPicker: ScriptedElement {
 						$0.flexWrap()
 					}
 			case .thumbnail:
+				// A square, also for a tall or wide image, as the base styles give images an automatic height, which wins over the height attribute.
 				Style()
 					.flexShrink(0)
+					.frame(size: .rootEm(1.75))
 					.objectFit(.cover)
-					.cornerRadius(.pixels(6))
+					.cornerRadius(.smallRadius)
 			case .name:
 				// It is the only part that shrinks, as its minimum width lets it shrink below its content.
 				Style()

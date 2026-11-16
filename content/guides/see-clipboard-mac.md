@@ -23,7 +23,7 @@ Pasteboard Viewer is a tool for developers and for the curious. It is not a clip
 }
 
 @Tips {
-- To see the bytes of the content, choose “Hex” in the “View” menu, or press ++Command+2++.
+- To see the bytes of the content, choose “View › View As › Hex”, or press ++Command+2++.
 - The “Pasteboard” menu switches to the other pasteboards of macOS, like the ones for drag and drop and for the Find text.
 - To find why an app pastes text with the wrong format, look at which types the copy has. An app that pastes plain text takes `public.utf8-plain-text`.
 - To stop the prompt each time, allow the app in “System Settings › Privacy & Security › Paste from Other Apps”.

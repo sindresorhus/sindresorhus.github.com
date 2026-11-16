@@ -123,11 +123,13 @@ extension AppFooterLinks {
 						}
 					}
 			case .guideList:
-				Style().vstack(spacing: .rootEm(0.5))
+				// The space between the questions of a FAQ.
+				Style().vstack(spacing: .rootEm(0.625))
 			case .guideLink:
-				// A row with an arrow at the end, like the link to more questions below the FAQ, so it reads as a link to a page to read.
+				// A row with an arrow at the end, like the link to more questions below the FAQ, so it reads as a link to a page to read. It has the corners of the questions, so a row of one line is not a capsule.
 				Style()
 					.linkCard()
+					.cornerRadius(.boxRadius)
 					.hstack(alignment: .center, justification: .spaceBetween, spacing: .rootEm(1))
 					.padding(vertical: .rootEm(0.875), horizontal: .rootEm(1.25))
 					.textStyle(.body)

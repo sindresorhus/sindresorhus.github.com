@@ -62,12 +62,9 @@ struct AppdlePage: Page {
 				.style(Styles.meta)
 
 				// `appdle.js` draws the part of the icon, and the whole icon when the game ends, with the `revealed` state. Its positive, code-owned bitmap dimensions cannot fail validation.
-				canvas(
-					.id(IDs.canvas),
-					.role(.image)
-				) {}
+				canvas(.id(IDs.canvas)) {}
 					.bitmapSize(PixelSize(width: 480, height: 480)!)
-					.accessibilityLabel("A pixelated part of the icon of today’s app")
+					.accessibilityLabel("A pixelated part of the icon of today’s app", role: .image)
 					.style(Styles.canvas)
 
 				// One slot for each guess, which `appdle.js` marks as `correct` or `wrong`, like the squares of the shared result.

@@ -306,10 +306,10 @@ struct GeoCitiesKeygen: ScriptedElement {
 				}
 				.style(Styles.buttons, GeoCitiesPage.Styles.scriptingOnly)
 
-				pre(.part(Parts.nfo), .role(.group), .tabindex(0)) {
+				pre(.part(Parts.nfo), .tabindex(0)) {
 					Self.nfo
 				}
-				.accessibilityLabel("The NFO file of TEAM WAFFLE")
+				.accessibilityLabel("The NFO file of TEAM WAFFLE", role: .group)
 				.style(Styles.nfo)
 			}
 			.style(GeoCitiesPage.Styles.windowBody)

@@ -118,20 +118,14 @@ extension Page {
 	}
 
 	/**
-	The body renders first and collects the styles and scripts it uses. Then the document is rendered with only those. The inline scripts of the elements are generated here, so a mistake in one fails the build.
+	The body renders first and collects the styles and scripts it uses. Then the document is rendered with only those.
 	*/
 	var route: Route {
 		.page(path, sitemapEntry: metadata.isIndexed ? sitemapEntry : nil) {
 			let body = try RenderedHTML(sharedStylesheet: .site) {
 				SiteBody(page: self)
 			}
-			let inlineScripts = try body.resources.inlineScriptElements.map { try $0.generatedScript() }
-
-			return SiteLayout(
-				page: self,
-				bodyHTML: body,
-				inlineScripts: inlineScripts
-			).render()
+			return SiteLayout(page: self, bodyHTML: body).render()
 		}
 		.title(linkTitle)
 	}

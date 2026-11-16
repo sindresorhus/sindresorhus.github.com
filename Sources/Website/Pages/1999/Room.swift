@@ -84,10 +84,9 @@ struct GeoCitiesRoom: ScriptedElement {
 					.part(Parts.view),
 					.width(480),
 					.height(270),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("My room. Use the arrow keys to look around, plus and minus to zoom, and the buttons below to look at things.")
+					.accessibilityLabel("My room. Use the arrow keys to look around, plus and minus to zoom, and the buttons below to look at things.", role: .application)
 					.style(Styles.view)
 
 				// The flash of the Polaroid camera.

@@ -80,7 +80,13 @@ struct GuidePage: Page {
 							$0.style {
 								$0
 									.display(.block)
-									.frame(width: .auto, maxWidth: .percent(100), maxHeight: .pixels(MediaAsset.maximumDisplayHeight))
+									// The width before the image loads, so a lazy image that is not loaded yet has its height from the width and the size attributes, and the box below it does not move down when it loads. The height is automatic, as the height attribute is otherwise the height.
+									.frame(
+										width: .pixels(screenshot.maximumDisplayWidth),
+										height: .auto,
+										maxWidth: .percent(100),
+										maxHeight: .pixels(MediaAsset.maximumDisplayHeight)
+									)
 									.margin(.horizontal, .auto)
 									.windowSurface()
 							}
@@ -143,6 +149,12 @@ struct GuidePage: Page {
 					.textWrap(.nowrap)
 			}
 		}
+		// One step smaller than the titles of the other pages, as the title of a guide is a long task, like “How to … on Mac”, which would take 4 or 5 lines on a phone and push the quick answer below the first screen.
+		.style {
+			$0.nested(PageHeaderStyles.title.selector) {
+				$0.font(size: .clamp(.rootEm(2.25), .viewportWidth(4.5), .rootEm(3)))
+			}
+		}
 
 		// After the guide, like the footer, so “Without an app” stays the last word of the guide. The rows of the guides at the end of an app page.
 		let moreGuides = self.moreGuides
@@ -201,8 +213,15 @@ struct GuidePage: Page {
 				a(.href(.about)) {
 					Site.author.name
 				}
+				", "
 				// “the … app”, as the names of some apps are common words, and “who makes Today” reads like a sentence about time.
-				", who makes the \(app.title) app"
+				// One unit, so a narrow screen moves the whole clause to the next line, and never splits the name of the app.
+				span {
+					"who makes the \(app.title) app"
+				}
+				.style {
+					$0.display(.inlineBlock)
+				}
 			}
 		}
 		.style {

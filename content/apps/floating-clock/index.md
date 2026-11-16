@@ -7,6 +7,9 @@ platforms: [
 	'visionOS'
 ]
 appStoreID: 6477862240
+categories: [
+	'clock-and-calendar'
+]
 pressQuotes: [
 	{
 		quote: 'Floating Clock has one goal: to display a clock anywhere in your space when you have the Vision Pro on your face.'

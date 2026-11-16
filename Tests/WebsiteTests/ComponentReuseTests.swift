@@ -34,6 +34,14 @@ struct ComponentReuseTests {
 	}
 
 	@Test
+	func `overflow menus show focus on the visible container of the select`() {
+		let css = Stylesheet {
+			Rule(OverflowMenu.Styles.container.selector, OverflowMenu.Styles.container.style)
+		}.css
+		#expect(css.contains("&:has(:focus-visible) {\n\t\tbackground-color: var(--card-hover);"))
+	}
+
+	@Test
 	func `plain facts and rich content remain separate escaped items`() {
 		let html = FactLine(facts: ["A & B", "<C>"]) {
 			a(.href(RoutePath.apps)) {
@@ -67,15 +75,16 @@ struct ComponentReuseTests {
 	}
 
 	@Test
-	func `hover fills retain the same background and optional text color for pointer and keyboard`() {
+	func `hover fills retain the same background and optional text color for pointer, keyboard, and press`() {
 		let plain = Stylesheet { Rule(".plain", Style().hoverFill(.white)) }.css
 		let colored = Stylesheet { Rule(".colored", Style().hoverFill(.white, color: .black)) }.css
 		#expect(plain.contains("transition: background-color .15s;"))
 		#expect(!plain.contains("color: #000;"))
 		#expect(colored.contains("transition: background-color .15s, color .15s;"))
-		#expect(colored.ranges(of: "background-color: #fff;").count == 2)
-		#expect(colored.ranges(of: "color: #000;").count == 2)
+		#expect(colored.ranges(of: "background-color: #fff;").count == 3)
+		#expect(colored.ranges(of: "color: #000;").count == 3)
 		#expect(colored.contains("&:focus-visible"))
 		#expect(colored.contains("&:hover"))
+		#expect(colored.contains("&:active"))
 	}
 }

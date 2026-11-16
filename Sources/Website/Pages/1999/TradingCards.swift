@@ -312,8 +312,8 @@ struct GeoCitiesTradingCards: ScriptedElement {
 				}
 				.style(Styles.pack)
 
-				div(.part(Parts.pull), .role(.group)) {}
-					.accessibilityLabel("Cards from the pack")
+				div(.part(Parts.pull)) {}
+					.accessibilityLabel("Cards from the pack", role: .group)
 					.style(Styles.pull)
 			}
 			.style(Styles.table)

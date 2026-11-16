@@ -59,10 +59,9 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 					.part(Parts.canvas),
 					.width(480),
 					.height(300),
-					.tabindex(0),
-					.role(.application)
+					.tabindex(0)
 				) {}
-					.accessibilityLabel("The view in the Brunost Age. Use the buttons below to look around.")
+					.accessibilityLabel("The view in the Brunost Age. Use the buttons below to look around.", role: .application)
 					.style(Styles.ageCanvas)
 
 				p(.part(Parts.status), .role(.status)) {}
@@ -76,8 +75,7 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 						.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 					}
 				}
-				.accessibilityLabel("Directions")
-				.attributes(.role(.group))
+				.accessibilityLabel("Directions", role: .group)
 				.style(GeoCitiesPage.Styles.buttonRow)
 
 				div {
@@ -86,8 +84,7 @@ struct GeoCitiesLinkingBook: ScriptedElement {
 							.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.tallButton)
 					}
 				}
-				.accessibilityLabel("Things here")
-				.attributes(.role(.group))
+				.accessibilityLabel("Things here", role: .group)
 				.style(GeoCitiesPage.Styles.buttonRow)
 			}
 			.style(Styles.ageView)

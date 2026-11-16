@@ -12,7 +12,7 @@ struct MarkdownPage: ContentDocument {
 	let sponsorTiers: [SponsorTier.Resolved]
 
 	/**
-	The `status` of the now page, which is inline Markdown, so it can have links, like the text of the page.
+	The `now.status` of the now page, which is inline Markdown, so it can have links, like the text of the page.
 	*/
 	let status: MarkdownDocument?
 
@@ -37,13 +37,14 @@ struct MarkdownPage: ContentDocument {
 	init(file decodedFile: DecodedMarkdownFile<Frontmatter>, project: Project, today: SOML.Date?) throws {
 		let file = decodedFile.source
 		let frontmatter = decodedFile.frontmatter
-		// Only the now page shows them, so on another page they would be silently missing.
-		let nowKeys: [(key: Frontmatter.CodingKeys, isSet: Bool)] = [(.status, frontmatter.status != nil), (.reading, !frontmatter.reading.isEmpty), (.listening, !frontmatter.listening.isEmpty)]
-
 		let kind = Kind(path: Self.path(slug: file.slug))
 
-		for (key, isSet) in nowKeys where isSet && kind != .now {
-			throw decodedFile.error(at: key, "Only `content/pages/now.md` can have `\(key.stringValue)`.")
+		// Only the now page shows it, so on another page it would be silently missing.
+		if
+			frontmatter.now != nil,
+			kind != .now
+		{
+			throw decodedFile.error(at: .now, "Only `content/pages/now.md` can have `now`.")
 		}
 
 		self.decodedFile = decodedFile
@@ -56,7 +57,7 @@ struct MarkdownPage: ContentDocument {
 			throw decodedFile.error(at: .sponsorTiers, error.reason)
 		}
 
-		self.status = try frontmatter.status.map { try MarkdownDocument(parsing: $0, at: .status, of: decodedFile, project: project) }
+		self.status = try frontmatter.now?.status.map { try MarkdownDocument(parsing: $0, at: .now, of: decodedFile, project: project) }
 		let parsed = file.parsedMarkdown(options: kind == .faq ? .faqPage(file, project: project) : .content(
 			file,
 			project: project,
@@ -145,7 +146,7 @@ extension MarkdownPage {
 		case about
 
 		/**
-		The now page (``NowPage``), the only page with `status`, `reading`, and `listening`.
+		The now page (``NowPage``), the only page with `now`.
 		*/
 		case now
 
@@ -201,6 +202,21 @@ extension MarkdownPage {
 		var sponsorTiers = [SponsorTier]()
 
 		/**
+		What Sindre is up to now. Only the now page can have it.
+		*/
+		var now: Now?
+
+		func validate(into problems: inout FrontmatterProblems<Self>) {
+			problems.validate(sponsorTiers, at: .sponsorTiers)
+		}
+	}
+
+	/**
+	What Sindre is up to now, for the now page (`now` in the frontmatter of `content/pages/now.md`).
+	*/
+	@Frontmatter
+	struct Now {
+		/**
 		What Sindre is up to, in one line of inline Markdown, for the now page, which shows its links, and for the about page, which shows its text in a card that links to the now page.
 		*/
 		@NonEmpty var status: String?
@@ -214,10 +230,6 @@ extension MarkdownPage {
 		What Sindre is listening to, one line each, for the now page.
 		*/
 		var listening = [NonEmptyString]()
-
-		func validate(into problems: inout FrontmatterProblems<Self>) {
-			problems.validate(sponsorTiers, at: .sponsorTiers)
-		}
 	}
 
 	/**

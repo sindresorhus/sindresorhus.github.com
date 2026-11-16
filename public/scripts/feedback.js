@@ -2,7 +2,7 @@ import {cloneTemplate, scriptData} from '/scripts/dom.js';
 import {searchKey, filterByWords} from '/scripts/edit-distance.js';
 import {intendedDomain} from '/scripts/email-typos.js';
 
-const {apps, sentStorageKey} = scriptData('feedback-data');
+const {apps, sentStorageKey, accentProperty} = scriptData('feedback-data');
 const parameters = new URLSearchParams(location.search);
 const productParameter = parameters.get('product');
 
@@ -43,6 +43,11 @@ function showProduct() {
 
 	if (!app) {
 		return;
+	}
+
+	// The page has the accent of the app, like its app page, so the button and the links say that the form is for the app. “Change App” loads the page again, without it.
+	if (app.accent) {
+		document.documentElement.style.setProperty(accentProperty, app.accent);
 	}
 
 	// The suggestions include the questions of the app.

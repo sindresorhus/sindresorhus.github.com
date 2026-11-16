@@ -162,10 +162,9 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.part(Parts.hamaCanvas),
 				.width(640),
 				.height(640),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The Hama pegboard on the kitchen table. Move with the arrow keys and press Enter to put on a bead or, with the tweezers, to take one off. While ironing, the arrow keys move the iron.")
+				.accessibilityLabel("The Hama pegboard on the kitchen table. Move with the arrow keys and press Enter to put on a bead or, with the tweezers, to take one off. While ironing, the arrow keys move the iron.", role: .application)
 				.style(Styles.canvas, Styles.drawingCanvas)
 
 			hamaButtons
@@ -177,10 +176,9 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.part(Parts.fridge),
 				.width(640),
 				.height(220),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The fridge door, with the finished Hama pieces. Press Delete to take down the newest one.")
+				.accessibilityLabel("The fridge door, with the finished Hama pieces. Press Delete to take down the newest one.", role: .application)
 				.style(Styles.canvas, Styles.displayCanvas)
 		}
 		.style(Styles.toy)
@@ -207,8 +205,8 @@ struct GeoCitiesCrafts: ScriptedElement {
 				}
 				.style(Styles.swatch, Styles.bead, Styles.mixed)
 			}
-			.attributes(.part(Parts.hamaColors), .role(.group))
-			.accessibilityLabel("Bead color")
+			.attributes(.part(Parts.hamaColors))
+			.accessibilityLabel("Bead color", role: .group)
 			.style(Styles.swatches)
 
 			div {
@@ -222,8 +220,8 @@ struct GeoCitiesCrafts: ScriptedElement {
 				}
 				.style(GeoCitiesPage.Styles.smallButton, Styles.toggle)
 			}
-			.attributes(.part(Parts.hamaTools), .role(.group))
-			.accessibilityLabel("Tool")
+			.attributes(.part(Parts.hamaTools))
+			.accessibilityLabel("Tool", role: .group)
 			.style(GeoCitiesPage.Styles.buttonRow)
 		}
 		.style(Styles.toolbar)
@@ -294,10 +292,9 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.part(Parts.snowCanvas),
 				.width(640),
 				.height(640),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The folded paper. Move the scissors with the arrow keys, and press Enter to add a corner of the cut. Press Enter on the first corner again to finish the cut, Escape to stop cutting, and Backspace to undo.")
+				.accessibilityLabel("The folded paper. Move the scissors with the arrow keys, and press Enter to add a corner of the cut. Press Enter on the first corner again to finish the cut, Escape to stop cutting, and Backspace to undo.", role: .application)
 				.style(Styles.canvas, Styles.drawingCanvas)
 
 			div {
@@ -315,10 +312,9 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.part(Parts.kitchenWindow),
 				.width(640),
 				.height(300),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The kitchen window, with the snowflakes hanging in it, and the rain outside. Press Delete to take down the newest one.")
+				.accessibilityLabel("The kitchen window, with the snowflakes hanging in it, and the rain outside. Press Delete to take down the newest one.", role: .application)
 				.style(Styles.canvas, Styles.displayCanvas)
 		}
 		.style(Styles.toy)
@@ -397,18 +393,17 @@ struct GeoCitiesCrafts: ScriptedElement {
 				}
 				.style(Styles.swatch, Styles.pen, Styles.mixed)
 			}
-			.attributes(.part(Parts.spiroColors), .role(.group))
-			.accessibilityLabel("Pen color")
+			.attributes(.part(Parts.spiroColors))
+			.accessibilityLabel("Pen color", role: .group)
 			.style(Styles.swatches)
 
 			canvas(
 				.part(Parts.spiroCanvas),
 				.width(640),
 				.height(640),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The Spirograph, pinned to the table. Hold the right arrow key to turn the wheel one way, and the left arrow key to turn it back. If the wheel flies out, an arrow key puts it back.")
+				.accessibilityLabel("The Spirograph, pinned to the table. Hold the right arrow key to turn the wheel one way, and the left arrow key to turn it back. If the wheel flies out, an arrow key puts it back.", role: .application)
 				.style(Styles.canvas, Styles.drawingCanvas)
 
 			div {
@@ -448,8 +443,8 @@ struct GeoCitiesCrafts: ScriptedElement {
 					.style(Styles.swatch, Styles.marker)
 				}
 			}
-			.attributes(.part(Parts.shrinkColors), .role(.group))
-			.accessibilityLabel("Marker color")
+			.attributes(.part(Parts.shrinkColors))
+			.accessibilityLabel("Marker color", role: .group)
 			.style(Styles.swatches)
 
 			div {
@@ -470,18 +465,17 @@ struct GeoCitiesCrafts: ScriptedElement {
 
 				action("shrink-trace", "🦄 Trace Glitter")
 			}
-			.attributes(.part(Parts.shrinkTools), .role(.group))
-			.accessibilityLabel("Tool")
+			.attributes(.part(Parts.shrinkTools))
+			.accessibilityLabel("Tool", role: .group)
 			.style(GeoCitiesPage.Styles.buttonRow)
 
 			canvas(
 				.part(Parts.shrinkCanvas),
 				.width(640),
 				.height(560),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("The sheet of shrink plastic, or the oven. Move with the arrow keys, and hold Space to draw or cut. Press Enter to punch the hole, or to look in the oven.")
+				.accessibilityLabel("The sheet of shrink plastic, or the oven. Move with the arrow keys, and hold Space to draw or cut. Press Enter to punch the hole, or to look in the oven.", role: .application)
 				.style(Styles.canvas, Styles.drawingCanvas)
 
 			div {
@@ -498,10 +492,9 @@ struct GeoCitiesCrafts: ScriptedElement {
 				.part(Parts.keyring),
 				.width(640),
 				.height(220),
-				.tabindex(0),
-				.role(.application)
+				.tabindex(0)
 			) {}
-				.accessibilityLabel("My school bag, with the shrink plastic charms on the keyring. Press Delete to take off the newest one.")
+				.accessibilityLabel("My school bag, with the shrink plastic charms on the keyring. Press Delete to take off the newest one.", role: .application)
 				.style(Styles.canvas, Styles.displayCanvas)
 		}
 		.style(Styles.toy)

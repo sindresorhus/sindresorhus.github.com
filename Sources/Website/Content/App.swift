@@ -829,7 +829,7 @@ extension App {
 		var script: RoutePath?
 
 		/**
-		Hand-picked categories, which is only `shortcuts`. The other categories come from fields, like `isPaid`, `platforms`, and `isMenuBarApp`, so the type has no case for them.
+		Hand-picked categories, like `shortcuts` (``HandPickedCategory``). The other categories come from fields, like `isPaid`, `platforms`, and `isMenuBarApp`, so the type has no case for them.
 		*/
 		var categories = [HandPickedCategory]()
 

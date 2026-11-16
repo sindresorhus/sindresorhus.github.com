@@ -20,7 +20,7 @@ apps: [
 1. Right-click the file in Finder, and choose “Make Executable”.
 }
 
-The item only shows for files that are not executable yet, and not for images, audio, video, PDF files, archives, or fonts. It is useful for shell scripts, like a `.command` file that you then open with a double-click.
+The item only shows for files that are not executable yet, and not for some kinds of files, like images, video, PDF, HTML, and JSON files. It is useful for shell scripts, like a `.command` file that you then open with a double-click.
 
 The right-click items cannot show in synced folders, like iCloud Drive and Dropbox. There, right-click the file, and choose “Services › Make File Executable”.
 

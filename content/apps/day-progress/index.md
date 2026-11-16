@@ -10,6 +10,9 @@ isPaid: true
 isMenuBarApp: true
 appStoreID: 6450280202
 hasNoNetworkAccess: true
+categories: [
+	'clock-and-calendar'
+]
 sharedQuestions: [
 	'blurry-secondary-display'
 ]

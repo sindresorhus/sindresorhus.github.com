@@ -59,13 +59,19 @@ struct ShortcutCard: HTML {
 			switch self {
 			case .root:
 				// A card in the text, with the same width for each card of a list, wide enough for a title that is a sentence. A list item with a card has no bullet. In a list with text items too, the card starts where their text starts. A list of only cards has no indent, so the cards line up with the text around the list.
+				// A compact card has the corners of a box, so they are parallel to the corners of the icon, which is close to the edge.
 				Style()
 					.cardSurface()
+					.cornerRadius(.boxRadius)
 					.hstack(alignment: .center, spacing: .rootEm(0.875))
 					.frame(width: .percent(100), maxWidth: .rootEm(36))
 					.margin(vertical: .rootEm(0.5), horizontal: .zero)
 					.padding(vertical: .rootEm(0.625), horizontal: .rootEm(0.75))
 					.fontWeight(.regular)
+					// In an FAQ answer, which is a gray box, the card has the page background in light mode, so it is not a gray card on a gray box. In dark mode, the answer is a lighter fill, and the card already stands out. The answer has no specificity, so the fill under the pointer stays.
+					.inside(":where(\(ProseStyles.collapsibleSection.selector))") {
+						$0.background(.pageBackground, dark: .card)
+					}
 					.nested("li:has(> &)") {
 						$0.listStyle(.none)
 					}

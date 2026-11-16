@@ -16,7 +16,7 @@ struct AppMedia: ScriptedElement {
 		section(.part(Parts.scroller), .tabindex(-1), .ariaRoleDescription("carousel")) {
 			for (index, asset) in app.media.enumerated() {
 				// The item has the sizes of its media (`--max-width` and `--phone-width`), so it has its width before the media loads.
-				div(.role(.group), .ariaRoleDescription("slide")) {
+				div(.ariaRoleDescription("slide")) {
 					// The width and height attributes give the natural size and the aspect ratio, so the media reserves its space before it loads, and is never shown larger than its natural size. On wider screens, it is at most 640px tall.
 					switch asset {
 					case .video(let videoAsset):
@@ -45,7 +45,7 @@ struct AppMedia: ScriptedElement {
 						}
 					}
 				}
-				.accessibilityLabel("\(index + 1) of \(app.media.count)")
+				.accessibilityLabel("\(index + 1) of \(app.media.count)", role: .group)
 				// A video starts paused, so the play icon also shows without the script and with reduced motion, where it does not play. The script updates it when the video plays or pauses.
 				.attributes(.state(States.paused), when: asset.isVideo)
 				.style(Styles.item)
@@ -254,6 +254,12 @@ struct AppMedia: ScriptedElement {
 							.cornerRadius(.circle)
 							.background(.gray(300), dark: .gray(600))
 							.transition(.backgroundColor, timing: .stateChange)
+					}
+					// Darker under the pointer, like the arrows next to the dots. The dot of the item in view keeps the accent, as its rule comes after.
+					.hover {
+						$0.before {
+							$0.background(.gray(400), dark: .gray(500))
+						}
 					}
 					.current {
 						$0.before {

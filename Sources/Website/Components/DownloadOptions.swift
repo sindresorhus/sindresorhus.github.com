@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-The download badges (App Store, Setapp), custom download buttons, and the “Source Code” and “Free Trial” buttons. The parent leaves it out when the app has no download options, and sets the space around it.
+The download badges (App Store, Setapp), the “Learn More”, “Download”, and “Buy” buttons, and the “Source Code” and “Free Trial” buttons. The parent leaves it out when the app has no download options, and sets the space around it.
 */
 struct DownloadOptions: HTML {
 	let app: App
@@ -32,8 +32,12 @@ struct DownloadOptions: HTML {
 				badgeLink(.appStore)
 			case .setapp:
 				badgeLink(.setapp)
-			case .link(let link):
-				buttonLink(link.title, destination: link.destination)
+			case .website:
+				buttonLink("Learn More", destination: option.url)
+			case .gitHubDownload:
+				buttonLink("Download", destination: option.url)
+			case .gumroad:
+				buttonLink("Buy", destination: option.url)
 			case .sourceCode:
 				// Secondary, like “Free Trial”, so the store or the purchase stays the strongest action.
 				buttonLink("Source Code", destination: option.url, fill: .secondary)
@@ -48,7 +52,6 @@ struct DownloadOptions: HTML {
 		private func buttonLink(_ title: String, destination: LinkDestination, fill: ButtonStyles.Fill = .primary) -> some HTML<HTMLTag.a> {
 			Link(title, destination: destination)
 				.buttonStyle(fill, size: .large)
-				.style(Styles.button)
 		}
 
 		private func badgeLink(_ badge: DownloadOption.Badge) -> some HTML<HTMLTag.a> {
@@ -69,12 +72,11 @@ struct DownloadOptions: HTML {
 		case root
 		case badge
 		case badgeImage
-		case button
 
 		var style: Style {
 			switch self {
 			case .root:
-				// On phones, the options are a little smaller, so two fit side by side, like the App Store badge and “Free Trial”. A third option wraps to the next line. The options are at the top of the row, so a badge is not stretched to the height of a button and its bottom margin.
+				// On phones, the options are a little smaller, so two fit side by side, like the App Store badge and “Free Trial”. A third option wraps to the next line. The options are at the top of the row, so a badge is not stretched to the height of a button.
 				Style()
 					.hstack(alignment: .start, justification: .center)
 					.flexWrap()
@@ -93,8 +95,6 @@ struct DownloadOptions: HTML {
 				Style()
 					.display(.block)
 					.frame(height: .pixels(60))
-			case .button:
-				Style().margin(.bottom, .rootEm(0.5))
 			}
 		}
 

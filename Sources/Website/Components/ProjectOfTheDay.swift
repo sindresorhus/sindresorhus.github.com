@@ -8,47 +8,7 @@ One of my projects, like an npm package or a repo, the same for everyone on a da
 The projects for the button are in a JSON file (``listJSON(_:)``), which the script loads on the first click, so the page does not have them.
 */
 struct ProjectOfTheDay: ScriptedElement {
-	static let script = ElementScript(inline: #"""
-	export default class extends HTMLElement {
-		// The request for the projects, so more clicks while it loads wait for it, instead of loading the file again.
-		#projects;
-
-		connectedCallback() {
-			// The same function, so connecting the element again does not add a second listener.
-			this.querySelector('[data-part="next"]').addEventListener('click', this.#showAnother);
-		}
-
-		#showAnother = async () => {
-			const {listPath, randomTitle} = JSON.parse(this.dataset.config);
-			this.#projects ??= fetch(listPath).then(response => response.json());
-			let projects;
-
-			try {
-				projects = await this.#projects;
-			} catch (error) {
-				// The project of the day stays, and the next click tries again.
-				this.#projects = undefined;
-				console.error('Could not load the projects:', error);
-				return;
-			}
-
-			const name = this.querySelector('[data-part="name"]');
-			const others = projects.filter(project => project.name !== name.textContent);
-			const pick = others[Math.floor(Math.random() * others.length)];
-
-			// A list with only the shown project has no other one.
-			if (!pick) {
-				return;
-			}
-
-			this.querySelector('[data-part="title"]').textContent = randomTitle;
-			name.textContent = pick.name;
-			name.href = pick.url;
-			this.querySelector('[data-part="description"]').textContent = pick.description;
-			this.querySelector('[data-part="detail"]').textContent = pick.detail;
-		};
-	}
-	"""#)
+	static let script = ElementScript()
 
 	/**
 	The production project collections, each paired with the route and labels of its discovery card.

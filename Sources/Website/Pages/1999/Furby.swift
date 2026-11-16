@@ -67,10 +67,9 @@ struct GeoCitiesFurby: ScriptedElement {
 						.part(Parts.canvas),
 						.width(480),
 						.height(360),
-						.tabindex(0),
-						.role(.application)
+						.tabindex(0)
 					) {}
-						.accessibilityLabel("My Furby. Stroke its back to pet it, press its tummy to tickle it, and its tongue to feed it. Or use the keys: F feeds, T tickles, P pets, U turns it upside down, S shakes, C claps, L turns the light off or on, and M plays music.")
+						.accessibilityLabel("My Furby. Stroke its back to pet it, press its tummy to tickle it, and its tongue to feed it. Or use the keys: F feeds, T tickles, P pets, U turns it upside down, S shakes, C claps, L turns the light off or on, and M plays music.", role: .application)
 						.style(Styles.canvas)
 
 					p(.part(Parts.status), .role(.status)) {}

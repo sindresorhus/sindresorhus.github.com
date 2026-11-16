@@ -231,12 +231,12 @@ struct SourceGuardTests {
 	}
 
 	/**
-	The inline scripts of a source, as they are written: the string literals of `ElementScript(inline:)`, and of `HTMLRaw(…)` in `script { … }`.
+	The inline scripts of a source, as they are written: the string literals of `HTMLRaw(…)` in `script { … }`.
 	*/
 	private static func inlineScripts(in syntax: SourceFileSyntax) -> [String] {
-		let elementScripts = syntax.calls(named: "ElementScript").filter { $0.arguments.first?.label?.text == "inline" }
-		let pageScripts = syntax.calls(named: "HTMLRaw").filter { $0.enclosingCallName == "script" }
-		return (elementScripts + pageScripts).compactMap(\.firstStringLiteral?.sourceContent)
+		syntax.calls(named: "HTMLRaw")
+			.filter { $0.enclosingCallName == "script" }
+			.compactMap(\.firstStringLiteral?.sourceContent)
 	}
 
 	private static func declaredHooks(in syntax: SourceFileSyntax, conformingTo protocolName: String) -> [String: String] {

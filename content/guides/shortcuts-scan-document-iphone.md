@@ -16,7 +16,7 @@ apps: [
 
 @Steps {
 1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In your shortcut, add the “Scan Documents” action. Turn on “Use PDF” to get one PDF and not one image for each page.
+1. In your shortcut, add the “Scan Documents” action. To get one PDF and not one image for each page, tap the arrow in the action, and turn on “Use PDF”.
 1. Below it, add the “Wait to Return” action, and then the “Get Clipboard” action.
 1. Add what must happen with the scan, like the “Save File” action.
 1. Run the shortcut. The Actions app opens with the scanner. Scan the pages. The Shortcuts app then comes back, and the shortcut continues.

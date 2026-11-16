@@ -382,7 +382,7 @@ struct QuoteFigure: HTML {
 					.fontWeight(.medium)
 					.color(.secondaryText)
 			case .sourceLink:
-				// The arrow shows that the source is a link to the article.
+				// The arrow shows that the source is a link to the article. The name already has the primary text color of a quiet link under the pointer, so the arrow gets the accent of the page there, also with the focus of the keyboard.
 				Style()
 					.quietLink()
 					.after {
@@ -391,6 +391,12 @@ struct QuoteFigure: HTML {
 							.fontFamily(.system)
 							.fontWeight(.regular)
 							.color(.secondaryText)
+							.transition(.color, timing: .stateChange)
+					}
+					.hoverOrFocusVisible {
+						$0.after {
+							$0.color(.accentMark)
+						}
 					}
 			case .sourceDetails:
 				// Below the name of the source.
