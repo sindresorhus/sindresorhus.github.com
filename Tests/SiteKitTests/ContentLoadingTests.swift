@@ -405,7 +405,8 @@ struct ContentLoadingTests {
 
 		#expect(error.errors.map { $0.file?.lastPathComponent } == ["Keep-Mac-Awake.md", "index.md"])
 		#expect(error.errors.allSatisfy { $0.reason.hasPrefix("The path of the file is the URL of its page") })
-		#expect(error.errors.map { $0.reason.split(separator: ". ").last } == ["Rename the file `Keep-Mac-Awake.md` to `keep-mac-awake.md`.", "Rename the folder `My_Bundle` to `my-bundle`."])
+		let renameMessages: [Substring?] = error.errors.map { $0.reason.split(separator: ". ").last }
+		#expect(renameMessages == ["Rename the file `Keep-Mac-Awake.md` to `keep-mac-awake.md`.", "Rename the folder `My_Bundle` to `my-bundle`."])
 	}
 
 	/**
