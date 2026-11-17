@@ -38,7 +38,7 @@ enum FAQDirectives {
 	}
 
 	/**
-	The other app or feature that the question compares the app with, like `<!-- @faq.compares iStat Menus -->` below “How is this different from iStat Menus?”. The app page links to each such question with a chip after the features (``AppPage``), so a visitor who already uses the other app finds the answer. It is not for the feedback page.
+	The other app or feature that the question compares the app with, like `<!-- @faq.compares iStat Menus -->` below “How is this different from iStat Menus?”. The app page links to each such question with a chip after the features (``AppPage``), so a visitor who already uses the other app finds the answer. When the name is the title of another of my active apps, the page of that app also has a chip, with the title of this app, unless it has its own question about this app. It is not for the feedback page.
 	*/
 	enum Compares: HeadingDirective {
 		static let name: HeadingDirectiveName = "faq.compares"

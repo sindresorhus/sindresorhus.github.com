@@ -108,6 +108,21 @@ extension ContentEntry {
 	}
 
 	/**
+	Finds the Markdown file for an allowed slug before the entries are loaded, whether it is a standalone file or a page bundle.
+	*/
+	public static func sourceFile(for slug: ContentSlug, in project: Project) -> URL? {
+		guard allows(slug: slug.value) else {
+			return nil
+		}
+
+		let directory = directory.fileURL(in: project.root)
+		let path = directory.appending(path: slug.value)
+		return [path.appendingPathExtension("md"), path.pageBundleIndex].first { file in
+			file.isFile && MarkdownFile.slug(of: file, relativeTo: directory) == slug.value
+		}
+	}
+
+	/**
 	Loads the entries from the Markdown files in ``directory`` and, when ``allowsSubdirectories``, its subdirectories.
 
 	```swift
@@ -116,7 +131,7 @@ extension ContentEntry {
 
 	Each file is decoded and validated. The mistakes of all files are thrown together as ``ContentErrors``, with file paths and lines. Drafts are left out (``ContentLoad/drafts`` has them), and the entries are sorted by ``sortOrder``.
 
-	- Parameter lastCommitDates: The dates from ``Project/lastCommitDates()``, which the files get as ``MarkdownFile/lastCommitDate``.
+	- Parameter lastCommitDates: The dates from ``Project/lastCommitDates(matching:)``, which the files get as ``MarkdownFile/lastCommitDate``.
 	*/
 	public static func load(from project: Project, lastCommitDates: [URL: Date] = [:]) async throws(ContentErrors) -> [Self] {
 		let loaded = await load(from: project, lastCommitDates: lastCommitDates) { file in
@@ -157,7 +172,7 @@ extension ContentEntry {
 			return .unavailable(ContentErrors(converting: error, file: directoryURL))
 		}
 
-		let markdownFiles = files.filter { $0.pathExtension == "md" }.map { (url: $0, slug: MarkdownFile.slug(of: $0, relativeTo: directoryURL)) }
+		let markdownFiles = files.filter(\.isMarkdownFile).map { (url: $0, slug: MarkdownFile.slug(of: $0, relativeTo: directoryURL)) }
 
 		// The files are loaded in parallel, and every file is loaded, so all mistakes are reported at once. The results are put back in path order (``Foundation/URL/filesRecursively()`` sorts by path), so entries with the same sort key always come out in the same order.
 		var entriesByIndex = [Self?](repeating: nil, count: markdownFiles.count)
@@ -176,7 +191,7 @@ extension ContentEntry {
 					}
 
 					// By the list of the files, not the disk, which can ignore case, so `Index.md` is not the `index.md` of the folder.
-					guard markdownFiles.contains(where: { $0.slug == folder && $0.url.lastPathComponent == "index.md" }) else {
+					guard markdownFiles.contains(where: { $0.slug == folder && $0.url.isPageBundleIndex }) else {
 						throw ContentError(file: url, reason: "The page of a folder is its `index.md`. Rename `\(name)` to `index.md`, or move it out of the folder.")
 					}
 
@@ -251,7 +266,7 @@ extension ContentEntry {
 		// The last name is the file, except for the `index.md` of a page bundle, whose slug ends with its folder.
 		guard
 			index == names.indices.last,
-			url.lastPathComponent != "index.md"
+			!url.isPageBundleIndex
 		else {
 			return "Rename the folder `\(name)` to `\(fixedName)`."
 		}

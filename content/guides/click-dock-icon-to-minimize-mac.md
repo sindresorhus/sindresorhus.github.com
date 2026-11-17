@@ -10,13 +10,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	A click on the Dock icon of the active app does nothing on a Mac. ++Option++-click the icon to hide the app, or press ++Command+H++ to hide it or ++Command+M++ to minimize the window. To make a plain click minimize or hide the app, like on Windows, use [Supercharge](../apps/supercharge/index.md).
+	A click on the Dock icon of the active app does nothing on a Mac. ++Option++-click the icon to hide the app, or press ++Command+H++ to hide it or ++Command+M++ to minimize the window. To make a plain click minimize or hide the app, like on Windows, use [Supercharge](/supercharge).
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
 1. In the “Dock” section, set “When clicking an active app in the Dock” to “Minimize Windows”, “Hide App”, or “Cycle Through Windows”.
 1. Click the Dock icon of the active app.

@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	The Shortcuts app has no global variables: a variable lives only while its shortcut runs. The free [Actions](../apps/actions/index.md) app adds “Global Variable” actions, which save a text, a number, or a true or false value under a name. Any shortcut can read it later, also on your other devices.
+	The Shortcuts app has no global variables: a variable lives only while its shortcut runs. The free [Actions](/actions) app adds “Global Variable” actions, which save a text, a number, or a true or false value under a name. Any shortcut can read it later, also on your other devices.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In a shortcut, add the “Global Variable: Set Text” action.
+1. Install [Actions](/actions), and open it once.
+1. In a shortcut, add the [“Global Variable: Set Text”](/actions#:~:text=Global%20Variable) action.
 1. In the action, type a name for the variable, like `lastRun`, and the text to save, or choose a variable of the shortcut.
 1. In the shortcut that needs the value, add the “Global Variable: Get Text” action, and type the same name.
 }

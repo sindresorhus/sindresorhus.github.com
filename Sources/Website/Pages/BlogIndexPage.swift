@@ -7,6 +7,7 @@ The list of blog posts.
 */
 struct BlogIndexPage: Page {
 	let posts: [BlogPost]
+	let project: Project
 
 	var path: RoutePath {
 		.blog
@@ -19,8 +20,15 @@ struct BlogIndexPage: Page {
 	var metadata: PageMetadata {
 		PageMetadata(
 			title: "Blog",
-			description: "Articles by Sindre Sorhus about open source and programming."
+			description: "Posts by Sindre Sorhus about open source, programming, and making apps."
 		)
+	}
+
+	/**
+	The title and the description of the page next to the photo of Sindre, so a shared link says that it is the blog.
+	*/
+	var socialImage: SocialImage {
+		.card(OpenGraphCard(page: self, project: project))
 	}
 
 	var body: some HTML {

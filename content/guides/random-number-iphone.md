@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open [Randa](../apps/randa/index.md), type the minimum and the maximum, like 1 and 100, and tap “Generate”, or shake the iPhone. Without an app, use the “Random Number” action in the Shortcuts app.
+	Open [Randa](/randa), type the minimum and the maximum, like 1 and 100, and tap “Generate”, or shake the iPhone. [Without an app](#without-an-app), use the “Random Number” action in the Shortcuts app.
 }
 
 ## With Randa
 
 @Steps {
-1. Open [Randa](../apps/randa/index.md).
+1. Open [Randa](/randa).
 1. Type the lowest number in the first field, and the highest number in the second field, like 1 and 6 for a die.
 1. Tap “Generate”, or shake the iPhone. Each number in the range can come, also the lowest and the highest.
 }

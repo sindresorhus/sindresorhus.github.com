@@ -15,9 +15,52 @@ public struct SitemapEntry: Sendable {
 	*/
 	public var images: [AbsoluteURL]
 
-	public init(lastModified: SOML.Date? = nil, images: [AbsoluteURL] = []) {
+	/**
+	The important videos of the page, like the demo of an app, for the video results of Google.
+	*/
+	public var videos: [Video]
+
+	/**
+	A video of the page with the tags Google needs for a video sitemap, so search engines can show it in video results.
+	*/
+	public struct Video: Sendable {
+		/**
+		The title of the video, like “Gifski demo”.
+		*/
+		public let title: String
+
+		/**
+		What the video shows, in one sentence.
+		*/
+		public let description: String
+
+		/**
+		An image of the video, like its poster.
+		*/
+		public let thumbnail: AbsoluteURL
+
+		/**
+		The video file.
+		*/
+		public let content: AbsoluteURL
+
+		public init(
+			title: String,
+			description: String,
+			thumbnail: AbsoluteURL,
+			content: AbsoluteURL
+		) {
+			self.title = title
+			self.description = description
+			self.thumbnail = thumbnail
+			self.content = content
+		}
+	}
+
+	public init(lastModified: SOML.Date? = nil, images: [AbsoluteURL] = [], videos: [Video] = []) {
 		self.lastModified = lastModified
 		self.images = images
+		self.videos = videos
 	}
 }
 
@@ -86,7 +129,8 @@ public struct Sitemap {
 
 				let lastModified = entry.lastModified.map { "<lastmod>\($0)</lastmod>" } ?? ""
 				let images = entry.images.map { "<image:image><image:loc>\($0.value.absoluteString.escapedForHTML)</image:loc></image:image>" }.joined()
-				return "<url><loc>\(page.path.absoluteURL(site: site).absoluteString.escapedForHTML)</loc>\(lastModified)\(images)</url>"
+				let videos = entry.videos.map { "<video:video><video:thumbnail_loc>\($0.thumbnail.value.absoluteString.escapedForHTML)</video:thumbnail_loc><video:title>\($0.title.escapedForHTML)</video:title><video:description>\($0.description.escapedForHTML)</video:description><video:content_loc>\($0.content.value.absoluteString.escapedForHTML)</video:content_loc></video:video>" }.joined()
+				return "<url><loc>\(page.path.absoluteURL(site: site).absoluteString.escapedForHTML)</loc>\(lastModified)\(images)\(videos)</url>"
 			}
 			.joined()
 
@@ -97,7 +141,7 @@ public struct Sitemap {
 				#"<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>\#(index)</loc></sitemap></sitemapindex>"#
 			},
 			.text(Self.contentPath) {
-				#"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\#(entries)</urlset>"#
+				#"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">\#(entries)</urlset>"#
 			},
 		]
 	}

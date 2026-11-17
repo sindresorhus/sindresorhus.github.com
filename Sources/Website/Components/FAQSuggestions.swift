@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-Help below the feedback message, which its script shows while the visitor types: a request for a crash report when the message is about a crash, and the FAQ questions, the tips, and the guides that the message is about. The script fills the list with the suggestion template.
+Help below the feedback message, which its script shows while the visitor types: a request for a crash report when the message is about a crash, with the steps to attach it on a Mac, and the FAQ questions, the tips, and the guides that the message is about. The script fills the list with the suggestion template.
 
 The message field is the `for` attribute of the element, like the `for` of a label, and the questions are its `questions` attribute. The page script sets the `app` attribute to the title of the selected app, so its questions are suggested too.
 
@@ -36,6 +36,8 @@ struct FAQSuggestions: ScriptedElement {
 				Link("crash report", destination: .crashReportQuestion, opensInNewTab: true)
 					.style(Styles.crashReportLink)
 				"."
+
+				macCrashReportSteps
 			}
 			.style(Styles.crashWarning)
 
@@ -89,6 +91,84 @@ struct FAQSuggestions: ScriptedElement {
 			}
 		}
 	}
+
+	/**
+	The steps to attach the crash reports from the file dialog, which the script shows for an app on macOS in a browser on a Mac, with the name of the app. The file dialog of the browser is the open panel of macOS, which goes to a folder with the same shortcut as “Go to Folder…” in Finder. The keys have the markup of a keyboard shortcut of the Markdown (``SiteKit/MarkdownTheme/site``).
+	*/
+	private var macCrashReportSteps: some HTML {
+		div(.part(Parts.macCrashReportSteps), .hidden) {
+			"Click "
+
+			// It opens the file dialog of the file picker of the form (``AttachmentPicker``), with its look, so the visitor follows the steps here, and does not look for the picker below the other fields.
+			button(.type(.button), .part(Parts.attachFiles)) {
+				Icon.paperclip.size(.rootEm(0.875))
+				"Attach Files"
+			}
+			.style {
+				$0
+					.chip(hasIcon: true)
+					.verticalAlign(.middle)
+			}
+
+			", press "
+
+			kbd(.notTranslated) {
+				kbd {
+					"Shift"
+				}
+				.style(ProseStyles.shiftKey)
+
+				keySeparator
+
+				kbd {
+					"Command"
+				}
+				.style(ProseStyles.commandKey)
+
+				keySeparator
+
+				kbd {
+					"G"
+				}
+			}
+			.style(ProseStyles.keyboardShortcut)
+
+			", paste the folder below, and pick the newest files that start with “"
+			span(.part(Parts.appName)) {}
+			"”."
+
+			// On a line of its own, so the button does not break the lines of the text.
+			div {
+				code(.notTranslated) {
+					Self.crashReportsFolder
+				}
+
+				CopyButton(title: "Copy", text: Self.crashReportsFolder)
+			}
+			.style {
+				$0
+					.hstack(alignment: .center, spacing: .rootEm(0.5))
+					.flexWrap()
+					.margin(.top, .rootEm(0.5))
+			}
+		}
+		.style {
+			$0.margin(.top, .rootEm(0.5))
+		}
+	}
+
+	private var keySeparator: some HTML {
+		span {
+			"+"
+		}
+		.accessibilityHidden()
+		.style(ProseStyles.keySeparator)
+	}
+
+	/**
+	The folder of the crash reports of the apps of the user.
+	*/
+	private static let crashReportsFolder = "~/Library/Logs/DiagnosticReports"
 
 	/**
 	The questions that the script suggests, and the words that it leaves out of the message, as JSON that the script finds by the ID in the `questions` attribute of the element.
@@ -153,6 +233,14 @@ struct FAQSuggestions: ScriptedElement {
 
 	enum Parts: String, ElementPartSet {
 		case crashWarning
+		case macCrashReportSteps
+
+		/**
+		The button in the steps for a Mac that opens the file dialog of the form.
+		*/
+		case attachFiles
+
+		case appName
 		case count
 		case panel
 		case dismiss
@@ -221,6 +309,9 @@ struct FAQSuggestions: ScriptedElement {
 					.borderColor(.amber(300), dark: .amber(700))
 					.color(.amber(800), dark: .amber(300))
 					.background(.amber(50), dark: .amber(900).opacity(0.2))
+					// The keys and the folder of the steps for a Mac look like in the text of the site.
+					.combined(with: ProseStyles.keyboardKeys)
+					.combined(with: ProseStyles.inlineCode)
 			case .crashReportLink:
 				Style()
 					.fontWeight(.medium)

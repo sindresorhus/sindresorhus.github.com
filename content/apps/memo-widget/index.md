@@ -9,6 +9,9 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 6465682248
+categories: [
+	'notes'
+]
 sharedQuestions: [
 	'widget-missing'
 	'lock-screen-widget-disappears'

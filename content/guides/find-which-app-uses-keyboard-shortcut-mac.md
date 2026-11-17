@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	macOS does not show which app took a global keyboard shortcut. The keyboard shortcut inspector of [Supercharge](../apps/supercharge/index.md) shows the apps that registered or listen for a shortcut when you press it. It does the job of ShortcutDetective, which is no longer updated.
+	macOS does not show which app took a global keyboard shortcut. The keyboard shortcut inspector of [Supercharge](/supercharge) shows the apps that registered or listen for a shortcut when you press it. It does the job of ShortcutDetective, which is no longer updated.
 }
 
 ShortcutDetective was a small free app from the Labs of Irradiated Software, the makers of SizeUp, that detected which app receives a keyboard shortcut. Its page still offers version 1.0, for Mac OS X 10.6 or later. The app has no code for Apple silicon, so it needs Rosetta on newer Macs. Homebrew disabled it in 2025 because it is not maintained, and removed it in 2026.
@@ -17,10 +17,10 @@ ShortcutDetective was a small free app from the Labs of Irradiated Software, the
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tools”.
 1. In “Keyboard shortcut inspector”, click “Detect”.
-1. Press the keyboard shortcut. Supercharge shows the apps that may use it, or “No apps detected”.
+1. Press the keyboard shortcut. Supercharge shows the apps and the shortcuts of macOS that may use it, or “No apps or system shortcuts detected”.
 1. Click “Stop” when you are done.
 }
 
@@ -32,9 +32,9 @@ macOS shows its own shortcuts, but not the shortcuts of other apps:
 
 @Steps {
 1. Open “[System Settings › Keyboard](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”, and click “Keyboard Shortcuts…”.
-1. Click each category, like “Mission Control” or “Spotlight”, and look for the shortcut.
+1. Click each category, like “Mission Control” or “Spotlight”, and look for the shortcut. <source:https://support.apple.com/guide/mac-help/mchlp2262/mac>
 }
 
 When two shortcuts of macOS are the same, a warning sign shows next to them. To find an app that took a shortcut, quit your apps one at a time, starting with the menu bar apps, and press the shortcut after each one. When the shortcut does something else, the last app that you quit had it. This works, but it takes time. Supercharge tells you at once.
 
-If no keyboard shortcut of other apps works at all, an app may have Secure Input on. See [how to fix keyboard shortcuts that stopped working](fix-keyboard-shortcuts-not-working-mac.md).
+If no keyboard shortcut of other apps works at all, an app may have Secure Input on. See [how to fix keyboard shortcuts that stopped working](guide:fix-keyboard-shortcuts-not-working-mac).

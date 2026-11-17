@@ -2,20 +2,20 @@
 title: 'How to Blur the Wallpaper on iPhone'
 description: 'Make a blurry wallpaper from any photo with the free Blear app, with a slider for the blur, or blur only the Home Screen wallpaper in the settings of iOS.'
 publicationDate: 2026-10-31
-topic: 'iphone'
+topic: 'lock-screen-and-home-screen'
 apps: [
 	'blear'
 ]
 ---
 
 @QuickAnswer {
-	Open a photo in the free [Blear](../apps/blear/index.md) app, choose the blur with the slider, and save it. Then set it as the wallpaper of the Lock Screen and the Home Screen. Without an app, iOS can blur only the Home Screen wallpaper: when you add a wallpaper in “Settings › Wallpaper”, tap “Customize Home Screen”, and select “Blur”.
+	Open a photo in the free [Blear](/blear) app, choose the blur with the slider, and save it. Then set it as the wallpaper of the Lock Screen and the Home Screen. [Without an app](#without-an-app), iOS can blur only the Home Screen wallpaper: when you add a wallpaper in “Settings › Wallpaper”, tap “Customize Home Screen”, and select “Blur”.
 }
 
 ## With Blear
 
 @Steps {
-1. Open [Blear](../apps/blear/index.md), and tap the photo button to choose a photo. Or use one of the included photos: double-tap the photo or shake the iPhone to get another one.
+1. Open [Blear](/blear), and tap the photo button to choose a photo. Or use one of the included photos: double-tap the photo or shake the iPhone to get another one.
 1. Drag the photo sideways to change the crop, and drag the slider to change the blur.
 1. Tap the save button. The wallpaper is saved in the Photos app.
 1. In the Photos app, open the wallpaper, tap the share button, and choose “Use as Wallpaper”.

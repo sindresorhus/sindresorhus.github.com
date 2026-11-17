@@ -2,7 +2,7 @@ import Foundation
 import SiteKit
 
 /**
-The rating of an app on Setapp, from the structured data of its page on Setapp, which the page shows for the apps that have no rating on the App Store or on Gumroad, like the Mac App Store apps, as Apple gives no ratings for them. Setapp members rate an app with a thumbs up or down, so the rating is the percentage of positive ratings, not an average of stars.
+The rating of an app on Setapp, from the structured data of its page on Setapp, which the page shows for the apps that have no rating on the App Store or on Gumroad, like an app that is only on Setapp and its own site. Setapp members rate an app with a thumbs up or down, so the rating is the percentage of positive ratings, not an average of stars.
 
 The structured data of the app page has it on the 100-point scale that Setapp uses in its own structured data (``Schema/AggregateRating``), like the ratings of the stores.
 */

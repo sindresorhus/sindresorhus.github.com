@@ -169,7 +169,7 @@ struct FeedTests {
 	}
 
 	@Test
-	func `calendar dates stay native through sorting and serialize at UTC midnight`() throws {
+	func `calendar dates stay native through sorting and serialize at UTC noon`() throws {
 		let earlier = try #require(SOML.Date("2024-12-31"))
 		let later = try #require(SOML.Date("2025-01-01"))
 		var feed = Feed(title: "A", link: site, description: "B") {
@@ -184,20 +184,20 @@ struct FeedTests {
 		#expect(feed.items.last?.publicationDate == .date(later))
 		#expect(feed.lastBuildDate == .date(later))
 		let xml = try feed.xmlString()
-		#expect(xml.contains("<pubDate>Tue, 31 Dec 2024 00:00:00 GMT</pubDate>"))
-		#expect(xml.contains("<pubDate>Wed, 01 Jan 2025 00:00:00 GMT</pubDate>"))
-		#expect(xml.contains("<lastBuildDate>Wed, 01 Jan 2025 00:00:00 GMT</lastBuildDate>"))
+		#expect(xml.contains("<pubDate>Tue, 31 Dec 2024 12:00:00 GMT</pubDate>"))
+		#expect(xml.contains("<pubDate>Wed, 01 Jan 2025 12:00:00 GMT</pubDate>"))
+		#expect(xml.contains("<lastBuildDate>Wed, 01 Jan 2025 12:00:00 GMT</lastBuildDate>"))
 		#expect(feed.lastBuildDate == .date(later))
 	}
 
 	@Test
-	func `mixed publication dates have a total order with distinct midnight representations`() throws {
+	func `mixed publication dates have a total order with distinct noon representations`() throws {
 		let day = try #require(SOML.Date("1970-01-01"))
 		let values: [Item.PublicationDate] = [
-			.instant(Date(timeIntervalSince1970: -1)),
+			.instant(Date(timeIntervalSince1970: 43_199)),
 			.date(day),
-			.instant(Date(timeIntervalSince1970: 0)),
-			.instant(Date(timeIntervalSince1970: 1)),
+			.instant(Date(timeIntervalSince1970: 43_200)),
+			.instant(Date(timeIntervalSince1970: 43_201)),
 		]
 
 		#expect(values.reversed().sorted() == values)

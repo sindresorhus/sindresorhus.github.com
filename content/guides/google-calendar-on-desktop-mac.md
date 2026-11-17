@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	In the free [Plash](../apps/plash/index.md) app, choose “Add Website…”, and enter `https://calendar.google.com`. Sign in once in Browsing Mode. Google Calendar is then your desktop wallpaper, behind your windows. Without an app, add your Google account to the Calendar app, and put a Calendar widget on the desktop.
+	In the free [Plash](/plash) app, choose “Add Website…”, and enter `https://calendar.google.com`. Sign in once in Browsing Mode. Google Calendar is then your desktop wallpaper, behind your windows. [Without an app](#without-an-app), add your Google account to the Calendar app, and put a Calendar widget on the desktop.
 }
 
 ## With Plash
 
 @Steps {
-1. Open [Plash](../apps/plash/index.md). Its icon is in the menu bar.
+1. Open [Plash](/plash). Its icon is in the menu bar.
 1. Click the icon, choose “Add Website…”, enter `https://calendar.google.com`, and click “Add”.
 1. Click the icon, and turn on “Browsing Mode”. Sign in to Google. If “Open external links in default browser” is on in the settings of Plash, turn it off while you sign in.
 1. Turn off “Browsing Mode”.
@@ -26,7 +26,8 @@ Google Calendar is now on the desktop, behind your windows, in the view that you
 @Tips {
 - For a simpler calendar, click the icon, choose “Edit…”, and turn on “Use print styles”.
 - To keep the calendar up to date, turn on “Reload every” in the settings.
-- Google Calendar can show a “This browser version is no longer supported” banner. The calendar still works. [How to hide the banner.](../apps/plash/index.md#google-calendar-banner)
+- For Outlook, see [how to show Outlook Calendar on the desktop](guide:outlook-calendar-desktop-mac).
+- Google Calendar can show a “This browser version is no longer supported” banner. The calendar still works. [How to hide the banner.](/plash#google-calendar-banner)
 }
 
 ## Without an app
@@ -34,8 +35,8 @@ Google Calendar is now on the desktop, behind your windows, in the view that you
 macOS cannot show a website on the desktop, but it can show your events in a widget:
 
 @Steps {
-1. In the Calendar app, choose “Calendar › Add Account”, select “Google”, and sign in. [Apple’s instructions.](https://support.apple.com/guide/calendar/add-or-delete-calendar-accounts-icl4308d6701/mac)
-1. Control-click the wallpaper, and choose “Edit Widgets”.
+1. In the Calendar app, choose “Calendar › Add Account…”, select “Google”, and sign in. <source:https://support.apple.com/guide/calendar/add-or-delete-calendar-accounts-icl4308d6701/mac>
+1. ++Control++-click the wallpaper, and choose “Edit Widgets…”.
 1. Find “Calendar”, and drag a widget to the desktop.
 }
 

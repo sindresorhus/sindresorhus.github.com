@@ -52,6 +52,7 @@ struct AppMedia: ScriptedElement {
 				.style {
 					asset.settingSizes(
 						on: $0,
+						isOnlyItem: app.media.count == 1,
 						phoneMaximumHeight: phoneMaximumHeight,
 						firstSize: app.media[0].size
 					)
@@ -62,14 +63,15 @@ struct AppMedia: ScriptedElement {
 		.style(Styles.scroller)
 
 		// One item has nothing to scroll to, so it gets no buttons, as screen readers also read the disabled buttons that the styles hide.
+		// Disabled until the script runs, as they need the script, so from desktops, where they always show, “Previous item” does not show at the first item before the script disables it.
 		if app.media.count > 1 {
-			button(.part(Parts.previous)) {
+			button(.part(Parts.previous), .disabled) {
 				Icon.chevronLeft.size(.rootEm(1.5))
 			}
 			.accessibilityLabel("Previous item")
 			.style(Styles.control, Styles.previous)
 
-			button(.part(Parts.next)) {
+			button(.part(Parts.next), .disabled) {
 				Icon.chevronRight.size(.rootEm(1.5))
 			}
 			.accessibilityLabel("Next item")
@@ -98,7 +100,7 @@ struct AppMedia: ScriptedElement {
 	fileprivate static let phoneWidth = StyleVariable<LengthPercentage>("phone-width")
 
 	/**
-	The maximum width of an item on phones, in percent of the width of the screen, so the next item shows at the side.
+	The maximum width of an item on phones, in percent of the width of the screen, so the next item shows at the side. The only item of a carousel has nothing to show at its side, so it is as wide as the text.
 	*/
 	fileprivate static let phoneItemWidth = 85.0
 
@@ -136,6 +138,23 @@ struct AppMedia: ScriptedElement {
 		case dot
 
 		/**
+		An icon in a dark circle in the middle of a video, like the play icon over a paused video. The video gets the click.
+
+		- Parameter shapes: The white shapes of the icon, as SVG in a 64×64 box.
+		*/
+		private static func videoIcon(_ style: Style, shapes: String) -> Style {
+			style
+				.content("")
+				.position(.absolute)
+				.top(.percent(50))
+				.leading(.percent(50))
+				.frame(size: .rootEm(4))
+				.offset(x: .percent(-50), y: .percent(-50))
+				.backgroundImage(CSSImage.url(svg: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='rgb(0 0 0 / 50%)'/>\(shapes)</svg>"))
+				.allowsHitTesting(false)
+		}
+
+		/**
 		Shows the buttons that are not disabled. The script disables the button at each end, which stays hidden.
 		*/
 		private static func showingControls(_ style: Style) -> Style {
@@ -147,16 +166,17 @@ struct AppMedia: ScriptedElement {
 		var style: Style {
 			switch self {
 			case .root:
-				// Keyboard users see the buttons too.
+				// Keyboard users see the buttons too. From desktops, the buttons are beside the item (``previous``, ``next``), where they cover nothing, so they always show, and a visitor sees that more items come.
 				Style()
 					.display(.block)
 					.position(.relative)
 					.centeredColumn(.wide)
 					.hover(Self.showingControls)
 					.focusWithin(Self.showingControls)
+					.from(.desktop, Self.showingControls)
 			case .scroller:
 				// From tablets, the gap is wider than the padding, so the next item and its shadow do not show beside the current one, which can have another aspect ratio.
-				// The items are at the top, so a landscape screenshot next to a portrait one starts below the content above, and the empty space is below it.
+				// On phones, the items are at the top, so a row of items of other shapes starts at one line. From tablets, one item shows at a time, so a shorter item is in the middle of the row, which is as tall as the first item.
 				// The padding above and below makes room for the shadows of the items, which the scrolling would cut off. The negative margins keep the space around the carousel.
 				Style()
 					.hstack(alignment: .start, spacing: .rootEm(1))
@@ -168,23 +188,27 @@ struct AppMedia: ScriptedElement {
 					// A horizontal swipe on a trackpad at the end does not go back in the history.
 					.overscrollBehavior(horizontal: .contain)
 					.from(.tablet) {
-						$0.gap(.rootEm(3))
+						$0
+							.gap(.rootEm(3))
+							.alignItems(.center)
 					}
 			case .item:
-				// A play icon over a paused video, like when the visitor prefers reduced motion. The video gets the click.
+				// A play icon over a paused video, like when the visitor prefers reduced motion, and a pause icon over a playing video under the pointer, with the pointer cursor, so the visitor knows that a click pauses it.
 				Style()
 					.position(.relative)
 					.when(States.paused) {
 						$0.after {
-							$0
-								.content("")
-								.position(.absolute)
-								.top(.percent(50))
-								.leading(.percent(50))
-								.frame(size: .rootEm(4))
-								.offset(x: .percent(-50), y: .percent(-50))
-								.declaration(raw: .backgroundImage, #"url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='rgb(0 0 0 / 50%25)'/%3E%3Cpath d='M26 20v24l19-12z' fill='white'/%3E%3C/svg%3E")"#)
-								.allowsHitTesting(false)
+							Self.videoIcon($0, shapes: "<path d='M26 20v24l19-12z' fill='white'/>")
+						}
+					}
+					.children("video") {
+						$0.cursor(.pointer)
+					}
+					.media(.hover) {
+						$0.nested("&:not(\(States.paused.selector)):has(video:hover)") {
+							$0.after {
+								Self.videoIcon($0, shapes: "<rect x='22' y='20' width='7' height='24' rx='1.5' fill='white'/><rect x='35' y='20' width='7' height='24' rx='1.5' fill='white'/>")
+							}
 						}
 					}
 					// On phones, the width of its media, so the next item shows at the side, also after a narrower item.
@@ -197,9 +221,11 @@ struct AppMedia: ScriptedElement {
 							.frame(width: .percent(100))
 					}
 			case .media:
+				// A quiet fill while the image loads, so a slow screenshot is a gray tile, not an empty frame. The screenshots are JPEG, and the videos have posters, so the fill does not show through.
 				Style()
 					.margin(vertical: .zero, horizontal: .auto)
 					.windowSurface()
+					.background(.card)
 					.from(.tablet) {
 						$0.frame(maxWidth: .length(AppMedia.maximumWidth.value))
 					}
@@ -224,11 +250,29 @@ struct AppMedia: ScriptedElement {
 					.disabled {
 						$0.allowsHitTesting(false)
 					}
+					// From desktops, the buttons are beside the item, on the page, where the dark see-through fill and the shadow do not show, so in dark mode they get the fill of a card and a faint light edge. Not over the item, where a light screenshot would show through the fill.
+					.from(.desktop) {
+						$0
+							.frostedBackground(.lightDark(.white.opacity(0.4), .white.opacity(0.06)), opaque: .lightDark(.white, .gray(900)), blur: .pixels(8))
+							.shadow(.medium + [.edge(.lightDark(.transparent, .white.opacity(0.1)))])
+							.hoverOrFocusVisible {
+								$0.frostedBackground(.lightDark(.white.opacity(0.6), .white.opacity(0.1)), opaque: .lightDark(.gray(100), .gray(800)), blur: .pixels(8))
+							}
+					}
 					.hidden(below: .tablet)
+			// From desktops, the page has space at the sides of the carousel, so the arrows are beside the item and do not cover it.
 			case .previous:
-				Style().leading(.rootEm(2))
+				Style()
+					.leading(.rootEm(2))
+					.from(.desktop) {
+						$0.leading(.rootEm(-3))
+					}
 			case .next:
-				Style().trailing(.rootEm(2))
+				Style()
+					.trailing(.rootEm(2))
+					.from(.desktop) {
+						$0.trailing(.rootEm(-3))
+					}
 			case .dots:
 				// Above the padding of the scroller, which makes room for the shadows of the items and would otherwise take the clicks in Safari.
 				Style()
@@ -237,23 +281,32 @@ struct AppMedia: ScriptedElement {
 					.zIndex(1)
 					.margin(.top, .rootEm(0.75))
 			case .dot:
-				// The button is larger than the dot, which is drawn inside it, so it is easy to tap, and at least 24px wide, the smallest target of WCAG 2.2. The buttons touch, so their tap areas do not overlap. The script marks the dot of the item in view with `aria-current`.
+				// The button is larger than the dot, which is drawn inside it, so it is easy to tap, and at least 24px wide, the smallest target of WCAG 2.2. The buttons touch, so their tap areas do not overlap. The script marks the dot of the item in view with `aria-current`, which is a short pill in the accent, like the page controls of iOS, so the item in view is clear by its shape, not only by its color. Its button is 12px wider, so the space between the dots stays the same.
+				// In whole pixels, so the dots are evenly spaced also where the root font size is larger, like on large screens.
 				// The focus of the keyboard shows as a round fill around the dot, like on the icon buttons of the site, as the dot of the item in view already has the accent.
 				Style()
-					.frame(width: .rootEm(1.5), height: .rootEm(1.75))
+					.frame(width: .pixels(24), height: .pixels(28))
 					.media(.coarsePointer) {
-						$0.frame(width: .rootEm(1.75), height: .rootEm(2.75))
+						$0.frame(width: .pixels(28), height: .pixels(44))
 					}
 					.focusFill()
 					.before {
 						$0
 							.content("")
 							.display(.block)
-							.frame(size: .rootEm(0.5))
+							// In whole pixels, as a fractional size can snap to an oval. Capsule corners, so the pill has round ends while it grows.
+							.frame(size: .pixels(8))
 							.margin(.auto)
-							.cornerRadius(.circle)
+							.cornerRadius(.capsule)
 							.background(.gray(300), dark: .gray(600))
 							.transition(.backgroundColor, timing: .stateChange)
+							// The pill grows from the dot, and the dots next to it move aside, but not when the visitor prefers reduced motion.
+							.media(.allowsMotion) {
+								$0.transition(.backgroundColor, .width, timing: .stateChange)
+							}
+					}
+					.media(.allowsMotion) {
+						$0.transition(.width, timing: .stateChange)
 					}
 					// Darker under the pointer, like the arrows next to the dots. The dot of the item in view keeps the accent, as its rule comes after.
 					.hover {
@@ -262,9 +315,16 @@ struct AppMedia: ScriptedElement {
 						}
 					}
 					.current {
-						$0.before {
-							$0.background(.accentMark)
-						}
+						$0
+							.frame(width: .pixels(36))
+							.media(.coarsePointer) {
+								$0.frame(width: .pixels(40))
+							}
+							.before {
+								$0
+									.frame(width: .pixels(20))
+									.background(.accentMark)
+							}
 					}
 			}
 		}
@@ -273,22 +333,25 @@ struct AppMedia: ScriptedElement {
 
 extension MediaAsset {
 	/**
-	The width at the largest height (``MediaAsset/maximumDisplayHeight``), for wider screens, and the width on phones: at most 85% of the screen, and at most as tall as 70% of the screen and the maximum height of the carousel, so a tall item is not taller than most of the screen, nor much taller than the other items.
+	The width at the largest height (``MediaAsset/maximumDisplayHeight``), for wider screens, and the width on phones: at most 85% of the screen, so the next item shows at the side, or as wide as the carousel for the only item, which then lines up with the text, and at most as tall as 70% of the screen and the maximum height of the carousel, so a tall item is not taller than most of the screen, nor much taller than the other items.
 
 	On wider screens, an item that is narrower than the first item, like a portrait screenshot after a landscape one, is also at most as tall as the first item, so the first item, which shows when the page loads, has no empty space below it, as the row is as tall as its tallest item. An item that is wider than the first item does not change.
 
 	- Parameters:
+		- isOnlyItem: Whether the item is the only item of the carousel.
 		- phoneMaximumHeight: The maximum height on phones, in percent of the width of the screen.
 		- firstSize: The pixel size of the first item, which also limits the height when it is naturally smaller than the carousel.
 	*/
 	fileprivate func settingSizes(
 		on style: Style,
+		isOnlyItem: Bool,
 		phoneMaximumHeight: Double,
 		firstSize: PixelSize
 	) -> Style {
 		let largestWidth = LengthPercentage.pixels(maximumDisplayWidth)
+		let phoneItemWidth: LengthPercentage = isOnlyItem ? .percent(100) : .viewportWidth(AppMedia.phoneItemWidth)
 		let phoneWidth = LengthPercentage.min(
-			.viewportWidth(AppMedia.phoneItemWidth),
+			phoneItemWidth,
 			.viewportWidth(phoneMaximumHeight * size.aspectRatio),
 			.smallViewportHeight(70 * size.aspectRatio),
 			largestWidth

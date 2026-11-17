@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	The Shortcuts app has no action that remembers a number from one run to the next. The “Counter” action of the free [Actions](../apps/actions/index.md) app can. Make a shortcut that adds 1 to a counter and shows the count, and put it on the Home Screen, so each tap counts one more.
+	The Shortcuts app has no action that remembers a number from one run to the next. The “Counter” action of the free [Actions](/actions) app can. Make a shortcut that adds 1 to a counter and shows the count, and put it on the Home Screen, so each tap counts one more.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In the Shortcuts app, make a new shortcut, and add the “Counter” action. Keep “Increment”, and type a name for the counter, like `coffee`. With no number, it adds 1.
+1. Install [Actions](/actions), and open it once.
+1. In the Shortcuts app, make a new shortcut, and add the [“Counter”](/actions#:~:text=Counter) action. Keep “Increment”, and type a name for the counter, like `coffee`. With no number, it adds 1.
 1. Add the “Show Notification” action, and put the result of the counter in its text.
 1. Tap the Details button, tap “Add to Home Screen”, and tap “Add”.
 1. Tap the icon to count. The notification shows the new count.

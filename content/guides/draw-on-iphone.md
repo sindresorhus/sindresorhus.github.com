@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open the free [Doodle Draw](../apps/doodle-draw/index.md) app, and draw with your finger. The canvas and the drawing tools show at once. Without an app, open a note in the Notes app, tap the Handwriting Tools button, and draw.
+	Open the free [Doodle Draw](/doodle-draw) app, and draw with your finger. The canvas and the drawing tools show at once. [Without an app](#without-an-app), open a note in the Notes app, tap the Handwriting Tools button, and draw.
 }
 
 ## With Doodle Draw
 
 @Steps {
-1. Open [Doodle Draw](../apps/doodle-draw/index.md). The canvas and the drawing tools show at once.
+1. Open [Doodle Draw](/doodle-draw). The canvas and the drawing tools show at once.
 1. Draw with your finger. Choose a pen, a color, or the eraser in the tools below the canvas.
 1. To keep the drawing as an image, tap the `…` button, and tap “Save”. The PNG image is in the Doodle Draw folder of the Files app. To put it in the Photos app or send it, tap “Share”.
 1. To start again, tap “Clear” in the same menu.

@@ -42,7 +42,7 @@ Copy the text you cannot select, in images, videos, PDFs, presentations, or anyw
 
 **Features**
 
-- Extract text from anywhere on your screen with OCR
+- Extract text from anywhere on your screen with OCR, also from a paused video <guide:copy-text-from-video-mac>
 - Scan QR codes and barcodes
 - Capture by simply clicking the menu bar icon
 - Works completely offline
@@ -51,13 +51,14 @@ Copy the text you cannot select, in images, videos, PDFs, presentations, or anyw
 - Extract text from images on clipboard or files
 - Extract text directly from photo taken with iPhone/iPad camera
 - Drag and drop images onto menu bar icon to extract text
-- Preserves tables (as tab-separated values) *([guide](../../guides/copy-table-from-image-mac.md))*
+- Preserves tables (as tab-separated values) <guide:copy-table-from-image-mac>
 - Optionally shows captured text in a window with the ability to edit
 	- Enables doing multiple captures and copy as a single text
-- [Privacy focused](#privacy)
+- Privacy focused <section:privacy>
 
 #### Supported languages {#supported-languages}
 
+@Columns {
 - English
 - French
 - Italian
@@ -87,6 +88,7 @@ Copy the text you cannot select, in images, videos, PDFs, presentations, or anyw
 - Polish
 - Romanian
 - Swedish
+}
 
 #### Privacy
 
@@ -129,7 +131,7 @@ This is a bug in macOS 15.3 and later, so it only affects the [older version of 
 Workaround:
 - Open the Terminal app.
 - Run this command:
-```sh
+```console
 defaults write ~/Library/Group\ Containers/group.com.apple.replayd/ScreenCaptureApprovals.plist com.sindresorhus.Text-Lens -dict-add kScreenCapturePrivacyHintPolicy 7776000 kScreenCapturePrivacyHintDate -date 2035-12-31; /usr/bin/killall -HUP replayd
 ```
 

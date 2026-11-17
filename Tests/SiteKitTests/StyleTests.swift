@@ -387,6 +387,7 @@ struct StyleTests {
 		#expect(color.description == "hsl(var(--hue) 100% 65%)")
 		#expect(Color.hsl(hue: 200, saturation: .percent(7), lightness: .percent(57)).description == "hsl(200 7% 57%)")
 		#expect(Color.white.mix(with: .black, amount: .percent(30)).description == "color-mix(in oklch, #fff, #000 30%)")
+		#expect(Color.black.neutral.mix(with: .white, amount: .percent(9), in: .oklab).description == "color-mix(in oklab, oklch(from #000 l 0 h), #fff 9%)")
 
 		let css = Stylesheet {
 			Rule(

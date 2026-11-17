@@ -10,13 +10,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	When you switch to an app with ++Command+Tab++, its minimized windows stay in the Dock, so you see no window. Click the window in the Dock to get it back. [Supercharge](../apps/supercharge/index.md) brings the windows back when the app becomes active.
+	When you switch to an app with ++Command+Tab++, its minimized windows stay in the Dock, so you see no window. Click the window in the Dock to get it back. [Supercharge](/supercharge) brings the windows back when the app becomes active.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
 1. In the “Apps & Windows” section, set “Unminimize windows when app becomes active” to “All Windows”, “All Windows (only if all minimized)”, or “One Window (only if all minimized)”.
 1. Minimize all the windows of an app, switch to another app, and switch back with ++Command+Tab++. The windows come back.

@@ -193,8 +193,8 @@ struct SourceGuardTests {
 		.initializer("CSSNumber"): 1,
 		// The card light uses a registered strength in color-mix(), and the NetMeeting meter has a repeating gradient.
 		.initializer("CSSImage"): 2,
-		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, the space above a bold label, the column of the shortcuts in a table, and the copy link of a closed question, which depends on the state of the `<details>` next to it. A shortcut card removes the bullet of its list item, and the indent of a list of only cards, which are its parents in the Markdown, and it styles the note after it, which is the next element in the Markdown. The npm list hides the rows after the first batch while its element is not defined (`:not(:defined)` with `:nth-child()`), which no typed selector has.
-		.member("nested", takesString: true): 36,
+		// The prose styles need selectors for the Markdown markup that no component owns, like the introduction below the title of a Markdown page, the space above a bold label, the column of the shortcuts in a table, and the copy link of a closed question, which depends on the state of the `<details>` next to it. A shortcut card removes the bullet of its list item, and the indent of a list of only cards, which are its parents in the Markdown, and it styles the note after it, which is the next element in the Markdown. The npm list hides the rows after the first batch while its element is not defined (`:not(:defined)` with `:nth-child()`), which no typed selector has. The video of a slide shows a pause icon while the pointer is over it and the slide is not paused (`:has(video:hover)`). The search dialog hides its keyboard hint while the results are empty (`:empty ~ &`). The npm list hides its header above a list with no visible row. The steps after “Without an app” of a guide are found by the ID of the heading (`#id ~ …`).
+		.member("nested", takesString: true): 33,
 	]
 
 	@Test
@@ -275,11 +275,6 @@ struct SourceGuardTests {
 	}
 
 	/**
-	The data attributes that the Markdown renderer of SiteKit adds, which `site.js` uses.
-	*/
-	private static let markdownHooks: Set = ["data-copy-link"]
-
-	/**
 	The data attribute of the parts of elements (`ElementPartSet` in SiteKit), which `scripted-element.js` uses. The `ScriptedElementTests` check the parts.
 	*/
 	private static let elementHooks: Set = ["data-part"]
@@ -340,7 +335,7 @@ struct SourceGuardTests {
 		#expect(ids.subtracting(declaredIDs).sorted() == [], "Scripts use these IDs, but no `IDs` of a component has them.")
 
 		let attributes = Set(scripts.matches(of: /\[(data-[\w-]+)/).map { String($0.1) })
-		let undeclaredAttributes = attributes.subtracting(declaredAttributes).subtracting(Self.markdownHooks).subtracting(Self.elementHooks)
+		let undeclaredAttributes = attributes.subtracting(declaredAttributes).subtracting(Self.elementHooks)
 		#expect(undeclaredAttributes.sorted() == [], "Scripts use these data attributes, but no `Hooks` of a component has them.")
 
 		let variables = Set(scripts.matches(of: /setProperty\('(--[\w-]+)'/).map { String($0.1) })

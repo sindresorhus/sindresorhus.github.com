@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	In the “Tweaks” settings of [Supercharge](../apps/supercharge/index.md), turn on “Disable ++Command+Tab++ app switcher”. Without an app, “System Settings › Keyboard › Keyboard Shortcuts” turns off the keyboard shortcuts of macOS that are in its lists.
+	In the “Tweaks” settings of [Supercharge](/supercharge), turn on “Disable ++Command+Tab++ app switcher”. [Without an app](#without-an-app), “[System Settings › Keyboard › Keyboard Shortcuts…](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)” turns off the keyboard shortcuts of macOS that are in its lists.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “Apps & Windows” section, turn on “Disable ++Command+Tab++ app switcher”.
 1. Press ++Command+Tab++. The app switcher does not open.
 }

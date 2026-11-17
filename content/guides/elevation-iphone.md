@@ -9,21 +9,21 @@ apps: [
 ---
 
 @QuickAnswer {
-	Open the Compass app. It shows your elevation with your coordinates. To get the number in a shortcut, like to log it on a hike, use the “Get Elevation” action of the free [Actions](../apps/actions/index.md) app.
+	Open the Compass app. It shows your elevation with your coordinates. To get the number in a shortcut, like to log it on a hike, use the “Get Elevation” action of the free [Actions](/actions) app.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In the Shortcuts app, make a new shortcut, and add the “Get Elevation” action.
+1. Install [Actions](/actions), and open it once.
+1. In the Shortcuts app, make a new shortcut, and add the [“Get Elevation”](/actions#:~:text=Get%20Elevation) action.
 1. Add the “Show Content” action, or “Append to Text File” to log each reading.
 1. Run the shortcut. The first time, allow the access that it asks for.
 }
 
 The action gives the height above sea level in meters. It uses the barometer of the iPhone, and iOS limits the reading to about 2194 meters (7200 feet). Add the shortcut to the Home Screen to read the elevation with one tap. The action is not on the Mac.
 
-The “Get Barometric Pressure” action gives the air pressure. [How to use the barometer of your iPhone.](iphone-barometer.md)
+The “Get Barometric Pressure” action gives the air pressure. [How to use the barometer of your iPhone.](guide:iphone-barometer)
 
 ## Without an app
 

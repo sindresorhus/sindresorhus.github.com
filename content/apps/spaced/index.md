@@ -9,6 +9,9 @@ platforms: [
 isMenuBarApp: true
 appStoreID: 1666327168
 hasNoNetworkAccess: true
+relatedApps: [
+	'menu-bar-spacing'
+]
 nonAppStoreVersion: {
 	version: '1.3.0'
 	macOS: 26
@@ -54,9 +57,6 @@ Add separators to your menu bar, so related items sit together in groups.
 Click a separator and choose “New” to add another one, or “Remove” to delete it. Each separator has its own look, which you choose in the same menu: a line (`—`, `-`, or `|`), a dot (`·` or `•`), or empty space (a space or a tab). To move a separator, hold ++Command++ and drag it. If the separators draw too much attention, turn on “Reduced opacity” in the settings.
 
 It is particularly beneficial on larger screens where menu bar space is ample, as opposed to smaller laptop screens with limited space.
-
-> [!TIP]
-> You may also like my [Menu Bar Spacing](/menu-bar-spacing) app for changing the gap between menu bar items.
 
 ## Frequently Asked Questions {#faq}
 

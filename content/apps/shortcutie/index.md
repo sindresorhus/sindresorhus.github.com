@@ -75,7 +75,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	:: Supports Safari, Chrome, Edge, Brave, Opera, Vivaldi, Orion, Firefox, Zen, and any Chromium-based and Firefox-based browser. Not DuckDuckGo.
 - Get Active Browser
 	: Gets the frontmost app if it’s a browser
-- Get Selected Text
+- Get Selected Text <guide:selected-text-shortcut-mac>
 	: Gets the selected text in the currently focused window
 - Get/Set Current Folder in Finder
 	: Gets or sets the currently viewed folder in Finder
@@ -110,7 +110,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 - Get/Set Liquid Glass Style
 	: View or change the Liquid Glass style
 	:: Controls whether the glass effect used throughout macOS appears clear or tinted.
-- Press Keyboard Shortcut
+- Press Keyboard Shortcut <guide:shortcuts-press-keyboard-shortcut-mac>
 	: Simulates pressing a keyboard shortcut
 	:: Optionally target a specific app.
 - Trigger Menu Bar Item
@@ -126,7 +126,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	: Makes screen display in black and white
 - Is Screen Being Watched
 	: Detects if the screen is being recorded, mirrored, or shared (Zoom, Teams, etc)
-- Get/Set Display Resolution
+- Get/Set Display Resolution <guide:display-resolution-keyboard-shortcut-mac>
 	: View or change the resolution of a selected display
 	:: Defaults to the primary display. Uses the resolutions available in System Settings, including scaled Retina resolutions.
 - Find Display
@@ -134,7 +134,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 - Stash Text
 	: Shows the given text in a floating window
 	:: Multiple calls add items to the sidebar list. Intended for temporary viewing, not long-term storage. [Screenshot of the floating window](https://www.dropbox.com/scl/fi/9oz7tnd24fohgasuuv6gd/Stash-Text-Screen-Shot-2026-02-01-at-23.17.36-1769962685.png?rlkey=9vd0p1c2zat89yrqssv8rhfnw&raw=1)
-- Find Listening Port
+- Find Listening Port <guide:kill-process-on-port-mac>
 	: Finds TCP ports that currently have a listening process on this Mac
 	:: Useful for checking whether a local dev server is running, finding which process is using a specific port, and inspecting listeners before stopping them.
 - Is Port Listening
@@ -201,10 +201,10 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	: Toggles Spotlight search, optionally navigating to a specific tab (like Clipboard History)
 - Get Latest Screenshots
 	: Returns the most recent screenshots taken with the system screenshot tool
-- Get/Set Screenshot Format
+- Get/Set Screenshot Format <guide:change-screenshot-format-mac>
 	: View or change the file format used when saving screenshots
 	:: Choose from PNG, JPG, TIFF, or HEIC.
-- Get/Set Screenshot Location *([guide](../../guides/change-screenshot-location-mac.md))*
+- Get/Set Screenshot Location <guide:change-screenshot-location-mac>
 	: View or change the folder where screenshots are saved
 - Get/Set Dock Position
 	: View or change the position of the Dock
@@ -230,13 +230,13 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 - Get/Set Network Location
 	: Switch between different [network configurations](https://support.apple.com/105129)
 	:: Tip: Use Shortcuts automations to switch automatically on certain conditions.
-- Get/Set DNS Servers
+- Get/Set DNS Servers <guide:change-dns-server-mac>
 	: View or change the DNS servers for a network interface
 	:: Setting requires administrator authorization.
 - Get/Set iOS Notifications Enabled
 	: Control whether notifications from your iOS device appear on your Mac
 	:: Only works if your Mac supports notifications from iOS.
-- Click Mouse Button
+- Click Mouse Button <guide:auto-click-mac>
 	: Simulates a mouse click at the current mouse pointer position or a specific screen coordinate
 	:: Supports left, right, or middle button; single, double, or triple click; and optional modifier key override.
 - Get/Set Mouse Position
@@ -246,7 +246,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 - Get/Set Mouse Pointer Visibility
 	: Get or set the visibility of the mouse pointer
 	:: By default, it reappears on mouse movement.
-- Get/Set Natural Scrolling
+- Get/Set Natural Scrolling <guide:natural-scrolling-keyboard-shortcut-mac>
 	: View or change whether natural (trackpad-style) scrolling is enabled
 - Invert Selection in Finder
 	: Inverts the current selection in Finder
@@ -275,7 +275,7 @@ While my free [Actions](/actions) app provides useful functionality for the Shor
 	: Switches to the next or previous Space without the macOS slide animation
 - Clear Clipboard
 	: Clears all contents from the system clipboard
-- Get Apps Using Secure Input
+- Get Apps Using Secure Input <guide:fix-keyboard-shortcuts-not-working-mac>
 	: Secure Input prevents other apps from reading keystrokes when typing passwords. Sometimes apps don’t properly disable it, causing keyboard shortcuts to stop working. This can find such apps.
 
 <!-- - Show Poof Animation
@@ -323,7 +323,7 @@ No. The app relies on macOS-specific system features that aren’t available on 
 
 No, once installed, the app’s actions are always available to the Shortcuts app.
 
-### I can already do some of these actions with AppleScript and the command-line, why use this app? {#i-can-already-do-some-of-these-actions-with-applescript-and-the-command-line-why-use-this-app}
+### I can already do some of these actions with AppleScript and the command line, why use this app? {#i-can-already-do-some-of-these-actions-with-applescript-and-the-command-line-why-use-this-app}
 <!-- @faq.compares AppleScript and the command line -->
 
 Yes, but the app packages these capabilities into maintained, ready-to-use actions that integrate perfectly with Shortcuts. This lets you focus on building workflows instead of writing and maintaining scripts.

@@ -13,6 +13,10 @@ hasSentry: true
 categories: [
 	'shortcuts'
 ]
+relatedApps: [
+	'shortcutie'
+	'short-run'
+]
 nonAppStoreVersion: {
 	version: '4.0.1'
 	macOS: 26
@@ -54,6 +58,7 @@ pressQuotes: [
 		year: 2024
 	}
 ]
+appStoreStory: 'https://apps.apple.com/story/id1583073719'
 feedbackNote:
 	'''
 	**After a major iOS update, it may take some time for iOS to re-index all the Shortcuts actions. Give it some time.**
@@ -68,19 +73,14 @@ feedbackNote:
 	'''
 ---
 
-Adds 180+ free actions to the Shortcuts app on macOS, iOS, and visionOS. They do what the built-in actions cannot, and turn long shortcuts into a few steps.
+Adds 200+ free actions to the Shortcuts app on macOS, iOS, and visionOS. They do what the built-in actions cannot, and turn long shortcuts into a few steps.
 
 > [!IMPORTANT]
 > Restart your device if the actions do not show up in the Shortcuts app. [What to do when the actions do not show up ›](#actions-not-showing-up)
 
 If you have any questions about how to use the different actions or for what, try asking the [Actions GPT bot](https://chatgpt.com/g/g-6746353a017881918cceb0761aea3bfe-actions-app-companion). And if you want to feed your own AI, [here is the source data](https://gist.githubusercontent.com/sindresorhus/fbba65a774fb9da915e624807a02a6d2/raw/actions.md).
 
----
-
-> [!TIP]
-> On macOS, also check out [Shortcutie](/shortcutie) for advanced actions and [Short Run](/short-run) for running shortcuts from the menu bar.
-
----
+On macOS, also check out [Shortcutie](/shortcutie) for advanced actions and [Short Run](/short-run) for running shortcuts from the menu bar.
 
 #### Included actions
 
@@ -91,7 +91,7 @@ If you have any questions about how to use the different actions or for what, tr
 	:: Show a dialog with a text field and multiple buttons. Returns both the entered text and which button was tapped, with support for timeout, custom icon (macOS), image, and destructive button styling. You can disable the text field to just have a confirmation dialog.
 - Ask for Text with Timeout
 - Authenticate
-- Blur Images
+- Blur Images <guide:blur-photo-iphone>
 - Boolean
 - Calculate Bearing
 	:: Get the compass direction between two coordinates.
@@ -177,16 +177,16 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Dates in Range
 	:: Returns all dates between two dates filtered by type. For example, get all Mondays between two dates, or list every weekend in a month.
 - Get Default Browser ^[macOS only](platform: "macOS")
-- Get Default Gateway IP Address
+- Get Default Gateway IP Address <guide:router-ip-address-iphone>
 	:: Returns the default gateway IP address for the current network, usually the router address on Wi-Fi or Ethernet.
 - Get Device Details (Extended)
 	- Uptime (not including sleep)
 	- Uptime (including sleep)
 	- Active processor count
-	- Physical memory
+	- Physical memory <guide:check-iphone-ram>
 	- Time zone
 	- Hostname
-	- Thermal state
+	- Thermal state <guide:check-iphone-temperature>
 	- Total storage capacity
 	- Available storage capacity
 	- Battery condition ^[macOS only](platform: "macOS")
@@ -198,7 +198,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Get Dominant Colors of Image
 - Get Barometric Pressure ^[iOS only](platform: "iOS")
 	:: Returns the current barometric pressure from the device’s built-in barometer.
-- Get Elevation ^[iOS only](platform: "iOS")
+- Get Elevation ^[iOS only](platform: "iOS") <guide:elevation-iphone>
 - Get Emojis
 - Get/Set Extended Attribute
 	:: Returns or sets an [extended attribute](https://en.wikipedia.org/wiki/Extended_file_attributes) for a file.
@@ -210,7 +210,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Get High-Resolution Timestamp
 - Get Image URLs from Web Page
 	:: Extracts image URLs from a web page and returns them without downloading.
-- Get Images from Web Page
+- Get Images from Web Page <guide:save-images-from-website-iphone>
 	:: Extracts images from a web page and returns them as files.
 - Get Index of List Item
 - Get Map Image of Location
@@ -254,7 +254,7 @@ If you have any questions about how to use the different actions or for what, tr
 	:: Get the icon of files and folders or set custom icons for them.
 - Get/Set File Tags
 - Get/Set Image/Video Capture Date
-- Get/Set Image/Video Location
+- Get/Set Image/Video Location <guide:photo-gps-coordinates-iphone>
 - Get/Set Uniform Type Identifier
 - Global Variable
 - Hex Encode
@@ -264,9 +264,9 @@ If you have any questions about how to use the different actions or for what, tr
 - Invert Images
 - Is 24-Hour Time Format
 - Is Accessibility Feature On
-- Is Audio Playing ^[iOS only](platform: "iOS")
+- Is Audio Playing ^[iOS only](platform: "iOS") <guide:check-audio-playing-shortcuts-iphone>
 - Is Bluetooth Device Connected
-- Is Bluetooth On
+- Is Bluetooth On <guide:shortcuts-check-bluetooth-on>
 - Is Call Active ^[iOS only](platform: "iOS")
 - Is Camera On ^[macOS only](platform: "macOS")
 - Is Cellular Data On
@@ -282,18 +282,18 @@ If you have any questions about how to use the different actions or for what, tr
 - Is Location Services Enabled
 - Is Low Power Mode On
 - Is Microphone On ^[macOS only](platform: "macOS")
-- Is Online
-- Is Screen Locked ^[macOS only](platform: "macOS")
+- Is Online <guide:shortcuts-check-internet-connection-iphone>
+- Is Screen Locked ^[macOS only](platform: "macOS") <guide:shortcuts-check-screen-locked-mac>
 - Is Screen Saver Active
 - Is Shaking Device
-- Is Silent Mode On ^[iOS only](platform: "iOS")
+- Is Silent Mode On ^[iOS only](platform: "iOS") <guide:check-silent-mode-shortcuts-iphone>
 - Is Time
-- Is Time In Range
+- Is Time In Range <guide:shortcuts-check-time-range>
 - Is True
 	:: Check if boolean values satisfy a logical condition: all true (AND), all false (NOR), any true (OR), any false (NAND), or exactly one true (XOR). Supports up to 10 values.
 - Is Web Server Reachable
 - Is Wi-Fi On ^[macOS only](platform: "macOS")
-- Join Wi-Fi ^[iOS only](platform: "iOS")
+- Join Wi-Fi ^[iOS only](platform: "iOS") <guide:join-wi-fi-network-shortcuts>
 - Keychain
 	:: Securely stores a value in the device [keychain](https://developer.apple.com/documentation/security/keychain-services). Useful for sensitive data like API keys, tokens, and passwords. Can be synced.
 - Make Live Photo from Video
@@ -335,12 +335,12 @@ If you have any questions about how to use the different actions or for what, tr
 - Round Number to Decimal Places
 	:: `3.14159` → `3.14`
 - Round Number to Multiple
-- Run cURL Command
+- Run cURL Command <guide:run-curl-iphone>
 	:: Execute an HTTP request from a cURL command string. Simply paste a cURL command from Postman, Swagger, or browser dev tools. Supports common options like headers, body data, authentication, redirects, and more.
 - Sample Color from Screen ^[macOS only](platform: "macOS")
 - Scan Barcodes in Image
 - Scan Documents ^[iOS only](platform: "iOS")
-- Scan QR Codes in Image
+- Scan QR Codes in Image <guide:scan-qr-code-from-photo-iphone>
 - Send Distributed Notification ^[macOS only](platform: "macOS")
 	- [What are distributed notifications?](/apps/faq#distributed-notifications)
 - Set Creation and Modification Date of File
@@ -349,7 +349,7 @@ If you have any questions about how to use the different actions or for what, tr
 - Show Notification
 - Show Overlay
 	:: Display large centered text on a fullscreen overlay. Supports plain text with custom colors and HTML mode for custom styling. The overlay stays until tapped or an optional duration expires.
-- Shuffle List
+- Shuffle List <guide:shortcuts-shuffle-list>
 - Sign JSON Web Token
 	:: Signs a JSON payload as a JWT using HS256.
 - Sort List
@@ -398,22 +398,38 @@ If you have any questions about how to use the different actions or for what, tr
 
 #### Want more shortcut actions? {#more-actions}
 
-- Run shortcuts from the menu bar or silently in the background via URL scheme → [Short Run](/short-run)
-- High-quality transcription (speech to text) in 100 languages → [Aiko](/aiko)
-- Trigger shortcuts on your Mac from your iOS device → [Hyperduck](/hyperduck#shortcuts)
-- Set default browser → [Supercharge](/supercharge) & [Default Browser](/default-browser)
-- Use the ChatGPT API, Ollama, Groq → [AI Actions](/ai-actions)
-- Show text in menu bar → [One Thing](/one-thing)
-- Open URLs in a specific browser → [Velja](/velja)
-- Remove tracking parameters from URLs → [Velja](/velja) & [Pure Paste](/pure-paste)
-- Check if online → [Online Check](/online-check)
-- Generate images from text with AI locally → [Imago](/imago)
-- Clear clipboard formatting → [Pure Paste](/pure-paste)
-- Get internet speed → [Speediness](/speediness)
-- Join video calls → [Dato](/dato)
-- Put text on the iOS Lock Screen → [Any Text](/any-text)
-- Preview app icons → [Icon Preview](/icon-preview)
-- Get clipboard items → [Pasteboard Viewer](/pasteboard-viewer)
+- [Short Run](/short-run)
+	:: Run shortcuts from the menu bar or silently in the background via URL scheme
+- [Aiko](/aiko)
+	:: High-quality transcription (speech to text) in 100 languages
+- [Hyperduck](/hyperduck#shortcuts)
+	:: Trigger shortcuts on your Mac from your iOS device
+- [Supercharge](/supercharge) and [Default Browser](/default-browser)
+	:: Set default browser
+- [AI Actions](/ai-actions)
+	:: Use the ChatGPT API, Ollama, Groq
+- [One Thing](/one-thing)
+	:: Show text in menu bar
+- [Velja](/velja)
+	:: Open URLs in a specific browser
+- [Velja](/velja) and [Pure Paste](/pure-paste)
+	:: Remove tracking parameters from URLs
+- [Online Check](/online-check)
+	:: Check if online
+- [Imago](/imago)
+	:: Generate images from text with AI locally
+- [Pure Paste](/pure-paste)
+	:: Clear clipboard formatting
+- [Speediness](/speediness)
+	:: Get internet speed
+- [Dato](/dato)
+	:: Join video calls
+- [Any Text](/any-text)
+	:: Put text on the iOS Lock Screen
+- [Icon Preview](/icon-preview)
+	:: Preview app icons
+- [Pasteboard Viewer](/pasteboard-viewer)
+	:: Get clipboard items
 <!-- - Get random animated GIF → [Jiffy](/jiffy) -->
 
 #### Impossible actions {#impossible-actions}
@@ -449,12 +465,6 @@ For these, I recommend sending a [feature request to Apple](https://feedbackassi
 
 - Imgur: I generally don’t want to integrate with services. They cause a huge support burden, either by being unreliable, breaking the API, shutting down, and other things.
 
-## Tips
-
-### URL Scheme {#url-scheme}
-
-The app supports the `actions://` URL scheme that can be used to open the app.
-
 ## Frequently Asked Questions {#faq}
 
 ### The actions don’t show up in the Shortcuts app {#actions-not-showing-up}
@@ -475,6 +485,17 @@ Some things you could try:
 
 Try the [steps for actions that do not show up](#actions-not-showing-up).
 
+### I get “The action could not run because an unknown error occurred” {#unknown-error}
+<!-- @faq.keywords large file video memory crash encrypt decrypt -->
+
+Shortcuts shows this message when iOS stopped the action before it could finish. The usual cause is a large file, like a video. iOS limits how much memory and time an action gets when it runs in the background, and some actions must load the whole file into memory. The same file can work on a Mac or in another app, because those do not have these limits.
+
+Things to try:
+
+1. Run the shortcut from the Shortcuts app, not from an automation, a widget, or the share sheet.
+1. Restart your device.
+1. Run the shortcut on a Mac.
+
 ### Why does the Actions app open when my shortcut runs? {#app-opens}
 
 Some actions show something on the screen or need the app in front, like “Show Overlay”, “Scan Documents”, “Pick Color”, and “Ask for Text with Timeout”. iOS opens the Actions app while they run. All other actions run in the background. An app cannot return you to the previous app by itself.
@@ -491,4 +512,11 @@ Make a shortcut with an “If” block that checks the result of the “Is Devic
 ### Can the “Show Notification” action send critical alerts? {#can-the-show-notification-action-send-critical-alerts}
 
 No. I applied for Apple’s [Critical Alerts entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.usernotifications.critical-alerts), but it was declined.
+
 Critical Alerts are reserved for very limited use cases such as medical, health, home security, and public safety notifications. General-purpose automation apps like Actions are not eligible.
+
+## Scripting
+
+### URL scheme {#url-scheme}
+
+The app supports the `actions://` URL scheme that can be used to open the app.

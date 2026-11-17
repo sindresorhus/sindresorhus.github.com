@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Click [Lungo](../apps/lungo/index.md) in the menu bar, and choose how long your Mac must stay awake, like 1 hour. Without an app, run `caffeinate -di` in the Terminal app, and press ++Control+C++ to stop it.
+	Click [Lungo](/lungo) in the menu bar, and choose how long your Mac must stay awake, like 1 hour. [Without an app](#without-an-app), run `caffeinate -di` in the Terminal app, and press ++Control+C++ to stop it.
 }
 
 ## With Lungo
 
 @Steps {
-1. Open [Lungo](../apps/lungo/index.md). Its icon is in the menu bar.
+1. Open [Lungo](/lungo). Its icon is in the menu bar.
 1. Click the icon, and below “Keep this Mac awake”, choose a duration, like “1 Hour”, or “Indefinitely”.
 1. Your Mac and its screen stay awake until the time ends. To stop earlier, click the icon, and choose “Deactivate”.
 }
@@ -31,13 +31,13 @@ Lungo is useful for presentations, long downloads, and reading without touching 
 - Turn on “Allow display to sleep while keeping computer awake”, so the screen turns off, but the downloads and other tasks continue.
 - Turn on “Deactivate when switching to battery”, so it does not empty the battery.
 
-For a duration that is not in the menu, use the “Set Enabled State” action of Lungo in the Shortcuts app. The [“Enable Lungo until time” shortcut](https://www.icloud.com/shortcuts/9aa69e6db4ba48289e59214d10a405b2) asks for a time, and keeps the Mac awake until then.
+For a duration that is not in the menu, use the “Set Enabled State” action of Lungo in the Shortcuts app. The [“Enable Lungo until time” shortcut](https://www.icloud.com/shortcuts/9aa69e6db4ba48289e59214d10a405b2) asks for a time, and keeps the Mac awake until then. To keep the Mac awake only while an app is open, like Keynote, [use a Shortcuts automation](guide:keep-mac-awake-while-app-open).
 
 Amphetamine is a popular free app for this, with triggers and support for a closed lid. Its last update was in November 2023.
 
 ## Keep your Mac awake with the lid closed
 
-When you close the lid of a MacBook, macOS puts it to sleep. Lungo can keep it awake only when the Mac is connected to a charger and an external display, as the App Store does not allow apps to keep a closed MacBook awake. [Why Lungo does not do more.](../apps/lungo/index.md#lid-closed)
+When you close the lid of a MacBook, macOS puts it to sleep. Lungo can keep it awake only when the Mac is connected to a charger and an external display, as the App Store does not allow apps to keep a closed MacBook awake. [Why Lungo does not do more.](/lungo#lid-closed)
 
 ## Without an app
 
@@ -52,8 +52,10 @@ caffeinate -di
 **System Settings:** To change the sleep settings for all tasks, not only one:
 
 @Steps {
-1. Open “[System Settings › Lock Screen](x-apple.systempreferences:com.apple.Lock-Screen-Settings.extension)”, and choose a longer time, or “Never”, for the time before the display turns off. A MacBook has one setting for battery and one for the power adapter.
-1. On a MacBook, open “System Settings › Battery”, click “Options”, and turn on “Prevent automatic sleeping on power adapter when the display is off”. On a desktop Mac, open “System Settings › Energy”, and turn on “Prevent automatic sleeping when the display is off”.
+1. Open “[System Settings › Lock Screen](x-apple.systempreferences:com.apple.Lock-Screen-Settings.extension)”, and set “Turn display off when inactive” to a longer time, or “Never”. A MacBook has one setting for battery and one for the power adapter.
+1. On a MacBook, open “[System Settings › Battery](x-apple.systempreferences:com.apple.Battery-Settings.extension)”, click “Options”, and turn on “Prevent automatic sleeping on power adapter when the display is off”. On a desktop Mac, open “System Settings › Energy”, and turn on “Prevent automatic sleeping when the display is off”. <source:https://support.apple.com/guide/mac-help/mchle41a6ccd/mac>
 }
 
 The settings are good when your Mac must always stay awake, like a Mac mini that is a server. For a meeting or a download, it is easier to turn on Lungo or `caffeinate` for that time, and not to remember to change the settings back.
+
+When the Mac is awake, but asks for your password after the screen saver or after the display turns off, see [how to stop your Mac from locking](guide:stop-mac-from-locking).

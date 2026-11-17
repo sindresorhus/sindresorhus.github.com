@@ -104,18 +104,18 @@ struct PageTests {
 		let rating = try #require(SetappRating(ratingValue: 99, bestRating: 100, count: 30))
 		#expect(AppReviews(listing: AppListing(app: app, setappRating: rating)) == nil)
 
-		let review = AppStoreReview(title: "Useful", text: "Works well.", author: "A reader", rating: .five, date: .now)
+		let review = StoreReview(title: "Useful", text: "Works well.", author: "A reader", rating: .five, date: .now)
 		// The wall of love has more only when the app has more reviews than the page shows.
-		let fewReviews = try #require(AppReviews(listing: AppListing(app: app, appStoreReviews: [review])))
+		let fewReviews = try #require(AppReviews(listing: AppListing(app: app, storeReviews: [review])))
 		#expect(fewReviews.app == nil)
 		#expect(!fewReviews.render().contains("Wall of Love"))
 
-		let reviews = try #require(AppReviews(listing: AppListing(app: app, appStoreReviews: Array(repeating: review, count: 5))))
+		let reviews = try #require(AppReviews(listing: AppListing(app: app, storeReviews: Array(repeating: review, count: 5))))
 		#expect(reviews.app?.slug == app.slug)
 		#expect(reviews.render().contains("Wall of Love"))
 
 		let archived = try await App(frontmatter: "isArchived: true")
-		let archivedReviews = try #require(AppReviews(listing: AppListing(app: archived, appStoreReviews: Array(repeating: review, count: 5))))
+		let archivedReviews = try #require(AppReviews(listing: AppListing(app: archived, storeReviews: Array(repeating: review, count: 5))))
 		#expect(archivedReviews.app == nil)
 		#expect(!archivedReviews.render().contains("Wall of Love"))
 	}
@@ -126,7 +126,7 @@ struct PageTests {
 		let quote = try #require(app.pressQuotes.first)
 		let card = QuoteFigure(kind: .press(quote)).render()
 		let pullQuote = QuoteFigure(kind: .press(quote, presentation: .pullQuote)).render()
-		let review = AppStoreReview(title: "Useful", text: "Works well.", author: "A reader", rating: .five, date: .now)
+		let review = StoreReview(title: "Useful", text: "Works well.", author: "A reader", rating: .five, date: .now)
 		let reviewCard = QuoteFigure(kind: .review(review)).render()
 
 		#expect(card.contains(QuoteFigure.Styles.card.className))
@@ -366,7 +366,7 @@ struct PageTests {
 	func `the about page shows the status of the now page before the first section`() async throws {
 		let content = try await SiteContent.website
 		let page = try #require(content.page(.about))
-		let status = try #require(content.page(.now)?.status?.introduction)
+		let status = try #require(content.now?.status?.introduction)
 
 		let html = try AboutPage(page: page, content: content).renderedHTML()
 		let parts = html.split(separator: #"id="\#(AboutPage.nowNextHeadingID)""#)
@@ -405,6 +405,7 @@ struct PageTests {
 				followerCount: 84_740,
 				starCount: 1_099_747,
 				maintenance: GitHub.Maintenance(closedIssueCount: 22_815, mergedPullRequestCount: 13_831),
+				appleReportCount: 324,
 				repositories: []
 			),
 			buildDate: loadedContent.buildDate,
@@ -419,11 +420,13 @@ struct PageTests {
 		let numbers = try #require(parts[1].split(separator: #"id="\#(AboutPage.numbersNextHeadingID)""#).first)
 
 		#expect(top.contains(">\(repositoryCount.approximateCount) repos</span>"))
-		#expect(top.contains("years of app craft"))
+		#expect(top.contains("years of craft"))
 		#expect(numbers.contains(#">\#(repositoryCount.approximateCount)</span> <span class="\#(StatCard.Styles.label.className)">repos</span>"#))
 		#expect(numbers.contains("years of craft"))
 		#expect(numbers.contains(">22K+</span> <span class=\"\(StatCard.Styles.label.className)\">issues closed</span>"))
 		#expect(numbers.contains(">13K+</span> <span class=\"\(StatCard.Styles.label.className)\">pull requests merged from others</span>"))
+		#expect(numbers.contains(#">324</span> <span class="\#(StatCard.Styles.label.className)"><a href="https://github.com/search?q="#))
+		#expect(numbers.contains(">reports to Apple in public</a></span>"))
 	}
 
 	/**
@@ -485,7 +488,7 @@ struct PageTests {
 			return try AboutPage(page: page, content: content).renderedHTML()
 		}
 
-		let label = "of the 10 most-downloaded packages"
+		let label = "of the top 10 packages"
 		#expect(try html(mostDownloadedPackageNames: ["semver", "chalk"]).contains(#">1</span> <span class="\#(StatCard.Styles.label.className)">\#(label)</span>"#))
 		#expect(try !html(mostDownloadedPackageNames: ["semver"]).contains(label))
 	}
@@ -529,6 +532,7 @@ struct PageTests {
 			followerCount: 1,
 			starCount: 1,
 			maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1),
+			appleReportCount: 1,
 			repositories: repositories
 		)
 		let content = SiteContent.test(gitHubAccount: account, npmStatistics: npmStatistics)
@@ -622,40 +626,32 @@ struct PageTests {
 		#expect(try html(.about).contains(openSourceLink))
 		#expect(try html(.openSource).contains(#"href="\#(Site.author.gitHubURL)""#))
 
-		for project in OpenSourceProject.all {
+		for project in try await SiteContent.website.openSourceProjects.all {
 			#expect(project.repository.isOwners, "\(project.name) is not a repo of my account or my organizations.")
 			#expect(try html(.openSource).contains(#"href="\#(project.repository.url)""#))
 		}
 	}
 
 	@Test
-	func `no open source project is on the page twice`() {
-		let repositories = OpenSourceProject.all.map(\.repository)
+	func `no open source project is on the page twice`() async throws {
+		let repositories = try await SiteContent.website.openSourceProjects.all.map(\.repository)
 		let duplicates = Dictionary(grouping: repositories, by: \.self).filter { $0.value.count > 1 }.keys
 		#expect(duplicates.isEmpty, "\(duplicates.map(\.description)) are repeated in the catalog.")
 	}
 
 	@Test
-	func `the open source catalog excludes Plash and the cross platform wallpaper package`() {
-		#expect(!OpenSourceProject.Group.apps.projects.contains { $0.name == "Plash" })
-		#expect(!OpenSourceProject.Group.mac.projects.contains { $0.name == "wallpaper" })
-		#expect(OpenSourceProject.Group.mac.projects.contains { $0.name == "macos-wallpaper" })
-	}
-
-	/**
-	The cards of a group fill the rows of the grid, which has two or four columns, or three for a group of three. A group of two keeps two columns on wide screens.
-	*/
-	@Test(arguments: OpenSourceProject.Group.allCases)
-	func `each open source group has two or three projects or a multiple of four`(group: OpenSourceProject.Group) {
-		let count = group.projects.count
-		#expect((2...3).contains(count) || (count > 0 && count.isMultiple(of: 4)), "\(group.title) has \(count) projects.")
+	func `the open source catalog excludes Plash and the cross platform wallpaper package`() async throws {
+		let catalog = try await SiteContent.website.openSourceProjects
+		#expect(!catalog.apps.contains { $0.name == "Plash" })
+		#expect(!catalog.mac.contains { $0.name == "wallpaper" })
+		#expect(catalog.mac.contains { $0.name == "macos-wallpaper" })
 	}
 
 	/**
 	The profile card has the contributions of the last year, with their number as text, as screen readers skip the heatmap. Without a GitHub token, the build has no contributions, so the card leaves them out.
 	*/
 	@Test
-	func `the open source page shows the contributions only when the build has them`() throws {
+	func `the open source page shows the contributions only when the build has them`() async throws {
 		let json = #"{"totalContributions": 13, "weeks": [{"contributionDays": [{"date": "2026-01-01", "contributionCount": 9}, {"date": "2026-01-02", "contributionCount": 4}]}]}"#
 		var activity = RecentActivity()
 		activity.profile = try GitHub.Profile(contributions: ContributionCalendar(json: json), sponsorCount: 0, commentCount: 0)
@@ -733,6 +729,86 @@ struct PageTests {
 		#expect(items.count == apps.count)
 		#expect(items.allSatisfy { Set($0.keys) == ["@type", "position", "url"] })
 		#expect(items.first?["url"] as? String == apps.first?.path.absoluteURL.absoluteString)
+	}
+
+	/**
+	Search results can show the trail of the breadcrumb of the footer (``Page/parents``) instead of the path of the URL.
+	*/
+	@Test
+	func `an app page has the breadcrumb of its footer as structured data`() async throws {
+		let page = try #require(try await RenderedPage.website.first { $0.route.path == App.path(slug: "dato") })
+		let lists = try page.html.scriptTags
+			.filter { $0.type == "application/ld+json" }
+			.compactMap { try JSONSerialization.jsonObject(with: Data($0.body.utf8)) as? [String: Any] }
+			.filter { $0["@type"] as? String == "BreadcrumbList" }
+		#expect(lists.count == 1)
+
+		let items = try #require(lists.first?["itemListElement"] as? [[String: Any]])
+		#expect(items.map { $0["name"] as? String } == ["Apps", "Dato"])
+		#expect(items.first?["item"] as? String == RoutePath.apps.absoluteURL.absoluteString)
+		#expect(items.last?["item"] == nil)
+	}
+
+	/**
+	An archived app is below the list of archived apps, where the apps page lists it, and a list of guides for an audience is below the list of guides.
+	*/
+	@Test
+	func `the breadcrumb of an archived app and of a list of guides for an audience`() async throws {
+		let content = try await SiteContent.website
+		let archivedApp = try #require(content.apps.first { $0.isArchived })
+		let app = try #require(content.apps.first { !$0.isArchived })
+
+		#expect(AppPage(app: archivedApp, content: content).parents.map(\.title) == ["Apps", "Archived Apps"])
+		#expect(AppPage(app: app, content: content).parents.map(\.title) == ["Apps"])
+		#expect(AudienceGuidesPage(audience: .newMacOwners, content: content).parents.map(\.title) == ["Guides"])
+		#expect(GuideTopicPage(topic: .menuBar, content: content).parents.map(\.title) == ["Guides"])
+	}
+
+	/**
+	The table above the guides of an audience is Markdown of code, so its links to guides by their slugs, like `<guide:cut-and-paste-files-mac>`, are checked here, not by the build of a content file.
+	*/
+	@Test
+	func `the tables of the lists of guides for an audience link to published guides`() async throws {
+		let content = try await SiteContent.website
+
+		for audience in content.audiencesWithGuides {
+			let table = AudienceGuidesPage(audience: audience, content: content).introTable
+			#expect(table?.problems.map(\.reason) ?? [] == [], "\(audience)")
+		}
+
+		let windowsTable = try #require(AudienceGuidesPage(audience: .windowsUsers, content: content).introTable)
+		#expect(windowsTable.links.map(\.destination).contains("/guides/cut-and-paste-files-mac"))
+	}
+
+	@Test
+	func `the Windows table can render before optional guides are published`() throws {
+		let table = try #require(Guide.Audience.windowsUsers.introTable(guides: []))
+		#expect(table.contains("| File Explorer | Finder |"))
+		#expect(table.contains("| Ctrl+Alt+Delete to force quit | ++Option+Command+Esc++ |"))
+		#expect(table.contains("<guide:cut-and-paste-files-mac>"))
+	}
+
+	/**
+	The lists of guides, like the page of a topic, are next to the guides, at `/guides/…`, so a guide with the same slug, or an old path of a page, would replace one.
+	*/
+	@Test
+	func `no guide has the path of a list of guides`() async throws {
+		let content = try await SiteContent.website
+		let listPaths = Set(Guide.Topic.allCases.map(\.path) + Guide.Audience.allCases.map(\.path) + [RoutePath.randomGuide])
+
+		#expect(listPaths.isDisjoint(with: content.guides.map(\.guide.path) + content.documents.flatMap(\.redirectFrom)))
+	}
+
+	/**
+	“All 92 Supercharge Guides” at the end of a guide opens the row with the guides that do not show at first on the app page, not 8 guides and a closed row.
+	*/
+	@Test
+	func `the link to all the guides of an app with many guides opens the row of the other guides`() async throws {
+		let pages = try await RenderedPage.website
+		let appPage = try #require(pages.first { $0.route.path == App.path(slug: "supercharge") })
+
+		#expect(appPage.html.contains(#"<details id="more-guides""#))
+		#expect(pages.contains { $0.html.contains(#"href="/supercharge#more-guides""#) })
 	}
 
 	/**
@@ -852,15 +928,16 @@ struct PageTests {
 	private static let classesWithoutRules: Set = ["icon"]
 
 	/**
-	The class names in the selectors of the CSS, like `prose` for `.prose :where(p)`. View transition classes, like `*.app-icon`, are not element classes, and neither are quoted attribute values, like `png` in `[src$='/icon.png']`.
+	The class names in the selectors of the CSS, like `prose` for `.prose :where(p)`. View transition classes, like `*.app-icon`, are not element classes, and neither are quoted attribute values, like `png` in `[src$='/icon.png']`. A class in `:has()`, like `.card:has(> .link-card-title)`, only says when the rule applies, so it is not a rule of that class, like the title of a link card whose style set the page did not collect.
 	*/
 	private static func classNames(inCSS css: String) -> Set<String> {
 		// Before the loop, as Swift parses a regex literal each time the code runs.
 		let quotedValue = /'[^']*'|"[^"]*"/
+		let hasCondition = /:has\([^)]*\)/
 		let className = /\.([a-z][a-z0-9-]*)/
 
 		return Set(css.split(separator: "\n").filter { $0.hasSuffix("{") && !$0.contains("view-transition") }.flatMap { line in
-			line.replacing(quotedValue, with: "").matches(of: className).map { String($0.1) }
+			line.replacing(quotedValue, with: "").replacing(hasCondition, with: "").matches(of: className).map { String($0.1) }
 		})
 	}
 
@@ -869,7 +946,7 @@ struct PageTests {
 	*/
 	@Test
 	func `animations only run for visitors who allow motion`() async throws {
-		let essentialAnimations = [ProseAnimations.targetHighlight.name]
+		let essentialAnimations = ProseAnimations.allCases.map(\.name)
 		// Before the loops, as Swift parses a regex literal each time the code runs.
 		let animationDeclaration = /animation: (.+);/
 		var stylesheets = [Stylesheet.site.css]
@@ -947,7 +1024,7 @@ struct PageTests {
 	}
 
 	/**
-	The bar shows the language as it is written, so a typo would show as the label.
+	The bar shows the name of the language, so a typo has no name.
 	*/
 	@Test
 	func `a code block with an unknown language is a problem`() {
@@ -959,10 +1036,42 @@ struct PageTests {
 	}
 
 	@Test
-	func `each line of a console code block is an element, for the prompt of the styles`() {
+	func `the bar shows the name of the language, and the long lines of a console block and of a block without a language wrap`() {
+		let console = CodeBlock(source: "ls\n", language: .console).render()
+		let plain = CodeBlock(source: "https://example.com\n", language: nil).render()
+		let swift = CodeBlock(source: "let a = 1\n", language: .swift).render()
+
+		#expect(console.contains(">Terminal</span>"))
+		#expect(plain.contains(#"<code class="code-block-code code-block-wrapped">https://<wbr>example.com"#))
+		#expect(swift.contains(#"<code class="code-block-code">"#))
+	}
+
+	@Test
+	func `a code block with the name of its file shows the name above the code`() {
+		let html = CodeBlock(source: "let a = 1\n", language: .swift, fileName: "Badge.swift").render()
+
+		#expect(html.contains(#"<div class="code-block code-block-titled"><div class="code-block-file-name">Badge.swift</div>"#))
+		#expect(!CodeBlock(source: "let a = 1\n", language: .swift).render().contains("code-block-file-name"))
+	}
+
+	@Test
+	func `a long word of a console command can break between its words and at its parameters`() {
+		let html = CodeBlock(source: "defaults write NSShowAppCentric -bool\n", language: .console).render()
+
+		#expect(html.contains("<span>NSShow<wbr>App<wbr>Centric</span>"))
+	}
+
+	@Test
+	func `each line and each word of a console code block is an element, for the prompt and the line breaks of the styles`() {
 		let html = CodeBlock(source: "open -g 'a<b'\n\nls\n", language: .console).render()
 
-		#expect(html.contains(#"<code class="code-block-code code-block-console"><span>open -g 'a&lt;b'</span>\#n\#n<span>ls</span>\#n</code>"#))
+		#expect(html.contains(#"<code class="code-block-code code-block-wrapped code-block-console"><span><span>open</span> <span>-g</span> <span><span class="code-block-string">'a&lt;b'</span></span></span>\#n\#n<span><span>ls</span></span>\#n</code>"#))
+
+		// When some lines start with `$ `, only they are commands, and the other lines are what the commands print, which is not copied.
+		let withOutput = CodeBlock(source: "$ ls\nfile.txt\n$ pwd\n", language: .console).render()
+
+		#expect(withOutput.contains(#"<span><span>ls</span></span>\#n<samp class="code-block-output">file.txt</samp>\#n<span><span>pwd</span></span>"#))
+		#expect(withOutput.contains(#"text="ls\#npwd""#))
 	}
 
 	@Test
@@ -976,7 +1085,7 @@ struct PageTests {
 	}
 
 	/**
-	The blocks of the file keep their source, and the build only adds blocks, except for the feedback question, which gets its ID. Lines with links are left out, as the links are absolute. A block with the syntax of the site is formatted without it, so its lines with the syntax, indented lines, and table rows are left out, and smart punctuation makes its quotes typographic. HTML comments are removed.
+	The blocks of the file keep their source, and the build only adds blocks and joins a list item with its description line, except for the feedback question, which gets its ID. Lines with links, also the tags of guides and sections (`<guide:slug>` and `<section:id>`), are left out, as the links are absolute. A block with the syntax of the site is formatted without it, so its lines with the syntax, indented lines, and table rows are left out, and smart punctuation makes its quotes typographic. HTML comments are removed.
 	*/
 	@Test
 	func `llms-full.txt has each line of the app files`() async throws {
@@ -986,7 +1095,10 @@ struct PageTests {
 		for app in try await SiteContent.website.activeAppsWithPages {
 			let body = app.file.body.replacing(/(?s)<!--.*?-->/, with: "")
 
-			for line in body.split(separator: "\n") where !line.allSatisfy(\.isWhitespace) && !line.contains("](") && !line.contains(#"="/"#) && !line.hasPrefix("### \(App.Section.feedbackQuestion.title)") && line.firstMatch(of: /^[\s|}@]|\+\+|\^\[|\{#/) == nil {
+			let bodyLines = body.split(separator: "\n", omittingEmptySubsequences: false)
+
+			// A list item with a description line (`: `) below it is one line in the file, like “- Name: Description”.
+			for (line, nextLine) in zip(bodyLines, bodyLines.dropFirst() + [""]) where !line.allSatisfy(\.isWhitespace) && !line.contains("](") && !line.contains("<\(LinkTagScheme.guide.rawValue):") && !line.contains("<\(LinkTagScheme.section.rawValue):") && !line.contains(#"="/"#) && !line.hasPrefix("### \(App.Section.feedbackQuestion.title)") && line.firstMatch(of: /^[\s|}@]|\+\+|\^\[|\{#/) == nil && !nextLine.trimmingPrefix(while: \.isWhitespace).hasPrefix(": ") {
 				#expect(lines.contains(Substring(line.replacing("’", with: "'"))), "\(app.file.slug): \(line)")
 			}
 		}
@@ -1011,7 +1123,7 @@ struct PageTests {
 		#expect(text.firstMatch(of: /\*Requires macOS [\d.]+ or later\*/) != nil)
 
 		// Each guide has its date and the facts of each of its apps, like in llms.txt.
-		for resolved in try await SiteContent.website.resolvedGuides {
+		for resolved in try await SiteContent.website.guides {
 			let guide = resolved.guide
 			let appLines = resolved.apps.map { "- [\($0.title)](\($0.path.markdownCopy.absoluteURL.absoluteString)): \($0.subtitle). " }
 			#expect(text.contains("# \(guide.title)\n\nUpdated: \(guide.lastModified.foundationDate.formatted(.siteDay))\n\n\(appLines[0])"))
@@ -1047,6 +1159,35 @@ struct PageTests {
 	}
 
 	/**
+	A tool that must give the download for an older Mac reads the older versions of an app in `apps.json`, and an app without them has no key.
+	*/
+	@Test
+	func `apps.json has the older versions and the release notes of an app`() async throws {
+		struct Entry: Decodable {
+			struct OlderVersion: Decodable {
+				let macOS: String
+				let version: String
+				let url: URL
+			}
+
+			let name: String
+			let olderVersions: [OlderVersion]?
+			let releaseNotesURL: URL?
+		}
+
+		let route = try #require(try await Self.site().routes().first { $0.path == Site.appsJSONPath })
+		let entries = try JSONDecoder().decode([Entry].self, from: try await route.renderedFile())
+		let content = try await SiteContent.website
+		let appBuddy = try #require(content.activeApps.first { $0.file.slug == "app-buddy" })
+		let entry = try #require(entries.first { $0.name == appBuddy.title })
+
+		#expect(entry.olderVersions?.map(\.macOS) == appBuddy.olderVersions.map(\.macOS.rawValue))
+		#expect(entry.olderVersions?.map(\.url) == appBuddy.olderVersions.map(\.url.value))
+		#expect(entry.releaseNotesURL == appBuddy.releaseNotes?.path.absoluteURL)
+		#expect(entries.contains { $0.olderVersions == nil && $0.releaseNotesURL == nil })
+	}
+
+	/**
 	Assistants quote the facts of llms.txt, so each app has them, and the featured apps come first.
 	*/
 	@Test
@@ -1068,7 +1209,7 @@ struct PageTests {
 			appLines.contains { $0.hasPrefix("- [\(app.title)]") && $0.contains(". Requires ") == (content.listing(of: app).minimumOSVersion != nil) }
 		})
 
-		for guide in content.guides {
+		for guide in content.guides.map(\.guide) {
 			#expect(lines.contains("- [\(guide.title)](\(guide.path.absoluteURL.absoluteString).md): \(guide.description)"))
 		}
 	}
@@ -1109,7 +1250,10 @@ struct PageTests {
 			String(decoding: try await #require(routes.first { $0.path == path }).renderedFile(), as: UTF8.self)
 		}
 
-		let dato = try await text(#path("/dato.md"))
+		let datoFile = try await text(#path("/dato.md"))
+		#expect(datoFile.hasSuffix("\n"))
+		#expect(!datoFile.hasSuffix("\n\n"))
+		let dato = datoFile.dropLast()
 		let fullText = try await text(#path("/llms-full.txt"))
 		#expect(fullText.contains("\n\n---\n\n\(dato)\n\n---\n\n"))
 		#expect(dato.hasPrefix("# Dato\n\n"))
@@ -1129,17 +1273,30 @@ struct PageTests {
 		#expect(about.contains("](https://sindresorhus.com/dato.md)"))
 		#expect(about.contains("](https://sindresorhus.com/apps.md)"))
 		#expect(about.contains("](https://sindresorhus.com/apps/paid.md)"))
+
+		// The table of the page for Windows users, without the syntax of the site, and with its tags of guides as links to the copies of the guides.
+		let windows = try await text(Guide.Audience.windowsUsers.path.markdownCopy)
+		#expect(windows.contains("](https://sindresorhus.com/guides/cut-and-paste-files-mac.md)"))
+		#expect(windows.contains("Shift+Command+5"))
+		#expect(!windows.contains("++"))
+		#expect(!windows.contains("guide:"))
+
+		// A page for each topic, with the item of each guide in `llms.txt`.
+		let menuBar = try await text(Guide.Topic.menuBar.path.markdownCopy)
+		#expect(menuBar.hasPrefix("# \(Guide.Topic.menuBar.guidesTitle)\n"))
+		#expect(menuBar.contains("](https://sindresorhus.com/guides/show-time-zones-menu-bar-mac.md)"))
+		#expect(try await text(#path("/llms.txt")).contains("](https://sindresorhus.com/guides/from-windows.md)"))
 	}
 
 	/**
 	A named sale is announced before its first day, shows its content through its last day, and disappears afterwards, both on the page and in its Markdown copy.
 	*/
 	@Test(arguments: [
-		(lastDay: "2026-11-30", day: "2026-11-26", announcement: Optional("Summer Sale runs from November 27 to November 30. The apps and the discounts show here when the sale starts."), showsContent: false),
+		(lastDay: "2026-11-30", day: "2026-11-26", announcement: Optional("The sale runs from November 27 to November 30. The apps and the discounts show here when it starts."), showsContent: false),
 		(lastDay: "2026-11-30", day: "2026-11-27", announcement: nil, showsContent: true),
 		(lastDay: "2026-11-30", day: "2026-11-30", announcement: nil, showsContent: true),
 		(lastDay: "2026-11-30", day: "2026-12-01", announcement: nil, showsContent: false),
-		(lastDay: "2026-11-27", day: "2026-11-26", announcement: Optional("Summer Sale is on November 27. The apps and the discounts show here when the sale starts."), showsContent: false),
+		(lastDay: "2026-11-27", day: "2026-11-26", announcement: Optional("The sale is on November 27. The apps and the discounts show here when it starts."), showsContent: false),
 		(lastDay: "2026-11-27", day: "2026-11-27", announcement: nil, showsContent: true),
 		(lastDay: "2026-11-27", day: "2026-11-28", announcement: nil, showsContent: false),
 	])
@@ -1169,13 +1326,14 @@ struct PageTests {
 		let route = try #require(Site(content: content).routes().first { $0.path == page.path.markdownCopy })
 		let markdown = String(decoding: try await route.renderedFile(), as: UTF8.self)
 
-		for text in [page.markdown.html, markdown] {
+		for text in [page.markdown.html.rawValue, markdown] {
 			#expect(text.contains("Outside the sale."))
 			#expect(text.contains("Secret discount.") == showsContent)
 
 			if let announcement {
+				// The name is the title of the alert, or in bold before the sentence in the Markdown copy.
 				#expect(text.contains(announcement))
-				#expect(!text.contains("Summer Sale sale"))
+				#expect(text.contains("Summer Sale"))
 			} else {
 				#expect(!text.contains("The apps and the discounts show here"))
 				#expect(!text.contains("Summer Sale"))
@@ -1357,7 +1515,7 @@ struct PageComponentTests {
 			.render()
 		}
 		let json = try #require(html.firstMatch(of: /<script type="speculationrules">(.*?)<\/script>/)?.1)
-		#expect(String(json) == #"{"prefetch":[{"eagerness":"moderate","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999"]}},{"not":{"selector_matches":"a[href*=\":~:\"]"}}]}}],"prerender":[{"eagerness":"conservative","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999","/apps/random","/feedback"]}},{"not":{"selector_matches":"a[href*=\":~:\"]"}}]}}]}"#)
+		#expect(String(json) == #"{"prefetch":[{"eagerness":"moderate","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999"]}},{"not":{"selector_matches":"a[href*=\":~:\"]"}}]}}],"prerender":[{"eagerness":"conservative","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/*.*","/1999","/apps/random","/guides/random","/feedback"]}},{"not":{"selector_matches":"a[href*=\":~:\"]"}}]}}]}"#)
 	}
 
 	@Test
@@ -1368,8 +1526,7 @@ struct PageComponentTests {
 		for slug in ["linked", "with-query", "unreferenced"] {
 			guides.append(try await Guide(markdown: Guide.testMarkdown(), slug: slug))
 		}
-		let resolvedGuides = try guides.map { try #require(Guide.Resolved(guide: $0, apps: [app])) }
-		let content = SiteContent.test(apps: [app], guides: guides, resolvedGuides: resolvedGuides)
+		let content = SiteContent.test(apps: [app], guides: try guides.map { try #require(Guide.Resolved(guide: $0, apps: [app])) })
 		let previews = try JSONDecoder().decode([String: [String: String]].self, from: LinkPreview.data(for: content))
 
 		for path in ["/guides/linked", "/guides/with-query"] {

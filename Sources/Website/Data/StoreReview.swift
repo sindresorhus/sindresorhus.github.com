@@ -14,14 +14,53 @@ enum ReviewStars: Int, Codable {
 }
 
 /**
-A review of an app on an English-language App Store.
+A review of an app on an English-language App Store, or on Gumroad for an app that is sold there (``GumroadProduct/reviews``).
 */
-struct AppStoreReview: Hashable {
-	let title: String
+struct StoreReview: Hashable {
+	/**
+	The title, which a review on Gumroad does not have.
+	*/
+	let title: String?
+
 	let text: String
 	let author: String
 	let rating: ReviewStars
 	let date: Date
+
+	/**
+	The store of the review, which the card names.
+	*/
+	var store = StoreRating.Store.appStore
+
+	/**
+	The text that `hiddenReviews` of `content/site.soml` matches to hide the review: its title, or its text for a review without a title, like on Gumroad. It is the text of the store, which can be a little different from the text on the page (``displayTitle``, ``displayText``), like “Simply beautiful.” for “Simply beautiful”.
+	*/
+	var hidingKey: String {
+		title ?? text
+	}
+
+	/**
+	The title as the pages show it (``String/tidiedReviewText``), without the periods at its end, like a heading: “Simply beautiful.” and “Simply beautiful..” become “Simply beautiful”, but “Wow…” stays. A title with 6 or more letters that are all capital letters is in sentence case, so it does not shout next to the other titles: “NEVER MISS A MEETING AGAIN” becomes “Never miss a meeting again”, but “WOW” stays. The stored title stays the text of the reviewer, which ``hidingKey`` matches.
+
+	Limitation: a name in such a title, like “MAC”, becomes lowercase too.
+	*/
+	var displayTitle: String? {
+		title.map { title in
+			let letters = title.filter(\.isLetter)
+			let isAllCapitals = letters.count >= 6 && letters.allSatisfy(\.isUppercase)
+			let tidied = (isAllCapitals ? title.lowercased() : title).tidiedReviewText
+			// Three periods are already an ellipsis (``Swift/String/typographicPunctuation``), so the periods at the end are a full stop, also two of them.
+			let periodCount = tidied.reversed().prefix { $0 == "." }.count
+			return String(tidied.dropLast(periodCount))
+		}
+	}
+
+	/**
+	The text as the pages show it (``String/tidiedReviewText``). The stored text stays the text of the reviewer, which ``hidingKey`` matches.
+	*/
+	var displayText: String {
+		text.tidiedReviewText
+	}
 
 	/**
 	The App Stores that the reviews come from. They are in English, like the site, but people also write in other languages there, like French in Canada, so those reviews are left out (``isEnglish``).
@@ -129,7 +168,7 @@ struct AppStoreReview: Hashable {
 				for (id, reviews) in reviewsByApp {
 					group.addTask {
 						// The title breaks ties, so the order does not depend on which request finished first.
-						let newestFirst = reviews.sorted(using: [KeyPathComparator(\.date, order: .reverse), KeyPathComparator(\.title, comparator: .localizedStandard)])
+						let newestFirst = reviews.sorted(using: [KeyPathComparator(\.date, order: .reverse), KeyPathComparator(\.hidingKey, comparator: .localizedStandard)])
 						// A loop, as an array of a lazy filter runs the check again for its count.
 						var englishReviews = [Self]()
 
@@ -160,22 +199,22 @@ struct AppStoreReview: Hashable {
 	Whether the review calls the app free, like “This is free, it’s effective”, so a paid app, which was free before, does not show it. Not words with “free” in them, like “ad-free” or “freedom”.
 	*/
 	var callsAppFree: Bool {
-		"\(title) \(text)".callsAppFree
+		"\(title ?? "") \(text)".callsAppFree
 	}
 
 	/**
-	Whether the review can be shown, without the language, which is checked last (``isEnglish``).
+	Whether the review can be shown, without the language, which is checked last (``isEnglish``). A review on the App Store needs a title, as the reviews there have one.
 	*/
-	private var isShowable: Bool {
-		rating == .five && (40...360).contains(text.count) && !title.isEmpty
+	var isShowable: Bool {
+		rating == .five && (40...360).contains(text.count) && (store != .appStore || title?.isEmpty == false)
 	}
 
 	/**
 	Whether the review is in English, like the site, so screen readers read it with the right voice.
 	*/
-	private var isEnglish: Bool {
+	var isEnglish: Bool {
 		let recognizer = NLLanguageRecognizer()
-		recognizer.processString("\(title)\n\(text)")
+		recognizer.processString([title, text].compactMap(\.self).joined(separator: "\n"))
 		return recognizer.dominantLanguage == .english
 	}
 }
@@ -216,7 +255,7 @@ private struct ReviewFeed: Decodable {
 		case entry
 	}
 
-	let reviews: [AppStoreReview]
+	let reviews: [StoreReview]
 
 	/**
 	The number of entries before invalid star ratings are skipped, for pagination and detecting empty feeds.
@@ -249,14 +288,46 @@ private struct ReviewFeed: Decodable {
 			}
 
 			// With typographic quotes, like the rest of the site, as reviewers type straight ones.
-			return AppStoreReview(
+			return StoreReview(
 				// Some reviewers start the title with star emoji, which would repeat the stars of the rating.
-				title: entry.title.label.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "⭐★\u{FE0F}"))).typographicQuotes,
-				text: entry.content.label.trimmingCharacters(in: .whitespacesAndNewlines).typographicQuotes,
-				author: entry.author.name.label,
+				title: entry.title.label.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "⭐★\u{FE0F}"))).typographicPunctuation,
+				text: entry.content.label.trimmingCharacters(in: .whitespacesAndNewlines).typographicPunctuation,
+				author: entry.author.name.label.typographicPunctuation,
 				rating: rating,
 				date: try Date(entry.updated.label, strategy: .iso8601)
 			)
 		}
+	}
+}
+
+extension String {
+	/**
+	A word between asterisks, like `*cute*`, which a reviewer writes for emphasis, as the store has no formatting. Only with no space inside the asterisks, so a list item like `* Fast` is not a match.
+	*/
+	nonisolated(unsafe) private static let reviewEmphasis = /\*{1,2}([^\s*](?:[^*\n]*[^\s*])?)\*{1,2}/
+
+	/**
+	The word “i” alone, also in “i’m”, “i’ve”, “i’d”, and “i’ll”, with the character before it, but not the “i” of “i.e.” or “iPhone”, or a letter of a word with spaces between its letters, like “t i o n”. The text already has typographic apostrophes (``Swift/String/typographicPunctuation``).
+	*/
+	nonisolated(unsafe) private static let lowercaseI = /(^|[\s(“‘])i(?!\s\p{L}(?:\s|$))(?=’(?:m|ve|d|ll)(?!\p{L})|[\s,!?;:)”]|\.(?![\p{L}\d])|$)/
+
+	/**
+	The text of a review, tidied for the page, like the edited press quotes, without a change to the words of the reviewer: without the asterisks of emphasis (“*cute*” becomes “cute”), with “I” for the word “i” (“what i wanted” becomes “what I wanted”), and with a capital first letter when the first word has only lowercase letters (“de-fancifies styled text” becomes “De-fancifies styled text”, but “iPhone” and “macOS” stay). Limitation: a product name that the reviewer wrote in lowercase at the start, like “iphone”, becomes “Iphone”.
+	*/
+	fileprivate var tidiedReviewText: String {
+		let text = replacing(Self.reviewEmphasis) { $0.output.1 }
+			.replacing(Self.lowercaseI) { "\($0.output.1)I" }
+
+		let firstWord = text.prefix { !$0.isWhitespace }
+
+		guard
+			let first = firstWord.first,
+			first.isLowercase,
+			!firstWord.contains(where: \.isUppercase)
+		else {
+			return text
+		}
+
+		return first.uppercased() + text.dropFirst()
 	}
 }

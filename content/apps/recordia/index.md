@@ -66,12 +66,12 @@ You can also set a keyboard shortcut in the settings to start and stop recording
 
 **Features**
 
-- Record the microphone, the audio of your Mac, or both
+- Record the microphone, the audio of your Mac, or both, like both sides of a Zoom call <guide:record-call-audio-mac>
 - Pause and resume a recording
-- Listen to the microphone while you record (input monitoring) *([guide](../../guides/hear-microphone-in-headphones-mac.md))*
+- Listen to the microphone while you record (input monitoring) <guide:hear-microphone-in-headphones-mac>
 - Keyboard shortcuts to start, stop, pause, and resume a recording
 - Show the duration in the menu bar while recording
-- See the audio level in the menu bar and in the menu while you record
+- See the audio level in the menu bar and in the menu while you record <guide:test-microphone-mac>
 - Set how loud the system audio is, relative to the microphone, when you record both
 - Choose the output folder and the format of the filenames
 - Hold ++Option++ while you click “Stop” in the menu to choose where to save one recording
@@ -95,6 +95,16 @@ Preview the recording as described above and then click the trim button.
 In the Recordia menu, under “Audio Source”, choose “System Audio” to capture all audio playing on your Mac, or “Microphone + System Audio” to record both into a single file. When you record both, use the “System audio volume” setting to make the sound of the Mac louder or quieter than your voice.
 
 Recording system audio requires macOS 26 or later. On older versions, you can [install the BlackHole audio driver](https://github.com/ExistentialAudio/BlackHole#installation-instructions), [set up a multi-output device](https://github.com/ExistentialAudio/BlackHole/wiki/Multi-Output-Device), and then select “BlackHole” as the input device in Recordia.
+
+### Why is there an echo when I record a call? {#echo}
+
+Your microphone picks up the call from your speakers, which makes the other people sound distant and echoey. If you also record system audio, they are recorded twice, the second time slightly delayed.
+
+To prevent this, use headphones, and choose “Microphone + System Audio” under “Audio Source” in the Recordia menu. The other people are then recorded directly, not through the microphone.
+
+If you cannot use headphones, turn on Voice Isolation: while recording, click the microphone icon in the menu bar (the blue system one, not Recordia) and choose “Mic Mode › Voice Isolation”. It filters out background sounds, which can reduce the echo.
+
+Recordia records the audio exactly as macOS provides it. Echo and noise reduction are done by macOS, which you control with Mic Mode, not by the app.
 
 ### How can I transcribe the audio (speech to text)? {#transcribe}
 
@@ -126,7 +136,7 @@ WAV is supported everywhere.
 
 ### Does it do noise reduction? {#does-it-do-noise-reduction}
 
-macOS does some noise reduction by default. For stronger noise reduction, check out [this free app](https://www.utterly.app).
+macOS does some noise reduction by default. For stronger noise reduction, turn on Voice Isolation (see [above](#echo)), or check out [this free app](https://www.utterly.app).
 
 ### Can I use my iPhone as a microphone? {#can-i-use-my-iphone-as-a-microphone}
 

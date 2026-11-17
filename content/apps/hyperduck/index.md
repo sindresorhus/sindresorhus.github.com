@@ -1,6 +1,6 @@
 ---
 title: 'Hyperduck'
-subtitle: 'Send links from your iOS & visionOS devices to your Mac'
+subtitle: 'Send links from your iOS and visionOS devices to your Mac'
 publicationDate: 2023-01-27
 platforms: [
 	'macOS'
@@ -10,6 +10,9 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6444667067
+categories: [
+	'browsers'
+]
 olderVersions: [
 	{
 		version: '1.4.0'
@@ -48,14 +51,12 @@ Share a link from Safari on your iPhone, iPad, or Apple Vision, and it opens in 
 
 You can send a link even if your iOS/visionOS device and/or Mac is offline. The link will be sent and received the next time the devices are online. The link will never be lost.
 
-My personal use-case is that I often discover cool stuff when I check X (Twitter) on the go and I want to dig deeper into it later on my Mac. I have tried Instapaper, Pocket, Safari Reading List, iCloud Tabs, and more. The problem with them all is that I forget to check them.
+My personal use case is that I often discover cool stuff when I check X (Twitter) on the go and I want to dig deeper into it later on my Mac. I have tried Instapaper, Pocket, Safari Reading List, iCloud Tabs, and more. The problem with them all is that I forget to check them.
 
 > [!IMPORTANT]
 > Sends to one Mac only. Install the macOS app on the single Mac you want to receive links on. If you install it on multiple Macs, iCloud may deliver a link to any of them, unpredictably.
 
 [**Why not AirDrop?**](#airdrop)
-
-[Review by MacStories](https://www.macstories.net/reviews/automation-april-hyperduck-leverages-the-power-of-url-schemes-to-control-your-mac-from-an-iphone-or-ipad/)
 
 [Video review by MacRumors](https://www.youtube.com/watch?v=XiLSieZ5b2c&t=486s)
 
@@ -63,7 +64,9 @@ My personal use-case is that I often discover cool stuff when I check X (Twitter
 
 The app uses iCloud syncing to securely send links from your iOS/visionOS device to your Mac. The app developer will not see the links you share. The app does not collect any personal data and does not have any tracking.
 
-## Troubleshooting {#troubleshooting}
+## Tips
+
+### Troubleshooting {#troubleshooting}
 
 - If the “Send to Mac” button is not showing up in share sheets, you may have to enable it at the bottom of the share sheet with the “Edit Actions” button. You may even have to restart your device for it to show up (iOS bugs…).
 - Ensure Hyperduck is running on the Mac.
@@ -76,11 +79,9 @@ The app uses iCloud syncing to securely send links from your iOS/visionOS device
   - This is controlled by Apple’s iCloud system and outside the app’s control.
 - [More iCloud sync troubleshooting…](/apps/faq#icloud-sync)
 
-## Tips
-
 ### Run shortcuts {#shortcuts}
 
-You can use this app to trigger [shortcuts](https://support.apple.com/guide/shortcuts/welcome/ios) on your Mac from your iOS devices. This enables a lot of powerful use-cases. For example, you could make your Mac play a specific song directly from your iPhone.
+You can use this app to trigger [shortcuts](https://support.apple.com/guide/shortcuts/welcome/ios) on your Mac from your iOS devices. This enables a lot of powerful use cases. For example, you could make your Mac play a specific song directly from your iPhone.
 
 First, create a shortcut on your Mac with some actions. Let’s call it `Unicorn`.
 
@@ -94,9 +95,9 @@ Learn more in the [Hyperduck review by MacStories](https://www.macstories.net/re
 
 ### Shut down Mac
 
-You can use the Shortcuts support mentioned above to shut down your computer remotely from your iOS device. Just follow the above steps and use the “Shut Down” action in the Shortcuts app or the AppleScript action with the following: `tell app "System Events" to shut down`. *([guide](../../guides/shut-down-mac-from-iphone.md))*
+You can use the Shortcuts support mentioned above to shut down your computer remotely from your iOS device. Just follow the above steps and use the “Shut Down” action in the Shortcuts app or the AppleScript action with the following: `tell app "System Events" to shut down`. <guide:shut-down-mac-from-iphone>
 
-To lock the Mac, use the “Lock Screen” action instead. *([guide](../../guides/lock-mac-from-iphone.md))*
+To lock the Mac, use the “Lock Screen” action instead. <guide:lock-mac-from-iphone>
 
 ### Trigger Raycast deeplinks {#raycast}
 
@@ -283,4 +284,4 @@ No. I’m not planning to support it. There is just not enough demand and it wou
 
 ### Can you support sending from one Mac to another? {#can-you-support-sending-from-one-mac-to-another}
 
-No. I’m not planning to support it. It would add a lot of complexity for a very niche use-case.
+No. I’m not planning to support it. It would add a lot of complexity for a very niche use case.

@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Open Terminal, type `shasum -a 256 ` with a space at the end, drag the file into the window, and press ++Return++. Compare the result with the checksum on the download page. To copy the checksum from the right-click menu of Finder, use [Supercharge](../apps/supercharge/index.md).
+	Open Terminal, type `shasum -a 256 ` with a space at the end, drag the file into the window, and press ++Return++. Compare the result with the checksum on the download page. To copy the checksum from the right-click menu of Finder, use [Supercharge](/supercharge).
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), click “Tweaks”, and click “Configure…” next to “Context menu items”.
+1. Open the settings of [Supercharge](/supercharge), click “Tweaks”, and click “Configure…” next to “Context menu items”.
 1. In the “Main Menu” tab, turn on “Copy Checksum”.
 1. Right-click the file in Finder, and choose “Copy Checksum › SHA-256”.
 1. Paste the checksum next to the one on the download page, or in the search field of the page with ++Command+F++, to see that they are the same.

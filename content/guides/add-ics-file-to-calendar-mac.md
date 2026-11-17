@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Drag the .ics file onto the Calendar app, or choose “File › Import” in Calendar. Choose the calendar for the event, and click “OK”. [Supercharge](../apps/supercharge/index.md) can open each .ics file that you download for you, and move the file to the Trash, so the Downloads folder stays clean.
+	Drag the .ics file onto the Calendar app, or choose “File › Import” in Calendar. Choose the calendar for the event, and click “OK”. [Supercharge](/supercharge) can open each .ics file that you download for you, and move the file to the Trash, so the Downloads folder stays clean.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “File Automation” section, turn on “Auto-open and trash downloaded calendar event (`.ics`) files”.
 1. Optional: turn on “Remove alarms from events”, to add events without the alerts that the sender set.
 1. Download an .ics file, like an invitation from a website. Supercharge opens it in your calendar app, and moves the file to the Trash.

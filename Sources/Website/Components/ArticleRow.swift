@@ -54,7 +54,8 @@ struct ArticleRow: HTML {
 				AppIcon(decorative: resolved.app, size: 56, isAboveFold: isAboveFold)
 					.style(Styles.icon)
 
-				row(title: guide.title, url: guide.url, description: guide.description, isExternal: false) {
+				// Without “How to”, as the title of the page already says that the items are guides.
+				row(title: guide.task, url: guide.url, description: guide.description, isExternal: false) {
 					EmptyHTML()
 				}
 				.style(Styles.guide)
@@ -89,8 +90,9 @@ struct ArticleRow: HTML {
 	}
 
 	private func titleLink(title: String, url: LinkDestination, isExternal: Bool) -> some HTML<HTMLTag.a> {
+		// A word with a hyphen stays on one line, like in the titles of the pages (``PageHeader``).
 		a(.href(url)) {
-			title
+			MarkdownTheme.site.headingTextHTML(title)
 		}
 		.style(Styles.link)
 		.style(Styles.externalLink, when: isExternal)
@@ -149,7 +151,22 @@ struct ArticleRow: HTML {
 					}
 			case .iconRow:
 				// On phones, the icon is next to the title, and the description is below them at the full width, so it is not a narrow column below the title. The article is a part of the grid there (``guide``). From small tablets, the icon is at the start of the title, and the text is in the rest of the row.
+				// The link of the title covers the whole row, so a click on the icon or the description opens the guide too, like the rows of “More Guides” and the app cards. The link and its text stay the same, so screen readers read the same. The pointer anywhere on the row underlines the title.
 				Style()
+					.position(.relative)
+					.nested(Self.link.selector) {
+						$0.after {
+							$0
+								.content("")
+								.position(.absolute)
+								.inset(.zero)
+						}
+					}
+					.hover {
+						$0.nested(Self.link.selector) {
+							$0.underline(thickness: .pixels(3))
+						}
+					}
 					.grid(columns: .auto, .fraction(1))
 					.alignItems(.center)
 					.gap(row: .zero, column: .rootEm(1))
@@ -161,7 +178,6 @@ struct ArticleRow: HTML {
 				// Smaller on phones, so the title has more room. In pixels, so it does not grow with larger text, which needs the room more than the icon.
 				Style()
 					.frame(width: .pixels(44))
-					.filter(AppCard.iconShadow)
 					.from(.smallTablet) {
 						$0.frame(width: .pixels(56))
 					}
@@ -184,9 +200,11 @@ struct ArticleRow: HTML {
 							.flex(1)
 							.frame(minWidth: .zero)
 					}
+					// Without the extra space between the words of large titles (``TextStyle/wordSpacing``), as the title is small here, so its letter spacing takes little from each space, and many titles of guides would get one more line.
 					.nested(Self.title.selector) {
 						$0
 							.font(size: .rootEm(1.25))
+							.wordSpacing(.zero)
 							.from(.smallTablet) {
 								$0.font(size: .rootEm(1.5))
 							}

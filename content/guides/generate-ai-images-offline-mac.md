@@ -2,7 +2,7 @@
 title: 'How to Generate AI Images Offline on Mac'
 description: 'Make images from a text prompt on your Mac, without the internet, with the free Imago app and the FLUX.2 model. Image Playground uses servers too.'
 publicationDate: 2026-10-31
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'imago'
 ]
@@ -13,7 +13,7 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Download the AI model once in [Imago](../apps/imago/index.md). Then type a description of the image, and press ++Return++. The images are made on your Mac, also without the internet. Image Playground, the built-in app, also uses Apple servers.
+	Download the AI model once in [Imago](/imago). Then type a description of the image, and press ++Return++. The images are made on your Mac, also without the internet. Image Playground, the built-in app, also uses Apple servers.
 }
 
 ## With Imago
@@ -21,7 +21,7 @@ screenshot: {
 Imago is free, and needs an Apple silicon Mac and 20 GB of free disk space. It works best with 16 GB of memory or more. On a Mac with less memory, it shows a warning, and making an image can be slow or fail.
 
 @Steps {
-1. Open [Imago](../apps/imago/index.md), and click “Download” to get the AI model. It is 16 GB, so this is the only step that needs the internet, and it can take a while.
+1. Open [Imago](/imago), and click “Download” to get the AI model. It is 16 GB, so this is the only step that needs the internet, and it can take a while.
 1. Type a description of the image, like “a red fox in the snow, watercolor”, and press ++Return++.
 1. When the image is ready, click it to see it larger, and press ++Space++ to save it in the “Imago” folder in your Pictures folder.
 }

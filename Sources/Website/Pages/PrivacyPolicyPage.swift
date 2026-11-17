@@ -13,6 +13,17 @@ struct PrivacyPolicyPage: Page {
 		.appSubpage(app)
 	}
 
+	/**
+	The policy of an unlisted app has no breadcrumb, as it has no link back to the app (``body``).
+	*/
+	var parents: [LabeledLink] {
+		app.isListed ? [.apps, LabeledLink(app.title, path: app.path)] : []
+	}
+
+	var breadcrumbTitle: String {
+		"Privacy Policy"
+	}
+
 	var socialImage: SocialImage {
 		.cardOf(app)
 	}
@@ -38,14 +49,17 @@ struct PrivacyPolicyPage: Page {
 				app.privacyStatement
 			}
 
-			// A visitor can check the claim of an app without network access.
+			// A visitor can check the claim of an app without network access. The command is a code block with a copy button, like the other commands of the site, so it does not break inside its words on a phone.
 			if app.hasNoNetworkAccess {
 				p {
-					"\(App.noNetworkPermissionSentence) To check it, run "
-					code(.notTranslated) {
-						"codesign -d --entitlements - \"/Applications/\(app.title).app\""
-					}
-					" in Terminal. The output does not have "
+					"\(App.noNetworkPermissionSentence) To check it, run this in Terminal:"
+				}
+				.style(ProseStyles.leadIn)
+
+				CodeBlock(source: "codesign -d --entitlements - \"/Applications/\(app.title).app\"", language: .console)
+
+				p {
+					"The output does not have "
 					code(.notTranslated) {
 						"com.apple.security.network.client"
 					}
@@ -71,18 +85,12 @@ struct PrivacyPolicyPage: Page {
 				}
 				"."
 			}
-			.style(Styles.contact)
-		}
-	}
-
-	enum Styles: String, StyleSet {
-		case contact
-
-		var style: Style {
-			switch self {
-			case .contact:
-				Style()
-					.padding(.top, .rootEm(5))
+			// Below a line, like the footer of the download cards, so it reads as the footnote of the policy.
+			.style {
+				$0
+					.margin(.top, .rootEm(2.5))
+					.padding(.top, .rootEm(1))
+					.border(.top, .separator)
 					.textStyle(.caption)
 			}
 		}

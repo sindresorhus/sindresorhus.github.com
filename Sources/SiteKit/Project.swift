@@ -51,7 +51,7 @@ public struct Project: Sendable {
 		let isUnrouted = !pageRoutes.keys.contains { unroutedFile.isInside($0.fileURL(in: root)) }
 
 		let file = (candidates + (isUnrouted ? [unroutedFile] : [])).first {
-			$0.appending(path: "index.md").isFile
+			$0.pageBundleIndex.isFile
 				|| $0.isPageBundleFile
 		}
 
@@ -114,12 +114,33 @@ public struct Project: Sendable {
 	}
 
 	/**
-	The date of the last commit that changed each Markdown file, keyed by the standardized file URL, like the URLs of loaded Markdown files. Load it once for all content types, as it runs `git log`.
+	The date of the last commit that changed each Markdown file, or each file that matches the pathspecs, like the path of a video, keyed by the standardized file URL, like the URLs of loaded Markdown files. Load it once for all content types, as it runs `git log`.
 
 	Moving a file without changing it does not count as a change, so the dates survive a reorganization. The commits in ``ignoredCommitsFile``, like a change of the syntax of all the files, do not count either, as search engines trust the dates only when they are the last real change of a page. Empty when the project is not a git repository or git is missing. A shallow clone only knows the dates of its commits.
+
+	- Parameter pathspecs: The git pathspecs of the files, like `*.md`. Give a path of a file as `:(literal)<path>`, so a glob character in its name, like `[`, is not a pattern.
 	*/
-	public func lastCommitDates() async -> [URL: Date] {
-		let ignoredCommits = ignoredCommits
+	public func lastCommitDates(matching pathspecs: [String] = ["*.md"]) async -> [URL: Date] {
+		await commitDates(matching: pathspecs, selecting: .lastChange)
+	}
+
+	/**
+	The date of the commit that added each file, keyed by its standardized file URL. A rename keeps this date when both paths match the pathspecs, like a video that moves between directories. An edit after the addition does not affect the date. The commits in ``ignoredCommitsFile`` still count as additions. A shallow clone only knows the dates of its commits.
+	*/
+	public func firstCommitDates(matching pathspecs: [String]) async -> [URL: Date] {
+		await commitDates(matching: pathspecs, selecting: .addition)
+	}
+
+	private enum CommitDateSelection {
+		case lastChange
+		case addition
+	}
+
+	/**
+	Reads the dates of matching files in one log, keeping their paths up to date across renames.
+	*/
+	private func commitDates(matching pathspecs: [String], selecting selection: CommitDateSelection) async -> [URL: Date] {
+		let ignoredCommits = selection == .lastChange ? self.ignoredCommits : []
 
 		var dates = [String: Date]()
 		var date: Date?
@@ -128,11 +149,11 @@ public struct Project: Sendable {
 		var currentNames = [String: String]()
 
 		// Without `core.quotePath=false`, git quotes paths with non-ASCII characters, so they would not match the files.
-		guard let output = try? await runGit(["-c", "core.quotePath=false", "log", "--find-renames", "--name-status", "--format=%x00%H %cI", "--relative", "--", "*.md"]) else {
+		guard let output = try? await runGit(["-c", "core.quotePath=false", "log", "--find-renames", "--name-status", "--format=%x00%H %cI", "--relative", "--"] + pathspecs) else {
 			return [:]
 		}
 
-		// Commits are newest first, so the first change of a file is its latest.
+		// Commits are newest first, so the first change is the latest, and the first addition is when this file started to exist.
 		for line in output.split(separator: "\n") {
 			if line.hasPrefix("\0") {
 				let parts = line.dropFirst().split(separator: " ")
@@ -153,10 +174,17 @@ public struct Project: Sendable {
 
 			let currentName = currentNames[path] ?? path
 
-			// `R100` is a rename without changes.
+			let matchesSelection = switch selection {
+			case .lastChange:
+				// `R100` is a rename without changes.
+				status != "R100"
+			case .addition:
+				status == "A"
+			}
+
 			if
 				let date,
-				status != "R100",
+				matchesSelection,
 				dates[currentName] == nil
 			{
 				dates[currentName] = date
@@ -249,7 +277,7 @@ public struct PublishedAsset: Sendable {
 
 extension Project {
 	/**
-	The file with the commits that do not count as changes of the pages (``lastCommitDates()``), one hash or the start of one per line, like `fb119204`, with `#` comments. For a commit that changes many files without changing what they say to readers, like a change of the syntax of the frontmatter.
+	The file with the commits that do not count as changes of the pages (``lastCommitDates(matching:)``), one hash or the start of one per line, like `fb119204`, with `#` comments. For a commit that changes many files without changing what they say to readers, like a change of the syntax of the frontmatter.
 	*/
 	public var ignoredCommitsFile: URL {
 		root.appending(path: ".lastmod-ignore-revs")
@@ -269,12 +297,33 @@ extension Project {
 
 extension URL {
 	/**
+	Whether the URL is a Markdown content file, like `content/apps/faq.md`, by its extension.
+	*/
+	public var isMarkdownFile: Bool {
+		pathExtension == "md"
+	}
+
+	/**
+	The Markdown file of the page bundle that is this directory, like `content/apps/dato/index.md` for `content/apps/dato`.
+	*/
+	public var pageBundleIndex: URL {
+		appending(path: "index.md")
+	}
+
+	/**
+	Whether the URL is the Markdown file of a page bundle (``pageBundleIndex``), like `content/apps/dato/index.md`. The name is compared exactly, so `Index.md` is not, also on a disk that ignores case.
+	*/
+	public var isPageBundleIndex: Bool {
+		lastPathComponent == "index.md"
+	}
+
+	/**
 	Whether the URL is a file next to the `index.md` of a page bundle, like `content/apps/dato/icon.png`. Markdown files are content, so they are not.
 	*/
 	fileprivate var isPageBundleFile: Bool {
-		pathExtension != "md"
+		!isMarkdownFile
 			&& isFile
-			&& deletingLastPathComponent().appending(path: "index.md").isFile
+			&& deletingLastPathComponent().pageBundleIndex.isFile
 	}
 }
 

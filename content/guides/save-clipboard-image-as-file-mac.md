@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	With [Supercharge](../apps/supercharge/index.md), press ++Command+V++ in Finder to make a PNG or JPEG file from the image on the clipboard. Without an app, open Preview, choose “File › New from Clipboard”, and save. On macOS 27, Finder can also paste an image, but as a TIFF file.
+	With [Supercharge](/supercharge), press ++Command+V++ in Finder to make a PNG or JPEG file from the image on the clipboard. [Without an app](#without-an-app), open Preview, choose “File › New from Clipboard”, and save. On macOS 27, Finder can also paste an image, but as a TIFF file.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “Finder” section, turn on “Paste image or plain text as file when using ++Command+V++”. Then choose “PNG” or “JPEG” in “Image format”.
 1. Copy an image. To take a screenshot to the clipboard, also hold ++Control++ when you press the screenshot keys, like ++Control+Shift+Command+4++.
 1. In Finder, open a folder, or click the desktop, and press ++Command+V++. The file is in the folder.

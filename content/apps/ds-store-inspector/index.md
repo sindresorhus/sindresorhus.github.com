@@ -8,6 +8,9 @@ platforms: [
 ]
 appStoreID: 6758286374
 hasNoNetworkAccess: true
+categories: [
+	'files'
+]
 # olderVersions: [
 # 	{
 # 		version: '1.0.0',

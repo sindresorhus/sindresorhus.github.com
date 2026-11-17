@@ -109,7 +109,7 @@ feedbackNote:
 
 	If text in the app is upside down on macOS 26, it’s a macOS bug and unrelated to the app. Quit and reopen Dato to fix it. If that does not help, restart your Mac.
 
-	[The app randomly disappears/quits](/apps/faq#randomly-quits)
+	If the app randomly disappears or quits, see [what to do](/dato#randomly-quits).
 	'''
 ---
 
@@ -606,7 +606,7 @@ No, Apple does not expose these features to third-party apps.
 
 Try turning off the “Translucent background” setting in “Settings › Window”. You can also try increasing the text size with the “Larger text” setting.
 
-### What does the `ⓘ` symbol in the “upcoming event in menu bar” item mean? {#what-does-the-ⓘ-symbol-in-the-upcoming-event-in-menu-bar-item-mean}
+### What does the `ⓘ` symbol in the “upcoming event in menu bar” item mean? {#what-does-the-info-symbol-in-the-upcoming-event-in-menu-bar-item-mean}
 
 It indicates that there are multiple ongoing events, but only one is shown.
 
@@ -694,29 +694,33 @@ Yes. In the “Extras” settings, turn on “Hourly chime”, click “Customiz
 
 Run this command in the Terminal app:
 
-```sh
+```console
 defaults export com.sindresorhus.Dato - | defaults import com.sindresorhus.Dato-setapp -
 ```
 
 And to transfer the other way:
 
-```sh
+```console
 defaults export com.sindresorhus.Dato-setapp - | defaults import com.sindresorhus.Dato -
 ```
 
 ### How is this different from Fantastical? {#how-is-this-different-from-fantastical}
+<!-- @faq.compares Fantastical -->
 
 Fantastical is a full-blown calendar app, while Dato is a quick view of your events, where you can also add events and make small changes to them. Fantastical is a replacement for the built-in Calendar app. You can use both Fantastical and Dato at the same time. Dato even has integration with Fantastical, so you can open events in Dato directly in Fantastical. Fantastical also has a menu bar item, but many people prefer the UI of Dato. Dato also shows time zones and has more customizability for what’s shown in the menu bar. Dato can replace the system date/time, for example.
 
 ### How is this different from iStat Menus? {#how-is-this-different-from-istat-menus}
+<!-- @faq.compares iStat Menus -->
 
 iStat Menus lets you show different kinds of info in the menu bar, like system stats, network speed, etc. Dato is focused on date and time only. Dato also looks better.
 
 ### How is it different from Itsycal? {#how-is-it-different-from-itsycal}
+<!-- @faq.compares Itsycal -->
 
 Dato is not just a calendar app, but also includes menu bar clock replacement, time zones, upcoming event in menu bar, fullscreen notifications, and a lot more. Try both (see the [Dato trial](#trial)) and see for yourself.
 
 ### How is it different from MeetingBar? {#meetingbar}
+<!-- @faq.compares MeetingBar -->
 
 - [MeetingBar](https://meetingbar.app) is free and open source, and focuses on meetings. It can also connect to Google Calendar directly.
 - Dato also has a calendar, world clocks, reminders, widgets, and can replace the menu bar clock.

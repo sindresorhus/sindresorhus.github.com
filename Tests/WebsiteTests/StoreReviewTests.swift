@@ -4,7 +4,7 @@ import TestSupport
 import Testing
 @testable import Website
 
-struct AppStoreReviewTests {
+struct StoreReviewTests {
 	@Test(.temporaryDirectory)
 	func `cancelled review loading does not report a failed request`() async throws {
 		let responses = Dictionary(uniqueKeysWithValues: ["us", "gb", "ca", "au", "nz", "ie"].map { storefront in
@@ -14,7 +14,7 @@ struct AppStoreReviewTests {
 		let warnings = WarningCollector()
 		let task = Task {
 			withUnsafeCurrentTask { $0?.cancel() }
-			return await AppStoreReview.recentFiveStar(appIDs: [1], cache: cache, warnings: warnings)
+			return await StoreReview.recentFiveStar(appIDs: [1], cache: cache, warnings: warnings)
 		}
 
 		#expect(await task.value[1]?.isEmpty == true)
@@ -48,8 +48,8 @@ struct AppStoreReviewTests {
 		}
 
 		let warnings = WarningCollector()
-		let reviews = await AppStoreReview.recentFiveStar(appIDs: [1], cache: try ResponseCache(responses: responses), warnings: warnings)
-		#expect(reviews[1]?.map(\.title) == ["Valid"])
+		let reviews = await StoreReview.recentFiveStar(appIDs: [1], cache: try ResponseCache(responses: responses), warnings: warnings)
+		#expect(reviews[1]?.compactMap(\.title) == ["Valid"])
 		#expect(reviews[1]?.first?.rating == .five)
 		#expect(warnings.all.isEmpty)
 	}
@@ -79,10 +79,10 @@ struct AppStoreReviewTests {
 
 		let cache = try ResponseCache(responses: responses)
 		let warnings = WarningCollector()
-		let reviews = await AppStoreReview.recentFiveStar(appIDs: [1], cache: cache, warnings: warnings)
+		let reviews = await StoreReview.recentFiveStar(appIDs: [1], cache: cache, warnings: warnings)
 
 		// The same review in two App Stores is shown once, and the malformed feed and the review in French are left out.
-		#expect(reviews[1]?.map(\.title) == (1...12).reversed().map { "Review \($0)" })
+		#expect(reviews[1]?.compactMap(\.title) == (1...12).reversed().map { "Review \($0)" })
 		#expect(warnings.all.count == 1)
 	}
 
@@ -102,8 +102,8 @@ struct AppStoreReviewTests {
 			responses["https://itunes.apple.com/\(storefront)/rss/customerreviews/page=1/id=1/sortBy=mostRecent/json"] = #"{"feed": {}}"#
 		}
 
-		let reviews = await AppStoreReview.recentFiveStar(appIDs: [1], cache: try ResponseCache(responses: responses), warnings: WarningCollector())
-		#expect(Set(reviews[1]?.map(\.title) ?? []) == ["Review 40", "Review 360"])
+		let reviews = await StoreReview.recentFiveStar(appIDs: [1], cache: try ResponseCache(responses: responses), warnings: WarningCollector())
+		#expect(Set(reviews[1]?.compactMap(\.title) ?? []) == ["Review 40", "Review 360"])
 	}
 
 	@Test(.temporaryDirectory)
@@ -115,7 +115,7 @@ struct AppStoreReviewTests {
 
 		let cache = try ResponseCache(responses: responses)
 		let warnings = WarningCollector()
-		let reviews = await AppStoreReview.recentFiveStar(appIDs: [1, 2], cache: cache, warnings: warnings)
+		let reviews = await StoreReview.recentFiveStar(appIDs: [1, 2], cache: cache, warnings: warnings)
 
 		#expect(reviews.count == 2)
 		#expect(reviews.values.allSatisfy { $0.isEmpty })
@@ -146,10 +146,37 @@ struct AppStoreReviewTests {
 
 		let cache = try ResponseCache(responses: responses)
 		let warnings = WarningCollector()
-		let reviews = await AppStoreReview.recentFiveStar(appIDs: [1], cache: cache, warnings: warnings)
+		let reviews = await StoreReview.recentFiveStar(appIDs: [1], cache: cache, warnings: warnings)
 
 		// The 25 newest.
-		#expect(reviews[1]?.map(\.title) == (36...60).reversed().map { "Review \($0)" })
+		#expect(reviews[1]?.compactMap(\.title) == (36...60).reversed().map { "Review \($0)" })
 		#expect(warnings.all.isEmpty)
+	}
+
+	/**
+	A title in all capital letters shouts next to the other titles. A short one, like “WOW”, the text of the review, and the key that `hiddenReviews` matches stay.
+	*/
+	@Test
+	func `a title in all capital letters is in sentence case`() {
+		func review(title: String) -> StoreReview {
+			StoreReview(
+				title: title,
+				text: "A LIFESAVER!!!",
+				author: "A reviewer",
+				rating: .five,
+				date: .now
+			)
+		}
+
+		#expect(review(title: "NEVER MISS A MEETING AGAIN!").displayTitle == "Never miss a meeting again!")
+		#expect(review(title: "BEST APP I EVER USED.").displayTitle == "Best app I ever used")
+		#expect(review(title: "WOW").displayTitle == "WOW")
+		#expect(review(title: "Simple and to the point..").displayTitle == "Simple and to the point")
+		#expect(review(title: "Wow…").displayTitle == "Wow…")
+		#expect(review(title: "Great on macOS").displayTitle == "Great on macOS")
+
+		let shouting = review(title: "NEVER MISS A MEETING AGAIN")
+		#expect(shouting.displayText == "A LIFESAVER!!!")
+		#expect(shouting.hidingKey == "NEVER MISS A MEETING AGAIN")
 	}
 }

@@ -61,7 +61,7 @@ The calendar displays dates and days in your language, but the rest of the app i
 - **Close calendar window:** Press the ++Esc++ key.
 - **Open the calendar from any app:** Set the “Toggle calendar” keyboard shortcut in the settings.
 - **Show the date in the menu bar:** Choose a “Menu bar style” with the date in the settings.
-- **Open date in the Calendar app (or Google Calendar):** Click a date in the calendar. *([guide](../../guides/google-calendar-menu-bar-mac.md))*
+- **Open date in the Calendar app (or Google Calendar):** Click a date in the calendar. <guide:google-calendar-menu-bar-mac>
 - **Open week in the Calendar app (or Google Calendar):** Click a week number in the calendar (turn on “Show week numbers” in the settings).
 - **Go to a specific date:** Right-click the month name or press ++G++.
 - **Create new event on a specific day:** Right-click the day in the calendar. To create an event with one click, set “Clicking calendar day” to “Creates new event” in the settings.
@@ -85,6 +85,7 @@ Partly. Click the date and time in the menu bar to open Notification Center, and
 Menu Bar Calendar shows a monthly calendar with one click, lets you go to any month or year, and opens a date in the Calendar app or Google Calendar.
 
 ### What does Dato add? {#dato}
+<!-- @faq.compares Dato -->
 <!-- @faq.keywords highlight widgets time format events -->
 
 My [Dato](/dato) app adds:

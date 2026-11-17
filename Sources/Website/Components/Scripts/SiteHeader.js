@@ -1,4 +1,9 @@
-import {parts} from '/scripts/dom.js';
+import {partList, parts} from '/scripts/dom.js';
+
+/**
+The configuration encoded by SiteHeader.Config in Swift. ScriptTypeTests checks the encoded values against this type.
+@typedef {Readonly<{tabletQuery: string}>} SiteHeaderConfig
+*/
 
 class SiteHeader extends HTMLElement {
 	connectedCallback() {
@@ -9,7 +14,8 @@ class SiteHeader extends HTMLElement {
 		menu.addEventListener('beforetoggle', this.#markCurrentSection);
 
 		// From tablets, the menu is a row in the header, but a menu that is still open stays a layer on the page that takes every tap. So it closes when the window becomes wide, like when a phone rotates.
-		matchMedia(JSON.parse(this.dataset.config).tabletQuery).addEventListener('change', () => {
+		const {tabletQuery} = /** @type {SiteHeaderConfig} */ (JSON.parse(this.dataset.config));
+		matchMedia(tabletQuery).addEventListener('change', () => {
 			if (menu.matches(':popover-open')) {
 				menu.hidePopover();
 			}
@@ -22,7 +28,7 @@ class SiteHeader extends HTMLElement {
 			return;
 		}
 
-		for (const link of this.querySelectorAll('[data-part="appSectionLink"]')) {
+		for (const link of partList(this, 'appSectionLink')) {
 			link.ariaCurrent = link.hash === this.dataset.currentSection ? 'location' : null;
 		}
 	};

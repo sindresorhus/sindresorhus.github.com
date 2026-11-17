@@ -57,16 +57,35 @@ export function closest(query, candidates, {key = candidate => candidate, maximu
 }
 
 /**
-The filter of a list, like the app picker of the feedback page and the npm list of the open source page. Each item has a `textKey`, like `searchKey()` of the name and the description, and a `nameKey`, like `searchKey()` of the name.
+The places in `searchKey(text)` where the words of the text start, like `[0, 4, 7]` for “Menu Bar Calendar”, for an item of `filterByWords` that matches only at the start of a word.
+*/
+export const wordStarts = text => {
+	const starts = [];
+	let length = 0;
 
-An item matches when its text has each word of the query, like “promise limit” for p-limit, also without spaces or punctuation (`searchKey`). The items whose name has the words come first, as visitors mostly type the name, like “menu bar” for Menu Bar Calendar before the apps that are about the menu bar. Else, the order of the items stays. Without words, all the items match, in their order.
+	for (const word of text.split(/\s+/)) {
+		const key = searchKey(word);
+
+		if (key) {
+			starts.push(length);
+			length += key.length;
+		}
+	}
+
+	return starts;
+};
+
+/**
+The filter of a list, like the app picker of the feedback page and the npm list of the open source page. Each item has a `textKey`, like `searchKey()` of the name and the description, and a `nameKey`, like `searchKey()` of the name, which is the start of the text.
+
+An item matches when its text has each word of the query, like “promise limit” for p-limit, also without spaces or punctuation (`searchKey`). An item with `wordStarts` (`wordStarts()` of its text) matches a word only at the start of one of its words, so “ai” finds the AI apps, but not “remaining”, and “menubar” still finds “Menu Bar Calendar”, like the app picker. Without it, a word matches anywhere, like “case” in camelcase of the npm list. The items whose name has the words come first, as visitors mostly type the name, like “menu bar” for Menu Bar Calendar before the apps that are about the menu bar. Else, the order of the items stays. Without words, all the items match, in their order.
 
 When no item matches, `matches` is only the item whose name is closest to the query, like Gifski for “gifksi” (`closest`), and `isClosest` is `true`. When none is close either, `matches` is empty.
 */
 export function filterByWords(query, items) {
 	const words = query.split(/\s+/).map(word => searchKey(word)).filter(Boolean);
-	const hasWords = key => words.every(word => key.includes(word));
-	const matches = items.filter(({textKey}) => hasWords(textKey));
+	const hasWords = (key, starts) => words.every(word => starts ? starts.some(start => key.startsWith(word, start)) : key.includes(word));
+	const matches = items.filter(({textKey, wordStarts}) => hasWords(textKey, wordStarts));
 
 	if (matches.length === 0) {
 		const closestItem = closest(words.join(''), items, {key: ({nameKey}) => nameKey});
@@ -74,7 +93,7 @@ export function filterByWords(query, items) {
 	}
 
 	return {
-		matches: [...matches.filter(({nameKey}) => hasWords(nameKey)), ...matches.filter(({nameKey}) => !hasWords(nameKey))],
+		matches: [...matches.filter(({nameKey, wordStarts}) => hasWords(nameKey, wordStarts)), ...matches.filter(({nameKey, wordStarts}) => !hasWords(nameKey, wordStarts))],
 		isClosest: false,
 	};
 }

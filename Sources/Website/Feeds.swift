@@ -26,7 +26,7 @@ extension Feed {
 					title: "\(app.title) \(release.version)",
 					link: releaseNotes.destination(of: release).absoluteURL(on: releaseNotes.path),
 					// As written, like on the page, as the notes come from the app's own repository. Feed readers sanitize the HTML of feeds themselves.
-					content: release.notesHTML,
+					content: release.notes.rawValue,
 					publicationDate: .instant(release.publishedAt)
 				)
 			}

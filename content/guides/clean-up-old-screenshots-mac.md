@@ -2,20 +2,20 @@
 title: 'How to Clean Up Old Screenshots Automatically on Mac'
 description: 'macOS keeps every screenshot until you delete it. Supercharge moves old screenshots to another folder, so the desktop stays clean.'
 publicationDate: 2026-11-10
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'supercharge'
 ]
 ---
 
 @QuickAnswer {
-	macOS does not delete old screenshots. They stay on the desktop, or in the folder you chose, until you delete them. [Supercharge](../apps/supercharge/index.md) moves the screenshots that have been in the folder for more than 30 days, or the number of days you choose, to another folder.
+	macOS does not delete old screenshots. They stay on the desktop, or in the folder you chose, until you delete them. [Supercharge](/supercharge) moves the screenshots that have been in the folder for more than 30 days, or the number of days you choose, to another folder.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “Screenshots” section, find “Move screenshots added more than 30 days ago to (beta)”.
 1. Click “Choose…”, and choose a folder, like a new folder named “Old Screenshots”.
 1. To change the number of days, click the arrows next to “30 days”.

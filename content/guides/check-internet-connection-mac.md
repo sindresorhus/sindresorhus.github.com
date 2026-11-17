@@ -2,7 +2,7 @@
 title: 'How to Check Your Internet Connection on Mac'
 description: 'See at a glance if your Mac is online, with a menu bar icon that turns red when the internet stops working, or check it with the ping command in Terminal.'
 publicationDate: 2026-11-06
-topic: 'menu-bar'
+topic: 'internet-and-network'
 apps: [
 	'online-check'
 ]
@@ -13,7 +13,7 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	[Online Check](../apps/online-check/index.md) shows an icon in the menu bar that turns red when your Mac is offline, and it can notify you. Without an app, run `ping apple.com` in the Terminal app: if no replies come, the Mac is offline.
+	[Online Check](/online-check) shows an icon in the menu bar that turns red when your Mac is offline, and it can notify you. [Without an app](#without-an-app), run `ping apple.com` in the Terminal app: if no replies come, the Mac is offline.
 }
 
 A Wi-Fi icon with full bars only means that the Mac is connected to the router. The internet can still be down, like when the router has no connection.
@@ -21,7 +21,7 @@ A Wi-Fi icon with full bars only means that the Mac is connected to the router. 
 ## With Online Check
 
 @Steps {
-1. Open [Online Check](../apps/online-check/index.md). Its icon is in the menu bar.
+1. Open [Online Check](/online-check). Its icon is in the menu bar.
 1. When the internet stops working, the icon turns red. Click it to see how long the Mac has been offline.
 1. In the “General” settings, choose whether to get a notification when the Mac goes offline, or also when it is online again.
 }
@@ -31,7 +31,7 @@ Online Check loads a small page of Apple, and tries other servers when it fails,
 @Tips {
 - Turn on “Show red screen border when offline” in the “General” settings, so you notice it at once.
 - To show the icon only while you are offline, set “Show icon” to “when offline” in the “Menu Bar” settings.
-- To run a shortcut when the status changes, like the [shortcut that restarts the Wi-Fi when the Mac is offline](https://www.icloud.com/shortcuts/8bbe914b13ff4f3ab9f063e835c92747), choose it in the “Advanced” settings.
+- To run a shortcut when the status changes, like the [shortcut that restarts the Wi-Fi when the Mac is offline](https://www.icloud.com/shortcuts/8bbe914b13ff4f3ab9f063e835c92747), choose it in the “Advanced” settings. <guide:restart-wi-fi-when-internet-drops-mac>
 }
 
 ## Without an app

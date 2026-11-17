@@ -10,7 +10,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	When global keyboard shortcuts and text expansion stop working in all apps at the same time, an app has often left Secure Input on. Find the app with the “Get Apps Using Secure Input” action of [Shortcutie](../apps/shortcutie/index.md), and quit it. Without an app, quit your password manager and browsers, or lock the Mac and unlock it again.
+	When global keyboard shortcuts and text expansion stop working in all apps at the same time, an app has often left Secure Input on. Find the app with the “Get Apps Using Secure Input” action of [Shortcutie](/shortcutie), and quit it. [Without an app](#without-an-app), quit your password manager and browsers, or lock the Mac and unlock it again.
 }
 
 ## What Secure Input is
@@ -22,7 +22,7 @@ An app must turn Secure Input off again when you leave the password field. Some 
 ## With Shortcutie
 
 @Steps {
-1. Install [Shortcutie](../apps/shortcutie/index.md), and open it once.
+1. Install [Shortcutie](/shortcutie), and open it once.
 1. In the Shortcuts app, make a new shortcut, and add the “Get Apps Using Secure Input” action.
 1. Keep “Only Non-Active Apps” on. These are the apps that block keys while they are not in front.
 1. Add the “Show Content” action, and run the shortcut.
@@ -31,7 +31,7 @@ An app must turn Secure Input off again when you leave the password field. Some 
 
 If the result is `loginwindow`, the login window of macOS has Secure Input on. Lock the Mac with ++Control+Command+Q++, and unlock it.
 
-[Supercharge](../apps/supercharge/index.md) also checks for such an app. When an app blocks the keys, the Supercharge menu shows a warning at the bottom, like “1Password is blocking keyboard shortcuts”.
+[Supercharge](/supercharge) also checks for such an app. When an app blocks the keys, the Supercharge menu shows a warning at the bottom, like “1Password is blocking keyboard shortcuts”.
 
 ## Without an app
 
@@ -53,3 +53,5 @@ ioreg -l -w 0 | grep -o '"kCGSSessionSecureInputPID"=[0-9]*'
 No output means that Secure Input is off. Else, the number is a process ID. Run `ps -p 1234 -o comm=` with that number to see the name of the process. The process is not always the app that caused it, so quitting apps one at a time can still be necessary.
 
 Terminal has its own Secure Input setting: “[Terminal › Secure Keyboard Entry](https://support.apple.com/guide/terminal/trml109/mac)”. When it has a checkmark, Terminal blocks the keys while it is in front. [More in the FAQ.](/apps/faq#secure-input-problem)
+
+When only one keyboard shortcut does not work, and the others do, another app often uses the same keys. [How to find which app uses a keyboard shortcut.](guide:find-which-app-uses-keyboard-shortcut-mac)

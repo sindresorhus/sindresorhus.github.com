@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Make a shortcut with the “Set Display Resolution” action of [Shortcutie](../apps/shortcutie/index.md), and give it a keyboard shortcut in the Shortcuts app. Without an app, select the resolution in “System Settings › Displays”.
+	Make a shortcut with the “Set Display Resolution” action of [Shortcutie](/shortcutie), and give it a keyboard shortcut in the Shortcuts app. [Without an app](#without-an-app), select the resolution in “[System Settings › Displays](x-apple.systempreferences:com.apple.Displays-Settings.extension)”.
 }
 
 ## With Shortcutie
 
 @Steps {
-1. Install [Shortcutie](../apps/shortcutie/index.md), and open it once.
+1. Install [Shortcutie](/shortcutie), and open it once.
 1. In the Shortcuts app, click the add button to make a new shortcut, and add the “Set Display Resolution” action.
 1. Leave the display field empty for the primary display, or choose a display. Then click the resolution field, and choose a resolution, like “2560×1440”.
 1. Click the details button in the sidebar, click “Add Keyboard Shortcut”, and press the keys.
@@ -29,9 +29,9 @@ To read the resolution in a shortcut, use the “Get Display Resolution” actio
 ## Without an app
 
 @Steps {
-1. Open “System Settings › Displays”.
+1. Open “[System Settings › Displays](x-apple.systempreferences:com.apple.Displays-Settings.extension)”.
 1. If you have more than one display, select the display.
-1. Select a resolution. To see the resolutions as a list, Control-click the thumbnails, and choose “Show List”.
+1. Select a resolution. To see the resolutions as a list, ++Control++-click the thumbnails, and choose “Show List”.
 }
 
 [Apple’s instructions.](https://support.apple.com/guide/mac-help/mchl86d72b76/mac) This is good when you change the resolution now and then. A keyboard shortcut is for when you switch often, like for a presentation or a screen recording.

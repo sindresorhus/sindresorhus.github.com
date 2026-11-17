@@ -610,6 +610,18 @@ public struct LengthPercentage: StyleValue, Hashable {
 	}
 
 	/**
+	The length rounded to the nearest multiple of the interval, like `round()` in CSS, like a whole number of pixels for a share of the width, so the cells of a grid are all the same size.
+
+	```swift
+	LengthPercentage.round((.percent(100) - .pixels(156)) / 53, to: .pixels(1))
+	//=> round((100% - 156px) / 53, 1px)
+	```
+	*/
+	public static func round(_ length: Self, to interval: Self) -> Self {
+		function("round", [length, interval])
+	}
+
+	/**
 	A CSS function of lengths, like `min(1rem, 5vw)`. An argument is a sum without `calc()` around it, like `min(24rem, 100vw - 2rem)`, as the arguments of the math functions are calculations.
 	*/
 	fileprivate static func function(_ name: String, _ arguments: [Self]) -> Self {
@@ -1105,10 +1117,19 @@ public struct Color: StyleValue, Hashable, ExpressibleByStringLiteral {
 	}
 
 	/**
-	The color mixed with another color in OKLCH, like `color-mix(in oklch, blue, pink 30%)`. The amount is how much of the other color there is, like `.percent(30)`, or a custom property.
+	The color mixed with another color, like `color-mix(in oklch, blue, pink 30%)`. The amount is how much of the other color there is, like `.percent(30)`, or a custom property.
+
+	- Parameter colorSpace: The color space of the mix. OKLCH goes around the hue circle, so a little of a warm color in a blue stays blue. OKLab goes straight, so a little of a color in a gray (``neutral``) has the hue of the color.
 	*/
-	public func mix(with other: Self, amount: Percentage) -> Self {
-		Self(raw: "color-mix(in oklch, \(self), \(other) \(amount))")
+	public func mix(with other: Self, amount: Percentage, in colorSpace: ColorSpace = .oklch) -> Self {
+		Self(raw: "color-mix(in \(colorSpace.rawValue), \(self), \(other) \(amount))")
+	}
+
+	/**
+	The color without its chroma, a gray with the same lightness in OKLCH, like a neutral base for a tint of another color.
+	*/
+	public var neutral: Self {
+		Self(raw: "oklch(from \(self) l 0 h)")
 	}
 
 	/**
@@ -1123,6 +1144,21 @@ public struct Color: StyleValue, Hashable, ExpressibleByStringLiteral {
 	*/
 	public func lighter(_ amount: Double) -> Self {
 		Self(raw: "oklch(from \(self) calc(l + \(CSSValue.format(amount))) c h)")
+	}
+
+	/**
+	The color with at most the lightness in OKLCH, where the lightness goes from 0 to 1, so it works as a fill with white text or as a line on white.
+	*/
+	public func withMaximumLightness(_ lightness: Double) -> Self {
+		Self(raw: "oklch(from \(self) min(l, \(lightness)) c h)")
+	}
+
+	/**
+	The color with at least the lightness in OKLCH, so a see-through tint of a dark color shows on a dark page. With the chroma, it is a light tint with at most that chroma, like text on a dark tint of the color.
+	*/
+	public func withMinimumLightness(_ lightness: Double, maximumChroma: Double? = nil) -> Self {
+		let chroma = maximumChroma.map { "min(c, \($0))" } ?? "c"
+		return Self(raw: "oklch(from \(self) max(l, \(lightness)) \(chroma) h)")
 	}
 
 	/**
@@ -1277,7 +1313,7 @@ public struct RadialGradientShape: Hashable, Sendable, CustomStringConvertible {
 }
 
 /**
-The color space that a gradient mixes its colors in, like `in oklch` in `linear-gradient(to right in oklch, blue, pink)`.
+The color space that a gradient or a mix of two colors mixes its colors in, like `in oklch` in `linear-gradient(to right in oklch, blue, pink)`.
 */
 public enum ColorSpace: String, CSSKeyword {
 	/**
@@ -1983,6 +2019,28 @@ public struct FontVariantNumeric: OptionSet, Hashable, Sendable, CustomStringCon
 }
 
 /**
+An OpenType feature of the font, for ``Style/fontFeatures(_:)``.
+*/
+public struct FontFeature: Hashable, Sendable, CustomStringConvertible {
+	/**
+	The tag of the feature in the font, like `ss03`.
+	*/
+	public let tag: String
+
+	/**
+	A stylistic set (`ss01` to `ss20`), which gives some characters another shape. What a set changes depends on the font, like the colon of SF Pro, which set 3 centers on the digits.
+	*/
+	public static func stylisticSet(_ number: Int) -> Self {
+		precondition((1...20).contains(number), "A font has the stylistic sets 1 to 20.")
+		return Self(tag: "ss\(number < 10 ? "0" : "")\(number)")
+	}
+
+	public var description: String {
+		CSSValue.string(tag).description
+	}
+}
+
+/**
 The punctuation that hangs outside the box of the text, for ``Style/hangingPunctuation(_:)``.
 */
 public struct HangingPunctuation: OptionSet, Hashable, Sendable, CustomStringConvertible {
@@ -2165,6 +2223,19 @@ public enum TextWrap: String, CSSKeyword {
 }
 
 /**
+How text that wraps chooses its line breaks (`text-wrap-style` in CSS), without a change to whether it wraps, like ``TextWrap`` does.
+*/
+public enum TextWrapStyle: String, CSSKeyword {
+	/**
+	The normal line breaking: each line takes as much text as fits.
+	*/
+	case auto
+
+	case balance
+	case pretty
+}
+
+/**
 Where a long word, like a URL, can break when it does not fit on a line.
 */
 public enum OverflowWrap: String, CSSKeyword {
@@ -2196,6 +2267,21 @@ public enum UnderlineStyle: String, CSSKeyword {
 	case dotted
 	case dashed
 	case wavy
+}
+
+/**
+Where an underline is drawn (`text-underline-position` in CSS).
+*/
+public enum UnderlinePosition: String, CSSKeyword {
+	/**
+	At the underline position of the font, which is different in each font, like a little lower under monospace code than under the text.
+	*/
+	case auto
+
+	/**
+	Below the descenders of all the fonts of the text, so a link with text and code has one straight underline.
+	*/
+	case under
 }
 
 /**
@@ -2467,6 +2553,20 @@ public enum FieldSizing: String, CSSKeyword {
 	The size of its content, so a text area grows with its text.
 	*/
 	case content
+}
+
+/**
+Whether the visitor can resize an element with its grabber, like a text area, for ``Style/resize(_:)``.
+*/
+public enum Resize: String, CSSKeyword {
+	/**
+	No grabber (`none` in CSS).
+	*/
+	case disabled = "none"
+
+	case both
+	case horizontal
+	case vertical
 }
 
 // MARK: Effects
@@ -2788,6 +2888,7 @@ public struct TransitionProperty: Hashable, Sendable {
 	The switch from ``Style/visibility(_:)``. The element stays visible until a fade out ends, and is visible as soon as a fade in starts.
 	*/
 	public static let visibility = Self(.visibility)
+	public static let width = Self(.width)
 	public static let height = Self(.height)
 
 	/**
@@ -3088,13 +3189,51 @@ public enum AnimationTimeline: Hashable, Sendable, CustomStringConvertible {
 	*/
 	case view(ViewTimeline)
 
+	/**
+	The scrolling of a named element, like code that scrolls sideways, which can be another element than the one that is animated. Unlike ``scroll``, the anonymous `scroll()` of the nearest element that scrolls.
+	*/
+	case scrolling(ScrollTimeline)
+
 	public var description: String {
 		switch self {
 		case .scroll:
 			"scroll()"
 		case .view(let timeline):
 			timeline.name.description
+		case .scrolling(let timeline):
+			timeline.name.description
 		}
+	}
+}
+
+/**
+The scrolling of an element on one axis, which scroll-driven animations of other elements can follow, like a fade at the end of code that scrolls sideways. Give it to the element that scrolls with ``Style/scrollTimeline(_:)``.
+*/
+public struct ScrollTimeline: Hashable, Sendable {
+	/**
+	The direction of the scrolling that the timeline follows.
+	*/
+	public enum Axis: String, CSSKeyword {
+		/**
+		Down, in horizontal text.
+		*/
+		case block
+
+		/**
+		Sideways, in horizontal text.
+		*/
+		case inline
+	}
+
+	let name: DashedIdentifier
+	let axis: Axis
+
+	/**
+	- Parameter name: The name without the CSS `--` prefix, like `code-scroll`.
+	*/
+	public init(_ name: DashedIdentifier, axis: Axis) {
+		self.name = name
+		self.axis = axis
 	}
 }
 

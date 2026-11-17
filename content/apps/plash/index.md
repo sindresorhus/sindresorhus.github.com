@@ -84,21 +84,23 @@ Show your calendar, a dashboard, the Bing photo of the day, or an animated GIF a
 
 Add several websites, switch between them, and turn on Browsing Mode when you want to click around in the page.
 
-#### Use-cases
+#### Use cases {#use-cases}
 
-- [**Bing Photo of the Day**](https://github.com/sindresorhus/plash-bing-photo-of-the-day)
-- **Calendar**\
-	For example, Google Calendar or Outlook 365.
-- **Personal stats**\
-	You could even make a custom website for this.
-- [**Random street view image**](https://randomstreetview.com/#slideshow)
-- **Animated GIF**\
-	For example, [an animated GIF from Giphy](https://media3.giphy.com/media/xTiTnLmaxrlBHxsMMg/giphy.gif?cid=790b761121c10e72aca8bcfe50b030502b62a69ac7336782&rid=giphy.gif).
-- [**Random color**](https://www.color.pizza)
-- **Build a custom website**\
-	You could build something quick and host it on [GitHub Pages](https://pages.github.com), [jsfiddle](https://jsfiddle.net), or [CodePen](https://codepen.io).
+@Cards {
+- [Bing Photo of the Day](https://github.com/sindresorhus/plash-bing-photo-of-the-day) <guide:bing-wallpaper-mac>
+- Calendar
+	- For example, [Google Calendar](guide:google-calendar-on-desktop-mac) or [Outlook 365](guide:outlook-calendar-desktop-mac).
+- Personal stats
+	- You could even make a custom website for this.
+- [Random street view image](https://randomstreetview.com/#slideshow)
+- Animated GIF
+	- For example, [an animated GIF from Giphy](https://media3.giphy.com/media/xTiTnLmaxrlBHxsMMg/giphy.gif?cid=790b761121c10e72aca8bcfe50b030502b62a69ac7336782&rid=giphy.gif).
+- [Random color](https://www.color.pizza)
+- Build a custom website
+	- You could build something quick and host it on [GitHub Pages](https://pages.github.com), [jsfiddle](https://jsfiddle.net), or [CodePen](https://codepen.io).
+}
 
-[*Share your use-case*](https://github.com/sindresorhus/Plash/discussions/136)
+[*Share your use case*](https://github.com/sindresorhus/Plash/discussions/136)
 
 **Features**
 
@@ -118,8 +120,8 @@ Add several websites, switch between them, and turn on Browsing Mode when you wa
 - Hide menu bar icon
 - Global keyboard shortcuts to reload the website, go to the next, previous, or a random website, toggle browsing mode, and turn Plash on or off
 - Shortcuts support
-- [Scriptable](#scripting)
-- [Share extension](#share-extension)
+- Scriptable <section:scripting>
+- Share extension <section:share-extension>
 
 ## Tips
 
@@ -241,7 +243,7 @@ Use the embed URL of the video, not the normal URL, and add options so the video
 https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1&loop=1&playlist=VIDEO_ID&controls=0
 ```
 
-The video must be muted to start by itself. See the [guide to set a YouTube video as your wallpaper](../../guides/youtube-video-wallpaper-mac.md).
+The video must be muted to start by itself. See the [guide to set a YouTube video as your wallpaper](guide:youtube-video-wallpaper-mac).
 
 If the video shows a play button only when your Mac is on battery, Low Power Mode is a likely cause, as macOS can stop videos from starting by themselves in Low Power Mode. In “[System Settings › Battery](x-apple.systempreferences:com.apple.Battery-Settings.extension)”, set “Low Power Mode” to “Never”, or on a Mac with Energy Mode, set it to “Automatic” on battery.
 
@@ -289,62 +291,18 @@ open -g plash:reload
 
 ### Commands
 
-#### `add`
-
-Add a website to Plash.
-
-You can optionally specify a title. If no title is given, a title will be automatically fetched from the website.
-
-```console
-open -g 'plash:add?url=https://sindresorhus.com/plash&title=Plash%20website'
-```
-
-*Don’t forget to correctly encode query parameters.*
-
-> [!NOTE]
-> Local file URLs are not supported.
-
-#### `reload`
-
-Reload the current website.
-
-```console
-open -g plash:reload
-```
-
-#### `next`
-
-Switch to the next website in the list.
-
-```console
-open -g plash:next
-```
-
-#### `previous`
-
-Switch to the previous website in the list.
-
-```console
-open -g plash:previous
-```
-
-#### `random`
-
-Switch to a random website in the list.
-
-It will never show the same website twice in a row, unless you only have a single website.
-
-```console
-open -g plash:random
-```
-
-#### `toggle-browsing-mode`
-
-Toggle browsing mode.
-
-```console
-open -g plash:toggle-browsing-mode
-```
+- `plash:add?url=https://sindresorhus.com/plash&title=Plash%20website`
+	:: Add a website. The title is optional: without it, Plash gets the title from the website. Encode the values of the parameters. Local file URLs are not supported.
+- `plash:reload`
+	:: Reload the current website.
+- `plash:next`
+	:: Switch to the next website in the list.
+- `plash:previous`
+	:: Switch to the previous website in the list.
+- `plash:random`
+	:: Switch to a random website in the list. It never shows the same website twice in a row, unless you only have one website.
+- `plash:toggle-browsing-mode`
+	:: Turn browsing mode on or off.
 
 ### Examples
 
@@ -356,6 +314,7 @@ import {execFileSync} from 'node:child_process';
 execFileSync('open', ['--background', 'plash:reload']);
 ```
 
+@Details(summary: "Swift, AppleScript, and Python") {
 #### Swift
 
 ```swift
@@ -381,3 +340,4 @@ import subprocess
 
 subprocess.run(['open', '--background', 'plash:reload'])
 ```
+}

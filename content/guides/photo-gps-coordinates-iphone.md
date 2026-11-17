@@ -9,20 +9,20 @@ apps: [
 ---
 
 @QuickAnswer {
-	The Photos app shows where a photo was taken on a map. To get the coordinates as text, like “38.8951, -77.0364”, use the “Get Image/Video Location” action of the free [Actions](../apps/actions/index.md) app in a shortcut.
+	The Photos app shows where a photo was taken on a map. To get the coordinates as text, like “38.8951,-77.0364”, use the “Get Image/Video Location” action of the free [Actions](/actions) app in a shortcut.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
+1. Install [Actions](/actions), and open it once.
 1. In the Shortcuts app, make a new shortcut, and add the “Select Photos” action.
-1. Add the “Get Image/Video Location” action of Actions.
+1. Add the [“Get Image/Video Location”](/actions#:~:text=Get%2FSet%20Image%2FVideo%20Location) action of Actions.
 1. Add the “Copy to Clipboard” action, or “Show Content” to see the coordinates.
 1. Run the shortcut, and choose a photo.
 }
 
-The coordinates are latitude and longitude, with a comma between them. Paste them into a map app or a website. The action also reads MOV and MP4 videos. If the photo has no location, the action gives nothing.
+The coordinates are latitude and longitude, separated by a comma. Paste them into a map app or a website. If you split the coordinates in a shortcut, split on the comma and trim each result. The action also reads MOV and MP4 videos. If the photo has no location, the action gives nothing.
 
 The “Set Image/Video Location” action does the opposite: it sets the coordinates of a photo in the shortcut. It does not change the original photo.
 

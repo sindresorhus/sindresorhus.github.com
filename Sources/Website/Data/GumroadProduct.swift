@@ -2,7 +2,7 @@ import Foundation
 import SiteKit
 
 /**
-The public info of an app on Gumroad (`/l/<id>.json`), like its price and its rating, for the apps that are sold there (`gumroad`). Gumroad has the ratings of these apps, which are not on the App Store.
+The public info of an app on Gumroad (`/l/<id>.json`), like its price, its rating, and its newest reviews, for the apps that are sold there (`gumroad`). Gumroad has the ratings and the reviews of these apps, which are not on the App Store.
 */
 struct GumroadProduct: Decodable {
 	/**
@@ -21,6 +21,11 @@ struct GumroadProduct: Decodable {
 	let requirement: String?
 
 	/**
+	The newest reviews that a page can show, newest first, with the rules of the App Store reviews (``StoreReview/isShowable``, ``StoreReview/isEnglish``). Limitation: Gumroad gives only the five newest reviews, also with ratings below five stars, so an app shows at most five.
+	*/
+	let reviews: [StoreReview]
+
+	/**
 	The OS version of the requirement: its first word that is a version, like `26` in `macOS 26 or later`.
 	*/
 	var requiredOSVersion: OSVersion? {
@@ -31,6 +36,7 @@ struct GumroadProduct: Decodable {
 		case priceCents = "price_cents"
 		case ratings
 		case attributes
+		case reviews
 	}
 
 	/**
@@ -49,23 +55,76 @@ struct GumroadProduct: Decodable {
 			let value: String
 		}
 
+		/**
+		A review, or `nil` for a rating without a message or a review with an unexpected shape. A review with an unexpected shape is left out, so the product keeps its rating and its other reviews.
+		*/
+		struct Review: Decodable {
+			struct Fields: Decodable {
+				struct Rater: Decodable {
+					let name: String
+				}
+
+				let rating: Int
+				let message: String?
+				let rater: Rater
+				let createdAt: String
+
+				enum CodingKeys: String, CodingKey {
+					case rating
+					case message
+					case rater
+					case createdAt = "created_at"
+				}
+			}
+
+			let review: StoreReview?
+
+			init(from decoder: any Decoder) {
+				// Like the reviews of the App Store, with typographic quotes. A rating without a message is not a review to show.
+				guard
+					let fields = try? Fields(from: decoder),
+					let rating = ReviewStars(rawValue: fields.rating),
+					let message = fields.message,
+					let date = try? Date(fields.createdAt, strategy: .iso8601)
+				else {
+					self.review = nil
+					return
+				}
+
+				self.review = StoreReview(
+					title: nil,
+					text: message.trimmingCharacters(in: .whitespacesAndNewlines).typographicPunctuation,
+					author: fields.rater.name.typographicPunctuation,
+					rating: rating,
+					date: date,
+					store: .gumroad
+				)
+			}
+		}
+
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		let priceCents = try container.decode(Int.self, forKey: .priceCents)
 		let ratings = try container.decodeIfPresent(Ratings.self, forKey: .ratings)
 		let attributes = try container.decodeIfPresent([Attribute].self, forKey: .attributes) ?? []
+		// The reviews only add to the page, so reviews of an unexpected shape do not remove the rating.
+		let reviews = (try? container.decode([Review].self, forKey: .reviews)) ?? []
 		self.price = try? Price(amount: Decimal(priceCents) / 100)
 		self.rating = ratings.flatMap { StoreRating(average: $0.average, count: $0.count, store: .gumroad) }
 		self.requirement = attributes.first { $0.name == "Requires" }?.value
+		self.reviews = reviews
+			.compactMap(\.review)
+			.filter { $0.isShowable && $0.isEnglish }
+			.sorted(using: KeyPathComparator(\.date, order: .reverse))
 	}
 
 	/**
-	The products of the IDs, like `supercharge`, each with one request. A product that fails to load is a warning and is left out, so the others still have their ratings.
+	The products of the IDs, like `supercharge`, each with one request. A product that fails to load is a warning and is left out, so the others still have their ratings and their reviews.
 
 	The price is in the currency of the product, which is USD for all the apps.
 	*/
 	static func load(ids: [GumroadProductID], cache: ResponseCache, warnings: WarningCollector) async -> [GumroadProductID: Self] {
 		await warnings.values(of: ids) { id in
-			"Could not get the Gumroad product “\(id)”, so its app page leaves out its rating"
+			"Could not get the Gumroad product “\(id)”, so its app page leaves out its rating and its reviews"
 		} request: { id in
 			try await cache.decoded(Self.self, from: storeURL.appending(path: "\(id.rawValue).json"))
 		}

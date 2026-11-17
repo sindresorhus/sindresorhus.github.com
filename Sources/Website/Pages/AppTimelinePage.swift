@@ -13,8 +13,11 @@ struct AppTimelinePage: Page {
 		.appTimeline
 	}
 
+	/**
+	The icons of the newest apps, in the order of the page.
+	*/
 	var socialImage: SocialImage {
-		.card(OpenGraphCard(page: self, project: content.project))
+		.card(OpenGraphCard(page: self, artwork: .icons(of: content.listedApps, project: content.project)))
 	}
 
 	var metadata: PageMetadata {
@@ -47,7 +50,7 @@ struct AppTimelinePage: Page {
 											.style(Styles.appTitle)
 
 											span {
-												app.subtitle
+												app.displaySubtitle
 											}
 											.style(Styles.subtitle)
 										}
@@ -64,23 +67,17 @@ struct AppTimelinePage: Page {
 			}
 			.style(Styles.timeline)
 
-			p {
-				"Guess the app of the day in "
-				a(.href(.appdle)) {
-					"Appdle"
-				}
-
-				// The quilt is only built with a GitHub token.
-				if !content.contributionYears.isEmpty {
-					", or see every year on GitHub in the "
+			// The quilt is only built with a GitHub token.
+			if !content.contributionYears.isEmpty {
+				p {
+					"See every year on GitHub in the "
 					a(.href(.careerQuilt)) {
 						"Career Quilt"
 					}
+					"."
 				}
-
-				"."
+				.style(Styles.moreLinks)
 			}
-			.style(Styles.moreLinks)
 		}
 		.style(Styles.root)
 	}
@@ -128,33 +125,46 @@ extension AppTimelinePage {
 				Style()
 					.pageColumn(.prose)
 			case .timeline:
-				// A line down the side, with a dot at each year.
-				Style()
-					.margin(.leading, .rootEm(0.375))
-					.border(.leading, .separator, width: .pixels(2))
-			case .yearItem:
+				// A line down the side, with a dot at each year. The line starts at the middle of the first dot (``year``), the top of the dot plus half its size, so it does not stick out above the newest year.
 				Style()
 					.position(.relative)
+					.margin(.leading, .rootEm(0.375))
+					.padding(.leading, .pixels(2))
+					.before {
+						$0
+							.content("")
+							.position(.absolute)
+							.top(.rootEm(1.5))
+							.bottom(.zero)
+							.leading(.zero)
+							.frame(width: .pixels(2))
+							.background(.separator)
+					}
+			case .yearItem:
+				Style()
 					.padding(.leading, .rootEm(1.75))
 					.padding(.bottom, .rootEm(2.5))
 					// The line ends at the last app, like the line of the steps.
 					.lastChild {
 						$0.padding(.bottom, .zero)
 					}
+			case .year:
+				// The year stays at the top of the screen while its apps scroll, like the topics of the guides, as on a phone, the apps of some years are taller than the screen. The negative margin takes back the padding above it, so the space between the years stays the same. The dot is on the title, so it stays on the line next to its year, at the place it has at rest: the padding of the year item and half the dot to the start, centered on the line of the timeline.
+				Style()
+					.stickySectionTitle()
+					.margin(.top, .rootEm(-0.5))
+					.margin(.bottom, .rootEm(0.5))
 					.before {
 						$0
 							.content("")
 							.position(.absolute)
-							.top(.rootEm(0.625))
-							.leading(.rootEm(-0.4375))
+							.top(.rootEm(1.125))
+							.leading(.rootEm(-2.1875))
 							.frame(size: .rootEm(0.75))
 							.cornerRadius(.circle)
 							.backgroundImage(.brandGradient)
 					}
-			case .year:
-				Style()
-					.margin(.bottom, .rootEm(1))
-					.font(.extraLarge2, weight: .bold)
+					.textStyle(.title3)
 					.monospacedDigit()
 					.color(.primaryText)
 			case .app:
@@ -163,9 +173,12 @@ extension AppTimelinePage {
 					.hstack(alignment: .start, spacing: .rootEm(0.875))
 					.margin(.horizontal, .rootEm(-0.5))
 					.padding(.rootEm(0.5))
-					.cornerRadius(.fieldRadius)
+					// The radius of the icon plus the padding, so the corner of the fill is parallel to the corner of the icon.
+					.cornerRadius(.boxRadius)
 					// The fill of a card only under the pointer or with the focus of the keyboard, so a long list of years stays calm. The app picker of the feedback page, a short list of choices, has the fill at rest.
 					.hoverFill(.card)
+					// An app that the keyboard focuses scrolls into view below the year, not under it, like the guides below their topic.
+					.scrollMargin(top: .rootEm(4.5))
 			case .appTitle:
 				Style()
 					.fontWeight(.semibold)
@@ -173,6 +186,7 @@ extension AppTimelinePage {
 			case .subtitle:
 				Style()
 					.secondaryText()
+					.textWrap(.balance)
 			case .moreLinks:
 				Style()
 					.secondaryText()

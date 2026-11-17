@@ -17,11 +17,11 @@ I write Swift all day, and I love it. I no longer have to switch languages and t
 
 But the main reason is the compiler. A website is lots of small things that need to agree: links, class names, styles, scripts, and the data of more than 60 apps. In a typical web stack, they only meet in the browser, and a mistake becomes a broken page. Here, most of them meet in the compiler. Rename a page, and every link to it in the code stops compiling.
 
-## It looks like SwiftUI
+## It Looks Like SwiftUI
 
 A component is a struct with a `body`:
 
-```swift
+```swift BackLink.swift
 struct BackLink: HTML {
 	let app: App
 
@@ -41,15 +41,15 @@ struct BackLink: HTML {
 
 The HTML comes from [Elementary](https://github.com/elementary-swift/elementary). The rest (styles, routes, and content) is my own small framework on top.
 
-The syntax highlighting you see here is Swift too. The build runs the code through Swift's own parser, [swift-syntax](https://github.com/swiftlang/swift-syntax), and colors each token, so the colors are right, and there's no JavaScript for it.
+The syntax highlighting you see here is Swift too. The build runs the code through Swift’s own parser, [swift-syntax](https://github.com/swiftlang/swift-syntax), and colors each token, so the colors are right, and there’s no JavaScript for it.
 
-## Styles are modifiers
+## Styles Are Modifiers
 
-A style goes on the element, like a modifier in SwiftUI. The `.style { … }` above becomes a class like `back-link-1x2y3z4`, from the file name and a hash of the style. It can't leak to other elements, and when I inspect the HTML, I know which file it came from.
+A style goes on the element, like a modifier in SwiftUI. The `.style { … }` above becomes a class like `back-link-1x2y3z4`, from the file name and a hash of the style. It can’t leak to other elements, and when I inspect the HTML, I know which file it came from.
 
-Shared looks and variants are enum cases, so they autocomplete, and a typo doesn't compile. Here is a short version of the badge component:
+Shared looks and variants are enum cases, so they autocomplete, and a typo doesn’t compile. Here is a short version of the badge component:
 
-```swift
+```swift Badge.swift
 struct Badge: HTML {
 	enum Kind: StyleSet {
 		case standard
@@ -95,9 +95,9 @@ Using it is just like using a SwiftUI view:
 Badge("New", kind: .new)
 ```
 
-Each page only gets the CSS of the components it shows. Under the hood, it's modern CSS: cascade layers, `light-dark()`, relative colors, scroll-driven animations, and container units. I don't use a preprocessor or Tailwind.
+Each page only gets the CSS of the components it shows. Under the hood, it’s modern CSS: cascade layers, `light-dark()`, relative colors, scroll-driven animations, and container units. I don’t use a preprocessor or Tailwind.
 
-## Typed CSS variables
+## Typed CSS Variables
 
 CSS custom properties are just strings. Here, they have a type:
 
@@ -111,13 +111,17 @@ static let color = StyleVariable<Color>("overflow-menu-color")
 .setting(OverflowMenu.color, to: .bodyText)
 ```
 
-Setting it to a length doesn't compile. With `RegisteredProperty`, the page also gets the `@property` rule, so the browser can animate it, like the gradient on the home page:
+Setting it to a length doesn’t compile. With `RegisteredProperty`, the page also gets the `@property` rule, so the browser can animate it, like the gradient on the home page:
 
 ```swift
-static let gradientStart = RegisteredProperty<Color>("gradient-start", syntax: .color, initialValue: .black)
+static let gradientStart = RegisteredProperty<Color>(
+	"gradient-start",
+	syntax: .color,
+	initialValue: .black
+)
 ```
 
-## Responsive and accessible
+## Responsive and Accessible
 
 Breakpoints and media queries are typed, and media queries combine with `&&`:
 
@@ -137,7 +141,7 @@ Style()
 	}
 ```
 
-The last one is the light that follows the pointer over the title of the apps page. It's only there with a mouse or a trackpad, and only when motion is allowed.
+The last one is the light that follows the pointer over the title of the apps page. It’s only there with a mouse or a trackpad, and only when motion is allowed.
 
 Colors are semantic, like `.secondaryText`. Each has a light and a dark value, and the colors of text, links, and lines get a stronger value when you ask for more contrast in the system settings. Components get all of that for free.
 
@@ -145,7 +149,7 @@ Colors are semantic, like `.secondaryText`. Each has a light and a dark value, a
 
 Links work like in SwiftUI. From the 404 page:
 
-```swift
+```swift NotFoundPage.swift
 Link("Back to Homepage", destination: .path(.root))
 	.buttonStyle(.primary)
 
@@ -153,17 +157,17 @@ Link("Browse Apps", destination: .path(.apps))
 	.buttonStyle(.secondary)
 ```
 
-Pages are static members, so `.apps` autocompletes, and a page that doesn't exist doesn't compile. After the build, every link and ID in the generated HTML is checked too.
+Pages are static members, so `.apps` autocompletes, and a page that doesn’t exist doesn’t compile. After the build, every link and ID in the generated HTML is checked too.
 
 ## Scripts
 
-A component with behavior is a custom element. Swift renders the HTML, and the script is the class of the element. A small script lives right in the Swift file, and a larger one in a `.js` file next to it. A script only touches its own element, so it can't break something else on the page. There's no framework or bundler.
+A component with behavior is a custom element. Swift renders the HTML, and the script is the class of the element. A small script lives right in the Swift file, and a larger one in a `.js` file next to it. A script only touches its own element, so it can’t break something else on the page. There’s no framework or bundler.
 
-## Small and fast
+## Small and Fast
 
 A blog post is about 16 KB compressed: about 5.5 KB of HTML, 7.5 KB of CSS, and 3 KB of JavaScript. An app page, like the one for Lungo, is about 33 KB before the screenshots. Besides a small shared stylesheet, a page only gets the styles and scripts of its own components, there are no web fonts, and images below the fold load lazily. In Chrome, resting the pointer on a link loads the page in the background, so it often opens instantly.
 
-## Content as data
+## Content as Data
 
 Each app is a Markdown file with typed metadata:
 
@@ -180,16 +184,16 @@ struct Frontmatter {
 
 [`@Frontmatter`](https://github.com/sindresorhus/sindresorhus.github.com/blob/main/Sources/SiteKitMacros/FrontmatterMacro.swift) is a Swift macro that writes the decoder at compile time. `@NonEmpty` rejects an empty value, and `SOML.Date` reads a native SOML date like `2017-07-26` and rejects days like `2026-02-30`. A mistake, like an unknown platform or a misspelled key, is an error with the file and the line, sometimes with a “Did you mean” suggestion.
 
-The build also gets the ratings, prices, and reviews of each app from the App Store, and the numbers on the [about page](/about#stats) and the [now page](/now) from GitHub and npm, like the stars and the weekly downloads. The responses are cached, so a build usually costs nothing, and a request that fails only leaves its number out. `swift run website check` catches what the compiler can't, like spelling mistakes, or a page that says an app needs macOS 14 when the App Store says macOS 15.
+The build also gets the ratings, prices, and reviews of each app from the App Store, and the numbers on the [about page](/about#stats) and the [now page](/now) from GitHub and npm, like the stars and the weekly downloads. The responses are cached, so a build usually costs nothing, and a request that fails only leaves its number out. `swift run website check` catches what the compiler can’t, like spelling mistakes, or a page that says an app needs macOS 14 when the App Store says macOS 15.
 
 ## Delight
 
-Warnings fail the build, and a few hundred tests check what the types can't, like that every class has a CSS rule. So I can make big changes without worrying. Everything autocompletes, and a refactor is a rename. The code reads like SwiftUI, with no class soup and no selectors to keep in my head. A component keeps its markup, styles, and script in one place, and when I delete it, its CSS and JavaScript go with it. And `swift run website serve` reloads the page when I save.
+Warnings fail the build, and a few hundred tests check what the types can’t, like that every class has a CSS rule. So I can make big changes without worrying. Everything autocompletes, and a refactor is a rename. The code reads like SwiftUI, with no class soup and no selectors to keep in my head. A component keeps its markup, styles, and script in one place, and when I delete it, its CSS and JavaScript go with it. And `swift run website serve` reloads the page when I save.
 
 Working on the website is now as much fun as working on the apps.
 
 The [source code](https://github.com/sindresorhus/sindresorhus.github.com) is open.
 
-## One more thing
+## One More Thing
 
 The best stress test of all this is [my home page, 1999 edition](/1999): the site reimagined as a personal home page from back then, with a guestbook, an alien game, a virtual unicorn, and a MIDI jukebox. It has more than 80 custom elements, made with the same components and styles as the rest of the site. Go sign the guestbook.

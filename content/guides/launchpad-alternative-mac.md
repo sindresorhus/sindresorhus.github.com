@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	[Folder Peek](../apps/folder-peek/index.md) does not show the grid of Launchpad. It shows your apps as a menu in the menu bar: add the Applications folder, and click an app in the menu to open it. Without an app, use Spotlight, which replaced Launchpad in macOS 26: click the Apps icon in the Dock.
+	[Folder Peek](/folder-peek) does not show the grid of Launchpad. It shows your apps as a menu in the menu bar: add the Applications folder, and click an app in the menu to open it. [Without an app](#without-an-app), use Spotlight, which replaced Launchpad in macOS 26: click the Apps icon in the Dock.
 }
 
 ## With Folder Peek
 
 @Steps {
-1. Open [Folder Peek](../apps/folder-peek/index.md). Its icon is in the menu bar.
+1. Open [Folder Peek](/folder-peek). Its icon is in the menu bar.
 1. Click the icon, and choose “Add Folder…”.
 1. Choose the “Applications” folder, and click “Add”.
 1. Click the folder in the menu bar, and click an app to open it.
@@ -26,10 +26,10 @@ The menu shows the apps of macOS too, like Calculator, and the apps in the Utili
 @Tips {
 - When the menu is open, type the first letters of the name of an app to go to it.
 - To open the menu with the keyboard, open the submenu of the first item of the menu (the name of the folder), choose “Configure Folder…”, and record a shortcut for “Toggle menu”. To open the menu where the pointer is, set “Open menu via keyboard shortcut” to “at cursor position” in the settings of Folder Peek.
-- To show only some apps, make a new folder, put aliases of the apps in it (Control-click an app in Finder, and choose “Make Alias”), and add that folder instead. [More about the app launcher.](../apps/folder-peek/index.md#app-launcher)
+- To show only some apps, make a new folder, put aliases of the apps in it (++Control++-click an app in Finder, and choose “Make Alias”), and add that folder instead. [More about the app launcher.](/folder-peek#app-launcher)
 }
 
-For one menu with the apps that you choose, and also files and links, see [how to add apps to the menu bar](add-apps-to-menu-bar-mac.md).
+For one menu with the apps that you choose, and also files and links, see [how to add apps to the menu bar](guide:add-apps-to-menu-bar-mac).
 
 ## Without an app
 

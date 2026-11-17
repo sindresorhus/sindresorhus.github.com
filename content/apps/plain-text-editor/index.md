@@ -9,6 +9,9 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 1572202501
+categories: [
+	'notes'
+]
 sharedQuestions: [
 	'suggested-filenames'
 	'text-jumps'
@@ -42,7 +45,7 @@ pressQuotes: [
 ]
 ---
 
-Simple text editor without any rich text nonsense. The simplicity is a feature.
+Write plain text, without any rich text nonsense. The simplicity is a feature.
 
 It won’t handle your 1 million line log file, but it is a nice way to write down some ideas.
 
@@ -114,7 +117,7 @@ This is a macOS bug. Instead, save the file from the “File” menu or by press
 
 Press ++Control+Command+T++. It is the shortcut of “Window › Stay on Top”.
 
-### Can I open a text file directly from the command-line? {#can-i-open-a-text-file-directly-from-the-command-line}
+### Can I open a text file directly from the command line? {#can-i-open-a-text-file-directly-from-the-command-line}
 
 Make a [shell alias](https://shapeshed.com/unix-alias/):
 

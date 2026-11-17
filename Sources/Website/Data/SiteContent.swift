@@ -19,9 +19,9 @@ public struct SiteContent: Sendable {
 	let posts: [BlogPost]
 
 	/**
-	The how-to guides, by title.
+	The how-to guides, by title, with their required primary app and optional screenshot resolved.
 	*/
-	let guides: [Guide]
+	let guides: [Guide.Resolved]
 
 	let pages: [MarkdownPage]
 
@@ -41,19 +41,33 @@ public struct SiteContent: Sendable {
 	let sharedQuestions: App.SharedQuestions.Library
 
 	/**
+	The file `content/site.soml`, with the lines of its values, like for the warnings at its lines.
+	*/
+	let settingsFile: SOMLFile<SiteSettings>
+
+	/**
+	The file `content/open-source.soml`, with the lines of its values, like for the warnings at its lines.
+	*/
+	let openSourceFile: SOMLFile<OpenSourceCatalog>
+
+	/**
 	The values of the whole site that are content, from `content/site.soml`.
 	*/
-	let settings: SiteSettings
+	var settings: SiteSettings {
+		settingsFile.value
+	}
+
+	/**
+	The projects of the open source page, from `content/open-source.soml`.
+	*/
+	var openSourceProjects: OpenSourceCatalog {
+		openSourceFile.value
+	}
 
 	/**
 	The main apps of `featuredApps` in ``settings``, in the order of the file. The apps page shows them in an order that changes every day (``dailyFeaturedApps``).
 	*/
 	let featuredApps: [App]
-
-	/**
-	The guides with their required primary app and optional screenshot resolved, in the order of the guides.
-	*/
-	let resolvedGuides: [Guide.Resolved]
 
 	/**
 	The drafts (`isDraft: true`), which only the preview of `website serve` loads, so it shows each one at its URL (``Site/draftRoutes``). They are apart from the other content, so no list, feed, sitemap, or `llms.txt` has them. `website build` and `website check` have none.
@@ -64,6 +78,11 @@ public struct SiteContent: Sendable {
 	The content files of the drafts by the paths of their pages, in every build, so a broken link to a draft says that it goes to a draft (``draftFile(ofLink:)``).
 	*/
 	private let draftFiles: [RoutePath: URL]
+
+	/**
+	The draft apps and posts, in every build, so `website check` compares their dates with the published ones (``oldDraftDateWarnings()``). They have no pages: only the preview has those (``drafts``).
+	*/
+	let datedDrafts: (apps: [App], posts: [BlogPost])
 
 	/**
 	The words of `content/spelling-allowlist.txt` in lowercase, for the spelling checker. One word per line, where a line that starts with `#` is a comment.
@@ -79,13 +98,11 @@ public struct SiteContent: Sendable {
 		*/
 		var guides = [Guide.Resolved]()
 
-		var pages = [MarkdownPage]()
-
 		/**
 		The content files of the drafts, for the checks of the edited files in `website serve`.
 		*/
 		var files: [MarkdownFile] {
-			apps.map(\.file) + posts.map(\.file) + guides.map(\.guide.file) + pages.map(\.file)
+			apps.map(\.file) + posts.map(\.file) + guides.map(\.guide.file)
 		}
 	}
 
@@ -119,6 +136,13 @@ public struct SiteContent: Sendable {
 	private(set) var contributionYears: [ContributionYear]
 
 	/**
+	The guides that visitors read in the 30 days before the build, most visited first, from GoatCounter (``visitedGuides(_:visitedPaths:)``), for the most read guides of the guides page (``mostReadGuides``) and the order of the guides of an app (``guides(about:)``). Empty without the token of GoatCounter, or when the request failed.
+
+	Limitation: GoatCounter sends only the 100 most visited paths of the whole site, so a guide with fewer visits is not in the list.
+	*/
+	private(set) var visitedGuides = [Guide.Resolved]()
+
+	/**
 	When the site is built. Everything that depends on the date uses it, like the “new” badge and the daily related apps, so one build is consistent.
 	*/
 	let buildDate: Date
@@ -143,14 +167,15 @@ public struct SiteContent: Sendable {
 	init(
 		apps: [App],
 		posts: [BlogPost],
-		guides: [Guide] = [],
+		guides: [Guide.Resolved] = [],
 		pages: [MarkdownPage],
 		sharedQuestions: App.SharedQuestions.Library = .empty,
-		settings: SiteSettings = SiteSettings(),
+		settingsFile: SOMLFile<SiteSettings>,
+		openSourceFile: SOMLFile<OpenSourceCatalog>,
 		featuredApps: [App] = [],
-		resolvedGuides: [Guide.Resolved] = [],
 		drafts: Drafts = Drafts(),
 		draftFiles: [RoutePath: URL] = [:],
+		datedDrafts: (apps: [App], posts: [BlogPost]) = ([], []),
 		spellingAllowlist: Set<String> = [],
 		appData: AppData = .none,
 		recentRepositories: [GitHubRepository] = [],
@@ -167,16 +192,18 @@ public struct SiteContent: Sendable {
 		self.posts = posts
 		self.guides = guides
 		self.pages = pages
-		self.documents = apps + posts + guides + pages
+		let guideDocuments = guides.map(\.guide)
+		self.documents = apps + posts + guideDocuments + pages
 		// The loader rejects two pages with the same path (``duplicatePathErrors(in:project:)``), so the first is the only one.
 		self.documentsByPath = documents.keyed(by: \.path)
 		self.sharedQuestions = sharedQuestions
-		self.settings = settings
+		self.settingsFile = settingsFile
+		self.openSourceFile = openSourceFile
 		// References are resolved while their diagnostics are collected, not silently filtered here.
 		self.featuredApps = featuredApps
-		self.resolvedGuides = resolvedGuides
 		self.drafts = drafts
 		self.draftFiles = draftFiles
+		self.datedDrafts = datedDrafts
 		self.spellingAllowlist = spellingAllowlist
 		self.appData = appData
 		self.recentRepositories = recentRepositories
@@ -230,13 +257,24 @@ public struct SiteContent: Sendable {
 			try App.SharedQuestions.Library(project: project)
 		}
 
+		// The icons before the links to the app pages render with the text, while the apps load, so their JPEG XL copies are made first.
+		let appIconCopies = await App.iconJPEGXLCopies(project: project)
+
 		func loadApps() async -> ContentLoad<App> {
 			guard let sharedQuestions else {
 				return .unavailable(ContentErrors(sharedQuestionsErrors))
 			}
 
+			let videoPublicationDates = await MediaAsset.videoPublicationDates(in: project)
+
 			return await entries(App.self) { file in
-				try await App(file: file, sharedQuestions: sharedQuestions, project: project) { ids in
+				try await App(
+					file: file,
+					sharedQuestions: sharedQuestions,
+					project: project,
+					appIconCopies: appIconCopies,
+					videoPublicationDates: videoPublicationDates
+				) { ids in
 					// Like the App Store info, the shortcut cards only add to the pages, so without the data, the links stay links.
 					guard case .fetch(let cache) = externalData else {
 						return [:]
@@ -254,14 +292,25 @@ public struct SiteContent: Sendable {
 
 		async let loadingApps = loadApps()
 		async let loadingPosts = entries(BlogPost.self)
-		async let loadingGuides = entries(Guide.self)
+		async let loadingGuides = entries(Guide.self) { file in
+			try Guide(file: file, project: project, appIconCopies: appIconCopies)
+		}
 		async let loadingPages = entries(MarkdownPage.self) { file in
-			try MarkdownPage(file: file, project: project, today: SOML.Date(buildDate))
+			try MarkdownPage(
+				file: file,
+				project: project,
+				today: SOML.Date(buildDate),
+				appIconCopies: appIconCopies
+			)
 		}
 		let (loadedApps, loadedPosts, loadedGuides, loadedPages) = await (loadingApps, loadingPosts, loadingGuides, loadingPages)
 
 		let (settingsFile, settingsErrors) = loading { () throws(ContentErrors) in
 			try SOMLFile<SiteSettings>(url: project.root.appending(path: SiteSettings.path))
+		}
+
+		let (openSourceFile, openSourceErrors) = loading { () throws(ContentErrors) in
+			try SOMLFile<OpenSourceCatalog>(url: project.root.appending(path: OpenSourceCatalog.path))
 		}
 
 		// The mistakes between the files are checked with the documents that loaded, so they show in the same run as the mistakes of each file. Without the shared questions, or without a content directory, the apps are not loaded, so these checks wait for the next run.
@@ -286,7 +335,7 @@ public struct SiteContent: Sendable {
 		let spellingLineEndingError = spellingAllowlist.windowsLineEndingError(file: spellingAllowlistFile)
 
 		// By file and line, so the mistakes of a file are in the order of its lines, also the ones between files.
-		let errors = (loadedApps.errors + loadedPosts.errors + loadedGuides.errors + loadedPages.errors + settingsErrors + references.errors + pathErrors + [spellingLineEndingError].compactMap(\.self))
+		let errors = (loadedApps.errors + loadedPosts.errors + loadedGuides.errors + loadedPages.errors + settingsErrors + openSourceErrors + references.errors + pathErrors + [spellingLineEndingError].compactMap(\.self))
 			.sorted(using: ContentError.locationOrder)
 
 		guard
@@ -296,7 +345,8 @@ public struct SiteContent: Sendable {
 			case .loaded(let guides) = loadedGuides,
 			case .loaded(let pages) = loadedPages,
 			let sharedQuestions,
-			let settingsFile
+			let settingsFile,
+			let openSourceFile
 		else {
 			throw ContentErrors(errors)
 		}
@@ -322,24 +372,25 @@ public struct SiteContent: Sendable {
 			}
 		}
 
-		let draftDocuments: [any ContentDocument] = apps.drafts + posts.drafts + guides.drafts + pages.drafts
+		let draftDocuments: [any ContentDocument] = apps.drafts + posts.drafts + guides.drafts
 
 		let content = Self(
 			apps: apps.entries,
 			posts: posts.entries,
-			guides: guides.entries,
+			// A guide that does not resolve is a content error, so the resolved guides are all the guides, in their order.
+			guides: references.guides,
 			pages: pages.entries,
 			sharedQuestions: sharedQuestions,
-			settings: settingsFile.value,
+			settingsFile: settingsFile,
+			openSourceFile: openSourceFile,
 			featuredApps: references.featuredApps,
-			resolvedGuides: references.guides,
 			drafts: includesDrafts ? Drafts(
 				apps: loadedApps.drafts,
 				posts: loadedPosts.drafts,
-				guides: draftGuides,
-				pages: loadedPages.drafts
+				guides: draftGuides
 			) : Drafts(),
 			draftFiles: Dictionary(draftDocuments.map { ($0.path, $0.file.url) }) { first, _ in first },
+			datedDrafts: (apps.drafts, posts.drafts),
 			spellingAllowlist: Set(spellingAllowlist.split(whereSeparator: \.isNewline).filter { !$0.hasPrefix("#") }.map { $0.lowercased() }),
 			buildDate: buildDate,
 			project: project,
@@ -373,7 +424,7 @@ public struct SiteContent: Sendable {
 	/**
 	The app identity mistakes and resolved recommendations between the documents, with the documents that loaded. A check that needs a document that did not load is left out, like a slug of an app in `unloadedAppSlugs`, which has its own mistakes.
 
-	Two apps with one App Store ID, which would share its price, rating, and reviews, or with one Setapp ID, which would share its Setapp link and rating, a name in `feedbackNames` that is a name of another app, which the feedback page would open instead, a site that has two names in the press quotes, and an app of a guide or a featured app (`featuredApps` of `content/site.soml`) that does not exist, or is not active or has no page of its own. The loader reports them, so the rest of the build can assume that an App Store ID or a Setapp ID identifies one document, and that the apps of a guide and the featured apps exist and are made. A path that two redirects claim is still the publisher's check.
+	Two apps with one App Store ID, which would share its price, rating, and reviews, or with one Setapp ID, which would share its Setapp link and rating, a name in `feedbackNames` that is a name of another app, which the feedback page would open instead, a site that has two names in the press quotes, and an app of a guide, a related app of an app (`relatedApps`), or a featured app (`featuredApps` of `content/site.soml`) that does not exist, or is not active or has no page of its own, or a related app that is the app itself. The loader reports them, so the rest of the build can assume that an App Store ID or a Setapp ID identifies one document, and that the apps of a guide, the related apps, and the featured apps exist and are made. A path that two redirects claim is still the publisher's check.
 	*/
 	private static func resolveReferences(
 		apps: [App],
@@ -462,7 +513,7 @@ public struct SiteContent: Sendable {
 		let appsBySlug = apps.keyed(by: \.slug)
 
 		/**
-		The apps of a list of slugs in a file that recommends them and links to their pages, like the apps of a guide and the featured apps, with the index of each slug. A slug that is not an app is an error, and so is an app that is archived, unlisted, or has no page of its own, like an app before its launch.
+		The apps of a list of slugs in a file that recommends them and links to their pages, like the apps of a guide, the related apps of an app, and the featured apps, with the index of each slug. A slug that is not an app is an error, and so is an app that is archived, unlisted, or has no page of its own, like an app before its launch.
 
 		- Parameter use: What the file does with the apps, for the error, like “a guide cannot recommend it”.
 		- Parameter makeError: Creates each error with the owning model's typed key and the index of its slug.
@@ -520,6 +571,18 @@ public struct SiteContent: Sendable {
 			}
 		}
 
+		// The app page shows them first in “You Might Also Like” (``App/relatedApps(from:on:)``).
+		for app in apps {
+			for (index, slug) in app.frontmatter.relatedApps.enumerated() where slug == app.slug {
+				errors.append(app.error(at: .relatedApps, index: index, "An app cannot recommend itself."))
+			}
+
+			// An active app passes the check below, so an active app that names itself only gets the error above.
+			_ = recommendedApps(of: app.frontmatter.relatedApps, use: "the app page cannot recommend it") { index, reason in
+				app.error(at: .relatedApps, index: index, reason)
+			}
+		}
+
 		let featuredApps = settings.map { settings in
 			recommendedApps(of: settings.value.featuredApps, use: "the apps page cannot feature it") { index, reason in
 				settings.error(at: .featuredApps, index: index, reason)
@@ -545,7 +608,7 @@ public struct SiteContent: Sendable {
 		async let appcasts = Appcast.load(urls: apps.compactMap(\.appcastURL), cache: cache, warnings: warnings)
 		// Like the App Store info, the ratings on Setapp only add to the pages. Archived apps are left out, as they are no longer on Setapp.
 		async let setappRatings = SetappRating.load(ids: apps.filter { !$0.isArchived }.compactMap(\.setappID), cache: cache, warnings: warnings)
-		async let appStoreReviews = AppStoreReview.recentFiveStar(appIDs: apps.filter { !$0.isArchived }.compactMap(\.appStoreID), cache: cache, warnings: warnings)
+		async let appStoreReviews = StoreReview.recentFiveStar(appIDs: apps.filter { !$0.isArchived }.compactMap(\.appStoreID), cache: cache, warnings: warnings)
 		async let recentRepositories = github.recentRepositories()
 		async let popularRepositories = warnings.value(warning: "Could not get the popular GitHub repos, so the about page leaves them out") {
 			try await github.popularRepositories()
@@ -560,6 +623,11 @@ public struct SiteContent: Sendable {
 			buildDate: buildDate,
 			warnings: warnings
 		)
+		// The most read guides are extra, and they are left out without a token, as the statistics of GoatCounter are private.
+		let goatCounter = GoatCounter.token.map { GoatCounter(token: $0) }
+		async let mostVisitedPaths = warnings.value(warning: "Could not get the visits of the pages from GoatCounter, so the guides page leaves out the most read guides, and the app pages do not put the most read guides first") {
+			try await goatCounter?.mostVisitedPaths(before: buildDate) ?? []
+		}
 		// The career quilt is extra, and it is left out without a token.
 		async let contributionYears = warnings.value(warning: "Could not get the GitHub contributions of each year, so the career quilt and the contribution numbers of the about page are left out") {
 			try await ContributionYear.load(github: github, until: buildDate)
@@ -612,6 +680,7 @@ public struct SiteContent: Sendable {
 		content.npmStatistics = await npmStatistics
 		content.recentActivity = await recentActivity
 		content.contributionYears = await contributionYears ?? []
+		content.visitedGuides = Self.visitedGuides(guides, visitedPaths: await mostVisitedPaths ?? [])
 		// After all requests, so the cache has all its warnings.
 		content.warnings = warnings.all + cache.warnings
 		return content
@@ -619,6 +688,25 @@ public struct SiteContent: Sendable {
 }
 
 extension SiteContent {
+	/**
+	The guides among the visited paths, in their order, which is most visited first. A path with a query, like `/guides/flush-dns-cache-mac?ref=…`, counts for its guide.
+	*/
+	static func visitedGuides(_ guides: [Guide.Resolved], visitedPaths: [String]) -> [Guide.Resolved] {
+		let guidesByPath = guides.keyed { $0.guide.path.description }
+
+		return visitedPaths
+			.compactMap { path in guidesByPath[String(path.prefix { $0 != "?" })] }
+			.uniqued { $0.guide.path }
+	}
+
+	/**
+	The 4 guides with the most visits (``visitedGuides``), for the guides page. Empty when fewer than 4 guides have visits, so the section of the guides page always has full rows.
+	*/
+	var mostReadGuides: [Guide.Resolved] {
+		let mostRead = visitedGuides.prefix(4)
+		return mostRead.count == 4 ? Array(mostRead) : []
+	}
+
 	/**
 	Apps that are listed and not archived. These are the apps people browse.
 	*/
@@ -646,6 +734,13 @@ extension SiteContent {
 	*/
 	var activeAppsWithPages: [App] {
 		activeApps.filter { !$0.isRedirect }
+	}
+
+	/**
+	The apps that are archived and listed, with a page of their own, like Jiffy, which `llms-full.txt` and the search of the site have after the active apps.
+	*/
+	var archivedAppsWithPages: [App] {
+		listedApps.filter { $0.isArchived && !$0.isRedirect }
 	}
 
 	/**
@@ -693,8 +788,9 @@ extension SiteContent {
 			appcast: app.appcastURL.flatMap { appData.appcasts[$0] },
 			gumroadProduct: app.purchase.gumroad.flatMap { appData.gumroadProducts[$0.id] },
 			setappRating: app.setappID.flatMap { appData.setappRatings[$0] },
-			appStoreReviews: (app.appStoreID.flatMap { appData.appStoreReviews[$0] } ?? [])
-				.filter { !settings.hiddenReviews.contains($0.title) },
+			// The App Store reviews, or else the reviews on Gumroad of an app that is sold there.
+			storeReviews: (app.appStoreID.flatMap { appData.appStoreReviews[$0] } ?? app.purchase.gumroad.flatMap { appData.gumroadProducts[$0.id]?.reviews } ?? [])
+				.filter { !settings.hiddenReviews.contains($0.hidingKey) },
 			releases: app.releaseNotes.flatMap { appData.releases[$0.repository] } ?? []
 		)
 	}
@@ -707,18 +803,24 @@ extension SiteContent {
 	}
 
 	/**
-	The titles of the App Store reviews that the build got for all apps, also the ones that `hiddenReviews` of ``settings`` hides, like for the check of the hidden titles.
+	The texts that `hiddenReviews` of ``settings`` can match (``StoreReview/hidingKey``) of the reviews that the build got for all apps, on the App Store and on Gumroad, also the ones that it hides, like for the check of the hidden titles. `nil` when the build got no App Store reviews, as Apple sometimes sends empty feeds, so no title is known to be gone.
 	*/
-	var appStoreReviewTitles: Set<String> {
-		Set(appData.appStoreReviews.values.joined().map(\.title))
+	var reviewHidingKeys: Set<String>? {
+		let appStoreReviews = appData.appStoreReviews.values.flatMap(\.self)
+
+		guard !appStoreReviews.isEmpty else {
+			return nil
+		}
+
+		return Set((appStoreReviews + appData.gumroadProducts.values.flatMap(\.reviews)).map(\.hidingKey))
 	}
 
 	/**
-	An App Store review with its app, for pages with the reviews of many apps.
+	A review with its app, for pages with the reviews of many apps.
 	*/
 	struct AppReview {
 		let app: App
-		let review: AppStoreReview
+		let review: StoreReview
 	}
 
 	/**
@@ -729,7 +831,7 @@ extension SiteContent {
 			.flatMap { app in
 				listing(of: app).reviews.map { AppReview(app: app, review: $0) }
 			}
-			.sorted(using: [KeyPathComparator(\.review.date, order: .reverse), KeyPathComparator(\.app.title, comparator: .localizedStandard), KeyPathComparator(\.review.title, comparator: .localizedStandard)])
+			.sorted(using: [KeyPathComparator(\.review.date, order: .reverse), KeyPathComparator(\.app.title, comparator: .localizedStandard), KeyPathComparator(\.review.hidingKey, comparator: .localizedStandard)])
 	}
 
 	/**
@@ -762,10 +864,22 @@ extension SiteContent {
 	}
 
 	/**
-	The guides about the app, like for a link from its page.
+	The guides about the app, like for the links at the end of its page: first the guides whose first app it is, and then the guides about it and another app, as a visitor of the page of Dato wants what Dato does first. In each part, the guides that visitors read most come first, most visited first (``visitedGuides``), and then the others, in the order of the guides. Without the visits, like in a build without the token of GoatCounter, each part is in the order of the guides.
+
+	Limitation: GoatCounter sends only the 100 most visited paths of the whole site, so the guides of an app that are not among them are in the order of the guides, after the visited ones.
 	*/
 	func guides(about app: App) -> [Guide] {
-		resolvedGuides.filter { $0.apps.contains(where: { $0.slug == app.slug }) }.map(\.guide)
+		let visitedPaths = Set(visitedGuides.map(\.guide.path))
+		let guidesByVisits = visitedGuides + guides.filter { !visitedPaths.contains($0.guide.path) }
+		let appGuides = guidesByVisits.filter { $0.apps.contains { $0.slug == app.slug } }
+		return (appGuides.filter { $0.app.slug == app.slug } + appGuides.filter { $0.app.slug != app.slug }).map(\.guide)
+	}
+
+	/**
+	The guides of the topic, in the order of the guides, like for its section of the list of guides (``GuidesPage``).
+	*/
+	func guides(of topic: Guide.Topic) -> [Guide.Resolved] {
+		guides.filter { $0.guide.frontmatter.topic == topic }
 	}
 
 	/**
@@ -776,10 +890,17 @@ extension SiteContent {
 	}
 
 	/**
-	The guides about a habit from Windows (`isForWindowsUsers`), for the page that lists them (``WindowsGuidesPage``), in the order of the guides.
+	The guides for the people of the audience, like the guides about a habit from Windows (`isForWindowsUsers`), for the page that lists them (``AudienceGuidesPage``), in the order of the guides.
 	*/
-	var guidesForWindowsUsers: [Guide.Resolved] {
-		resolvedGuides.filter(\.guide.frontmatter.isForWindowsUsers)
+	func guides(for audience: Guide.Audience) -> [Guide.Resolved] {
+		guides.filter { audience.includes($0.guide.frontmatter) }
+	}
+
+	/**
+	The audiences that have guides, which have a page (``AudienceGuidesPage``) and a chip on the list of guides. Without guides, like in a test, the page would be an empty list.
+	*/
+	var audiencesWithGuides: [Guide.Audience] {
+		Guide.Audience.allCases.filter { !guides(for: $0).isEmpty }
 	}
 
 	/**
@@ -816,6 +937,17 @@ extension SiteContent {
 	func page(_ path: RoutePath) -> MarkdownPage? {
 		document(at: path) as? MarkdownPage
 	}
+
+	/**
+	What Sindre is up to, from the now page, for the other places that show its status, like the about page. `nil` without a now page, like in a test.
+	*/
+	var now: MarkdownPage.Now.Resolved? {
+		guard case .now(let now)? = page(.now)?.kind else {
+			return nil
+		}
+
+		return now
+	}
 }
 
 extension SiteContent {
@@ -838,7 +970,7 @@ extension SiteContent {
 		/**
 		Recent five-star reviews by App Store ID, newest first.
 		*/
-		var appStoreReviews = [AppStoreID: [AppStoreReview]]()
+		var appStoreReviews = [AppStoreID: [StoreReview]]()
 
 		/**
 		The releases of each app's releases repo, by the repo (``App/ReleaseNotes/repository``).

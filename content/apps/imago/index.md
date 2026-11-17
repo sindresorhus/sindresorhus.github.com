@@ -6,6 +6,7 @@ publicationDate: 2026-03-22
 platforms: [
 	'macOS'
 ]
+downloadedModelSize: 16_000_000_000
 appStoreID: 6758187147
 hasSentry: true
 categories: [
@@ -46,7 +47,7 @@ privacyNote: 'The app downloads its AI model from Hugging Face.'
 
 Describe the image you want, and the app makes it for you.
 
-It runs locally on your device. It uses the FLUX.2 [klein] 4B model.
+It runs locally on your device. It uses the FLUX.2 [klein] 4B model. <guide:run-flux-locally-mac>
 
 This app is focused on simplicity. No custom models, no complicated settings, no workflow editors. Just type a prompt and get an image. If you need fine-grained control, custom models, or advanced workflows, check out [ComfyUI](https://www.comfy.org). Imago is for everyone else.
 

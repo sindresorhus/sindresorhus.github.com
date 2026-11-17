@@ -17,7 +17,7 @@ extension HTML where Tag: ButtonStyleTag {
 	Link(destination: .path(.randomApp)) {
 		Label("Another Random App", icon: .shuffle)
 	}
-	.buttonStyle(.gradient)
+	.buttonStyle(.secondary, size: .small)
 	```
 	*/
 	func buttonStyle(_ fill: ButtonStyles.Fill = .primary, size: ButtonStyles.Size = .regular) -> _AttributedContent<Self> {
@@ -149,9 +149,9 @@ enum ButtonStyles: String, StyleSet {
 					$0.background(Self.primaryFill.lighter(0.06))
 				}
 		case .secondary:
-			// A light tint of the accent of the page, with the depth of the primary button, but softer.
+			// A light tint of the accent of the page, with the depth of the primary button, but softer. In dark mode, the fill and the edge have the accent at the lightness of the selection (``Color/darkModeHighlightAccent``), so the button has a colored rim like in light mode, and a dark accent, like the purple of Short Run, still shows.
 			Style()
-				.background(Color.pageAccent.opacity(0.16))
+				.background(Color.currentSectionFill)
 				.backgroundImage(.linearGradient(.toBottom, .lightDark(.white.opacity(0.5), .white.opacity(0.06)), .transparent))
 				.shadow(
 					BoxShadow(
@@ -161,11 +161,11 @@ enum ButtonStyles: String, StyleSet {
 						color: Color.pageAccent.opacity(0.3)
 					),
 					BoxShadow(y: .pixels(1), color: .lightDark(.white.opacity(0.8), .white.opacity(0.1)), isInset: true),
-					.edge(.lightDark(Color.pageAccent.opacity(0.15), .white.opacity(0.1)))
+					.edge(.lightDark(Color.pageAccent.opacity(0.15), Color.darkModeHighlightAccent.opacity(0.3)))
 				)
 				.color(.accentText)
 				.hoverOrFocusVisible {
-					$0.background(Color.pageAccent.opacity(0.24))
+					$0.background(.lightDark(Color.pageAccent.opacity(0.24), Color.darkModeHighlightAccent.opacity(0.24)))
 				}
 		case .dark:
 			Style()
@@ -177,11 +177,11 @@ enum ButtonStyles: String, StyleSet {
 				}
 		case .gradient:
 			Style()
-				.backgroundImage(.brandGradient)
+				.backgroundImage(.strongBrandGradient)
 				.shadow(BoxShadow(y: .pixels(1), blur: .pixels(2), color: .black.opacity(0.05)))
 				.hoverOrFocusVisible {
 					$0
-						.backgroundImage(.brandGradientHover)
+						.backgroundImage(.strongBrandGradientHover)
 						.shadow(.medium)
 				}
 		case .small:
@@ -197,8 +197,8 @@ enum ButtonStyles: String, StyleSet {
 		case .large:
 			Style()
 				.frame(width: .pixels(180), height: .pixels(60))
-				// The corners are between those of the App Store badge (10px) and the Setapp badge (13px) next to it.
-				.cornerRadius(.rootEm(0.75))
+				// The corners of the App Store badge next to it (10 px, Apple’s file), and of the Setapp badge, which is our own file.
+				.cornerRadius(.pixels(10))
 				.font(.extraLarge, weight: .bold)
 				// All the transitions of the button, as this list replaces the one of the root.
 				.transition(.backgroundColor, .shadow, timing: .stateChange)

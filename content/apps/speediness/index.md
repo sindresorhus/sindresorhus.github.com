@@ -49,7 +49,7 @@ pressQuotes: [
 ]
 ---
 
-Quickly check your internet connection speed, ping, and [RPM](#rpm).
+Quickly check your internet connection speed, [ping](guide:check-ping-mac), and [RPM](#rpm).
 
 **Features**
 

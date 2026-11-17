@@ -66,14 +66,14 @@ public struct Item: Hashable, Sendable {
 
 extension Item {
 	/**
-	A calendar date or an exact publication instant, kept in its original representation until RSS formatting requires a time. A calendar date is written at midnight UTC.
+	A calendar date or an exact publication instant, kept in its original representation until RSS formatting requires a time. A calendar date is written at noon UTC, so a feed reader shows the same day in each time zone from UTC−12 to UTC+11, like in the Americas. Limitation: in UTC+12 and later, like in New Zealand, it shows the next day.
 	*/
 	public enum PublicationDate: Hashable, Sendable, Comparable {
 		case date(SOML.Date)
 		case instant(Foundation.Date)
 
 		/**
-		Orders dates chronologically. A calendar date precedes an instant at the same UTC midnight, so the order preserves their distinct identities.
+		Orders dates chronologically. A calendar date precedes an instant at the same UTC noon, so the order preserves their distinct identities.
 		*/
 		public static func < (lhs: Self, rhs: Self) -> Bool {
 			switch (lhs, rhs) {
@@ -96,13 +96,13 @@ extension Item {
 		}
 
 		/**
-		Interprets a calendar date as midnight UTC when formatting or comparing it with an instant.
+		Interprets a calendar date as noon UTC when formatting or comparing it with an instant.
 		*/
 		private var foundationDate: Foundation.Date {
 			switch self {
 			case .date(let date):
 				// Every SOML date has valid Gregorian components for an instant.
-				SOML.Instant(year: date.year, month: date.month, day: date.day)!.date
+				SOML.Instant(year: date.year, month: date.month, day: date.day, hour: 12)!.date
 			case .instant(let date):
 				date
 			}

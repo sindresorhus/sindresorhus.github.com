@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	The iPhone has a barometer, but no built-in app shows what it measures. The “Get Barometric Pressure” action of the free [Actions](../apps/actions/index.md) app reads the sensor in a shortcut, and gives the air pressure.
+	The iPhone has a barometer, but no built-in app shows what it measures. The “Get Barometric Pressure” action of the free [Actions](/actions) app reads the sensor in a shortcut, and gives the air pressure.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In the Shortcuts app, make a new shortcut, and add the “Get Barometric Pressure” action.
+1. Install [Actions](/actions), and open it once.
+1. In the Shortcuts app, make a new shortcut, and add the [“Get Barometric Pressure”](/actions#:~:text=Get%20Barometric%20Pressure) action.
 1. Add the “Show Content” action.
 1. Run the shortcut. The first time, allow access to Motion & Fitness.
 }

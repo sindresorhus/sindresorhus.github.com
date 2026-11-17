@@ -79,4 +79,42 @@ struct ImageThumbnailTests {
 		#expect(thumbnail.accentColor == image.accentColor)
 		#expect(file.deletingLastPathComponent().appending(path: "missing.png").imageThumbnail(maximumPixelSize: 32) == nil)
 	}
+
+	/**
+	A white icon with a small colored glyph has no accent, as the color is a small part of the icon, but it has a glow in the color of the glyph.
+	*/
+	@Test
+	func `a white icon with a colored glyph has a glow color but no accent`() throws {
+		let context = try #require(CGContext(
+			data: nil,
+			width: 128,
+			height: 128,
+			bitsPerComponent: 8,
+			bytesPerRow: 0,
+			space: CGColorSpaceCreateDeviceRGB(),
+			bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+		))
+		context.setFillColor(.hex(0xFFFFFF))
+		context.fill(
+			CGRect(
+				x: 0,
+				y: 0,
+				width: 128,
+				height: 128
+			)
+		)
+		context.setFillColor(.hex(0xFF0000))
+		context.fill(
+			CGRect(
+				x: 32,
+				y: 32,
+				width: 32,
+				height: 32
+			)
+		)
+		let image = try #require(context.makeImage())
+
+		#expect(image.accentColor == nil)
+		#expect(image.glowColor == Color(raw: "#ff0000"))
+	}
 }

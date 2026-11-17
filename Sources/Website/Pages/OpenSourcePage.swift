@@ -13,7 +13,15 @@ struct OpenSourcePage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: "Open Source", description: "Open-source projects by Sindre Sorhus that many people use, from Node.js libraries and command-line tools to code quality tools and Swift packages.")
+		PageMetadata(
+			title: "Open Source",
+			description: "Open-source projects by Sindre Sorhus that many people use, from Node.js libraries and command-line tools to code quality tools and Swift packages.",
+			feeds: [SiteFeed.newRepositories.link]
+		)
+	}
+
+	var searchKeywords: [String] {
+		["npm", "GitHub", "packages"]
 	}
 
 	/**
@@ -39,7 +47,8 @@ struct OpenSourcePage: Page {
 			// The numbers are close to the introduction, like the numbers below the title of the apps page, so the header and the numbers are one block of the page.
 			div {
 				PageHeader(title: "Open Source") {
-					"Some of my projects that many people use, from Node.js libraries and command-line tools to Swift packages for Mac apps. I also started "
+					// Keeps “command-line” on one line, as a phone otherwise breaks it after the hyphen.
+					MarkdownTheme.site.headingTextHTML("Some of my projects that many people use, from Node.js libraries and command-line tools to Swift packages for Mac apps. I also started ")
 					a(.href(.url(#repository("sindresorhus/awesome").url))) {
 						"Awesome"
 					}
@@ -70,7 +79,9 @@ struct OpenSourcePage: Page {
 				}
 
 			for group in OpenSourceProject.Group.allCases {
-				Section(group.title, id: ElementID(group.rawValue)) {
+				let projects = content.openSourceProjects.projects(of: group)
+
+				Section(group.title, id: group.id) {
 					p {
 						group.summary
 
@@ -84,14 +95,14 @@ struct OpenSourcePage: Page {
 
 					// Keep the list semantics in Safari, as the styles remove its bullets.
 					ul(.role(.list)) {
-						for project in group.projects {
+						for project in projects {
 							ProjectCard(project: project)
 						}
 					}
-					.style(group.projects.count == 3 ? Styles.gridOfThree : Styles.grid)
+					.style(projects.count == 3 ? Styles.gridOfThree : Styles.grid)
 					.style {
-						$0.from(.desktop) {
-							$0.gridColumns(min(group.projects.count, 4))
+						$0.from(.laptop) {
+							$0.gridColumns(min(projects.count, 4))
 						}
 					}
 				}
@@ -101,7 +112,7 @@ struct OpenSourcePage: Page {
 			if let packages = content.npmStatistics.listedPackages?.nilIfEmpty {
 				Section("All npm Packages", id: ElementID("npm-packages")) {
 					p {
-						"The \(packages.count.formatted(counting: "package")) with a repository that I maintain on npm, most downloaded first."
+						Self.npmPackagesSummary(count: packages.count)
 					}
 					.style(Styles.groupSummary)
 
@@ -283,8 +294,9 @@ struct OpenSourcePage: Page {
 						.style(Styles.repository)
 					}
 
+					// Each word with a hyphen on one line, like “promise-returning”, as the balanced lines would often break at the hyphen.
 					p {
-						project.summary
+						MarkdownTheme.site.headingTextHTML(project.summary)
 					}
 					.style(Styles.summary)
 
@@ -305,18 +317,44 @@ struct OpenSourcePage: Page {
 
 extension OpenSourcePage {
 	/**
-	The projects of the page as Markdown, grouped like on the page, for `llms-full.txt`.
+	The text below the heading of the list of all the npm packages, on the page and in its Markdown copy.
+	*/
+	private static func npmPackagesSummary(count: Int) -> String {
+		"The \(count.formatted(counting: "package")) with a repository that I maintain on npm, most downloaded first."
+	}
+
+	/**
+	The projects of the page as Markdown, grouped like on the page, and all the npm packages, in the order of the list of the page, for `llms-full.txt`, so an assistant also finds a package by what it does.
 	*/
 	var plainMarkdown: String {
-		let groups = OpenSourceProject.Group.allCases.map { group in
-			let projects = group.projects.map { project in
-				"- \(project.repository.url.markdownLink(project.name)): \(project.summary)\(project.language.map { " (\($0.rawValue))" } ?? "")"
+		var sections = OpenSourceProject.Group.allCases.map { group in
+			let projects = content.openSourceProjects.projects(of: group).map { project in
+				"- \(project.repository.url.markdownLink(project.name)): \(project.summary.escapingHTMLTags)\(project.language.map { " (\($0.rawValue))" } ?? "")"
 			}
 
 			return "## \(group.title)\n\n\(group.summary)\n\n\(projects.joined(separator: "\n"))"
 		}
 
-		return "# \(metadata.title)\n\nURL: \(path.absoluteURL.absoluteString)\n\n\(metadata.description ?? "")\n\n\(groups.joined(separator: "\n\n"))"
+		// Like on the page, without the npm search there is no list.
+		if let packages = content.npmStatistics.listedPackages?.nilIfEmpty {
+			let lines = NPMPackageList(packages: packages).packages.map { package in
+				let details = [package.description?.escapingHTMLTags, package.weeklyDownloadsLabel.map { "(\($0))" }].compactMap(\.self).joined(separator: " ")
+				return "- \(package.url.markdownLink(package.name))\(details.isEmpty ? "" : ": \(details)")"
+			}
+
+			sections.append("## All npm Packages\n\n\(Self.npmPackagesSummary(count: packages.count))\n\n\(lines.joined(separator: "\n"))")
+		}
+
+		return "# \(metadata.title)\n\nURL: \(path.absoluteURL.absoluteString)\n\n\(metadata.description ?? "")\n\n\(sections.joined(separator: "\n\n"))"
+	}
+}
+
+extension String {
+	/**
+	The text for Markdown with each `<` escaped, so a tag in it, like the `<img>` of “Parse and stringify the HTML <img> srcset attribute”, is text, not raw HTML that a renderer shows as an image.
+	*/
+	fileprivate var escapingHTMLTags: String {
+		replacing("<", with: "\\<")
 	}
 }
 
@@ -376,20 +414,12 @@ extension OpenSourcePage {
 					.color(.primaryText)
 			case .link:
 				// It covers the card, so the whole card is the link, but its name is only the name of the project.
-				Style()
-					.inherits(.color)
-					.noUnderline()
-					.after {
-						$0
-							.content("")
-							.position(.absolute)
-							.inset(.zero)
-							.cornerRadius(.cardRadius)
-					}
+				Style().cardCoveringLink()
 			case .summary:
+				// One to four short lines, balanced, so the last line is not one word alone, like “concurrently.”.
 				Style()
 					.secondaryText(.body)
-					.textWrap(.pretty)
+					.textWrap(.balance)
 			case .language:
 				// A dot in the color of the language, like on GitHub. At the bottom of the card, so the languages of the cards in a row line up.
 				Style()
@@ -401,7 +431,8 @@ extension OpenSourcePage {
 					.before {
 						$0
 							.content("")
-							.frame(size: .rootEm(0.625))
+							// In whole pixels, as a fractional size can snap to an oval.
+							.frame(size: .pixels(10))
 							.cornerRadius(.circle)
 							.background(.pageAccent)
 							// Forced colors would remove the background, which is the dot, so it has the text color of forced colors instead.
@@ -434,19 +465,20 @@ extension Style {
 				}
 			}
 			.from(.smallTablet) {
-				$0.gap(.rootEm(1))
+				$0.gap(.cardSpacing)
 			}
 	}
 }
 
 /**
-An open-source project on the Open Source page.
+An open-source project on the Open Source page, from `content/open-source.soml` (``OpenSourceCatalog``).
 */
+@Frontmatter
 struct OpenSourceProject {
 	/**
 	The main language of the code of a project, as GitHub shows it. A project without code, like a list or a spec, has none.
 	*/
-	enum Language: String {
+	enum Language: String, ContentEnum {
 		case javaScript = "JavaScript"
 		case typeScript = "TypeScript"
 		case swift = "Swift"
@@ -473,9 +505,9 @@ struct OpenSourceProject {
 	}
 
 	/**
-	A group of projects on the page, in the order of the page. The raw value is the ID of its section, which the links at the top of the page point to.
+	A group of projects on the page, in the order of the page. The raw value is the ID of its section, which the links at the top of the page point to, and the key of its projects in `content/open-source.soml` (``OpenSourceCatalog``).
 
-		A group has two or three projects, or a multiple of four, so the cards fill the rows of the grid.
+	A group has two or three projects, or a multiple of four, so the cards fill the rows of the grid (``OpenSourceCatalog/validate(into:)``).
 
 	The page has no Electron projects, like `electron-store`, as Sindre does not want them on it.
 	*/
@@ -507,10 +539,17 @@ struct OpenSourceProject {
 		}
 
 		/**
+		The ID of the section of the group, which the chips at the top of the page point to.
+		*/
+		var id: ElementID {
+			ElementID(rawValue)
+		}
+
+		/**
 		The chip at the top of the page that goes to the group.
 		*/
 		var link: LabeledLink {
-			LabeledLink(title, destination: .fragment(rawValue))
+			LabeledLink(title, destination: .fragment(id))
 		}
 
 		var title: String {
@@ -597,654 +636,142 @@ struct OpenSourceProject {
 				"Small packages that make code more fun."
 			}
 		}
-
-		/**
-		The projects of the group, in their order in the catalog.
-		*/
-		var projects: [OpenSourceProject] {
-			switch self {
-			case .http:
-				OpenSourceProject.httpProjects
-			case .promises:
-				OpenSourceProject.promisesProjects
-			case .commandLineTools:
-				OpenSourceProject.commandLineToolsProjects
-			case .commandLineApps:
-				OpenSourceProject.commandLineAppsProjects
-			case .files:
-				OpenSourceProject.filesProjects
-			case .system:
-				OpenSourceProject.systemProjects
-			case .text:
-				OpenSourceProject.textProjects
-			case .objects:
-				OpenSourceProject.objectsProjects
-			case .web:
-				OpenSourceProject.webProjects
-			case .images:
-				OpenSourceProject.imagesProjects
-			case .linting:
-				OpenSourceProject.lintingProjects
-			case .testing:
-				OpenSourceProject.testingProjects
-			case .fileFormats:
-				OpenSourceProject.fileFormatsProjects
-			case .swift:
-				OpenSourceProject.swiftProjects
-			case .mac:
-				OpenSourceProject.macProjects
-			case .apps:
-				OpenSourceProject.appsProjects
-			case .lists:
-				OpenSourceProject.listsProjects
-			case .fun:
-				OpenSourceProject.funProjects
-			}
-		}
 	}
 
 	/**
 	The name of the project, like “Got”.
 	*/
-	let name: String
+	@PlainText var name: String
 
 	/**
-	The repo on GitHub, which the card links to.
+	The repo on GitHub, which the card links to, like `sindresorhus/got`.
 	*/
-	let repository: GitHubRepositoryName
+	var repository: GitHubRepositoryName
 
 	/**
-	What the project does, in one line.
+	What the project does, in one line, close to the description of the repo.
 	*/
-	let summary: String
+	@PlainText var summary: String
 
 	var language: Language?
+}
+
+/**
+The projects of the open source page, by group, from `content/open-source.soml`, so a changed summary is a change of the content, not of the code. The key of a group in the file is the ID of the group (``OpenSourceProject/Group``), like `command-line-tools`. The groups are in the order of the page by convention, but the page takes its order from the cases of ``OpenSourceProject/Group``, not from the file.
+
+```soml
+http: [
+	{
+		name: 'Got'
+		repository: 'sindresorhus/got'
+		summary: 'Human-friendly and powerful HTTP requests for Node.js.'
+		language: 'TypeScript'
+	}
+]
+```
+*/
+@Frontmatter
+struct OpenSourceCatalog {
+	var http = [OpenSourceProject]()
+	var promises = [OpenSourceProject]()
+	@Key("command-line-tools") var commandLineTools = [OpenSourceProject]()
+	@Key("command-line-apps") var commandLineApps = [OpenSourceProject]()
+	var files = [OpenSourceProject]()
+	var system = [OpenSourceProject]()
+	var text = [OpenSourceProject]()
+	var objects = [OpenSourceProject]()
+	var web = [OpenSourceProject]()
+	var images = [OpenSourceProject]()
+	var linting = [OpenSourceProject]()
+	var testing = [OpenSourceProject]()
+	@Key("file-formats") var fileFormats = [OpenSourceProject]()
+	var swift = [OpenSourceProject]()
+	var mac = [OpenSourceProject]()
+	var apps = [OpenSourceProject]()
+	var lists = [OpenSourceProject]()
+	var fun = [OpenSourceProject]()
 
 	/**
-	All the projects of the page, in the order within each group. The descriptions are close to those of the repos.
+	The path of the file, relative to the root of the project.
 	*/
-	static let all: [Self] = Group.allCases.flatMap(\.projects)
+	static let path = "content/open-source.soml"
 
-	private static let httpProjects: [Self] = [
-		Self(
-			name: "Got",
-			repository: #repository("sindresorhus/got"),
-			summary: "Human-friendly and powerful HTTP requests for Node.js.",
-			language: .typeScript
-		),
-		Self(
-			name: "Ky",
-			repository: #repository("sindresorhus/ky"),
-			summary: "A tiny and elegant HTTP client based on the Fetch API.",
-			language: .typeScript
-		),
-		// The following were intentionally excluded: is-online, public-ip, is-up.
-		Self(
-			name: "normalize-url",
-			repository: #repository("sindresorhus/normalize-url"),
-			summary: "Normalize a URL.",
-			language: .javaScript
-		),
-		Self(
-			name: "fetch-extras",
-			repository: #repository("sindresorhus/fetch-extras"),
-			summary: "Useful utilities for working with Fetch.",
-			language: .javaScript
-		),
-	]
+	/**
+	All the projects of the page, in the order of the page.
+	*/
+	var all: [OpenSourceProject] {
+		OpenSourceProject.Group.allCases.flatMap { projects(of: $0) }
+	}
 
-	private static let promisesProjects: [Self] = [
-		Self(
-			name: "p-limit",
-			repository: #repository("sindresorhus/p-limit"),
-			summary: "Run promise-returning and async functions with limited concurrency.",
-			language: .javaScript
-		),
-		Self(
-			name: "p-queue",
-			repository: #repository("sindresorhus/p-queue"),
-			summary: "Promise queue with concurrency control.",
-			language: .typeScript
-		),
-		Self(
-			name: "p-map",
-			repository: #repository("sindresorhus/p-map"),
-			summary: "Map over promises concurrently.",
-			language: .javaScript
-		),
-		Self(
-			name: "p-retry",
-			repository: #repository("sindresorhus/p-retry"),
-			summary: "Retry a promise-returning or async function.",
-			language: .javaScript
-		),
-		Self(
-			name: "p-throttle",
-			repository: #repository("sindresorhus/p-throttle"),
-			summary: "Throttle promise-returning and async functions.",
-			language: .javaScript
-		),
-		// The following were intentionally excluded: pify, delay, Emittery, p-cancelable.
-		Self(
-			name: "p-progress",
-			repository: #repository("sindresorhus/p-progress"),
-			summary: "Create a promise that reports progress.",
-			language: .typeScript
-		),
-		Self(
-			name: "p-memoize",
-			repository: #repository("sindresorhus/p-memoize"),
-			summary: "Memoize promise-returning and async functions.",
-			language: .typeScript
-		),
-		Self(
-			name: "p-event",
-			repository: #repository("sindresorhus/p-event"),
-			summary: "Promisify an event by waiting for it to be emitted.",
-			language: .javaScript
-		),
-	]
+	/**
+	The projects of the group, in their order in the file.
+	*/
+	func projects(of group: OpenSourceProject.Group) -> [OpenSourceProject] {
+		switch group {
+		case .http:
+			http
+		case .promises:
+			promises
+		case .commandLineTools:
+			commandLineTools
+		case .commandLineApps:
+			commandLineApps
+		case .files:
+			files
+		case .system:
+			system
+		case .text:
+			text
+		case .objects:
+			objects
+		case .web:
+			web
+		case .images:
+			images
+		case .linting:
+			linting
+		case .testing:
+			testing
+		case .fileFormats:
+			fileFormats
+		case .swift:
+			swift
+		case .mac:
+			mac
+		case .apps:
+			apps
+		case .lists:
+			lists
+		case .fun:
+			fun
+		}
+	}
 
-	private static let commandLineToolsProjects: [Self] = [
-		Self(
-			name: "np",
-			repository: #repository("sindresorhus/np"),
-			summary: "A better “npm publish”.",
-			language: .javaScript
-		),
-		Self(
-			name: "Pure",
-			repository: #repository("sindresorhus/pure"),
-			summary: "Pretty, minimal, and fast Zsh prompt.",
-			language: .shell
-		),
-		Self(
-			name: "fkill",
-			repository: #repository("sindresorhus/fkill-cli"),
-			summary: "Fabulously kill processes. Cross-platform.",
-			language: .javaScript
-		),
-		// The following were intentionally excluded: fast-cli, speed-test.
-		Self(
-			name: "emoj",
-			repository: #repository("sindresorhus/emoj"),
-			summary: "Find relevant emoji from text on the command-line.",
-			language: .typeScript
-		),
-	]
+	/**
+	The key of the group in the file, which is the ID of the group.
+	*/
+	static func key(of group: OpenSourceProject.Group) -> CodingKeys {
+		// Each group has its key, as the keys of the properties are the IDs of the groups (`@Key`).
+		CodingKeys(rawValue: group.rawValue)!
+	}
 
-	private static let commandLineAppsProjects: [Self] = [
-		Self(
-			name: "Chalk",
-			repository: #repository("chalk/chalk"),
-			summary: "Terminal string styling done right.",
-			language: .javaScript
-		),
-		Self(
-			name: "Ora",
-			repository: #repository("sindresorhus/ora"),
-			summary: "Elegant terminal spinner.",
-			language: .javaScript
-		),
-		Self(
-			name: "meow",
-			repository: #repository("sindresorhus/meow"),
-			summary: "A helper for command-line apps, like for their arguments and help text.",
-			language: .javaScript
-		),
-		Self(
-			name: "boxen",
-			repository: #repository("sindresorhus/boxen"),
-			summary: "Create boxes in the terminal.",
-			language: .javaScript
-		),
-		Self(
-			name: "log-update",
-			repository: #repository("sindresorhus/log-update"),
-			summary: "Log by overwriting the previous output in the terminal, like for progress bars.",
-			language: .javaScript
-		),
-		// The following were intentionally excluded: terminal-link, cli-spinners, update-notifier, yoctocolors, log-symbols.
-		Self(
-			name: "string-width",
-			repository: #repository("sindresorhus/string-width"),
-			summary: "Get the visual width of a string.",
-			language: .javaScript
-		),
-		Self(
-			name: "figures",
-			repository: #repository("sindresorhus/figures"),
-			summary: "Unicode symbols with fallbacks for older terminals.",
-			language: .javaScript
-		),
-		Self(
-			name: "cli-truncate",
-			repository: #repository("sindresorhus/cli-truncate"),
-			summary: "Truncate a string to fit a specific number of columns.",
-			language: .javaScript
-		),
-	]
+	func validate(into problems: inout FrontmatterProblems<Self>) {
+		for group in OpenSourceProject.Group.allCases {
+			let count = projects(of: group).count
 
-	private static let filesProjects: [Self] = [
-		Self(
-			name: "globby",
-			repository: #repository("sindresorhus/globby"),
-			summary: "User-friendly glob matching.",
-			language: .javaScript
-		),
-		Self(
-			name: "file-type",
-			repository: #repository("sindresorhus/file-type"),
-			summary: "Detect the file type of a file, stream, or data.",
-			language: .javaScript
-		),
-		Self(
-			name: "find-up",
-			repository: #repository("sindresorhus/find-up"),
-			summary: "Find a file or directory by walking up parent directories.",
-			language: .javaScript
-		),
-		Self(
-			name: "trash",
-			repository: #repository("sindresorhus/trash"),
-			summary: "Move files and directories to the trash.",
-			language: .javaScript
-		),
-		Self(
-			name: "del",
-			repository: #repository("sindresorhus/del"),
-			summary: "Delete files and directories.",
-			language: .javaScript
-		),
-		Self(
-			name: "cpy",
-			repository: #repository("sindresorhus/cpy"),
-			summary: "Copy files.",
-			language: .javaScript
-		),
-		Self(
-			name: "move-file",
-			repository: #repository("sindresorhus/move-file"),
-			summary: "Move a file, directory, or symlink, also to another device.",
-			language: .javaScript
-		),
-		// The following was intentionally excluded: make-dir.
-		Self(
-			name: "tempy",
-			repository: #repository("sindresorhus/tempy"),
-			summary: "Get a random temporary file or directory path.",
-			language: .javaScript
-		),
-	]
+			// The cards of a group fill the rows of the grid, which has two or four columns, or three for a group of three. A group of two keeps two columns on wide screens.
+			guard !((2...3).contains(count) || (count > 0 && count.isMultiple(of: 4))) else {
+				continue
+			}
 
-	private static let systemProjects: [Self] = [
-		Self(
-			name: "Execa",
-			repository: #repository("sindresorhus/execa"),
-			summary: "Process execution for humans.",
-			language: .javaScript
-		),
-		Self(
-			name: "open",
-			repository: #repository("sindresorhus/open"),
-			summary: "Open URLs, files, and executables. Cross-platform.",
-			language: .javaScript
-		),
-		Self(
-			name: "clipboardy",
-			repository: #repository("sindresorhus/clipboardy"),
-			summary: "Access the system clipboard (copy and paste).",
-			language: .javaScript
-		),
-		Self(
-			name: "get-port",
-			repository: #repository("sindresorhus/get-port"),
-			summary: "Get an available TCP port.",
-			language: .javaScript
-		),
-	]
+			problems.add("The group has \(count.formatted(counting: "project")), so its cards do not fill the rows of the grid. A group has two or three projects, or a multiple of four.", at: Self.key(of: group))
+		}
+	}
+}
 
-	private static let textProjects: [Self] = [
-		Self(
-			name: "slugify",
-			repository: #repository("sindresorhus/slugify"),
-			summary: "Slugify a string.",
-			language: .javaScript
-		),
-		Self(
-			name: "camelcase",
-			repository: #repository("sindresorhus/camelcase"),
-			summary: "Convert a dash, dot, underscore, or space separated string to camelCase.",
-			language: .javaScript
-		),
-		Self(
-			name: "pretty-bytes",
-			repository: #repository("sindresorhus/pretty-bytes"),
-			summary: "Convert bytes to a human-readable string: 1337 → 1.34 kB.",
-			language: .javaScript
-		),
-		Self(
-			name: "pretty-ms",
-			repository: #repository("sindresorhus/pretty-ms"),
-			summary: "Convert milliseconds to a human-readable string: 1337000000 → 15d 11h 23m 20s.",
-			language: .javaScript
-		),
-	]
-
-	private static let objectsProjects: [Self] = [
-		Self(
-			name: "dot-prop",
-			repository: #repository("sindresorhus/dot-prop"),
-			summary: "Get, set, or delete a property of a nested object with a dot path.",
-			language: .javaScript
-		),
-		// The following was intentionally excluded: on-change.
-		Self(
-			name: "debounce",
-			repository: #repository("sindresorhus/debounce"),
-			summary: "Delay function calls until a set time elapses after the last invocation.",
-			language: .javaScript
-		),
-		Self(
-			name: "quick-lru",
-			repository: #repository("sindresorhus/quick-lru"),
-			summary: "Simple “Least Recently Used” (LRU) cache.",
-			language: .javaScript
-		),
-		Self(
-			name: "memoize",
-			repository: #repository("sindresorhus/memoize"),
-			summary: "Memoize functions, so calls with the same input are faster.",
-			language: .typeScript
-		),
-	]
-
-	private static let webProjects: [Self] = [
-		Self(
-			name: "query-string",
-			repository: #repository("sindresorhus/query-string"),
-			summary: "Parse and stringify URL query strings.",
-			language: .javaScript
-		),
-		Self(
-			name: "copy-text-to-clipboard",
-			repository: #repository("sindresorhus/copy-text-to-clipboard"),
-			summary: "Copy text to the clipboard in modern browsers.",
-			language: .javaScript
-		),
-		Self(
-			name: "element-ready",
-			repository: #repository("sindresorhus/element-ready"),
-			summary: "Detect when an element is ready in the DOM.",
-			language: .javaScript
-		),
-		Self(
-			name: "github-markdown-css",
-			repository: #repository("sindresorhus/github-markdown-css"),
-			summary: "The minimal amount of CSS to replicate the GitHub Markdown style.",
-			language: .css
-		),
-	]
-
-	private static let imagesProjects: [Self] = [
-		// The following were intentionally excluded: Pageres, gulp-imagemin, image-type, term-img.
-		Self(
-			name: "capture-website",
-			repository: #repository("sindresorhus/capture-website"),
-			summary: "Capture screenshots of websites.",
-			language: .javaScript
-		),
-		Self(
-			name: "image-dimensions",
-			repository: #repository("sindresorhus/image-dimensions"),
-			summary: "Get the dimensions of an image.",
-			language: .javaScript
-		),
-		Self(
-			name: "terminal-image",
-			repository: #repository("sindresorhus/terminal-image"),
-			summary: "Display images in the terminal.",
-			language: .javaScript
-		),
-	]
-
-	private static let lintingProjects: [Self] = [
-		Self(
-			name: "XO",
-			repository: #repository("xojs/xo"),
-			summary: "JavaScript and TypeScript linter with great defaults.",
-			language: .typeScript
-		),
-		Self(
-			name: "eslint-plugin-unicorn",
-			repository: #repository("sindresorhus/eslint-plugin-unicorn"),
-			summary: "More than 300 powerful ESLint rules.",
-			language: .javaScript
-		),
-		Self(
-			name: "eslint-config-xo",
-			repository: #repository("xojs/eslint-config-xo"),
-			summary: "The ESLint config of XO.",
-			language: .javaScript
-		),
-		// The following was intentionally excluded: eslint-plugin-ava.
-		Self(
-			name: "eslint-package-json",
-			repository: #repository("sindresorhus/eslint-package-json"),
-			summary: "Powerful ESLint rules for package.json.",
-			language: .javaScript
-		),
-		Self(
-			name: "eslint-cssicorn",
-			repository: #repository("sindresorhus/eslint-cssicorn"),
-			summary: "Powerful ESLint rules for CSS.",
-			language: .javaScript
-		),
-		Self(
-			name: "eslint-node-test",
-			repository: #repository("sindresorhus/eslint-node-test"),
-			summary: "ESLint rules for the Node.js built-in test runner (node:test).",
-			language: .javaScript
-		),
-		Self(
-			name: "awesome-lint",
-			repository: #repository("sindresorhus/awesome-lint"),
-			summary: "Linter for Awesome lists.",
-			language: .javaScript
-		),
-		Self(
-			name: "eslint-formatter-pretty",
-			repository: #repository("sindresorhus/eslint-formatter-pretty"),
-			summary: "Pretty ESLint formatter.",
-			language: .javaScript
-		),
-	]
-
-	private static let testingProjects: [Self] = [
-		Self(
-			name: "AVA",
-			repository: #repository("avajs/ava"),
-			summary: "Node.js test runner that lets you develop with confidence.",
-			language: .javaScript
-		),
-		Self(
-			name: "type-fest",
-			repository: #repository("sindresorhus/type-fest"),
-			summary: "A collection of essential TypeScript types.",
-			language: .typeScript
-		),
-		Self(
-			name: "ts-extras",
-			repository: #repository("sindresorhus/ts-extras"),
-			summary: "Essential utilities for TypeScript projects.",
-			language: .typeScript
-		),
-		// The following was intentionally excluded: ow.
-		Self(
-			name: "test-extras",
-			repository: #repository("sindresorhus/test-extras"),
-			summary: "Assertions and utilities that make node:test better.",
-			language: .javaScript
-		),
-	]
-
-	private static let fileFormatsProjects: [Self] = [
-		// File formats keep the spec repos and the Swift implementation of SOML. The following were intentionally excluded: `soml` (the reference parser), `SimpleColorPalette` (a Swift implementation), and the implementations of other file formats.
-		Self(
-			name: "SOML",
-			repository: #repository("soml-lang/soml"),
-			summary: "A config format for humans. The spec is a draft."
-		),
-		Self(
-			name: "Simple Color Palette",
-			repository: #repository("simple-color-palette/spec"),
-			summary: "A minimal JSON-based file format for color palettes. The spec is a work in progress."
-		),
-		Self(
-			name: "SOML Swift",
-			repository: #repository("soml-lang/SOMLSwift"),
-			summary: "A Swift implementation of the SOML format.",
-			language: .swift
-		),
-	]
-
-	private static let swiftProjects: [Self] = [
-		Self(
-			name: "Defaults",
-			repository: #repository("sindresorhus/Defaults"),
-			summary: "Swifty and modern UserDefaults.",
-			language: .swift
-		),
-		Self(
-			name: "KeyboardShortcuts",
-			repository: #repository("sindresorhus/KeyboardShortcuts"),
-			summary: "Add user-customizable global keyboard shortcuts to your macOS app.",
-			language: .swift
-		),
-		// The following were intentionally excluded: Settings, CircularProgress, ExceptionCatcher, CustomButton, touch-bar-simulator.
-		Self(
-			name: "LaunchAtLogin",
-			repository: #repository("sindresorhus/LaunchAtLogin-Modern"),
-			summary: "Add “Launch at Login” to your macOS app in seconds.",
-			language: .swift
-		),
-		Self(
-			name: "DockProgress",
-			repository: #repository("sindresorhus/DockProgress"),
-			summary: "Show progress in the Dock icon of your app.",
-			language: .swift
-		),
-		Self(
-			name: "Regex",
-			repository: #repository("sindresorhus/Regex"),
-			summary: "Swifty regular expressions.",
-			language: .swift
-		),
-		Self(
-			name: "Percentage",
-			repository: #repository("sindresorhus/Percentage"),
-			summary: "A percentage type for Swift.",
-			language: .swift
-		),
-		Self(
-			name: "DSStore",
-			repository: #repository("sindresorhus/DSStore"),
-			summary: "Read and write macOS .DS_Store files in Swift.",
-			language: .swift
-		),
-		Self(
-			name: "ExtendedAttributes",
-			repository: #repository("sindresorhus/ExtendedAttributes"),
-			summary: "Manage extended attributes in Swift.",
-			language: .swift
-		),
-	]
-
-	private static let macProjects: [Self] = [
-		Self(
-			name: "create-dmg",
-			repository: #repository("sindresorhus/create-dmg"),
-			summary: "Create a good-looking DMG for your macOS app in seconds.",
-			language: .javaScript
-		),
-		Self(
-			name: "macos-trash",
-			repository: #repository("sindresorhus/macos-trash"),
-			summary: "Move files and folders to the trash from the command line.",
-			language: .swift
-		),
-		// The following were intentionally excluded: dark-mode, wallpaper.
-		Self(
-			name: "macos-wallpaper",
-			repository: #repository("sindresorhus/macos-wallpaper"),
-			summary: "Manage the desktop wallpaper on macOS.",
-			language: .swift
-		),
-	]
-
-	private static let appsProjects: [Self] = [
-		Self(
-			name: "Gifski",
-			repository: #repository("sindresorhus/Gifski"),
-			summary: "Convert videos to high-quality GIFs on your Mac.",
-			language: .swift
-		),
-		Self(
-			name: "Pasteboard Viewer",
-			repository: #repository("sindresorhus/Pasteboard-Viewer"),
-			summary: "Inspect the system pasteboards.",
-			language: .swift
-		),
-		// The following were intentionally excluded: Blear, Plash (not open source).
-	]
-
-	private static let listsProjects: [Self] = [
-		Self(
-			name: "Awesome",
-			repository: #repository("sindresorhus/awesome"),
-			summary: "Awesome lists about all kinds of interesting topics."
-		),
-		Self(
-			name: "Awesome Node.js",
-			repository: #repository("sindresorhus/awesome-nodejs"),
-			summary: "Delightful Node.js packages and resources."
-		),
-		Self(
-			name: "Awesome npm",
-			repository: #repository("sindresorhus/awesome-npm"),
-			summary: "Awesome npm resources and tips."
-		),
-		Self(
-			name: "Awesome Sci-Fi",
-			repository: #repository("sindresorhus/awesome-scifi"),
-			summary: "Sci-fi worth consuming."
-		),
-	]
-
-	private static let funProjects: [Self] = [
-		Self(
-			name: "cat-names",
-			repository: #repository("sindresorhus/cat-names"),
-			summary: "Get popular cat names.",
-			language: .javaScript
-		),
-		Self(
-			name: "dog-names",
-			repository: #repository("sindresorhus/dog-names"),
-			summary: "Get popular dog names.",
-			language: .javaScript
-		),
-		Self(
-			name: "cows",
-			repository: #repository("sindresorhus/cows"),
-			summary: "ASCII cows.",
-			language: .javaScript
-		),
-		Self(
-			name: "superb",
-			repository: #repository("sindresorhus/superb"),
-			summary: "Get superb-like words.",
-			language: .javaScript
-		),
-	]
+extension OpenSourceCatalog {
+	/**
+	A catalog without projects, like for content that is made in code.
+	*/
+	init() {}
 }

@@ -108,7 +108,7 @@ Yes. In the settings, click “Choose…” next to “Notify at percentages”,
 
 If you want a different sound, you can disable the default notification sound in the “Notification Settings” and then follow the below steps.
 
-This is a perfect use case for the built-in Shortcuts app. You can use the `Play Sound` action to play the sound you want. To run the shortcut when the battery is at a certain percentage, use Shortcuts automations.
+This is a perfect use case for the built-in Shortcuts app. You can use the “Play Sound” action to play the sound you want. To run the shortcut when the battery is at a certain percentage, use Shortcuts automations.
 
 You can find sound effects on [Pixabay](https://pixabay.com/sound-effects/search/interface/).
 

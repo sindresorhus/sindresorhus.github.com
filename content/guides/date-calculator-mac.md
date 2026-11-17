@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Click [Dato](../apps/dato/index.md) in the menu bar, press ++C++ to open its calculator, click “Interval”, and choose the two dates. It shows the time between them, and it can count only the weekdays. Without an app, use the `DAYS` function in a Numbers spreadsheet.
+	Click [Dato](/dato) in the menu bar, press ++C++ to open its calculator, click “Interval”, and choose the two dates. It shows the time between them, and it can count only the weekdays. [Without an app](#without-an-app), use the `DAYS` function in a Numbers spreadsheet.
 }
 
 ## With Dato
 
 @Steps {
-1. Click [Dato](../apps/dato/index.md) in the menu bar.
+1. Click [Dato](/dato) in the menu bar.
 1. Press ++C++, or open the “…” menu, and choose “Calculators…”.
 1. Click “Interval”.
 1. Choose the dates in “From:” and “To:”. The difference shows below them.
@@ -34,6 +34,8 @@ Numbers, the spreadsheet app of Apple, has a function for this. In a spreadsheet
 =DAYS("12/31/2025", "1/1/2025")
 ```
 
-The cell shows 364. [Apple’s instructions.](https://support.apple.com/guide/functions/days-fd13ea8d75/web) The `DATEDIF` function gives the months or the years between two dates, and `NETWORKDAYS` gives the working days.
+The cell shows 364. <source:https://support.apple.com/guide/functions/days-fd13ea8d75/web>
+
+The `DATEDIF` function gives the months or the years between two dates, and `NETWORKDAYS` gives the working days.
 
 Numbers always gives the total number of days, and it is good when you have many dates. For one quick answer, Dato is faster, as its calculator is one click and one key away.

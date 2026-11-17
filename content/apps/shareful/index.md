@@ -6,6 +6,9 @@ platforms: [
 	'macOS'
 ]
 appStoreID: 1522267256
+categories: [
+	'files'
+]
 nonAppStoreVersion: {
 	version: '1.12.0'
 	macOS: 26
@@ -55,14 +58,15 @@ pressQuotes: [
 		year: 2020
 	}
 ]
+appStoreStory: 'https://apps.apple.com/story/id1547490016'
 ---
 
-Shareful makes the system share menu even more useful by providing some commonly needed share services:
+Shareful makes the system share menu even more useful by providing four commonly needed share services: Copy, Save to Downloads, Save As, and Open In.
 
-- **Copy**: Copy the shared item, so you can paste it in another app.
-- **Save to Downloads**: Save the shared item to the Downloads folder.
-- **Save As**: Choose a folder to save the shared item in.
-- **Open In**: Open the shared item in any app, like the current Safari page in another browser.
+- **Copy:** Copy the shared item, so you can paste it in another app.
+- **Save to Downloads:** Save the shared item to the Downloads folder.
+- **Save As:** Choose a folder to save the shared item in.
+- **Open In:** Open the shared item in any app, like the current Safari page in another browser.
 
 The services work in any app that has a share button, like Finder, Safari, Notes, and Photos. Turn on the ones you want in “[System Settings › General › Login Items & Extensions](x-apple.systempreferences:com.apple.LoginItems-Settings.extension)”: click the info button next to “Sharing”. You can also click “Edit Extensions” at the bottom of a share menu.
 

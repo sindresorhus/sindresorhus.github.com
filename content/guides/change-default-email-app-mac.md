@@ -13,17 +13,17 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	To open email links in Gmail or another webmail, make [Mailway](../apps/mailway/index.md) the default email app, and choose “Gmail” in “Primary email app”. For an email app that is installed on your Mac, like Outlook, open the Mail app, choose “Mail › Settings”, click “General”, and choose the app in “Default email reader”.
+	To open email links in Gmail or another webmail, make [Mailway](/mailway) the default email app, and choose “Gmail” in “Primary email app”. For an email app that is installed on your Mac, like Outlook, open the Mail app, choose “Mail › Settings”, click “General”, and choose the app in “Default email reader”.
 }
 
 The default email app opens when you click an email link (a `mailto:` link), like an email address on a website or a “Send Email” button in an app. macOS opens these links in the Mail app by default.
 
 ## With Mailway
 
-[Mailway](../apps/mailway/index.md) opens email links in an email app or in webmail, like Gmail, Outlook.com, Fastmail, or Yahoo. It writes the new email in your browser with the recipient, the subject, and the text already filled in.
+[Mailway](/mailway) opens email links in an email app or in webmail, like Gmail, Outlook.com, Fastmail, or Yahoo. It writes the new email in your browser with the recipient, the subject, and the text already filled in.
 
 @Steps {
-1. Open [Mailway](../apps/mailway/index.md). Its settings window opens.
+1. Open [Mailway](/mailway). Its settings window opens.
 1. Click “Set as Default”, and confirm that macOS can use Mailway for email links. Mailway works by being the default email app.
 1. In “Primary email app”, choose “Gmail” below “Webmail”. Or choose an email app below “Email Apps”.
 1. Click an email link. A new email opens in Gmail in your browser.
@@ -34,8 +34,8 @@ Mailway does not stay open. It opens when you click an email link, sends the lin
 @Tips {
 - To use another email app for some recipients, like Outlook for the emails to your company, add a rule in the “Rules” tab. A rule can also match the app that you click the link in, like Slack.
 - Hold ++Fn++ when you click an email link to use the “Alternative email app”.
-- For a webmail that is not in the list, choose “Custom URL”, and type the address that writes a new email in your webmail. [How to make the URL.](../apps/mailway/index.md#add-webmail)
-- To copy the email address and not write an email, choose “Copy to Clipboard”.
+- For a webmail that is not in the list, choose “Custom URL”, and type the address that writes a new email in your webmail. [How to make the URL.](/mailway#add-webmail)
+- To copy the email address and not write an email, choose “Copy to Clipboard”. <guide:copy-email-address-from-link-mac>
 }
 
 ## Without an app

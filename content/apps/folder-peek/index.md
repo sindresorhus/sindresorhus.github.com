@@ -11,6 +11,9 @@ isMenuBarApp: true
 appStoreID: 1615988943
 downloadCount: 50000
 hasSentry: true
+categories: [
+	'files'
+]
 sharedQuestions: [
 	'backup-settings'
 ]
@@ -69,7 +72,7 @@ It also works as an [app launcher](#app-launcher), now that macOS 26 has removed
 - Follows aliases and symlinks
 - Shortcuts support
 
-### Guide {#guide}
+### Get started {#guide}
 
 @Steps {
 1. Click “Add Folder” in the settings, or choose “Add Folder…” in the menu bar menu.
@@ -170,7 +173,7 @@ Press the ++Shift++ key while viewing a subfolder to reveal more actions, includ
 
 ### How can I have a menu bar folder with my most recent screenshots? {#how-can-i-have-a-menu-bar-folder-with-my-most-recent-screenshots}
 
-Make a folder to hold the screenshots and add the folder to the app. Open the Screenshot app, click “Options”, then “Other Location”, and choose the folder you just made. In Folder Peek, choose “Configure Folder…” for the folder, change “Sort order” to “Date Created”, and set “Max items” to something like 20.
+Make a folder to hold the screenshots and add the folder to the app. Open the Screenshot app, click “Options”, then “Other Location”, and choose the folder you just made. In Folder Peek, choose “Configure Folder…” for the folder, change “Sort order” to “Date Created”, and set “Max items” to something like 20. <guide:find-screenshots-mac>
 
 You may also want to turn off the preview: press ++Shift+Command+5++, click “Options”, and turn off “Show Floating Thumbnail”. The screenshot then shows up in the folder at once.
 
@@ -233,7 +236,7 @@ For other apps, follow [this guide](https://binarynights.com/manual#fileviewer),
 
 There is a hidden setting for it. Run the following command in the Terminal app:
 
-```sh
+```console
 defaults write com.sindresorhus.Folder-Peek showFolderMoreMenu -bool false
 ```
 

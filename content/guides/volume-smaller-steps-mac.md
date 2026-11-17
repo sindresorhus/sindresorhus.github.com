@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Hold ++Option+Shift++ while you press a volume key. The volume changes in smaller steps. To get smaller steps without holding keys, use [Supercharge](../apps/supercharge/index.md).
+	Hold ++Option+Shift++ while you press a volume key. The volume changes in smaller steps. To get smaller steps without holding keys, use [Supercharge](/supercharge).
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
 1. In the “Keyboard” section, set “Volume key step size” to “Half” or “Quarter”.
 1. Press a volume key. The volume changes in smaller steps.

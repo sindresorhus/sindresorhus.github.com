@@ -242,7 +242,7 @@ struct GeoCitiesWindows: HTML {
 		title: String? = nil,
 		size: WindowSize = .normal,
 		describedBy message: IDs? = nil,
-		@HTMLBuilder content: () -> some HTML
+		@HTMLBuilder content: @escaping () -> some HTML
 	) -> some HTML {
 		let title = title ?? program.title
 
@@ -266,8 +266,9 @@ struct GeoCitiesWindows: HTML {
 			}
 			.style(GeoCitiesPage.Styles.titleBar, GeoCitiesPage.Styles.titleBarWithButton, GeoCitiesPage.Styles.desktopTitleBar)
 
+			// Made only when it renders, as the content of a window can be deep, like Internet Explorer, and a window that holds it would make the getter that builds the windows too large for the stack (``GeoCitiesPage/Deferred``).
 			div {
-				content()
+				GeoCitiesPage.Deferred(content())
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
 		}

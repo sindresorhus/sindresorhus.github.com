@@ -9,16 +9,16 @@ apps: [
 ---
 
 @QuickAnswer {
-	Make a shortcut with the “Invert Images” action of the free [Actions](../apps/actions/index.md) app. It saves an inverted copy of each photo that you choose, and keeps the original. To only look at a photo inverted, like a film negative, turn on Classic Invert in the accessibility settings.
+	Make a shortcut with the “Invert Images” action of the free [Actions](/actions) app. It saves an inverted copy of each photo that you choose, and keeps the original. To only look at a photo inverted, like a film negative, turn on Classic Invert in the accessibility settings.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
+1. Install [Actions](/actions), and open it once.
 1. In the Shortcuts app, make a new shortcut, and add the “Select Photos” action.
-1. Add the “Invert Images” action of Actions.
-1. Add the “Save to Photo Album” action.
+1. Add the [“Invert Images”](/actions#:~:text=Invert%20Images) action of Actions.
+1. Add the “Save to Photos” action.
 1. Run the shortcut, and choose the photos. The inverted copies go to the Recents album as PNG images. The originals do not change.
 }
 

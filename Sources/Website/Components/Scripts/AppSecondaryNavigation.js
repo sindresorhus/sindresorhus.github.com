@@ -1,4 +1,4 @@
-import {elementForFragment} from '/scripts/dom.js';
+import {elementForFragment, partList} from '/scripts/dom.js';
 
 class AppSecondaryNavigation extends HTMLElement {
 	// Stops the observers and the listeners of the page when the element is removed, so connecting it again does not add them twice.
@@ -47,7 +47,7 @@ class AppSecondaryNavigation extends HTMLElement {
 	// Scroll spy: marks the link of the section that was last scrolled past the header, so the app navigation underlines it.
 	// TODO: Replace this with CSS scroll spy (`scroll-target-group` and `:target-current`) when Safari and Firefox support it.
 	#markCurrentSection() {
-		const links = [...this.querySelectorAll('[data-part="sectionLink"]')];
+		const links = partList(this, 'sectionLink');
 
 		// The heading of the section that each link goes to, found once, as the scroll spy updates often.
 		const headingOf = new Map(links.map(link => [link, elementForFragment(link.hash)]));
@@ -59,6 +59,13 @@ class AppSecondaryNavigation extends HTMLElement {
 			return;
 		}
 
+		// The box to get the app comes after all the sections, so no section is marked while the visitor reads it. No link goes to it.
+		const panel = document.getElementById('get-app');
+
+		if (panel) {
+			headings.push(panel);
+		}
+
 		// The menu of the site header has the sections on phones, and marks the same section when it opens.
 		const header = this.closest('site-header');
 
@@ -67,7 +74,7 @@ class AppSecondaryNavigation extends HTMLElement {
 		let isAtEnd = false;
 
 		const update = () => {
-			// At the end of the page, the last section may be too short to scroll past the header. The position is read here, not from the observer entries, as a jump, like with the Home key, can move a heading past the line without an entry for it.
+			// At the end of the page, the last section may be too short to scroll past the header. On a page with the box to get the app, the last boundary is the box, which has no link, so no section is marked there. The position is read here, not from the observer entries, as a jump, like with the Home key, can move a heading past the line without an entry for it.
 			const activeHeading = isAtEnd ? headings.at(-1) : headings.findLast(heading => heading.getBoundingClientRect().top < line);
 
 			const currentLink = activeHeading && links.find(link => headingOf.get(link) === activeHeading);

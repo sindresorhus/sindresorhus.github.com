@@ -9,18 +9,18 @@ apps: [
 ---
 
 @QuickAnswer {
-	In the settings of [Supercharge](../apps/supercharge/index.md), click “Tools”, and click “Add Regular” or “Add Small” in “Dock spacers”. Without an app, add a spacer with a `defaults` command in the Terminal app.
+	In the settings of [Supercharge](/supercharge), click “Tools”, and click “Add Regular” or “Add Small” in “Dock spacers”. [Without an app](#without-an-app), add a spacer with a `defaults` command in the Terminal app.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tools”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tools”.
 1. In “Dock spacers”, click “Add Regular” or “Add Small” in “Main section” for the apps, or in “Trash section” for the side with the Trash.
 1. Drag the spacer in the Dock to where you want it.
 }
 
-A spacer is an empty space that you move like an app icon, so you can put your apps in groups, like work apps and other apps. To remove a spacer, right-click it, and choose to remove it. Supercharge can also make the Dock icons of hidden apps dim, and show the Dock without a delay.
+A spacer is an empty space that you move like an app icon, so you can put your apps in groups, like work apps and other apps. To remove a spacer, right-click it, and choose “Remove from Dock”. Supercharge can also show the Dock without a delay.
 
 ## Without an app
 

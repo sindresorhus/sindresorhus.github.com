@@ -111,4 +111,4 @@ Not by itself. However, the Shortcuts app can: make an automation with the “Fo
 ### What’s the benefit of this app over the built-in Quick Actions converter? {#whats-the-benefit-of-this-app-over-the-built-in-quick-actions-converter}
 <!-- @faq.compares Quick Actions -->
 
-The built-in converter (right-click › Quick Actions › Convert Image) works well for basic conversions. This app offers adjustable JPEG quality and granular metadata control (separately toggle location data and modification dates instead of all-or-nothing).
+The built-in converter (right-click, then “Quick Actions › Convert Image”) works well for basic conversions. This app offers adjustable JPEG quality and granular metadata control (separately toggle location data and modification dates instead of all-or-nothing).

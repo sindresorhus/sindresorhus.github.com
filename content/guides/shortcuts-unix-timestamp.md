@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	A Unix timestamp is the number of seconds since 1 January 1970 (UTC), like 1663178163. The free [Actions](../apps/actions/index.md) app adds the “Convert Date to Unix Timestamp” action to the Shortcuts app, and “Convert Unix Timestamp to Date” for the other direction. Without an app, the “Get Time Between Dates” action can count the seconds.
+	A Unix timestamp is the number of seconds since 1 January 1970 (UTC), like 1663178163. The free [Actions](/actions) app adds the “Convert Date to Unix Timestamp” action to the Shortcuts app, and “Convert Unix Timestamp to Date” for the other direction. [Without an app](#without-an-app), the “Get Time Between Dates” action can count the seconds.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In your shortcut, add the “Convert Date to Unix Timestamp” action of Actions.
+1. Install [Actions](/actions), and open it once.
+1. In your shortcut, add the [“Convert Date to Unix Timestamp”](/actions#:~:text=Convert%20Date%20to%20Unix%20Timestamp) action of Actions.
 1. In the date field, write “current date” for the time of now, or choose a date variable of the shortcut.
 1. Use its result, “Unix Timestamp”, in the next action, like in the request to a web API.
 }

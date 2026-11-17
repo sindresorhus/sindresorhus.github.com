@@ -9,19 +9,21 @@ apps: [
 ---
 
 @QuickAnswer {
-	Open [Plain Text Editor](../apps/plain-text-editor/index.md), tap “Create Document”, and type. It saves a plain text file in the Files app, which you can share, rename, or open in another app. Without an app, a shortcut with the “Text” and “Save File” actions saves text as a file.
+	Open [Plain Text Editor](/plain-text-editor), tap “Create Document”, and type. It saves a plain text file in the Files app, which you can share, rename, or open in another app. [Without an app](#without-an-app), a shortcut with the “Text” and “Save File” actions saves text as a file.
 }
 
 ## With Plain Text Editor
 
 @Steps {
-1. Open [Plain Text Editor](../apps/plain-text-editor/index.md).
+1. Open [Plain Text Editor](/plain-text-editor).
 1. Tap “Create Document”.
 1. Type the text. It saves by itself.
 1. To change the name of the file, tap the name at the top, and tap “Rename”.
 }
 
-The file is a normal `.txt` file in the Files app, so you can attach it to an email, upload it to a website, or open it on your Mac, where [Plain Text Editor also works](plain-text-editor-mac.md). The app also opens and edits other plain text files, like `.csv` and `.md` files: tap the file in the Files app, or choose it in the app.
+The file is a normal `.txt` file in the Files app, so you can attach it to an email, upload it to a website, or open it on your Mac, where [Plain Text Editor also works](guide:plain-text-editor-mac). The app also opens and edits other plain text files, like `.csv` and `.md` files: touch and hold the file in the Files app, and tap “Open With”, or choose it in the app. [How to open a text file on iPhone.](guide:open-txt-file-iphone)
+
+On Mac, see [how to create a new text file on Mac](guide:create-text-file-mac).
 
 ## Without an app
 

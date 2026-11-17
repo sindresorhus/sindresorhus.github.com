@@ -11,6 +11,12 @@ gumroad: {
 	price: 6
 }
 releasesRepository: 'sindresorhus/default-browser-meta'
+categories: [
+	'browsers'
+]
+relatedApps: [
+	'supercharge'
+]
 announcement: {
 	text: 'Save 30% with the Power User Bundle: Default Browser, Shortcutie, and Supercharge'
 	link: {
@@ -42,10 +48,6 @@ pressQuotes: [
 		url: 'https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac'
 		year: 2025
 	}
-	{
-		quote: 'Works flawlessly! It’s exactly what I needed to quickly switch between browsers! Thank you for this fantastic app!'
-		source: 'Petar Stoyanov'
-	}
 ]
 feedbackNote: '[Focus Filters are broken on macOS 26.5 and later.](https://developer.apple.com/forums/thread/826766) Only Apple can fix this.'
 ---
@@ -63,19 +65,10 @@ Unlike similar apps, this one actually changes the system default browser (and w
 - Hide menu bar icon
 - Show the default browser’s icon in the menu bar
 - Keyboard shortcut to show the menu
-- [Shortcuts app integration](#shortcuts)
+- Shortcuts app integration <section:shortcuts>
 - [Focus Filter](#focus-filter) to automatically switch browser based on [Focus mode](https://support.apple.com/guide/mac-help/mchl613dc43f/mac#mchl49b73d04)
 
----
-
-Mentions:
-- [Review in MacStories](https://www.macstories.net/reviews/default-browser-a-mac-menu-bar-utility-for-quickly-switching-browsers/)
-- [Lifehacker article](https://lifehacker.com/tech/finally-an-easier-way-to-change-your-default-browser-on-mac)
-
-> [!TIP]
-> Switching the default browser is also a feature of my [Supercharge](/supercharge) app.
-
----
+Switching the default browser is also a feature of my [Supercharge](/supercharge) app.
 
 ## Tips
 

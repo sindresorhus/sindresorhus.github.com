@@ -30,6 +30,15 @@ struct EscapingTests {
 	}
 
 	@Test
+	func `an HTML fragment of text is escaped, and it is its HTML in a page and in a string`() {
+		let fragment = HTMLFragment(text: "Tom & <b>")
+
+		#expect(fragment.rawValue == "Tom &amp; &lt;b&gt;")
+		#expect("<p>\(fragment)</p>" == "<p>Tom &amp; &lt;b&gt;</p>")
+		#expect(p { fragment }.render() == "<p>Tom &amp; &lt;b&gt;</p>")
+	}
+
+	@Test
 	func `a combining mark after a special character does not stop the escaping`() {
 		let attack = "x\"\u{301} onerror=alert(1) <\u{301}b &\u{301}"
 		let escaped = attack.escapedForHTML
@@ -41,8 +50,8 @@ struct EscapingTests {
 		#expect(escaped.contains(escapedAmpersand))
 
 		let html = MarkdownDocument(parsing: "![a\"\u{301} onerror=alert(1) x](/i.png)").html
-		#expect(html.contains("<img src=\"/i.png\" alt=\"a"))
-		let scalars = Array(html.unicodeScalars)
+		#expect(html.rawValue.contains("<img src=\"/i.png\" alt=\"a"))
+		let scalars = Array(html.rawValue.unicodeScalars)
 		let hasRawQuoteWithMark = zip(scalars, scalars.dropFirst()).contains { $0 == "\"" && $1.value == 0x301 }
 		#expect(!hasRawQuoteWithMark)
 	}
@@ -183,30 +192,20 @@ struct HTMLAttributeTests {
 
 struct JSONScriptTests {
 	@Test
-	func `structured data models own keyword mappings without rewriting nested domain keys`() throws {
+	func `structured data writes the JSON-LD keywords at every level`() {
 		struct Child: Encodable {
-			let id: String
-			let type: String
+			let id = "https://example.com/#child"
+			let type = "Thing"
 		}
 
 		struct Model: Encodable {
+			let context = "https://schema.org"
 			let type = "Thing"
-			let child = Child(id: "domain-id", type: "domain-type")
+			let child = Child()
 			let text = "</script>"
-
-			private enum CodingKeys: String, CodingKey {
-				case type = "@type"
-				case child
-				case text
-			}
 		}
 
-		let model = Model()
-		let object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(model)) as? [String: Any])
-		#expect(object["@type"] as? String == "Thing")
-		let child = try #require(object["child"] as? [String: String])
-		#expect(child == ["id": "domain-id", "type": "domain-type"])
-		#expect(JSONScript(structuredData: model).render() == #"<script type="application/ld+json">{"@type":"Thing","child":{"id":"domain-id","type":"domain-type"},"text":"\u003C/script>"}</script>"#)
+		#expect(JSONScript(structuredData: Model()).render() == #"<script type="application/ld+json">{"@context":"https://schema.org","@type":"Thing","child":{"@id":"https://example.com/#child","@type":"Thing"},"text":"\u003C/script>"}</script>"#)
 	}
 
 	@Test

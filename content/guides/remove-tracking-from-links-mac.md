@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	[Velja](../apps/velja/index.md) removes tracking parameters, like `utm_source`, from the links that you click in other apps before they open in your browser. It can also clean the links that you copy. Safari can remove known tracking parameters in Safari itself.
+	[Velja](/velja) removes tracking parameters, like `utm_source`, from the links that you click in other apps before they open in your browser. It can also clean the links that you copy. [Without an app](#without-an-app), Safari can remove known tracking parameters in Safari itself.
 }
 
 ## With Velja
 
 @Steps {
-1. Open [Velja](../apps/velja/index.md), click “Continue”, and then “Get Started”. Velja works by being the default browser, so it asks to become it.
+1. Open [Velja](/velja), click “Continue”, and then “Get Started”. Velja works by being the default browser, so it asks to become it.
 1. Open the settings, and click “Extras”. “Remove tracking parameters when opening links” is on by default.
 1. To also clean the links that you copy, turn on “Remove tracking parameters when copying links”.
 }

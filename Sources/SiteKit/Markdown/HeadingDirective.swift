@@ -268,4 +268,11 @@ extension Markup {
 
 		return parent.child(at: indexInParent - 1)
 	}
+
+	/**
+	The markup after this one in its parent, like the emphasis after a text. `nil` for the last child.
+	*/
+	public var nextSibling: (any Markup)? {
+		parent?.child(at: indexInParent + 1)
+	}
 }

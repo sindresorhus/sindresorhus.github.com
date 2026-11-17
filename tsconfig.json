@@ -22,6 +22,9 @@
 		"Sources/Website/Components/Scripts/CopyButton.js",
 		"Sources/Website/Components/Scripts/AwakeStatus.js",
 		"Sources/Website/Components/Scripts/ShareButton.js",
-		"Sources/Website/Components/Scripts/OverflowMenu.js"
+		"Sources/Website/Components/Scripts/OverflowMenu.js",
+		"Sources/Website/Components/Scripts/RunningCount.js",
+		"Sources/Website/Components/Scripts/InlineNote.js",
+		"Sources/Website/Components/Scripts/ProjectOfTheDay.js"
 	]
 }

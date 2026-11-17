@@ -78,8 +78,8 @@ struct GitHub {
 				return url.absoluteString
 			}
 
-			let notesHTML = release.body.map { MarkdownDocument(releaseNotes: $0, options: options).html } ?? ""
-			return GitHubRelease(tagName: release.tagName, publishedAt: publishedAt, notesHTML: notesHTML)
+			let notes = release.body.map { MarkdownDocument(releaseNotes: $0, options: options).html } ?? .empty
+			return GitHubRelease(tagName: release.tagName, publishedAt: publishedAt, notes: notes)
 		}
 		.sorted(using: KeyPathComparator(\.publishedAt, order: .reverse))
 	}
@@ -134,6 +134,19 @@ struct GitHub {
 	static let ownerQualifiers = owners.lazy.map { "user:\($0)" }.joined(separator: " ")
 
 	/**
+	The search of the reports of the account to Apple in the open collection of Feedback Assistant reports, like “FB18692873: Menu item icons in macOS 26 reduce usability”, which the about page counts (``Account/appleReportCount``) and links to (``appleReportsURL``).
+	*/
+	private static let appleReportsQuery = "repo:feedback-assistant/reports is:issue author:\(account)"
+
+	/**
+	The reports of the account to Apple on GitHub (``appleReportsQuery``).
+	*/
+	static let appleReportsURL = #URL("https://github.com/search").appending(queryItems: [
+		URLQueryItem(name: "q", value: appleReportsQuery),
+		URLQueryItem(name: "type", value: "issues"),
+	])
+
+	/**
 	The numbers of the account, for the about page, and the repos of the account and the organizations (``owners``), for the about page and the now page.
 	*/
 	struct Account {
@@ -153,6 +166,11 @@ struct GitHub {
 		The issues closed and the pull requests by other people merged, of all time.
 		*/
 		let maintenance: Maintenance
+
+		/**
+		The reports to Apple in public, like 324 (``appleReportsURL``).
+		*/
+		let appleReportCount: Int
 
 		/**
 		All the public repos of the ``owners``, also the forks and the archived ones, in the order of the owners, so the now page can find the repos that were made this year.
@@ -190,9 +208,9 @@ struct GitHub {
 	}
 
 	/**
-	The numbers of the account. The stars are the sum of the stars of each repo, so it asks for all the pages of repos of each of the ``owners``. The closed issues and the merged pull requests are searches.
+	The numbers of the account. The stars are the sum of the stars of each repo, so it asks for all the pages of repos of each of the ``owners``. The closed issues, the merged pull requests, and the reports to Apple are searches.
 
-	That is about 23 requests, and two searches. Without a token, GitHub allows 60 requests an hour and 10 searches a minute.
+	That is about 23 requests, and three searches. Without a token, GitHub allows 60 requests an hour and 10 searches a minute.
 	*/
 	func account() async throws -> Account {
 		struct User: Decodable {
@@ -207,6 +225,7 @@ struct GitHub {
 
 		// All at the same time, and the pages of repos of each owner once its user gives their number.
 		async let allTimeMaintenance = maintenance()
+		async let appleReportCount = issueCount(matching: Self.appleReportsQuery)
 
 		let owners = try await Self.owners.concurrentMap { owner in
 			let user: User = try await get("users/\(owner)")
@@ -222,6 +241,7 @@ struct GitHub {
 			followerCount: owners.first { $0.owner == Self.account }?.user.followerCount ?? 0,
 			starCount: repositories.filter { !$0.isFork }.map(\.stars).sum,
 			maintenance: try await allTimeMaintenance,
+			appleReportCount: try await appleReportCount,
 			repositories: repositories
 		)
 	}

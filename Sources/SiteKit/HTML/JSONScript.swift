@@ -34,12 +34,33 @@ public struct JSONScript: HTML, Sendable {
 	}
 
 	/**
-	Schema.org structured data (JSON-LD) for search engines. The model owns its wire keys, including the JSON-LD keywords `@type`, `@context`, and `@id`.
+	Data for a service that reads the page, in the media type of the service, like the link preview of Discord (`application/vnd.discord.component-embed+json`), so it is not the data of a page script.
+	*/
+	public init(id: ElementID, type: HTMLAttribute<HTMLTag.script>.ScriptType, _ value: some Encodable) {
+		self.type = type
+		self.attribute = .id(id)
+		self.json = Self.encode(value)
+	}
+
+	/**
+	Schema.org structured data (JSON-LD) for search engines. The JSON-LD keywords are the same in every model, so a property named `type`, `id`, or `context` is written as `@type`, `@id`, or `@context`, at every level. The other keys are the names of the properties.
 	*/
 	public init(structuredData value: some Encodable) {
 		self.type = "application/ld+json"
 		self.attribute = nil
-		self.json = Self.encode(value)
+		self.json = Self.encode(
+			value,
+			keyEncodingStrategy: .custom { codingPath in
+				// The last key of the path is the key that the encoder writes.
+				let key = codingPath.last!
+
+				guard ["type", "id", "context"].contains(key.stringValue) else {
+					return key
+				}
+
+				return AnyCodingKey(stringValue: "@\(key.stringValue)")
+			}
+		)
 	}
 
 	/**
@@ -61,8 +82,8 @@ public struct JSONScript: HTML, Sendable {
 	/**
 	Encodes with sorted keys. Every `<` is escaped as `\u003C`, so the JSON cannot end the script element or change how the HTML parser reads it, like with `<!--<script`. In JSON, `<` can only be in strings, where the escape is the same character.
 	*/
-	private static func encode(_ value: some Encodable) -> String {
-		JSONEncoder.pageJSON(value).replacing("<", with: #"\u003C"#)
+	private static func encode(_ value: some Encodable, keyEncodingStrategy: JSONEncoder.KeyEncodingStrategy = .useDefaultKeys) -> String {
+		JSONEncoder.pageJSON(value, keyEncodingStrategy: keyEncodingStrategy).replacing("<", with: #"\u003C"#)
 	}
 }
 

@@ -12,9 +12,9 @@ struct MarkdownPage: ContentDocument {
 	let sponsorTiers: [SponsorTier.Resolved]
 
 	/**
-	The `now.status` of the now page, which is inline Markdown, so it can have links, like the text of the page.
+	How the site shows the page, by its path.
 	*/
-	let status: MarkdownDocument?
+	let kind: Kind
 
 	static let directory: Project.ContentDirectory = "content/pages"
 
@@ -33,20 +33,44 @@ struct MarkdownPage: ContentDocument {
 
 	/**
 	- Parameter today: The day of the build, which decides what `@Scheduled` shows. Without it, like in a test, `@Scheduled` is an unknown directive. The FAQ page cannot have it, as the feedback page would suggest a question that the page does not show.
+	- Parameter appIconCopies: The JPEG XL copies of the icons of the apps (``App/iconJPEGXLCopies(project:)``), for the icons before the links to the app pages. Without them, like in a test, the icons are only PNG.
 	*/
-	init(file decodedFile: DecodedMarkdownFile<Frontmatter>, project: Project, today: SOML.Date?) throws {
+	init(
+		file decodedFile: DecodedMarkdownFile<Frontmatter>,
+		project: Project,
+		today: SOML.Date?,
+		appIconCopies: [RoutePath: JPEGXLCopy] = [:]
+	) throws {
 		let file = decodedFile.source
 		let frontmatter = decodedFile.frontmatter
-		let kind = Kind(path: Self.path(slug: file.slug))
+		let path = Self.path(slug: file.slug)
 
 		// Only the now page shows it, so on another page it would be silently missing.
 		if
 			frontmatter.now != nil,
-			kind != .now
+			path != .now
 		{
 			throw decodedFile.error(at: .now, "Only `content/pages/now.md` can have `now`.")
 		}
 
+		let kind: Kind = switch path {
+		case .about:
+			.about
+		case .now:
+			.now(
+				Now.Resolved(
+					status: try frontmatter.now?.status.map { try MarkdownDocument(parsing: $0, at: .now, of: decodedFile, project: project) },
+					reading: frontmatter.now?.reading ?? [],
+					listening: frontmatter.now?.listening ?? []
+				)
+			)
+		case .faq:
+			.faq
+		default:
+			.standard
+		}
+
+		self.kind = kind
 		self.decodedFile = decodedFile
 
 		do throws(ContentError) {
@@ -57,17 +81,22 @@ struct MarkdownPage: ContentDocument {
 			throw decodedFile.error(at: .sponsorTiers, error.reason)
 		}
 
-		self.status = try frontmatter.now?.status.map { try MarkdownDocument(parsing: $0, at: .now, of: decodedFile, project: project) }
-		let parsed = file.parsedMarkdown(options: kind == .faq ? .faqPage(file, project: project) : .content(
-			file,
-			project: project,
-			sponsorTiers: sponsorTiers,
-			today: today
-		))
+		var options: MarkdownDocument.Options = if case .faq = kind {
+			.faqPage(file, project: project)
+		} else {
+			.content(
+				file,
+				project: project,
+				sponsorTiers: sponsorTiers,
+				today: today
+			)
+		}
+		options.addAppLinkIcons(project: project, iconCopies: appIconCopies)
+		let parsed = file.parsedMarkdown(options: options)
 		self.markdown = try parsed.rendered()
 
 		// The feedback page suggests the general questions, so the directives of another heading would silently do nothing.
-		if kind == .faq {
+		if case .faq = kind {
 			var errors = markdown.headings.compactMap { heading -> ContentError? in
 				// A question with `@faq.compares` gets only the error below, as that directive is the one to remove.
 				guard
@@ -114,13 +143,6 @@ struct MarkdownPage: ContentDocument {
 	}
 
 	/**
-	How the site shows the page, by its path.
-	*/
-	var kind: Kind {
-		Kind(path: path)
-	}
-
-	/**
 	The metadata of a page that shows the document: its title and description.
 	*/
 	var metadata: PageMetadata {
@@ -139,16 +161,16 @@ extension MarkdownPage {
 	/**
 	The pages that the site shows in their own way, so the page and what it needs have one owner, not a compare of paths in each place.
 	*/
-	enum Kind {
+	enum Kind: Sendable {
 		/**
 		The about page (``AboutPage``), which shows the numbers and the projects between its sections.
 		*/
 		case about
 
 		/**
-		The now page (``NowPage``), the only page with `now`.
+		The now page (``NowPage``), the only page with `now`, with what Sindre is up to. It is empty when the file has no `now`.
 		*/
-		case now
+		case now(Now.Resolved)
 
 		/**
 		The general FAQ (``RoutePath/faq``), with collapsible questions, which the feedback page suggests.
@@ -157,24 +179,15 @@ extension MarkdownPage {
 
 		case standard
 
-		init(path: RoutePath) {
-			self = switch path {
-			case .about:
-				.about
-			case .now:
-				.now
-			case .faq:
-				.faq
-			default:
-				.standard
-			}
-		}
-
 		/**
 		The IDs of the level 2 headings that the page is split before, in their order, which the page must have.
 		*/
 		var requiredHeadingIDs: [ElementID] {
-			self == .about ? AboutPage.splitHeadingIDs : []
+			if case .about = self {
+				AboutPage.splitHeadingIDs
+			} else {
+				[]
+			}
 		}
 	}
 }
@@ -206,6 +219,13 @@ extension MarkdownPage {
 		*/
 		var now: Now?
 
+		var proseTexts: [ProseText] {
+			[
+				(title, [CodingKeys.title]),
+				(description, [CodingKeys.description]),
+			]
+		}
+
 		func validate(into problems: inout FrontmatterProblems<Self>) {
 			problems.validate(sponsorTiers, at: .sponsorTiers)
 		}
@@ -230,10 +250,23 @@ extension MarkdownPage {
 		What Sindre is listening to, one line each, for the now page.
 		*/
 		var listening = [NonEmptyString]()
+
+		/**
+		What Sindre is up to, with the status rendered, as the pages show its links. The lists are empty when the file does not have them.
+		*/
+		struct Resolved: Sendable {
+			/**
+			The status, which is inline Markdown, so it can have links, like the text of the page.
+			*/
+			let status: MarkdownDocument?
+
+			let reading: [NonEmptyString]
+			let listening: [NonEmptyString]
+		}
 	}
 
 	/**
-	A level of sponsorship, like “Silver sponsor”, with its sponsors.
+	A level of sponsorship, like “Silver Sponsor”, with its sponsors.
 	*/
 	@Frontmatter
 	struct SponsorTier {

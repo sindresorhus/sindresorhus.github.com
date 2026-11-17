@@ -3,10 +3,10 @@ title: 'Affiliates'
 description: 'Earn money by promoting apps by Sindre Sorhus.'
 ---
 
-# Affiliates for my apps
+# Affiliates
 
 Earn money promoting some of my apps.
 
 Currently, only one:
 
-- [QuickGPT](/quickgpt): [Sign up as affiliate and earn 50% of each sale](https://sindresorhus.gumroad.com/affiliates)
+- [QuickGPT](/quickgpt): [Sign up as an affiliate and earn 50% of each sale](https://sindresorhus.gumroad.com/affiliates)

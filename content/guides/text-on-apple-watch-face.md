@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Apple Watch can show your own text only as a monogram of a few characters, on some watch faces. With [Any Text](../apps/any-text/index.md), write a text on your iPhone, like a goal or a room number, and add it to the watch face as a complication.
+	Apple Watch can show your own text only as a monogram of a few characters, on some watch faces. With [Any Text](/any-text), write a text on your iPhone, like a goal or a room number, and add it to the watch face as a complication.
 }
 
 ## With Any Text
 
 @Steps {
-1. Install [Any Text](../apps/any-text/index.md) on your iPhone and on your Apple Watch.
+1. Install [Any Text](/any-text) on your iPhone and on your Apple Watch.
 1. In Any Text on the iPhone and on the Apple Watch, tap the More button, and turn on “iCloud Sync”. The text gets to the watch with iCloud.
 1. Open Any Text on the iPhone, tap “Widget 1”, and write your text.
 1. On the Apple Watch, touch and hold the watch face, and tap “Edit”.

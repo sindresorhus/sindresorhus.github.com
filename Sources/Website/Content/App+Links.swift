@@ -89,8 +89,10 @@ extension App {
 			links.append(namingApp(LabeledLink("Privacy Policy", path: privacyPolicyPath)))
 			links.append(.termsOfUse)
 
+			// The questions that buyers ask before and after a purchase, like refunds and Family Sharing.
 			if isPaid {
 				links.append(.discounts)
+				links.append(.purchaseHelp)
 			}
 		}
 
@@ -112,7 +114,7 @@ extension App {
 	}
 
 	/**
-	The places to get the app, and its trial, in the order they are shown. The stores come first when the app is on the App Store, as most visitors get it there. Otherwise, the own links, like “Buy”, and the trial come before Setapp, so the page offers its own purchase before the subscription of another company. Archived apps can only be downloaded from their own links, and have no trial.
+	The places to get the app, and its trial, in the order they are shown. The App Store comes first when the app is on it, as most visitors get it there, and else the own links, like “Buy”. The trial comes right after that purchase, and Setapp after the trial, so the page offers its own purchase before the subscription of another company. The other own links of an app on the App Store, like “Source Code”, are last. Archived apps can only be downloaded from their own links, and have no trial.
 	*/
 	var downloadOptions: [DownloadOption] {
 		downloadOptions(appStorePlacement: .downloadButton)
@@ -126,12 +128,17 @@ extension App {
 			return ownOptions
 		}
 
-		let ownOptionsWithTrial = ownOptions + (hasTrial ? [.trial(appPath: path)] : [])
+		let trialAndSetapp = [
+			hasTrial ? DownloadOption.trial(appPath: path) : nil,
+			frontmatter.setappID.map(DownloadOption.setapp),
+		]
+		.compactMap(\.self)
 
-		let appStoreOption = appStoreID.map { DownloadOption.appStore($0, placement: appStorePlacement) }
-		let storeOptions = [appStoreOption, frontmatter.setappID.map(DownloadOption.setapp)].compactMap(\.self)
+		guard let appStoreID else {
+			return ownOptions + trialAndSetapp
+		}
 
-		return appStoreOption == nil ? ownOptionsWithTrial + storeOptions : storeOptions + ownOptionsWithTrial
+		return [.appStore(appStoreID, placement: appStorePlacement)] + trialAndSetapp + ownOptions
 	}
 
 	/**
@@ -273,7 +280,7 @@ enum DownloadOption: Hashable {
 	case sourceCode(AbsoluteURL)
 
 	/**
-	The “Free Trial” button, which links to the trial section of the app page at its path, so it also works on another page, like a guide.
+	The “Free Trial” button, which links to the trial section of the app page at its path, so it also works on another page, like a guide. On the app page, it opens the trial card over the page instead (``DownloadOptions/trialDialogID``).
 	*/
 	case trial(appPath: RoutePath)
 
@@ -302,6 +309,28 @@ enum DownloadOption: Hashable {
 			true
 		case .sourceCode, .trial:
 			false
+		}
+	}
+
+	/**
+	The name of the link, like the label of its button on the page, for a place that shows the options as text links, like the link preview of Discord. A store has its name, as the page shows its badge.
+	*/
+	var title: String {
+		switch self {
+		case .appStore:
+			"App Store"
+		case .setapp:
+			"Setapp"
+		case .website:
+			"Learn More"
+		case .gitHubDownload:
+			"Download"
+		case .gumroad:
+			"Buy"
+		case .sourceCode:
+			"Source Code"
+		case .trial:
+			"Free Trial"
 		}
 	}
 

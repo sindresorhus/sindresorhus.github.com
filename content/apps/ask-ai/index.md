@@ -31,7 +31,7 @@ privacyNote: 'Your questions are sent to OpenAI to get the answers. The app coll
 
 Ask [ChatGPT](https://en.wikipedia.org/wiki/ChatGPT) a question and get the answer right on your Apple Watch, without taking out your phone.
 
-Have it explain a topic, translate a phrase, recommend something, solve a math problem, or improve your writing.
+Have it explain a topic, translate a phrase, recommend something, solve a math problem, or improve your writing. <guide:translate-apple-watch>
 
 Tap an answer to hear it read aloud, or turn on “Auto-speak answer” in the settings to hear each answer right away. Add the Ask AI complication to your watch face to open the app with one tap.
 

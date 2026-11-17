@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	Put the “Authenticate” action of the free [Actions](../apps/actions/index.md) app at the start of the shortcut, and continue only when its result is true. Without an app, iOS can require Face ID to open an app, which protects the app, not one shortcut.
+	Put the “Authenticate” action of the free [Actions](/actions) app at the start of the shortcut, and continue only when its result is true. [Without an app](#without-an-app), iOS can require Face ID to open an app, which protects the app, not one shortcut.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In the Shortcuts app, open your shortcut, and add the “Authenticate” action at the top.
+1. Install [Actions](/actions), and open it once.
+1. In the Shortcuts app, open your shortcut, and add the [“Authenticate”](/actions#:~:text=Authenticate) action at the top.
 1. Below it, add an “If” action that checks the result of the action, “Is Authenticated”. Put the other actions of your shortcut inside the “If” action.
 1. Run the shortcut. The Actions app opens for a moment to show the Face ID prompt, and then the Shortcuts app comes back.
 }

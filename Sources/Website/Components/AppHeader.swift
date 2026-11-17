@@ -61,6 +61,10 @@ struct AppHeader<Accessory: HTML>: HTML {
 				template(.id(AppHeaderIDs.iconTemplate)) {
 					img(.alt(""), .width(128), .height(128))
 						.style(AppHeaderStyles.icon)
+						// The shadow of ``AppIcon``, as this image is not one.
+						.style {
+							$0.filter(AppIcon.shadow)
+						}
 				}
 			}
 
@@ -132,10 +136,9 @@ private enum AppHeaderStyles: String, StyleSet {
 					$0.gap(.rootEm(0.75))
 				}
 		case .icon:
-			// About as tall as the name and the title next to it, with the shadow of the icons of the app cards. On phones, smaller, so the title has room.
+			// About as tall as the name and the title next to it, with the shadow of ``AppIcon``. On phones, smaller, so the title has room.
 			Style()
 				.frame(width: .rootEm(5.5), height: .rootEm(5.5), minWidth: .rootEm(5.5))
-				.filter(AppCard.iconShadow)
 				.below(.smallTablet) {
 					$0.frame(width: .rootEm(3), height: .rootEm(3), minWidth: .rootEm(3))
 				}
@@ -145,15 +148,15 @@ private enum AppHeaderStyles: String, StyleSet {
 				.flex(1)
 				.frame(minWidth: .length(.min(.em(10), .percent(100))))
 		case .name:
-			// Above the title, like the date of a blog post.
+			// Above the title, like the date of a blog post, in the accent of the app, like the small labels of the app page, so the subpages of the app have its color at the top too.
 			Style()
 				.hstack(alignment: .baseline, spacing: .rootEm(0.75))
 				.flexWrap()
 				.margin(.bottom, .rootEm(0.25))
 				.textStyle(.body, weight: .semibold)
-				.color(.secondaryText)
+				.color(.accentText)
 				// Hidden while the script has not filled in the app (``AppHeader/selectedByScript(title:accessory:)``), so its margin does not move the title down.
-				.nested("&:not(:has(> :not([hidden])))") {
+				.allChildrenHidden {
 					$0.hidden()
 				}
 		}

@@ -139,13 +139,13 @@ No, that’s not the purpose of this app. Different apps use different technique
 
 Run this command in the Terminal app:
 
-```sh
+```console
 defaults export com.sindresorhus.Lungo - | defaults import com.sindresorhus.Lungo-setapp -
 ```
 
 And to transfer the other way:
 
-```sh
+```console
 defaults export com.sindresorhus.Lungo-setapp - | defaults import com.sindresorhus.Lungo -
 ```
 
@@ -169,7 +169,7 @@ You can control Lungo using anything that supports opening a URL with a custom s
 *Lungo also comes with support for Shortcuts. For example, on macOS 27, the “Adjust Time” action adds or subtracts time from the current countdown.*
 
 > [!TIP]
-> You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+> You can [run shortcuts from the command line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
 ### Integrations
 
@@ -177,21 +177,22 @@ You can control Lungo using anything that supports opening a URL with a custom s
 - [Raycast commands](https://github.com/raycast/script-commands/tree/master/commands#lungo)
 	- Note: Raycast commands are not the same as plugins. [How to install commands.](https://github.com/raycast/script-commands#install-script-commands-from-this-repository)
 
-### Custom URL scheme
+### URL scheme {#custom-url-scheme}
 
 For example, to activate Lungo for 10 minutes, run this terminal command:
 
-```sh
+```console
 open --background 'lungo:activate?minutes=10'
 ```
 
 #### Commands
 
-- `activate`
-- `deactivate`
-- `toggle`
-
-The `activate` and `toggle` commands support the parameters `hours` and `minutes`, which can be used together or individually. If you don’t specify a duration, it will use the default duration you have set in Lungo.
+- `lungo:activate?hours=1&minutes=30`
+	:: Activate Lungo. The `hours` and `minutes` parameters are optional, and you can use one or both. Without them, Lungo uses the default duration you set in Lungo.
+- `lungo:deactivate`
+	:: Deactivate Lungo.
+- `lungo:toggle?minutes=10`
+	:: Activate or deactivate Lungo. It has the same parameters as `activate`.
 
 *(Use [`lungo-cli`](https://github.com/sindresorhus/lungo-cli) if you need to get the active state)*
 
@@ -216,6 +217,7 @@ open --background 'lungo:toggle'
 open --background 'lungo:toggle?minutes=10'
 ```
 
+@Details(summary: "Node.js, Swift, AppleScript, and Python") {
 ##### Node.js
 
 ```js
@@ -249,3 +251,4 @@ import subprocess
 
 subprocess.run(['open', '--background', 'lungo:toggle'])
 ```
+}

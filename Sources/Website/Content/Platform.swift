@@ -1,3 +1,4 @@
+import Foundation
 import SiteKit
 
 enum Platform: String, ContentEnum, Encodable {
@@ -85,6 +86,13 @@ enum MacOSVersion: String, ContentEnum, Encodable {
 		// Every raw value is a version.
 		OSVersion(rawValue)!
 	}
+
+	/**
+	This version or later, like “macOS 15 or later”, for an older version that also runs on newer macOS versions.
+	*/
+	var requirement: OSRequirement {
+		.macOS(osVersion)
+	}
 }
 
 /**
@@ -134,17 +142,50 @@ struct OSVersion: Hashable, Comparable, CustomStringConvertible {
 	static func < (lhs: Self, rhs: Self) -> Bool {
 		(lhs.major, lhs.minor) < (rhs.major, rhs.minor)
 	}
+}
+
+/**
+The lowest OS version that something runs on, with its platforms, like “macOS or iOS 26 or later”. The platforms share their version numbers from 26, so one version is enough.
+*/
+struct OSRequirement: CustomStringConvertible {
+	/**
+	The start of a requirement as a sentence (``sentence``), which `website check` uses to find the requirement that the content writes below a list of older versions, like `*Requires macOS 15 or later*`.
+	*/
+	static let sentencePrefix = "Requires "
 
 	/**
-	The start of a requirement (``macOSRequirementSentence``), which `website check` uses to find the requirement that the content writes below a list of older versions, like `*Requires macOS 15 or later*`.
+	The platforms, in the order that the text names them.
 	*/
-	static let requirementPrefix = "Requires "
+	let platforms: [Platform]
+
+	let version: OSVersion
 
 	/**
-	The requirement of something that runs on this version of macOS or later, like “Requires macOS 26 or later”, which the trials, the older versions, and the tiny apps show. An app page says its requirement with its platforms (``AppListing/requirementSentence``).
+	A requirement of something that runs only on macOS, like the trials, the non-App Store versions, the older versions, and the tiny apps. An app page says its requirement with its platforms (``AppListing/requirement``).
 	*/
-	var macOSRequirementSentence: String {
-		"\(Self.requirementPrefix)\(Platform.macOS.rawValue) \(self) or later"
+	static func macOS(_ version: OSVersion) -> Self {
+		Self(platforms: [.macOS], version: version)
+	}
+
+	/**
+	Like “macOS 26 or later”. Several platforms are named once, like “macOS, iOS, or visionOS 26 or later”.
+	*/
+	var description: String {
+		"\(platforms.map(\.rawValue).formattedList(.or)) \(version) or later"
+	}
+
+	/**
+	Like “Requires macOS, iOS, or visionOS 26 or later”.
+	*/
+	var sentence: String {
+		Self.sentencePrefix + description
+	}
+
+	/**
+	The version of each platform, like “macOS 26 or later, iOS 26 or later”, for the structured data, which has no sentence around it.
+	*/
+	var descriptionByPlatform: String {
+		platforms.map { "\($0.rawValue) \(version) or later" }.joined(separator: ", ")
 	}
 }
 

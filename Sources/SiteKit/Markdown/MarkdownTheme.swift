@@ -104,6 +104,26 @@ public enum MarkdownElement: Hashable, Sendable {
 	case menuPathSeparator
 
 	/**
+	A word with a hyphen between two letters or digits in a heading or a title, like “To-Do”, “built-in”, or “20-20-20” (``MarkdownTheme/headingTextHTML(_:)``), which stays on one line, as a browser can break a line after the hyphen, like “To-” and “Do”, and a balanced heading often does. The text keeps the plain hyphen, so a copy and a search of it do not change. Limitation: a word that is wider than the column, like “Micro-Benchmark” in a large title on a screen of 320 px, goes a little into the space at the side of the text. In prose, only a word that ends with “-click”, like “double-click”, and a range of numbers, like “14:00–15:30”, stay on one line (``MarkdownTheme/textHTML(_:)``).
+	*/
+	case hyphenatedWord
+
+	/**
+	Inline code of 24 characters or less, like `back-link-1x2y3z4` or `hdiutil attach` (``MarkdownTheme/inlineCodeHTML(_:)``), which stays on one line, as in code, a hyphen or a space is part of the code, so a break there reads as two pieces, and a hyphen at the end of a line looks like a hyphenation. Limitation: in a narrow table on a screen of 320 px, the code can make the table scroll.
+	*/
+	case shortCode
+
+	/**
+	The icon of a link (``MarkdownDocument/Options/linkIcon``) and the first word of its text, which stay on one line, as a browser can break a line after an image, like an icon at the end of a line and the name of the app on the next line.
+	*/
+	case linkIcon
+
+	/**
+	A link that is a small tag, like “Guide” for `<guide:find-screenshots-mac>` after a feature (``MarkdownDocument/Options/linkTags``).
+	*/
+	case linkTag
+
+	/**
 	The container of a table, which scrolls a table that is wider than the content. It has keyboard focus and a label, so keyboard and screen reader users can scroll it too.
 	*/
 	case tableContainer
@@ -154,9 +174,62 @@ public enum MarkdownElement: Hashable, Sendable {
 	case listDescription
 
 	/**
-	A paragraph that only has bold text, like `**Highlights**`, which works as a label for the text below it.
+	A bulleted list where each item starts with inline code and has a `:: ` line, like the commands of an app, which is a reference: “`plash:reload`” and “Reload the current website.” below it. It has the `list` role, as it can have no bullets.
+	*/
+	case commandList
+
+	/**
+	A paragraph that only has bold text and does not end with a period, like `**Highlights**` or a bold question above its answer, which works as a label for the text below it. A whole bold sentence is text.
 	*/
 	case boldLabel
+
+	/**
+	A paragraph that ends with a colon, like “Apple’s instructions:”, which introduces the block below it, like steps or code. Also in a loose list item, like “Run this command:” above the code of a step.
+	*/
+	case leadIn
+
+	/**
+	A paragraph that only has italic text, like `*Requires macOS 26 or later*`, which is a side note to the text around it.
+	*/
+	case sideNote
+
+	/**
+	A paragraph right below a block quote that starts with a dash, like “— Darius Foroux”, which is the source of the quote.
+	*/
+	case quoteSource
+
+	/**
+	The `<section>` of a heading that starts a group and the blocks below it (``MarkdownDocument/Options/groupedHeadingIDs``), like a group of a long list of features, so its title can stay at the top of the screen while the group scrolls, and stops at the end of the group.
+	*/
+	case headingGroup
+}
+
+/**
+The marker at the start of a line of a list item after its first line: `: ` for a subtitle and `:: ` for a description. The page shows the line as ``MarkdownElement/listSubtitle`` or ``MarkdownElement/listDescription`` (``HTMLRenderer``), and the Markdown copies as plain CommonMark (``PlainMarkdownRewriter``), as the markers are only syntax of the site.
+*/
+enum ListLineMarker: String, CaseIterable {
+	// The description first, as its marker starts with the marker of a subtitle.
+	case description = ":: "
+	case subtitle = ": "
+
+	/**
+	The marker at the start of the text, and the text after it. `nil` for text without a marker.
+	*/
+	static func split(_ text: String) -> (marker: Self, text: Substring)? {
+		allCases.first { text.hasPrefix($0.rawValue) }.map { (marker: $0, text: text.dropFirst($0.rawValue.count)) }
+	}
+
+	/**
+	The element that the page shows the line as.
+	*/
+	var element: MarkdownElement {
+		switch self {
+		case .description:
+			.listDescription
+		case .subtitle:
+			.listSubtitle
+		}
+	}
 }
 
 /**
@@ -201,15 +274,15 @@ extension MarkdownTheme {
 	/**
 	A collapsible section (`<details>`) with the look of the collapsible sections, like for a `@Details` directive.
 
-	- Parameter titleHTML: The HTML of the summary.
+	- Parameter title: The HTML of the summary.
 	*/
-	public func collapsibleSection(titleHTML: String, contentHTML: String) -> String {
+	public func collapsibleSection(title: HTMLFragment, content: HTMLFragment) -> HTMLFragment {
 		collapsibleSection(
 			id: nil,
 			name: nil,
 			headingLevel: nil,
-			titleHTML: titleHTML,
-			contentHTML: contentHTML
+			title: title,
+			content: content
 		)
 	}
 
@@ -222,34 +295,42 @@ extension MarkdownTheme {
 		id: ElementID?,
 		name: String?,
 		headingLevel: HeadingLevel?,
-		titleHTML: String,
-		contentHTML: String
-	) -> String {
+		title: HTMLFragment,
+		content: HTMLFragment
+	) -> HTMLFragment {
 		let idAttribute = id.map { #" id="\#($0.rawValue.escapedForHTML)""# } ?? ""
 		let nameAttribute = name.map { #" name="\#($0.escapedForHTML)""# } ?? ""
 		let titleTag = headingLevel.map { "h\($0.rawValue)" } ?? "span"
-		return #"<details\#(idAttribute)\#(nameAttribute)\#(classAttribute(.collapsibleSection))><summary\#(classAttribute(.collapsibleSummary))><\#(titleTag)\#(classAttribute(.collapsibleTitle))>\#(titleHTML)</\#(titleTag)><span\#(classAttribute(.collapsibleChevron)) aria-hidden="true"></span></summary><div\#(classAttribute(.collapsibleContent))>\#(contentHTML)</div></details>"#
+		return HTMLFragment(rawValue: #"<details\#(idAttribute)\#(nameAttribute)\#(classAttribute(.collapsibleSection))><summary\#(classAttribute(.collapsibleSummary))><\#(titleTag)\#(classAttribute(.collapsibleTitle))>\#(title)</\#(titleTag)><span\#(classAttribute(.collapsibleChevron)) aria-hidden="true"></span></summary><div\#(classAttribute(.collapsibleContent))>\#(content)</div></details>"#)
 	}
 
 	/**
 	The link after the collapsible sections, like to more questions.
 	*/
-	func collapsibleMoreLink(_ link: MarkdownDocument.CollapsibleSections.MoreLink) -> String {
-		#"<a href="\#(link.destination.description.escapedForHTML)"\#(classAttribute(.collapsibleMoreLink))>\#(link.title.escapedForHTML)</a>"#
+	func collapsibleMoreLink(_ link: MarkdownDocument.CollapsibleSections.MoreLink) -> HTMLFragment {
+		HTMLFragment(rawValue: #"<a href="\#(link.destination.description.escapedForHTML)"\#(classAttribute(.collapsibleMoreLink))>\#(link.title.escapedForHTML)</a>"#)
 	}
 
 	/**
 	The numbered reference to a footnote in the text: a button that opens the popover with the footnote.
 	*/
-	func footnoteReference(number: Int, popoverID: ElementID) -> String {
-		#"<sup><button type="button" popovertarget="\#(popoverID.rawValue.escapedForHTML)"\#(classAttribute(.footnoteReference)) aria-label="Footnote \#(number)">\#(number)</button></sup>"#
+	func footnoteReference(number: Int, popoverID: ElementID) -> HTMLFragment {
+		HTMLFragment(rawValue: #"<sup><button type="button" popovertarget="\#(popoverID.rawValue.escapedForHTML)"\#(classAttribute(.footnoteReference)) aria-label="Footnote \#(number)">\#(number)</button></sup>"#)
+	}
+
+	/**
+	A link that is a small tag, like “Guide” (``MarkdownElement/linkTag``). A name that is not the text, like “Guide: Find Screenshots on Mac”, is its name for screen readers, which starts with the text that the page shows.
+	*/
+	func linkTag(_ text: String, name: String, destination: String) -> HTMLFragment {
+		let label = name == text ? "" : #" aria-label="\#(name.escapedForHTML)""#
+		return HTMLFragment(rawValue: #"<a href="\#(destination.escapedForHTML)"\#(classAttribute(.linkTag))\#(label)>\#(text.escapedForHTML)</a>"#)
 	}
 
 	/**
 	The text of an inline note: a button that opens the popover with the note.
 	*/
-	func inlineNote(textHTML: String, popoverID: ElementID) -> String {
-		#"<button type="button" popovertarget="\#(popoverID.rawValue.escapedForHTML)"\#(classAttribute(.inlineNote))>\#(textHTML)</button>"#
+	func inlineNote(text: HTMLFragment, popoverID: ElementID) -> HTMLFragment {
+		HTMLFragment(rawValue: #"<button type="button" popovertarget="\#(popoverID.rawValue.escapedForHTML)"\#(classAttribute(.inlineNote))>\#(text)</button>"#)
 	}
 
 	/**
@@ -257,8 +338,8 @@ extension MarkdownTheme {
 
 	The popover gets the focus when it opens, as it is after the text, at the end of the document, so screen readers read it, and Tab goes to its links. Escape gives the focus back to what opened it.
 	*/
-	func popover(id: ElementID, element: MarkdownElement, contentHTML: String) -> String {
-		#"<div popover id="\#(id.rawValue.escapedForHTML)" role="note" tabindex="-1" autofocus\#(classAttribute(element))>\#(contentHTML)</div>"#
+	func popover(id: ElementID, element: MarkdownElement, content: HTMLFragment) -> HTMLFragment {
+		HTMLFragment(rawValue: #"<div popover id="\#(id.rawValue.escapedForHTML)" role="note" tabindex="-1" autofocus\#(classAttribute(element))>\#(content)</div>"#)
 	}
 
 	/**
@@ -266,8 +347,8 @@ extension MarkdownTheme {
 
 	- Parameter title: The title, which is the title of the kind by default, like “Note”.
 	*/
-	public func alert(_ kind: MarkdownAlert, title: String? = nil, contentHTML: String) -> String {
-		#"<div\#(classAttribute(.alert(kind))) dir="auto"><p\#(classAttribute(.alertTitle)) dir="auto"><svg\#(classAttribute(.alertIcon)) viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="\#(kind.iconPath)"></path></svg>\#((title ?? kind.title).escapedForHTML)</p>\#(contentHTML)</div>"#
+	public func alert(_ kind: MarkdownAlert, title: String? = nil, content: HTMLFragment) -> HTMLFragment {
+		HTMLFragment(rawValue: #"<div\#(classAttribute(.alert(kind))) dir="auto"><p\#(classAttribute(.alertTitle)) dir="auto"><svg\#(classAttribute(.alertIcon)) viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="\#(kind.iconPath)"></path></svg>\#((title ?? kind.title).escapedForHTML)</p>\#(content)</div>"#)
 	}
 
 	/**
@@ -296,18 +377,23 @@ extension MarkdownTheme {
 	- Parameter openingPunctuation: The opening punctuation right before the shortcut, like `(`, which stays on the line of a shortcut of more than one key, like the closing punctuation. A browser can break a line before the inline block of the shortcut, also after a parenthesis.
 	- Parameter punctuation: The closing punctuation right after the shortcut, like `,`, which stays on the line of a shortcut of more than one key (``MarkdownElement/keyboardShortcutWithPunctuation``). A browser can break a line after the inline block of the shortcut, also before a comma.
 	*/
-	func keyboardShortcut(_ keys: [KeyboardKey], openingPunctuation: Substring = "", punctuation: Substring = "") -> String {
+	func keyboardShortcut(_ keys: [KeyboardKey], openingPunctuation: Substring = "", punctuation: Substring = "") -> HTMLFragment {
 		let html = String(openingPunctuation).escapedForHTML + keyboardShortcutHTML(keys) + String(punctuation).escapedForHTML
 
 		guard
 			keys.count > 1,
 			!(openingPunctuation.isEmpty && punctuation.isEmpty)
 		else {
-			return html
+			return HTMLFragment(rawValue: html)
 		}
 
-		return #"<span\#(classAttribute(.keyboardShortcutWithPunctuation))>\#(html)</span>"#
+		return HTMLFragment(rawValue: #"<span\#(classAttribute(.keyboardShortcutWithPunctuation))>\#(html)</span>"#)
 	}
+
+	/**
+	A menu path in typographic quotes, like “System Settings › General › Date & Time”, with the opening quote and a parenthesis before it, and the closing quote and the punctuation after it, like `”.`, which stay with the first and the last item (``menuPath(_:openingPunctuation:closingPunctuation:)``). A path that is not in one pair of quotes, like `“Remind Me” › “Tomorrow Morning”`, stays text.
+	*/
+	nonisolated(unsafe) public static let quotedMenuPath = /(?<opening>\(?“)(?<items>[^“”\n]+? › [^“”\n]+?)(?<closing>”[,.;:!?)]*)/
 
 	/**
 	A menu path in typographic quotes, like “System Settings › General › Date & Time”, as one inline block per item (``MarkdownElement/menuPathItem``), with the arrow (``MarkdownElement/menuPathSeparator``) at the end of the item before it, after a no-break space. So a line breaks only after an arrow, not inside the name of an item, like “Allow Access When Locked”. The copied text has the no-break spaces.
@@ -315,21 +401,84 @@ extension MarkdownTheme {
 	- Parameter openingPunctuation: The opening quote, and a parenthesis before it, which are in the first item, as a browser can break a line after the punctuation before an inline block.
 	- Parameter closingPunctuation: The closing quote, and the punctuation after it, like `”.`, which are in the last item, as a browser can break a line before the punctuation after an inline block.
 	*/
-	func menuPath(_ items: [Substring], openingPunctuation: Substring, closingPunctuation: Substring) -> String {
-		let separatorHTML = "\u{00A0}<span\(classAttribute(.menuPathSeparator))>›</span>"
-		return items.enumerated().map { index, item in
+	func menuPath(_ items: [Substring], openingPunctuation: Substring, closingPunctuation: Substring) -> HTMLFragment {
+		let separatorHTML = "\u{00A0}\(menuPathSeparator)"
+		let html = items.enumerated().map { index, item in
 			let before = index == 0 ? String(openingPunctuation).escapedForHTML : ""
 			let after = index == items.count - 1 ? String(closingPunctuation).escapedForHTML : separatorHTML
 			return #"<span\#(classAttribute(.menuPathItem))>\#(before)\#(String(item).escapedForHTML)\#(after)</span>"#
 		}
 		.joined(separator: " ")
+
+		return HTMLFragment(rawValue: html)
+	}
+
+	/**
+	The arrow between the items of a menu path (``MarkdownElement/menuPathSeparator``).
+	*/
+	var menuPathSeparator: HTMLFragment {
+		HTMLFragment(rawValue: "<span\(classAttribute(.menuPathSeparator))>›</span>")
+	}
+
+	/**
+	A word with a hyphen between two letters or digits, like “To-Do”, “built-in”, “end-of-day”, or “20-20-20”.
+	*/
+	nonisolated(unsafe) private static let hyphenatedWord = /[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)+/
+
+	/**
+	The HTML of the text of a heading or a title, with each word that has a hyphen between two letters or digits on one line (``MarkdownElement/hyphenatedWord``), like “To-Do” and “20-20-20”. The pages use it for the titles that they show, so the titles and the headings of Markdown wrap the same way.
+	*/
+	public func headingTextHTML(_ text: some StringProtocol) -> HTMLFragment {
+		// The escaped text has the same words, as an entity, like `&amp;`, has no hyphen.
+		let html = String(text).escapedForHTML.replacing(Self.hyphenatedWord) { match in
+			"<span\(classAttribute(.hyphenatedWord))>\(match.output)</span>"
+		}
+
+		return HTMLFragment(rawValue: html)
+	}
+
+	/**
+	A short number, of 1 to 3 digits with an optional decimal part, like “30”, “1.5”, or “40,000”, and the space before the word after it.
+	*/
+	nonisolated(unsafe) private static let numberBeforeWord = /\b([0-9]{1,3}(?:[.,][0-9]+)?) (?=\p{L})/
+
+	/**
+	Text in prose that stays on one line (``MarkdownElement/hyphenatedWord``): a word that ends with “-click”, like “double-click”, “right-clicks”, or “Control-clicking”, as “click” alone at the start of a line reads like a plain click, and a range of two numbers with an en dash, like “14:00–15:30”, “0–255”, or “10–20%”, as a range is one value. Other words with a hyphen can break at the hyphen in prose, like in a book.
+	*/
+	nonisolated(unsafe) private static let unbreakableText = /(?i)\p{L}+-click(?:s|ed|ing)?(?!\p{L})|[0-9]+(?:[.:,][0-9]+)*%?–[0-9]+(?:[.:,][0-9]+)*%?/
+
+	/**
+	The HTML of plain text in prose, with a no-break space between a short number and the word after it, like “30 days” and “1.5 seconds”, like in a book, so a line does not end with the number and the next line start with its word. A year, of 4 digits, does not change. A spaced en dash or em dash, like in “fast – and free”, has a no-break space before it, so a line does not start with the dash, which looks like the marker of a list. A “-click” word and a range of numbers stay on one line (``unbreakableText``). The copied text has the no-break spaces. Limitation: a number before a word that is not its unit, like “15 or” in “macOS 15 or later”, also stays with the word.
+	*/
+	func textHTML(_ text: some StringProtocol) -> HTMLFragment {
+		// A no-break space is not escaped, so it is added before the text is escaped. The escaped text has the same words and ranges, as an entity, like `&amp;`, has no hyphen and no en dash.
+		let html = String(text)
+			.replacing(Self.numberBeforeWord) { "\($0.output.1)\u{00A0}" }
+			.replacing(" – ", with: "\u{00A0}– ")
+			.replacing(" — ", with: "\u{00A0}— ")
+			.escapedForHTML
+			.replacing(Self.unbreakableText) { "<span\(classAttribute(.hyphenatedWord))>\($0.output)</span>" }
+
+		return HTMLFragment(rawValue: html)
+	}
+
+	/**
+	Inline code. Code of 24 characters or less stays on one line (``MarkdownElement/shortCode``). Long code, like `com.sindresorhus.Dato.joinedVideoCall` or a path, can break only where a line of code reads well (``Swift/String/codeLineBreakParts``), like a URL in a book, instead of at any letter. `<wbr>` adds no text, so copying is the same. Code is not translated, as a translation would change it. Limitation: short code in a large heading can be wider than a phone, as it does not break, so keep code in headings short.
+	*/
+	func inlineCodeHTML(_ code: String) -> HTMLFragment {
+		guard code.count > 24 else {
+			return HTMLFragment(rawValue: #"<code\#(classAttribute(.shortCode)) translate="no">\#(code.escapedForHTML)</code>"#)
+		}
+
+		let breakableHTML = code.codeLineBreakParts.map { String($0).escapedForHTML }.joined(separator: "<wbr>")
+		return HTMLFragment(rawValue: #"<code translate="no">\#(breakableHTML)</code>"#)
 	}
 
 	/**
 	A link to the section, with a link icon, or a check icon after the script copied the URL (`data-copy-link`). The icons are in the styles, so a page with many headings has no copies of them. Its name has the text of the heading, so each link in a list of the links of the page has its own name.
 	*/
-	func headingAnchor(for heading: Heading) -> String {
-		##"<a href="\##(LinkDestination.fragment(heading.id).description.escapedForHTML)"\##(classAttribute(.headingAnchor)) data-copy-link="" aria-label="\##("Copy link to section: \(heading.text)".escapedForHTML)"></a>"##
+	func headingAnchor(for heading: Heading) -> HTMLFragment {
+		HTMLFragment(rawValue: ##"<a href="\##(LinkDestination.fragment(heading.id).description.escapedForHTML)"\##(classAttribute(.headingAnchor)) data-copy-link="" aria-label="\##("Copy link to section: \(heading.text)".escapedForHTML)"></a>"##)
 	}
 
 	/**
@@ -337,8 +486,8 @@ extension MarkdownTheme {
 
 	- Parameter label: The name of the region, for screen readers.
 	*/
-	func tableContainer(label: String, tableHTML: String) -> String {
-		#"<div\#(classAttribute(.tableContainer)) tabindex="0" role="region" aria-label="\#(label.escapedForHTML)">"# + "\n" + tableHTML + "</div>"
+	func tableContainer(label: String, table: HTMLFragment) -> HTMLFragment {
+		HTMLFragment(rawValue: #"<div\#(classAttribute(.tableContainer)) tabindex="0" role="region" aria-label="\#(label.escapedForHTML)">"# + "\n" + table.rawValue + "</div>")
 	}
 
 	/**
@@ -346,5 +495,49 @@ extension MarkdownTheme {
 	*/
 	func classAttribute(_ element: MarkdownElement) -> String {
 		#" class="\#(classes(for: element).escapedForHTML)""#
+	}
+}
+
+extension String {
+	/**
+	The parts of code between the places where a line of code can break and still read well, like a URL in a book: before a dot, but not before the first one, so a short first part, like `com` or `www`, stays with the next part, after a slash, but not between two slashes, like in `https://`, before `?`, `&`, and `=`, like at the parameters of a URL, before the `%` of a percent escape, but not after a number, like in `85%`, and before a capital letter after two lowercase letters, like between the words of `NSShowAppCentricOpenPanel`, but not in `mDNSResponder`.
+
+	```swift
+	"open?date=friday%20noon".codeLineBreakParts
+	//=> ["open", "?date", "=friday", "%20noon"]
+	```
+	*/
+	public var codeLineBreakParts: [Substring] {
+		var parts = [Substring]()
+		var partStart = startIndex
+		var hasDot = false
+		var beforePrevious: Character?
+		var previous: Character?
+
+		for index in indices {
+			let character = self[index]
+
+			if
+				index > partStart,
+				(previous == "/" && character != "/")
+					|| (character == "." && hasDot)
+					|| "?&=".contains(character)
+					|| (character == "%" && previous?.isNumber != true)
+					|| (beforePrevious?.isLowercase == true && previous?.isLowercase == true && character.isUppercase)
+			{
+				parts.append(self[partStart..<index])
+				partStart = index
+			}
+
+			if character == "." {
+				hasDot = true
+			}
+
+			beforePrevious = previous
+			previous = character
+		}
+
+		parts.append(self[partStart...])
+		return parts
 	}
 }

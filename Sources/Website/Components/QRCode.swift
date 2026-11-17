@@ -5,7 +5,7 @@ import Foundation
 import SiteKit
 
 /**
-A QR code of a URL as SVG, made at build time, like for opening the App Store page of an app on an iPhone. It is drawn in the current text color, and fills the width of its container, which the parent can style. The tool also prints it in the terminal (`website serve --local-network`).
+A QR code of a URL as SVG, made at build time, like for opening the App Store page of an app on an iPhone. It is drawn in the current text color, and fills the width of its container, which the parent can style. The code of an app can have the icon of the app in its middle, on a white square, so the visitor sees which app it opens. The tool also prints it in the terminal (`website serve --local-network`).
 */
 public struct QRCode: HTML {
 	/**
@@ -15,11 +15,25 @@ public struct QRCode: HTML {
 
 	let label: String
 
+	/**
+	The app whose icon is in the middle of the code.
+	*/
+	private(set) var centerIcon: App?
+
 	public init(url: URL, label: String) {
 		self.modules = Self.modules(for: url)
 		self.label = label
 	}
 
+	/**
+	A code with the icon of the app in its middle.
+	*/
+	init(url: URL, label: String, centerIcon: App) {
+		self.init(url: url, label: label)
+		self.centerIcon = centerIcon
+	}
+
+	// The code and the icon are in one grid cell, so the icon is in the middle of the code. The sizes of the icon are in percent of the width of the code: the white square is 31%, and the icon in it 25%.
 	public var body: some HTML<HTMLTag.div> {
 		div {
 			SVG.svg(
@@ -35,6 +49,27 @@ public struct QRCode: HTML {
 				SVG.path(.fill("currentColor"), .d(path))
 			}
 			.accessibleImage(label)
+
+			if let centerIcon {
+				AppIcon(decorative: centerIcon, size: 40)
+					.style {
+						$0
+							.stackedInGrid()
+							.alignSelf(.center)
+							.justifySelf(.center)
+							.frame(width: .percent(31))
+							.padding(.percent(3))
+							.cornerRadius(.percent(28))
+							.background(.white)
+					}
+			}
+		}
+		.style {
+			$0
+				.display(.grid)
+				.children("svg") {
+					$0.stackedInGrid()
+				}
 		}
 	}
 
@@ -113,7 +148,8 @@ public struct QRCode: HTML {
 	private static func modules(for url: URL) -> [[Bool]] {
 		let filter = CIFilter.qrCodeGenerator()
 		filter.message = Data(url.absoluteString.utf8)
-		filter.correctionLevel = "M"
+		// The highest level, which recovers 30% of the code, so a camera reads it also with an icon in its middle.
+		filter.correctionLevel = "H"
 
 		guard
 			let image = filter.outputImage,

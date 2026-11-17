@@ -9,20 +9,20 @@ apps: [
 ---
 
 @QuickAnswer {
-	In the settings of [Supercharge](../apps/supercharge/index.md), turn on “Prevent Music app from opening”. Then the Play key of the keyboard or of AirPods does not open Music. macOS has no setting for this.
+	In the settings of [Supercharge](/supercharge), turn on “Prevent Music app from opening”. Then the Play key of the keyboard or of AirPods does not open Music. macOS has no setting for this.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
 1. In the System section, turn on “Prevent Music app from opening”.
 }
 
 By default, “Only when triggered by media keys” is also on, so Supercharge stops Music only when a Play, Pause, or track key opens it. You can still open Music from the Dock or Spotlight. When you turn it off, Supercharge stops Music each time it opens. Then hold ++Shift++ while you open Music to allow it.
 
-To open another player instead, like Spotify, choose it in “Instead launch”.
+To open another player instead, like Spotify, choose it in “Instead launch”. To make the Play key always control that player, also when a video played last, see [how to make the Play key control Spotify](guide:media-keys-control-spotify-mac).
 
 ## Without an app
 

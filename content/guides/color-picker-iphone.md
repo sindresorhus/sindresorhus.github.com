@@ -10,14 +10,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	Make a shortcut with the “Pick Color” action of [Actions](../apps/actions/index.md), and give it the photo as “Reference Image”. Pick the color with the eyedropper, and the shortcut gets its hex code. Without an app, the color picker of Markup also has an eyedropper.
+	Make a shortcut with the “Pick Color” action of [Actions](/actions), and give it the photo as “Reference Image”. Pick the color with the eyedropper, and the shortcut gets its hex code. [Without an app](#without-an-app), the color picker of Markup also has an eyedropper.
 }
 
 ## With Actions
 
 @Steps {
 1. In the Shortcuts app, make a new shortcut, and add the “Select Photos” action.
-1. Add the “Pick Color” action of [Actions](../apps/actions/index.md). Tap the arrow of the action, and set “Reference Image” to the photos of “Select Photos”.
+1. Add the [“Pick Color”](/actions#:~:text=Pick%20Color) action of [Actions](/actions). Tap the arrow of the action, and set “Reference Image” to the photos of “Select Photos”.
 1. Add the “Copy to Clipboard” action. Tap its input, choose “Picked Color”, and choose “Hex”.
 1. Run the shortcut, and choose a photo. The Actions app opens with the photo below a color well.
 1. Tap the color well, tap the eyedropper, and drag it to the color in the photo. Tap the checkmark button to go back to Shortcuts.

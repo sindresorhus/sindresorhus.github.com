@@ -15,6 +15,16 @@ struct LabeledLink: Hashable {
 	*/
 	var accessibilityLabel: String?
 
+	/**
+	The icon of one of my apps that the link is about, like “Zone Bar” in the “Compared with” chips of an app page, so a visitor sees that the other app is mine. It shows only where the place of the link supports it (``ChipNavigation``).
+	*/
+	var iconPath: RoutePath?
+
+	/**
+	The JPEG XL copy of the icon (``iconPath``).
+	*/
+	var iconJPEGXL: JPEGXLCopy?
+
 	init(_ title: String, destination: LinkDestination, description: String? = nil) {
 		self.title = title
 		self.destination = destination
@@ -23,6 +33,15 @@ struct LabeledLink: Hashable {
 
 	init(_ title: String, url: URL) {
 		self.init(title, destination: .url(url))
+	}
+
+	/**
+	A link about one of my apps, with its icon (``iconPath``) and the JPEG XL copy of it, unless the app has only the placeholder icon. Without an app, the link has no icon.
+	*/
+	init(_ title: String, destination: LinkDestination, iconOf app: App?) {
+		self.init(title, destination: destination)
+		self.iconPath = app.flatMap { $0.hasPlaceholderIcon ? nil : $0.iconPath }
+		self.iconJPEGXL = app?.iconJPEGXL
 	}
 
 	/**
@@ -41,14 +60,20 @@ struct LabeledLink: Hashable {
 The pages about all the apps, which the site footer, the apps page, and the menus of the app pages link to, so they have the same title everywhere. The footer and the menus only show the title.
 */
 extension LabeledLink {
+	/**
+	The apps page, as the first page above an app page in the breadcrumb of the footer (``Page/parents``).
+	*/
+	static let apps = Self("Apps", path: .apps)
+
 	static let faq = Self("FAQ", destination: .path(.faq), description: "Frequently asked questions about my apps")
 	static let guides = Self("Guides", destination: .path(.guides), description: "Short how-to guides for tasks on the Mac and iPhone")
 	static let feedback = Self("Feedback & Support", destination: .path(.feedback), description: "Ask a question or report a problem with an app")
 	static let appTimeline = Self("Timeline", destination: .path(.appTimeline), description: "Every app by the year it came out")
-	static let wallOfLove = Self("Wall of Love", destination: .path(.reviews), description: "What the press and App Store reviewers say")
+	static let wallOfLove = Self("Wall of Love", destination: .path(.reviews), description: "What the press and users say")
 	static let tinyApps = Self("Tiny Apps", destination: .path(.tinyApps), description: "Smaller utilities")
 	static let olderVersions = Self("Older Versions", destination: .path(.olderVersions), description: "Apps for older macOS versions")
 	static let discounts = Self("Discounts", destination: .path(.discounts), description: "Student discounts and special offers for my apps")
+	static let purchaseHelp = Self("Purchase Help", destination: .path(.faq, fragment: "purchases"), description: "Refunds, Family Sharing, gifts, and invoices")
 	static let termsOfUse = Self("Terms of Use", destination: .path(.terms), description: "Guidelines and conditions for using my apps")
 	static let privacyPolicy = Self("Privacy Policy", destination: .path(.privacy), description: "The data this website and the feedback form get, and who gets it")
 }

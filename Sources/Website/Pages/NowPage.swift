@@ -4,12 +4,13 @@ import SiteKit
 import SOML
 
 /**
-What Sindre is working on now, like the pages on https://nownownow.com: the hand-written status, focus, reading, and listening of `content/pages/now.md`, and what the build gets, so the rest never goes stale: the newest app, app updates, two reviews, GitHub and npm activity, and the latest posts.
+What Sindre is working on now, like the pages on https://nownownow.com: the hand-written status, focus, reading, and listening of `content/pages/now.md`, and what the build gets, so the rest never goes stale: the newest app, app updates, the newest review, GitHub and npm activity, and the latest posts.
 
-Each part that the build could not get is left out. The latest commits are only loaded in the browser (`now.js`), which also shows a newer Bluesky post than the one of the build. Whether Sindre is probably awake (``AwakeStatus``) and the npm downloads while the visitor has been on the page (``RunningCount``) are also only in the browser.
+Each part that the build could not get is left out. The latest commits are only loaded in the browser (`now.js`). Whether Sindre is probably awake (``AwakeStatus``) and the npm downloads while the visitor has been on the page (``RunningCount``) are also only in the browser.
 */
 struct NowPage: Page {
 	let page: MarkdownPage
+	let now: MarkdownPage.Now.Resolved
 	let content: SiteContent
 
 	var path: RoutePath {
@@ -18,6 +19,10 @@ struct NowPage: Page {
 
 	var metadata: PageMetadata {
 		page.metadata
+	}
+
+	var socialImage: SocialImage {
+		OpenGraphCard(nowPage: page, now: now, project: content.project).map(SocialImage.card) ?? .site
 	}
 
 	var sitemapEntry: SitemapEntry {
@@ -33,7 +38,7 @@ struct NowPage: Page {
 					p {
 						span {
 							"Updated "
-							DateText(day: lastChange, format: .siteDay)
+							DateText(day: lastChange, format: dayFormat(for: [lastChange.foundationDate]))
 						}
 					}
 					.style(Styles.updated)
@@ -47,7 +52,7 @@ struct NowPage: Page {
 					.flexWrap()
 			}
 
-			if let status = page.status {
+			if let status = now.status {
 				p {
 					status.inlineContent
 				}
@@ -60,12 +65,12 @@ struct NowPage: Page {
 
 			page.markdown.content
 
-			for (label, items) in [("Reading", page.frontmatter.now?.reading ?? []), ("Listening to", page.frontmatter.now?.listening ?? [])] where !items.isEmpty {
+			for (label, text) in readingAndListening {
 				p {
 					strong {
 						"\(label): "
 					}
-					items.map(\.value).formattedList(.and)
+					text
 				}
 			}
 
@@ -81,15 +86,31 @@ struct NowPage: Page {
 	}
 
 	/**
-	The newest app as a card that links to it. The light of the card is in the color of the icon. The card shows the app, so it shows no preview of the app (``LinkPreview``).
+	What Sindre is reading and listening to, with the labels and list format of the page and its Markdown copy. Empty lists are left out.
+	*/
+	private var readingAndListening: [(label: String, text: String)] {
+		let groups = [
+			(label: "Reading", items: now.reading),
+			(label: "Listening to", items: now.listening),
+		]
+
+		return groups
+			.filter { !$0.items.isEmpty }
+			.map { (label: $0.label, text: $0.items.map(\.value).formattedList(.and)) }
+	}
+
+	/**
+	The newest app as a card that links to it, with the day it came out. The light of the card and its label are in the color of the icon. The card shows the app, so it shows no preview of the app (``LinkPreview``).
 	*/
 	private func newestApp(_ app: App) -> some HTML {
 		a(.href(app.url), .hook(LinkPreview.Hooks.noLinkPreview)) {
 			AppIcon(decorative: app, size: 64, isAboveFold: true)
 
 			span {
+				// With the day it came out, like the rows of the page.
 				span {
-					"Newest App"
+					"Newest App · "
+					DateText(day: app.publicationDate, format: dayFormat(for: [app.publicationDate.foundationDate]))
 				}
 				.style(Styles.eyebrow)
 
@@ -99,7 +120,7 @@ struct NowPage: Page {
 				.style(Styles.newestAppTitle)
 
 				span {
-					app.subtitle
+					app.displaySubtitle
 				}
 				.style(Styles.newestAppSubtitle)
 			}
@@ -210,24 +231,65 @@ struct NowPage: Page {
 	}
 
 	/**
-	Links in a card, one in each row, with thin lines between them, like the new projects.
+	A row of a card of links (``rows(_:)``).
 	*/
-	private func rows(_ links: [LabeledLink]) -> some HTML {
-		ul {
-			for link in links {
-				li {
-					a(.href(link.destination)) {
-						link.title
-					}
+	private struct CardRow: HTML {
+		let link: LabeledLink
 
-					if let description = link.description {
-						span {
-							description
-						}
-						.style(Styles.caption)
-					}
+		/**
+		The app of the row, whose icon is next to the text, like the rows of the latest updates.
+		*/
+		var app: App?
+
+		/**
+		The day of the row, below the title, like the day of a blog post.
+		*/
+		var date: DateText?
+
+		/**
+		The link of the row, its day, and its description below it.
+		*/
+		var body: some HTML {
+			a(.href(link.destination)) {
+				link.title
+			}
+
+			if let date {
+				date
+					.style(Styles.caption)
+			}
+
+			if let description = link.description {
+				span {
+					description
 				}
-				.style(Styles.row, Styles.stackedRow)
+				.style(Styles.caption)
+			}
+		}
+	}
+
+	/**
+	Links in a card, one in each row, with thin lines between them, like the new projects. A row of an app has its icon next to the text.
+	*/
+	private func rows(_ rows: [CardRow]) -> some HTML {
+		ul {
+			for row in rows {
+				if let app = row.app {
+					li {
+						AppIcon(decorative: app, size: 32)
+
+						span {
+							row
+						}
+						.style(Styles.text)
+					}
+					.style(Styles.row)
+				} else {
+					li {
+						row
+					}
+					.style(Styles.row, Styles.stackedRow)
+				}
 			}
 		}
 		.style(Styles.card, Styles.rows)
@@ -251,7 +313,7 @@ struct NowPage: Page {
 				.style(Styles.groupTitle)
 
 				// While the commits load, gray lines take their place, so the page does not move when they come in. Screen readers know that the list is loading, so they do not read the empty rows.
-				ul(.ariaBusy()) {
+				ul(.part(Parts.list), .ariaBusy()) {
 					ForEach(Self.placeholderCommitWidths) { widths in
 						placeholderCommit(repositoryWidth: widths.repository, messageWidth: widths.message)
 					}
@@ -276,16 +338,16 @@ struct NowPage: Page {
 				template(.id(IDs.commitTemplate)) {
 					li {
 						span {
-							span(.hook(Hooks.commitRepository)) {}
+							span(.part(Parts.repository)) {}
 								.style(Styles.rowLabel)
 
 							// Not a `time`, as an empty `time` without a `datetime` is invalid HTML, and the template has no date for it.
-							span(.hook(Hooks.commitTime)) {}
+							span(.part(Parts.time)) {}
 								.style(Styles.rowDate)
 						}
 						.style(Styles.rowHeader)
 
-						a(.hook(Hooks.commitLink), .href(.url(Site.author.gitHubURL))) {}
+						a(.part(Parts.link), .href(.url(Site.author.gitHubURL))) {}
 							.style(Styles.commitLink)
 					}
 					.style(Styles.row, Styles.stackedRow)
@@ -422,27 +484,26 @@ struct NowPage: Page {
 					group("Latest Releases") {
 						ul {
 							for release in releases {
+								// The date is below the name, like in the updates of the apps, so a long name, like `eslint-plugin-unicorn`, has the width of the row.
 								li {
 									span {
-										a(.href(.url(release.url))) {
-											release.displayName
-										}
-										" "
 										span {
-											release.version
+											a(.href(.url(release.url))) {
+												release.displayName
+											}
+											" "
+											span {
+												release.version
+											}
+											.style(Styles.version)
 										}
-										.style(Styles.version)
-									}
-									.style(Styles.rowLink)
 
-									DateText(day: SOML.Date(release.date), format: releaseDateFormat)
-										.style(Styles.rowDate)
+										DateText(day: SOML.Date(release.date), format: releaseDateFormat)
+											.style(Styles.caption)
+									}
+									.style(Styles.text)
 								}
 								.style(Styles.row)
-								// The date is on the first line of a name that wraps, like `@sindresorhus/transliterate`, not between its lines.
-								.style {
-									$0.alignItems(.baseline)
-								}
 							}
 						}
 						.style(Styles.card, Styles.rows)
@@ -451,7 +512,7 @@ struct NowPage: Page {
 
 				if !repositories.isEmpty {
 					group("New Projects") {
-						rows(repositories.map { LabeledLink($0.displayName, destination: .url($0.url), description: $0.summary) })
+						rows(repositories.map { CardRow(link: LabeledLink($0.displayName, destination: .url($0.url), description: $0.summary)) })
 					}
 				}
 			}
@@ -474,13 +535,19 @@ struct NowPage: Page {
 							}
 							.style(Styles.postSource)
 
-							// `now.js` replaces the text, the link, and the date with a newer post.
-							blockquote(.id(IDs.blueskyPost)) {
-								p(.id(IDs.blueskyPostText)) {
+							blockquote {
+								p {
 									for segment in blueskyPost.segments {
 										if let link = segment.link {
+											// A long URL breaks where it reads well, like after a slash.
 											a(.href(.url(link))) {
-												segment.text
+												for (index, part) in segment.text.codeLineBreakParts.enumerated() {
+													if index > 0 {
+														wbr()
+													}
+
+													String(part)
+												}
 											}
 										} else {
 											segment.text
@@ -491,12 +558,12 @@ struct NowPage: Page {
 							}
 							.style(QuoteFigure.Styles.text)
 
-							// The date links to the post. `now.js` changes the link and the date for a newer post. The other services are on a line of their own, as the card is too narrow for both on one line.
+							// The date links to the post. The other services are on a line of their own, as the card is too narrow for both on one line.
 							p {
-								a(.id(IDs.blueskyPostLink), .href(.url(blueskyPost.url))) {
-									// With the year, like the date that `now.js` writes for a newer post. The `datetime` has the time, so `now.js` only shows a post that is newer.
-									time(.id(IDs.blueskyPostTime), .dateTime(blueskyPost.date)) {
-										blueskyPost.date.formatted(.siteDay)
+								a(.href(.url(blueskyPost.url))) {
+									// Without the year for a post of this year, like the lists of the page.
+									time(.dateTime(blueskyPost.date)) {
+										blueskyPost.date.formatted(dayFormat(for: [blueskyPost.date]))
 									}
 								}
 								.style(Styles.postFooterLink)
@@ -522,7 +589,8 @@ struct NowPage: Page {
 
 				if let blogPost {
 					group("On the Blog") {
-						rows([LabeledLink(blogPost.title, destination: blogPost.url, description: blogPost.description)])
+						// With the day, like the post of social media next to it, so an older post does not look new.
+						rows([CardRow(link: LabeledLink(blogPost.title, destination: blogPost.url, description: blogPost.description), date: DateText(day: blogPost.publicationDate, format: dayFormat(for: [blogPost.publicationDate.foundationDate])))])
 					}
 				}
 			}
@@ -538,7 +606,7 @@ struct NowPage: Page {
 		return footer {
 			if !anniversaries.isEmpty {
 				Section("On This Day", id: ElementID("on-this-day")) {
-					rows(anniversaries.map { LabeledLink($0.title, destination: $0.destination, description: $0.description) })
+					rows(anniversaries.map { CardRow(link: LabeledLink($0.title, destination: $0.destination, description: $0.description), app: $0.app) })
 				}
 			}
 
@@ -550,7 +618,7 @@ struct NowPage: Page {
 					p {
 						"\(sponsorCount.formatted(.siteNumber)) people and companies "
 						a(.href(.supporters)) {
-							"sponsor my open-source work"
+							"sponsor my open\u{2011}source work"
 						}
 						"."
 					}
@@ -728,11 +796,13 @@ struct NowPage: Page {
 	}
 
 	/**
-	The five newest releases of the open-source projects: the GitHub releases, and the npm packages that were published without one. Only the newest release of each project.
+	The five newest releases of the open-source projects: the GitHub releases, and the npm packages that were published without one. Only the newest release of each project. The repos of the release notes of the apps, like `supercharge-meta`, are left out, also of archived apps, as the updates of the apps are in their own list.
 	*/
 	private var latestReleases: [Release] {
+		let appRepositories = Set(content.apps.compactMap(\.frontmatter.releasesRepository))
+
 		let gitHubReleases = content.recentActivity.releases
-			.filter(\.repository.isOwners)
+			.filter { $0.repository.isOwners && !appRepositories.contains($0.repository) }
 			.map { release in
 				Release(
 					name: release.repository.name,
@@ -805,6 +875,11 @@ struct NowPage: Page {
 		The year for ordering, like 2019.
 		*/
 		let year: Int
+
+		/**
+		The app that launched, so the row shows its icon. A blog post has none.
+		*/
+		var app: App?
 	}
 
 	/**
@@ -827,7 +902,8 @@ struct NowPage: Page {
 				title: $0.title,
 				destination: $0.url,
 				description: "launched \(yearsAgo($0.publicationDate))",
-				year: $0.publicationDate.year
+				year: $0.publicationDate.year,
+				app: $0
 			) }
 
 		let posts = content.listedPosts
@@ -938,9 +1014,9 @@ struct NowPage: Page {
 	}
 
 	/**
-	When the newest of the things on the page happened, or the hand-written part changed, so the date only changes when the page does.
+	When the newest of the things on the page happened, or the hand-written part changed, so the date only changes when the page does. The Markdown copy of the page starts with it too.
 	*/
-	private var lastChange: SOML.Date? {
+	var lastChange: SOML.Date? {
 		let publicationDates = [content.newestApp?.publicationDate, latestBlogPost?.publicationDate].compactMap(\.self)
 		let dates = [page.lastCommitDate, content.recentActivity.blueskyPost?.date].compactMap(\.self) + appUpdates.map(\.date) + recentReviews.map(\.review.date) + latestReleases.map(\.date) + newProjects.map(\.createdAt)
 		return (publicationDates + dates.map(SOML.Date.init)).max()
@@ -950,10 +1026,6 @@ struct NowPage: Page {
 	The IDs that the scripts of the page find elements by.
 	*/
 	enum IDs: String, ScriptIDSet {
-		case blueskyPost = "bluesky-post"
-		case blueskyPostText = "bluesky-post-text"
-		case blueskyPostLink = "bluesky-post-link"
-		case blueskyPostTime = "bluesky-post-time"
 		case commitTemplate = "commit-template"
 		case latestCommits = "latest-commits"
 		case latestCommitsError = "latest-commits-error"
@@ -961,11 +1033,9 @@ struct NowPage: Page {
 	}
 
 	/**
-	The data of `now.js`: the requests that the build also makes, so the script asks for the same accounts, and the number of commit rows.
+	The data of `now.js`: the account of the build, so the script asks for the same one, and the number of commit rows.
 	*/
 	private struct ScriptData: Encodable {
-		let blueskyFeedURL = BlueskyPost.feedURL
-		let blueskyProfileURL = BlueskyPost.profileURL
 		let gitHubAccount = GitHub.account
 
 		/**
@@ -975,23 +1045,28 @@ struct NowPage: Page {
 	}
 
 	/**
-	The data attributes that the scripts of the page find elements by.
+	The elements that `now.js` fills: the list of the latest commits, and the parts of the template of a commit.
 	*/
-	enum Hooks: String, ScriptDataAttributeSet {
+	enum Parts: String, ElementPartSet {
+		/**
+		The list of the latest commits, with the placeholder rows until they load.
+		*/
+		case list
+
 		/**
 		The repo of a commit in its template, which `now.js` fills in.
 		*/
-		case commitRepository = "commit-repository"
+		case repository
 
 		/**
 		The link to a commit in its template, with its message.
 		*/
-		case commitLink = "commit-link"
+		case link
 
 		/**
 		When a commit was made, in its template.
 		*/
-		case commitTime = "commit-time"
+		case time
 	}
 
 	enum Styles: String, StyleSet {
@@ -1012,7 +1087,6 @@ struct NowPage: Page {
 		case stackedRow
 		case rowHeader
 		case rowLabel
-		case rowLink
 		case commitLink
 		case rowDate
 		case placeholderRow
@@ -1040,6 +1114,8 @@ struct NowPage: Page {
 			case .newestApp:
 				Style()
 					.linkCard()
+					// The fill under the pointer in the accent of the app, like an app card.
+					.combined(with: SemanticColor.cardHover.customProperty)
 					.below(.phone) {
 						$0
 							.flexWrap()
@@ -1047,17 +1123,18 @@ struct NowPage: Page {
 					}
 					.margin(top: .rootEm(2), horizontal: .zero, bottom: .rootEm(1))
 			case .text:
-				// The text next to an icon, like the title of the newest app.
+				// The text of a row, with or without an icon next to it, like the title of the newest app.
 				Style()
-					.vstack(spacing: .rootEm(0.125))
+					.vstack(spacing: .rootEm(0.25))
 					.flex(1)
 					.frame(minWidth: .zero)
 			case .eyebrow:
-				Style().eyebrow()
-			case .newestAppTitle:
+				// In the accent of the app, like the labels of the features of an app page, as the card has its light.
 				Style()
-					.font(.extraLarge2, weight: .bold)
-					.letterSpacing(.em(-0.02))
+					.eyebrow()
+					.color(.accentText)
+			case .newestAppTitle:
+				Style().textStyle(.title3)
 			case .newestAppSubtitle:
 				Style()
 					.secondaryText(.body)
@@ -1086,21 +1163,18 @@ struct NowPage: Page {
 			case .groupTitle:
 				Style()
 					.margin(.zero)
-					.textStyle(.body, weight: .semibold)
-					.letterSpacing(.zero)
-					.color(.primaryText)
+					.cardGroupTitle()
 			case .card:
 				Style()
 					.margin(.zero)
-					.padding(.cardPadding)
-					.cardSurface(isInteractive: false)
+					.plainCard()
 					.textStyle(.body)
 					.trimmingChildMargins()
 			// The rows have thin lines between them, like a grouped list.
 			case .rows:
 				Style()
 					.vstack()
-					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(1.25))
+					.padding(vertical: .rootEm(0.25), horizontal: .cardPadding)
 			case .row:
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.75))
@@ -1127,10 +1201,6 @@ struct NowPage: Page {
 				Style()
 					.textStyle(.caption, weight: .medium)
 					.color(.secondaryText)
-			case .rowLink:
-				Style()
-					.flex(1)
-					.frame(minWidth: .zero)
 			case .commitLink:
 				// Each row is one link, so the message does not need the underline of a link in text, which would make the card a stack of underlines. It has the weight of a title, and the color of links under the pointer.
 				Style()
@@ -1168,10 +1238,12 @@ struct NowPage: Page {
 				// After the link, so the underline of the link does not go under it.
 				Style()
 					.display(.inlineBlock)
-					.padding(vertical: .zero, horizontal: .rootEm(0.375))
+					.padding(.horizontal, .rootEm(0.375))
 					.cornerRadius(.smallRadius)
 					.fontFamily(.monospace)
 					.font(size: .rootEm(0.75), lineHeight: 1.6)
+					// The monospaced font has more space above the digits than below them, so the version would sit high in its fill. The trimmed text is in the middle, and the padding keeps the height of the line.
+					.trimmedText()
 					.fontWeight(.medium)
 					.color(.bodyText)
 					.background(.card)
@@ -1317,5 +1389,50 @@ private struct CommitHours: HTML {
 	*/
 	private static func hourText(_ hour: Int) -> String {
 		"\(hour.formatted(.number.precision(.integerLength(2)).locale(.site))):00"
+	}
+}
+
+extension NowPage {
+	/**
+	What the page shows as Markdown, for its Markdown copy: the status, the newest app, the text of the page, the reading and listening, the latest app updates and open-source releases, and the latest blog post, with full dates. The parts that only the browser loads or updates, like the commits and the npm downloads, are left out, and so are the review and the numbers of the year. The links to pages of the site are paths, like in the content files, so the copy links to their Markdown copies.
+
+	- Parameter body: The text of `content/pages/now.md` as Markdown, which the page shows below the newest app.
+	*/
+	func plainMarkdown(body: String) -> String {
+		func section(_ title: String, items: [String]) -> String? {
+			items.isEmpty ? nil : "## \(title)\n\n\(items.map { "- \($0)" }.joined(separator: "\n"))"
+		}
+
+		let newestAppItems = content.newestApp.map { app -> [String] in
+			["[\(app.title)](\(app.path)): \(app.subtitle)"]
+		} ?? []
+
+		let updateItems = appUpdates.map { update -> String in
+			"\(update.app.title) \(update.version), \(update.date.formatted(.siteDay))"
+		}
+
+		let releaseItems = latestReleases.map { release -> String in
+			"\(release.displayName) \(release.version), \(release.date.formatted(.siteDay))"
+		}
+
+		let postItems = latestBlogPost.map { post -> [String] in
+			let description = post.description.map { ": \($0)" } ?? ""
+			return ["[\(post.title)](\(post.path))\(description)"]
+		} ?? []
+
+		let parts: [String?] = [
+			page.frontmatter.now?.status,
+			section("Newest App", items: newestAppItems),
+			body,
+			readingAndListening.map { "**\($0.label):** \($0.text)" }.joined(separator: "\n\n"),
+			section("Latest App Updates", items: updateItems),
+			section("Latest Open-Source Releases", items: releaseItems),
+			section("Latest Post", items: postItems),
+		]
+
+		return parts
+			.compactMap(\.self)
+			.filter { !$0.isEmpty }
+			.joined(separator: "\n\n")
 	}
 }

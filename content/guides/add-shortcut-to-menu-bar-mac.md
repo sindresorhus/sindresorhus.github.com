@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Add your shortcuts in the settings of [Short Run](../apps/short-run/index.md), and run them from its menu in the menu bar. Without an app, add a Shortcuts control in Control Center, and drag it to the menu bar.
+	Add your shortcuts in the settings of [Short Run](/short-run), and run them from its menu in the menu bar. [Without an app](#without-an-app), add a Shortcuts control in Control Center, and drag it to the menu bar.
 }
 
 ## With Short Run
 
 @Steps {
-1. Open [Short Run](../apps/short-run/index.md). Its icon is in the menu bar.
+1. Open [Short Run](/short-run). Its icon is in the menu bar.
 1. Open its settings, and click “Manage…” next to “Shortcuts”.
 1. Click the add button, and choose “Add Shortcuts…”. Select the shortcuts, and add them.
 1. Click the Short Run icon in the menu bar, and choose a shortcut to run it.
@@ -42,6 +42,6 @@ macOS has controls for shortcuts, which you add in Control Center:
 1. Choose “Add to Control Center”, and click “Done”.
 }
 
-To run a shortcut, click Control Center in the menu bar, and click the shortcut. While you edit the controls, you can also drag a control directly to the menu bar. [Apple’s instructions.](https://support.apple.com/guide/shortcuts-mac/apd163eb9f95/mac)
+To run a shortcut, click Control Center in the menu bar, and click the shortcut. While you edit the controls, you can also drag a control directly to the menu bar. <source:https://support.apple.com/guide/shortcuts-mac/apd163eb9f95/mac>
 
 This is good for a few shortcuts. Short Run adds folders, shortcuts that show only in some apps, and quick keys, in one menu for many shortcuts.

@@ -1,8 +1,8 @@
-import {cloneTemplate, scriptData} from '/scripts/dom.js';
-import {searchKey, filterByWords} from '/scripts/edit-distance.js';
+import {cloneTemplate, finePointer, isMac, parts, scriptData} from '/scripts/dom.js';
+import {searchKey, filterByWords, wordStarts} from '/scripts/edit-distance.js';
 import {intendedDomain} from '/scripts/email-typos.js';
 
-const {apps, sentStorageKey, accentProperty} = scriptData('feedback-data');
+const {apps, sentStorageKey, sentAppStorageKey, accentProperty} = scriptData('feedback-data');
 const parameters = new URLSearchParams(location.search);
 const productParameter = parameters.get('product');
 
@@ -20,6 +20,12 @@ keptParameters.delete('product');
 keptParameters.delete('metadata');
 
 // --- The selected app (icon, title, extra help) ---
+
+function showAccent(selectedApp) {
+	if (selectedApp.accent) {
+		document.documentElement.style.setProperty(accentProperty, selectedApp.accent);
+	}
+}
 
 function showProduct() {
 	document.title = `Feedback & Support for ${product} — Sindre Sorhus`;
@@ -46,12 +52,19 @@ function showProduct() {
 	}
 
 	// The page has the accent of the app, like its app page, so the button and the links say that the form is for the app. “Change App” loads the page again, without it.
-	if (app.accent) {
-		document.documentElement.style.setProperty(accentProperty, app.accent);
-	}
+	showAccent(app);
 
 	// The suggestions include the questions of the app.
 	document.querySelector('#faq-suggestions').setAttribute('app', app.title);
+	// A crash report of another app gets a note. The title is the first name.
+	document.querySelector('#attachment-picker').setAttribute('app-names', JSON.stringify(app.names));
+
+	// The general notes are for the platforms of the app, so an Apple Watch app gets no notes about macOS.
+	document.querySelector('#newest-os-versions').textContent = app.newestOSVersions;
+
+	for (const note of document.querySelectorAll('[data-macos-note]')) {
+		note.hidden = !app.isOnMac;
+	}
 
 	const iconTemplate = document.querySelector('#app-icon-template');
 	const icon = cloneTemplate(iconTemplate);
@@ -60,7 +73,8 @@ function showProduct() {
 	// The browser tab shows the icon of the app.
 	document.querySelector('link[rel="icon"]')?.setAttribute('href', app.iconURL);
 
-	const additionalInformation = document.querySelector('#additional-information');
+	// The notes of the app, before the general notes of the list.
+	const notes = [];
 
 	// A visitor on a macOS version that the current version of the app does not run on cannot update, so the last version for that macOS version comes first. The app sends its macOS version, like `OS: macOS 15.6 (24G84)`. An older version is for a major version, or for a minor version of macOS 10, like 10.15.
 	const macOSVersion = appMetadata?.match(/^OS: macOS (10\.\d+|\d+)/m)?.[1];
@@ -68,12 +82,12 @@ function showProduct() {
 	// Not for a visitor who already has that version or a newer one, like the current version on a newer minor version of that macOS. The app sends its version and build, like `App: Dato 5.7.2 (1234)`.
 	const appVersion = appMetadata?.match(/^App: .* (\S+) \(/m)?.[1];
 	if (olderVersion && (!appVersion || appVersion.localeCompare(olderVersion.version, undefined, {numeric: true}) < 0)) {
-		const paragraph = cloneTemplate(document.querySelector('#older-version-template'));
-		paragraph.querySelector('[data-older-version-text]').textContent = `You are on macOS ${macOSVersion}. ${app.title} ${olderVersion.version} is the last version for it.`;
-		const link = paragraph.querySelector('[data-older-version-link]');
+		const note = cloneTemplate(document.querySelector('#older-version-template'));
+		const {olderVersionText, olderVersionLink: link} = parts(note, 'the older version');
+		olderVersionText.textContent = `You are on macOS ${macOSVersion}. ${app.title} ${olderVersion.version} is the last version for it.`;
 		link.textContent = `Download ${olderVersion.version}`;
 		link.href = olderVersion.url;
-		additionalInformation.append(paragraph);
+		notes.push(note);
 	}
 
 	if (app.repositoryURL) {
@@ -81,22 +95,24 @@ function showProduct() {
 			body: `<!--\nProvide your feedback below. Include as many details as possible.\n-->\n\n\n\n---\n${appMetadata ?? ''}`.trim(),
 		});
 
-		const paragraph = cloneTemplate(document.querySelector('#repository-template'));
-		paragraph.querySelector('[data-repository-link]').href = `${app.repositoryURL}/issues/new?${searchParameters}`;
-		additionalInformation.append(paragraph);
+		const note = cloneTemplate(document.querySelector('#repository-template'));
+		parts(note, 'the repository note').repositoryLink.href = `${app.repositoryURL}/issues/new?${searchParameters}`;
+		notes.push(note);
 	}
 
 	if (app.faqURL) {
-		const paragraph = cloneTemplate(document.querySelector('#app-faq-template'));
-		paragraph.querySelector('[data-app-faq-link]').href = app.faqURL;
-		additionalInformation.append(paragraph);
+		const note = cloneTemplate(document.querySelector('#app-faq-template'));
+		parts(note, 'the FAQ note').appFAQLink.href = app.faqURL;
+		notes.push(note);
 	}
 
 	// The note of the app, from its `feedbackNote`.
 	const noteTemplate = [...document.querySelectorAll('[data-feedback-note]')].find(template => template.dataset.feedbackNote === app.title);
 	if (noteTemplate) {
-		additionalInformation.append(cloneTemplate(noteTemplate));
+		notes.push(cloneTemplate(noteTemplate));
 	}
+
+	document.querySelector('#feedback-notes').prepend(...notes);
 }
 
 // --- The app picker ---
@@ -120,13 +136,13 @@ function keepParametersInAppPicker() {
 function detectPlatform() {
 	const platform = navigator.platform ?? '';
 
-	// An iPad asks for desktop sites by default, so it says it is a Mac. Its main input is touch, even with a trackpad, while a Mac, also one with a touch screen, has the trackpad or mouse as its main input.
-	if (/iPhone|iPad|iPod/.test(platform) || /iPhone|iPad/.test(navigator.userAgent) || (/Mac/.test(platform) && navigator.maxTouchPoints > 1 && matchMedia('(pointer: coarse)').matches)) {
-		return 'iOS';
+	if (isMac) {
+		return 'macOS';
 	}
 
-	if (/Mac/.test(platform)) {
-		return 'macOS';
+	// An iPad asks for desktop sites by default, so it says it is a Mac (`isMac`).
+	if (/iPhone|iPad|iPod|Mac/.test(platform) || /iPhone|iPad/.test(navigator.userAgent)) {
+		return 'iOS';
 	}
 
 	if (/Win/.test(platform)) {
@@ -288,7 +304,7 @@ function setUpEmailTypoDetection(emailInput) {
 	// “Did you mean …?” with the corrected address as a button, which puts it in the field.
 	const suggestion = address => {
 		const element = cloneTemplate(document.querySelector('#email-suggestion-template'));
-		const button = element.querySelector('[data-suggested-email]');
+		const button = parts(element, 'the email suggestion').suggestedEmail;
 		button.textContent = address;
 		button.addEventListener('click', () => {
 			clearTimeout(timer);
@@ -330,12 +346,17 @@ function setUpAppFilter() {
 	const status = document.querySelector('#app-filter-status');
 	const list = document.querySelector('[data-app-filter-text]').parentElement;
 
-	// The text is the name and the subtitle of the app. The item only shows the name. In the alphabetical order of the page.
-	const items = [...document.querySelectorAll('[data-app-filter-text]')].map(item => ({item, textKey: searchKey(item.dataset.appFilterText), nameKey: searchKey(item.textContent)}));
+	// The text is the name and the subtitle of the app. The item only shows the name. In the alphabetical order of the page. A word of the filter matches only at the start of a word, so “ai” shows the AI apps, and not the apps with “remaining” or “available” in the subtitle.
+	const items = [...document.querySelectorAll('[data-app-filter-text]')].map(item => ({
+		item,
+		textKey: searchKey(item.dataset.appFilterText),
+		nameKey: searchKey(item.textContent),
+		wordStarts: wordStarts(item.dataset.appFilterText),
+	}));
 	let shownItems = items;
 
 	/*
-	An app matches when its name or its subtitle has each word, like “menu cal” for “Menu Bar Calendar”, also without spaces, like “menubar”, and the apps whose name has the words come first (`filterByWords`).
+	An app matches when its name or its subtitle has each word at the start of a word, like “menu cal” for “Menu Bar Calendar”, also without spaces, like “menubar”, and the apps whose name has the words come first (`filterByWords`).
 
 	When no app matches, the app whose name is closest shows instead, like “Gifski” for “gifksi”.
 	*/
@@ -369,10 +390,42 @@ function setUpAppFilter() {
 
 	// Firefox restores the text of the field when the visitor comes back to the page.
 	update();
+
+	// On a computer, the visitor can type the name of the app and press Enter at once, like the message field of the form of an app gets the focus (`showProduct`). Not on a touch screen, where the keyboard would cover the apps.
+	if (finePointer.matches && document.activeElement === document.body) {
+		filter.focus({preventScroll: true});
+	}
+}
+
+// --- The message after a send ---
+
+// The message shows the app that the message was about, which the form saved when it sent (`sentAppStorageKey`): its icon with a check, in place of the check, and a button to its page, in its accent. Without storage, or without the app, the message stays as in the HTML.
+function showSentApp() {
+	let title;
+	try {
+		title = sessionStorage.getItem(sentAppStorageKey);
+	} catch {}
+
+	const sentApp = apps.find(candidate => candidate.title === title);
+	if (!sentApp) {
+		return;
+	}
+
+	showAccent(sentApp);
+
+	const icon = cloneTemplate(document.querySelector('#feedback-success-app-icon-template'));
+	parts(icon, 'the icon of the app').appIcon.src = sentApp.iconURL;
+	document.querySelector('#feedback-success-icon').replaceWith(icon);
+
+	const backLink = document.querySelector('#feedback-success-back-link');
+	backLink.href = sentApp.url;
+	backLink.textContent = `Back to ${sentApp.title}`;
 }
 
 // The script in the head marks the page after a send, and the page shows the message from the HTML.
-if (!document.documentElement.hasAttribute('data-sent')) {
+if (document.documentElement.hasAttribute('data-sent')) {
+	showSentApp();
+} else {
 	const form = document.querySelector('#feedback-form');
 
 	if (product) {
@@ -404,9 +457,30 @@ if (!document.documentElement.hasAttribute('data-sent')) {
 	form.addEventListener('submit', () => {
 		// The time of the send, not of the page load, as the visitor can write for a long time, and the page can come back from the back/forward cache hours later. In seconds, like the feedback form of the apps, which sends to the same form.
 		form.elements.timestamp.value = Math.floor(Date.now() / 1000);
+
+		// The message after the send shows the app.
+		try {
+			if (app) {
+				sessionStorage.setItem(sentAppStorageKey, app.title);
+			} else {
+				sessionStorage.removeItem(sentAppStorageKey);
+			}
+		} catch {
+			// Without storage, the message after the send shows no app.
+		}
+
 		submitButton.disabled = true;
 		submitButton.dataset.state = 'sending';
 	});
+
+	// An invalid field shows its own message after a send (`FormField`), and a file that is too large shows its notice in its chip, so the bubble of the browser, which covers the message of the field and says something else, does not show. The first invalid field gets the focus, like with the bubble.
+	form.addEventListener('invalid', event => {
+		event.preventDefault();
+
+		if (event.target === form.querySelector(':invalid')) {
+			event.target.focus();
+		}
+	}, true);
 
 	// The button is disabled in the HTML until this script has added the hidden fields, like the app and the environment of the browser, which waits for the browser. The page can also come back with it disabled from the back/forward cache. The first `pageshow` is left out, as it can come after a submit when the page loads slowly.
 	hiddenFieldsAdded.then(enableSubmitButton);

@@ -9,6 +9,12 @@ platforms: [
 isPaid: true
 appStoreID: 6766044904
 hasNoNetworkAccess: true
+categories: [
+	'browsers'
+]
+relatedApps: [
+	'velja'
+]
 # olderVersions: [
 # 	{
 # 		version: '',
@@ -33,10 +39,9 @@ Pick your primary email app, add optional rules, and every mailto link goes to t
 
 Works system-wide, not just in the browser. The app doesn’t need to stay running. It launches only when you click a mailto link, routes it, and quits. Zero CPU and memory usage when idle.
 
-> [!TIP]
-> You may also like my [Velja](/velja) app, which does the same but for browser links.
+My [Velja](/velja) app does the same for browser links.
 
-#### Example use-cases
+#### Example use cases
 
 - Use Gmail for work emails and Apple Mail for everything else
 - Open emails to a specific domain in Outlook
@@ -66,21 +71,11 @@ Tip: Use [Velja](/velja) with a rule where Mailway is the source app to open web
 
 Don’t want to open anything? Set the target to “Copy to Clipboard” and clicking a mailto link will copy the email address to the clipboard instead.
 
----
-
 ## Tips
 
 ### Alternative email app
 
 Hold the ++Fn++ key when clicking a `mailto:` link to use your alternative email app, bypassing all rules. You can change the modifier to Command, Option, or Shift in the settings, which is useful if your keyboard has no Fn key.
-
-### Shortcuts
-
-The app provides Shortcuts actions for composing emails, getting and setting the primary and alternative email targets, and enabling or disabling rules. You can use these to automate your email workflow.
-
-### Focus Filter
-
-The app includes a Focus Filter that lets you automatically switch your email targets when a Focus mode activates. For example, switch to your work Gmail during a “Work” Focus and back to your personal email app when the Focus turns off. Set it up in “System Settings › Focus › [Your Focus] › Focus Filters”.
 
 ## Frequently Asked Questions {#faq}
 
@@ -94,7 +89,7 @@ No. If you just want all mailto links to open in a single email app or webmail s
 
 ### Can I set different email apps for work and personal use? {#can-i-set-different-email-apps-for-work-and-personal-use}
 
-Yes. Create a rule that matches your work domain (e.g., `company.com`) and set it to open in your work email app. Everything else goes to your primary email app.
+Yes. Create a rule that matches your work domain (like `company.com`) and set it to open in your work email app. Everything else goes to your primary email app.
 
 ### Does it work with third-party email apps like Spark or Airmail? {#does-it-work-with-third-party-email-apps-like-spark-or-airmail}
 
@@ -146,7 +141,7 @@ If your service doesn’t have a public compose URL, there’s unfortunately not
 
 ### Does it work with Proton Mail? {#does-it-work-with-proton-mail}
 
-If you have the [Proton Mail desktop app](https://proton.me/mail/download) installed, you can select it as your email app in the settings. Proton Mail does not provide a public web compose URL, so the webmail option is not available. [Vote for it here.](https://protonmail.uservoice.com/forums/284483-proton-mail-calendar/suggestions/7158477-mailto-links-direct-to-protonmail)
+Yes. Select “Proton Mail” in the app. You must be signed in to Proton Mail in your browser. If you have the [Proton Mail desktop app](https://proton.me/mail/download), select it as the email app instead.
 
 ### Can I match rules by the email subject or body? {#can-i-match-rules-by-the-email-subject-or-body}
 
@@ -154,7 +149,7 @@ No. Rules can only match by recipient (email address, domain, or subdomain) and 
 
 ### Can I use regex in rules? {#can-i-use-regex-in-rules}
 
-No. Rules use exact email matching, domain matching, or domain suffix matching. For most use-cases, domain matching is sufficient.
+No. Rules use exact email matching, domain matching, or domain suffix matching. For most use cases, domain matching is sufficient.
 
 ### Does the app collect any data? {#does-the-app-collect-any-data}
 
@@ -194,3 +189,13 @@ Mailway benefits:
 - Built-in support for choosing browser. Mailway defers to [Velja](/velja) for that.
 
 Open In Webmail costs $1.99, and its last update was in January 2021.
+
+## Scripting
+
+### Shortcuts
+
+The app provides Shortcuts actions for composing emails, getting and setting the primary and alternative email targets, and enabling or disabling rules. You can use these to automate your email workflow.
+
+### Focus Filter
+
+The app includes a Focus Filter that lets you automatically switch your email targets when a Focus mode activates. For example, switch to your work Gmail during a “Work” Focus and back to your personal email app when the Focus turns off. Set it up in “[System Settings › Focus › [Your Focus] › Focus Filters](x-apple.systempreferences:com.apple.Focus-Settings.extension)”.

@@ -93,10 +93,26 @@ enum SiteFeed: CaseIterable {
 		}
 	}
 
+	/**
+	The page that the feed is about, which feed readers show as the website of the feed, like the apps page for the new apps. The blog feed has the home page, as most of its items are app launches, which the blog page does not list.
+	*/
+	var website: URL {
+		switch self {
+		case .blog:
+			Site.url
+		case .newApps:
+			RoutePath.apps.absoluteURL
+		case .newGuides:
+			RoutePath.guides.absoluteURL
+		case .newRepositories:
+			RoutePath.openSource.absoluteURL
+		}
+	}
+
 	func feed(content: SiteContent) -> Feed {
 		Feed(
 			link,
-			link: Site.url,
+			link: website,
 			description: channelDescription,
 			image: Site.feedImage,
 			items: items(content: content).sorted(using: KeyPathComparator(\.publicationDate, order: .reverse))
@@ -113,7 +129,9 @@ enum SiteFeed: CaseIterable {
 					link: post.absoluteURL,
 					description: post.description,
 					guid: post.isRedirect ? GUID.original(post.slug) : nil,
-					publicationDate: .date(post.publicationDate)
+					publicationDate: .date(post.publicationDate),
+					// The same values as the `article:tag` of the page.
+					categories: post.tags.map(\.rawValue)
 				)
 			}
 
@@ -142,13 +160,15 @@ enum SiteFeed: CaseIterable {
 			}
 		case .newGuides:
 			// The guides are not posts, so the blog feed leaves them out, and they have this feed.
-			return content.resolvedGuides.map { resolved in
+			return content.guides.map { resolved in
 				let guide = resolved.guide
 				return Item(
 					title: guide.title,
 					link: guide.absoluteURL,
 					description: guide.description,
-					publicationDate: .date(guide.frontmatter.publicationDate)
+					publicationDate: .date(guide.frontmatter.publicationDate),
+					// The topic, like on the list of guides, and the apps, so a feed reader can filter the guides by them.
+					categories: [guide.frontmatter.topic.title] + resolved.apps.map(\.title)
 				)
 			}
 		case .newRepositories:

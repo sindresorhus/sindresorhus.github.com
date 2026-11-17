@@ -143,10 +143,15 @@ struct GitHubTests {
 		let cache = try ResponseCache(responses: ["https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=1": response])
 		let releases = try await GitHub(token: nil, cache: cache).releases(repository: #repository("sindresorhus/test"))
 		let app = try await App(publicationDate: "2025-01-01", frontmatter: "releasesRepository: 'sindresorhus/test'")
-		let page = ReleaseNotesPage(app: app, releaseNotes: try #require(app.releaseNotes), releases: releases)
+		let page = ReleaseNotesPage(
+			app: app,
+			releaseNotes: try #require(app.releaseNotes),
+			releases: releases,
+			project: .website
+		)
 
 		#expect(releases.map(\.version) == ["3.0.0", "2.0.0", "1.1.0"])
-		#expect(releases.map(\.notesHTML) == ["<p>Newest first tie</p>\n", "<p>Newest second tie</p>\n", "<p>Old</p>\n"])
+		#expect(releases.map(\.notes.rawValue) == ["<p>Newest first tie</p>\n", "<p>Newest second tie</p>\n", "<p>Old</p>\n"])
 		#expect(page.metadata.description?.contains("The latest is 3.0.0") == true)
 		#expect(page.sitemapEntry.lastModified == SOML.Date(Date(year: 2026, month: 10, day: 1)))
 		#expect(AppListing(app: app, releases: releases).currentVersionDate?.description == "2026-10-01")
@@ -161,7 +166,7 @@ struct GitHubTests {
 			let xml = String(decoding: try await route.renderedFile(), as: UTF8.self)
 			#expect(route.path == source.link.path)
 			#expect(xml.contains("<title>\(source.link.title)</title>"))
-			#expect(xml.contains("<link>https://sindresorhus.com</link>"))
+			#expect(xml.contains("<link>\(source.website.absoluteString)</link>"))
 			#expect(xml.contains("href=\"\(source.link.path.absoluteURL.absoluteString)\""))
 			#expect(xml.contains("<language>en</language>"))
 		}
@@ -350,6 +355,11 @@ struct GitHubTests {
 	private static let mergedPullRequestsURL = "https://api.github.com/search/issues?q=is:pr%20is:merged%20user:sindresorhus%20user:chalk%20user:avajs%20user:xojs%20user:soml-lang%20user:simple-color-palette%20-author:sindresorhus&per_page=1"
 
 	/**
+	The search of the reports to Apple in public.
+	*/
+	private static let appleReportsURL = "https://api.github.com/search/issues?q=repo:feedback-assistant/reports%20is:issue%20author:sindresorhus&per_page=1"
+
+	/**
 	The user and the repos of each of the owners, for the account and the recent repos, so the tests do not use the network. An owner that is not given has no repos, and each organization has one follower, so a sum of the followers would show.
 
 	- Parameter repositoriesByOwner: The repos of each owner, from ``repositoryJSON(_:createdAt:stars:isArchived:isFork:)``, newest first for the recent repos.
@@ -395,7 +405,7 @@ struct GitHubTests {
 		let releases = try await github.releases(repository: #repository("sindresorhus/test"))
 
 		#expect(releases.count == 103)
-		#expect(releases.allSatisfy { $0.notesHTML.isEmpty })
+		#expect(releases.allSatisfy { $0.notes.rawValue.isEmpty })
 		#expect(releases.last?.version == "2.2")
 	}
 
@@ -406,7 +416,7 @@ struct GitHubTests {
 	func `a table in release notes has the container of the prose`() async throws {
 		let releases = #"[{"tag_name": "v1.0.0", "html_url": "https://github.com/sindresorhus/example/releases/tag/v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false, "body": "| A |\n| - |\n| 1 |"}]"#
 		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=1": releases]))
-		let notesHTML = try #require(try await github.releases(repository: #repository("sindresorhus/test")).first?.notesHTML)
+		let notesHTML = try #require(try await github.releases(repository: #repository("sindresorhus/test")).first?.notes.rawValue)
 
 		#expect(notesHTML.hasPrefix(#"<div class="\#(ProseStyles.tableContainer.className)""#))
 	}
@@ -419,7 +429,7 @@ struct GitHubTests {
 		let releases = #"[{"tag_name": "v1.0.0", "html_url": "https://github.com/sindresorhus/example/releases/tag/v1.0.0", "published_at": "2026-01-01T00:00:00Z", "draft": false, "prerelease": false, "body": "See [the docs](docs/usage.md), [#12](../issues/12), [usage](#usage), and [Dato](https://sindresorhus.com/dato)."}]"#
 		// A repository can have been renamed, so the release URL from GitHub is the base, even when the request uses its old name.
 		let github = GitHub(token: nil, cache: try ResponseCache(responses: ["https://api.github.com/repos/sindresorhus/test/releases?per_page=100&page=1": releases]))
-		let notesHTML = try #require(try await github.releases(repository: #repository("sindresorhus/test")).first?.notesHTML)
+		let notesHTML = try #require(try await github.releases(repository: #repository("sindresorhus/test")).first?.notes.rawValue)
 
 		#expect(notesHTML.contains(#"href="https://github.com/sindresorhus/example/releases/tag/docs/usage.md""#))
 		#expect(notesHTML.contains(#"href="https://github.com/sindresorhus/example/releases/issues/12""#))
@@ -519,7 +529,7 @@ struct GitHubTests {
 	The repos and the stars are of the account and the organizations of the projects, in the order of the owners, and the stars are of the repos that are not forks. The followers are of the account.
 	*/
 	@Test(.temporaryDirectory)
-	func `the account has the repos, the followers, the stars of its repos, and the closed issues and merged pull requests`() async throws {
+	func `the account has the repos, the followers, the stars of its repos, the closed issues and merged pull requests, and the reports to Apple`() async throws {
 		let repositories = [
 			"sindresorhus": [Self.repositoryJSON("sindresorhus/awesome", stars: 500_000), Self.repositoryJSON("sindresorhus/ky", stars: 17_000, isArchived: true), Self.repositoryJSON("sindresorhus/node", stars: 2, isFork: true)],
 			"chalk": [Self.repositoryJSON("chalk/chalk", stars: 23_000)],
@@ -532,6 +542,7 @@ struct GitHubTests {
 					[
 						Self.closedIssuesURL: #"{"total_count": 26249, "incomplete_results": false, "items": []}"#,
 						Self.mergedPullRequestsURL: #"{"total_count": 15974, "incomplete_results": false, "items": []}"#,
+						Self.appleReportsURL: #"{"total_count": 324, "incomplete_results": false, "items": []}"#,
 					]
 				) { $1 }
 			)
@@ -544,6 +555,7 @@ struct GitHubTests {
 		#expect(account.repositories.map(\.nameWithOwner) == [#repository("sindresorhus/awesome"), #repository("sindresorhus/ky"), #repository("sindresorhus/node"), #repository("chalk/chalk"), #repository("xojs/xo")])
 		#expect(account.maintenance.closedIssueCount == 26_249)
 		#expect(account.maintenance.mergedPullRequestCount == 15_974)
+		#expect(account.appleReportCount == 324)
 	}
 
 	/**
@@ -567,6 +579,7 @@ struct GitHubTests {
 						"https://api.github.com/users/sindresorhus/repos?type=owner&per_page=100&page=3": repositories(page: 3, count: 1),
 						Self.closedIssuesURL: #"{"total_count": 1, "incomplete_results": false, "items": []}"#,
 						Self.mergedPullRequestsURL: #"{"total_count": 1, "incomplete_results": false, "items": []}"#,
+						Self.appleReportsURL: #"{"total_count": 1, "incomplete_results": false, "items": []}"#,
 					]
 				) { $1 }
 			)
@@ -638,12 +651,12 @@ struct GitHubTests {
 			GitHubRelease(
 				tagName: "v1.1.0",
 				publishedAt: Date(timeIntervalSince1970: 1_780_000_000),
-				notesHTML: "<p>Fixed a bug.</p>"
+				notes: HTMLFragment(rawValue: "<p>Fixed a bug.</p>")
 			),
 			GitHubRelease(
 				tagName: "v1.0.0",
 				publishedAt: Date(timeIntervalSince1970: 1_770_000_000),
-				notesHTML: ""
+				notes: .empty
 			),
 		]
 

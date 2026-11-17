@@ -23,7 +23,7 @@ olderVersions: [
 	{
 		version: '1.3.1'
 		macOS: '26'
-		url: 'https://www.dropbox.com/scl/fi/ncj0f7zrozh6v5a5arp7d/Simple-Color-Palette-1.4.0-1794507830.zip?rlkey=dzajyc5h070k71xyxa5o36ae3&raw=1'
+		url: 'https://www.dropbox.com/scl/fi/bbpfawkllfq81gw2xvksl/Simple-Color-Palette-1.3.1-1775986497.zip?rlkey=di7lacf9mdqhozck8tl37am9m&raw=1'
 	}
 	{
 		version: '1.2.0'
@@ -39,7 +39,7 @@ The app also provides Quick Look preview and thumbnails for such files.
 
 A color palette is a collection of colors with optional names, essential for designers to maintain consistent branding, create cohesive user interfaces, and share color schemes across projects and teams.
 
-**This is the official app for creating palettes in the Simple Color Palette format. It’s intentionally minimal. It’s not a palette organizer or palette generator.**
+**This is the official app for creating palettes in the Simple Color Palette format.** It’s intentionally minimal. It’s not a palette organizer or palette generator.
 
 **Features**
 
@@ -71,7 +71,7 @@ No. This app is specifically designed for creating and editing color palettes in
 
 ### Why doesn’t the app show color values in Hex format by default? {#why-doesnt-the-app-show-color-values-in-hex-format-by-default}
 
-The app supports extended sRGB colors (wide gamut) with values outside the 0-255 range. For example, `-97 197 261`. Hex notation (`#ff69b4`) is limited to standard RGB values and cannot properly represent extended color values. You can optionally enable showing colors in Hex format, but it won’t be shown for wide gamut colors.
+The app supports extended sRGB colors (wide gamut) with values outside the 0–255 range. For example, `-97 197 261`. Hex notation (`#ff69b4`) is limited to standard RGB values and cannot properly represent extended color values. You can optionally enable showing colors in Hex format, but it won’t be shown for wide gamut colors.
 
 ### How can I export palettes to other formats like Adobe Swatch Exchange (ASE)? {#how-can-i-export-palettes-to-other-formats-like-adobe-swatch-exchange-ase}
 

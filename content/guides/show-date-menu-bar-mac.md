@@ -3,6 +3,7 @@ title: 'How to Show the Date in the Mac Menu Bar'
 description: 'Show the date in the menu bar with the clock settings of macOS, or show the full date, the year, and the week number in your own format with Dato.'
 publicationDate: 2026-10-30
 topic: 'menu-bar'
+isForNewMacOwners: true
 apps: [
 	'dato'
 ]
@@ -13,13 +14,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open “[System Settings › Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”, click “Clock Options…” in “Menu Bar Controls”, and set “Show date” to “Always”. macOS then shows the day and the month, but not the year, and you cannot change the format. To show the year, the week number, or your own format, use [Dato](../apps/dato/index.md).
+	Open “[System Settings › Menu Bar](x-apple.systempreferences:com.apple.ControlCenter-Settings.extension)”, click “Clock Options…” in “Menu Bar Controls”, and set “Show date” to “Always”. macOS then shows the day and the month, but not the year, and you cannot change the format. To show the year, the week number, or your own format, use [Dato](/dato).
 }
 
 ## With Dato
 
 @Steps {
-1. Open [Dato](../apps/dato/index.md). It shows the day of the week and the time in the menu bar.
+1. Open [Dato](/dato). It shows the day of the week and the time in the menu bar.
 1. Right-click the Dato item in the menu bar, and choose “Settings…”.
 1. Click “Menu Bar”, and below “Show”, turn on “Date”. Turn on “Week number” too, if you want it.
 1. To use your own format, like with the year, go to the “Advanced” section, and write a pattern in “Custom date & time format”, like `EEEE d MMMM yyyy`.
@@ -29,7 +30,7 @@ The custom format replaces the “Show” settings. For example, `yyyy-MM-dd HH:
 
 Click the date in the menu bar to see a calendar with your events.
 
-macOS always shows its own clock in the menu bar. So that the date does not show two times, set “Show date” to “Never” in the clock options of macOS (see the steps below). [How to hide the clock of macOS.](../apps/dato/index.md#macos11-hide-clock)
+macOS always shows its own clock in the menu bar. So that the date does not show two times, set “Show date” to “Never” in the clock options of macOS (see the steps below). [How to hide the clock of macOS.](/dato#macos11-hide-clock)
 
 ## Without an app
 
@@ -42,4 +43,4 @@ The menu bar clock of macOS can show the date:
 1. To show the day of the week, turn on “Show the day of the week”.
 }
 
-The order of the day and the month comes from the region in “[System Settings › General › Language & Region](x-apple.systempreferences:com.apple.Localization-Settings.extension)”. This is enough if you only want to see the day and the month. macOS cannot show the year or the week number in the menu bar, and you cannot write your own format.
+The order of the day and the month comes from the region in “[System Settings › General › Language & Region](x-apple.systempreferences:com.apple.Localization-Settings.extension)”. This is enough if you only want to see the day and the month. macOS cannot show the year or the [week number](guide:show-week-number-menu-bar-mac) in the menu bar, and you cannot write your own format.

@@ -31,7 +31,7 @@ struct SiteSettings {
 	var supportEmailCount: Int
 
 	/**
-	The exact titles of App Store reviews to leave out across all apps, like a five-star review that reports a bug.
+	The exact titles of reviews to leave out across all apps, like a five-star review that reports a bug, or the exact text of a review without a title, like on Gumroad (``StoreReview/hidingKey``). It is the text of the store, not the tidied text of the page, like “Simply beautiful.” for the title “Simply beautiful”.
 	*/
 	var hiddenReviews = [String]()
 
@@ -51,7 +51,7 @@ struct SiteSettings {
 
 		// A title must be the exact title of a review, so an empty one hides nothing.
 		for (index, title) in hiddenReviews.enumerated() where title.trimmingCharacters(in: .whitespaces).isEmpty {
-			problems.add("The title is empty. Write the exact title of the review to hide.", at: .hiddenReviews, index: index)
+			problems.add("The title is empty. Write the exact title of the review to hide, or its text when it has no title.", at: .hiddenReviews, index: index)
 		}
 
 		for (index, slug) in featuredApps.enumerated().dropFirst(Self.maximumFeaturedAppCount) {

@@ -10,13 +10,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	With [Supercharge](../apps/supercharge/index.md), open the folder in Finder and press ++Option+N++. Then type the name, like `notes.txt`. Without an app, make the file in TextEdit and choose “Format › Make Plain Text” before you save it.
+	With [Supercharge](/supercharge), open the folder in Finder and press ++Option+N++. Then type the name, like `notes.txt`. [Without an app](#without-an-app), make the file in TextEdit and choose “Format › Make Plain Text” before you save it.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. In Finder, open the folder for the file.
 1. Press ++Option+N++. Finder makes an empty file, and selects its name.
 1. Type the name with the extension, like `notes.txt`, and press ++Return++.
@@ -24,7 +24,9 @@ apps: [
 
 The shortcut is on by default. To change it, or to set a default extension, like `txt` or `md`, open the Supercharge settings, click “Tweaks”, and go to “Create new text file” in the Finder section. There you can also make the file open in an app after you name it.
 
-You can also add “New Text File” to the right-click menu of Finder: in the same section, click “Configure…” next to “Context menu items”. The context menu items do not show in folders that sync with iCloud Drive, Dropbox, and similar services.
+You can also add “New Text File” to the right-click menu of Finder: in the same section, click “Configure…” next to “Context menu items”. The context menu items do not show in folders that sync with iCloud Drive, Dropbox, and similar services. To make other kinds of files from your own templates, see [how to make a new file from a template](guide:file-templates-finder-mac).
+
+On iPhone, see [how to create a text file on iPhone](guide:create-text-file-iphone).
 
 ## Without an app
 

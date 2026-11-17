@@ -15,11 +15,13 @@ struct GuidePage: Page {
 	private let app: App
 
 	/**
-	All the apps of the guide, in the order of its `apps`, which its structured data is about.
+	All the apps of the guide, in the order of its `apps`, which its structured data and its Markdown copy are about.
 	*/
-	private let apps: [App]
+	let apps: [App]
 
 	private let parts: (before: MarkdownContent, after: MarkdownContent)
+
+	private let withoutAppHeadingID: ElementID
 
 	/**
 	Uses the guide whose required app and optional screenshot were resolved when the content loaded.
@@ -30,6 +32,7 @@ struct GuidePage: Page {
 		self.app = guide.app
 		self.apps = guide.apps
 		self.parts = guide.parts
+		self.withoutAppHeadingID = guide.withoutAppHeadingID
 		self.screenshot = guide.app.isDownloadable ? guide.screenshot : nil
 	}
 
@@ -39,6 +42,13 @@ struct GuidePage: Page {
 
 	var feedbackApp: App? {
 		app
+	}
+
+	/**
+	The color of the first app, like on the other pages of the app, so the steps, the links, and the box to get the app have its color.
+	*/
+	var tint: Color? {
+		app.tint
 	}
 
 	var socialImage: SocialImage {
@@ -59,8 +69,11 @@ struct GuidePage: Page {
 			article: guide,
 			title: guide.title,
 			description: guide.description,
+			// The “Updated” date of the byline.
+			modifiedOn: guide.lastModified,
 			// The banner of the app in Safari on iPhone, like on the app page, as many readers of a guide about an iPhone app are on their iPhone.
-			appStoreID: app.showsAppStoreBanner ? app.appStoreID : nil
+			appStoreID: app.showsAppStoreBanner ? app.appStoreID : nil,
+			feeds: [SiteFeed.newGuides.link]
 		)
 	}
 
@@ -74,9 +87,11 @@ struct GuidePage: Page {
 
 				// After the steps of the app, so the reader sees the result before deciding to get it. Not taller than on the app page, so a screenshot of a phone is not several screens tall.
 				// The frame of the screenshots of the app page, so the same image looks the same in both places. From tablets, it hangs into the space at the sides of the text, like the boxes around it.
+				// The caption names the app, as the section above the screenshot is not always about it, like “With Dato” above the menu of Zone Bar, but not when the description already names it, like “Velja asks which browser…”.
+				// The caption is the text of the image for screen readers, so the image has no alternative text of its own, and they read the description once.
 				if let (screenshot, description) = screenshot {
-					div {
-						ScreenshotImage(asset: screenshot, alternativeText: description) {
+					figure {
+						ScreenshotImage(asset: screenshot, alternativeText: "") {
 							$0.style {
 								$0
 									.display(.block)
@@ -87,17 +102,38 @@ struct GuidePage: Page {
 										maxWidth: .percent(100),
 										maxHeight: .pixels(MediaAsset.maximumDisplayHeight)
 									)
-									.margin(.horizontal, .auto)
+									// No space below it from the prose, so the caption is close to the image.
+									.margin(vertical: .zero, horizontal: .auto)
 									.windowSurface()
 							}
 						}
+
+						figcaption {
+							description.contains(app.title) ? description : "\(app.title): \(description)"
+						}
+						.style {
+							$0
+								.textAlign(.center)
+								.textWrap(.balance)
+						}
 					}
+					// The space above the box to get the app, so the blocks at the end of the guide have the same space between them.
 					.style {
-						$0.widerThanProse()
+						$0
+							.margin(.top, .rootEm(3))
+							.widerThanProse()
 					}
 				}
 
-				AppCallToAction(listing: content.listing(of: app), buildDate: content.buildDate, appStorePlacement: .guide(guide.slug))
+				// A trial that is a download is the Mac app, so a guide about the app on the iPhone only leaves it out, and its requirement names only the platforms of the iPhone and the Apple Watch, like “iOS 26 or later” (``Guide/isAboutIPhoneOnly``).
+				AppCallToAction(
+					listing: content.listing(of: app),
+					buildDate: content.buildDate,
+					appStorePlacement: .guide(guide.slug),
+					hasCompactFacts: true,
+					showsTrial: !guide.isAboutIPhoneOnly || app.frontmatter.trial?.isMacOnly != true,
+					platforms: guide.isAboutIPhoneOnly ? app.platforms.filter { [Platform.iOS, .watchOS].contains($0) }.nilIfEmpty : nil
+				)
 					.style {
 						// Where there is space at the sides of the text (``Breakpoint/proseWithGutters``), the box hangs into it, like the other boxes of prose, like the code. Until then, from tablets, it is as wide as the text, like the other boxes. Below tablets, it is as wide as the screen, like at the end of the app page, so it goes into the space at the sides of the page. Between tablets and that width, the page has its largest width, so the space at its sides is not only the gutter.
 						$0
@@ -113,11 +149,8 @@ struct GuidePage: Page {
 					a(.href(app.path)) {
 						"More about \(app.title)"
 					}
-					// The arrow is only on the screen, so the name of the link is its text.
 					.style {
-						$0
-							.moreLink()
-							.trailingArrow()
+						$0.guideEndLink()
 					}
 				}
 				.style {
@@ -151,9 +184,24 @@ struct GuidePage: Page {
 		}
 		// One step smaller than the titles of the other pages, as the title of a guide is a long task, like “How to … on Mac”, which would take 4 or 5 lines on a phone and push the quick answer below the first screen.
 		.style {
-			$0.nested(PageHeaderStyles.title.selector) {
-				$0.font(size: .clamp(.rootEm(2.25), .viewportWidth(4.5), .rootEm(3)))
-			}
+			$0
+				.nested(PageHeaderStyles.title.selector) {
+					$0.font(size: .clamp(.rootEm(2.25), .viewportWidth(4.5), .rootEm(3)))
+				}
+				// The numbers, the lines, and the step links of the built-in way are gray, not in the color of the app, as they need no app. Only these, as the links and the selection in the text of the steps read the same accent, and they keep the color of the app.
+				.nested("#\(raw: withoutAppHeadingID.rawValue) ~ \(StepListStyles.root.selector)") {
+					let gray = { (style: Style) in
+						style.setting(Color.accent, to: .secondaryText)
+					}
+
+					return $0
+						.children("ol > li") {
+							$0
+								.before(gray)
+								.after(gray)
+						}
+						.nested(StepListStyles.link.selector, gray)
+				}
 		}
 
 		// After the guide, like the footer, so “Without an app” stays the last word of the guide. The rows of the guides at the end of an app page.
@@ -164,21 +212,62 @@ struct GuidePage: Page {
 				h2 {
 					"More Guides"
 				}
-				// Like the titles of the groups of the footer.
-				.style {
-					$0
-						.margin(.bottom, .rootEm(0.75))
-						.textAlign(.center)
-						.textStyle(.caption, weight: .semibold)
-						.color(.secondaryText)
-				}
+				// Like the title of the guides at the end of an app page (``AppFooterLinks``), as both are extra content at the end of the page.
+				.style(SectionStyles.label)
 
 				GuideLinks(guides: moreGuides)
+
+				// The guides of the app at the end of its page, when it has more than “More Guides” and the box to get the app show, as the reader of one task often wants the next task with the same app, and the guides of an app are in many topics. For an app with many guides, the link opens the row with the guides that do not show at first (``AppFooterLinks/allGuidesID(count:)``).
+				// The page of the topic, so the reader sees the related guides first, like “All Posts” below the more posts of a blog post, and the page of each audience that lists the guide, like the guides for Windows users, so a reader from a search finds the other guides for the same situation.
+				// A centered row that wraps, with space between the links, so their tap areas do not overlap.
+				p {
+					let appGuideCount = content.guides(about: app).count
+
+					if appGuideCount >= 3 {
+						a(.href(.path(app.path, fragment: AppFooterLinks.allGuidesID(count: appGuideCount)))) {
+							"All \(appGuideCount.formatted(.siteNumber)) \(app.title) Guides"
+						}
+						.style {
+							$0.guideEndLink()
+						}
+					}
+
+					let topic = guide.frontmatter.topic
+
+					a(.href(.path(topic.path))) {
+						topic.allGuidesTitle(count: content.guides(of: topic).count)
+					}
+					.style {
+						$0.guideEndLink()
+					}
+
+					for audience in Guide.Audience.allCases where audience.includes(guide.frontmatter) {
+						a(.href(.path(audience.path))) {
+							audience.linkTitle
+						}
+						.style {
+							$0.guideEndLink()
+						}
+					}
+				}
+				.style {
+					$0
+						.margin(top: .rootEm(1.5), horizontal: .zero, bottom: .zero)
+						// The size of the rows above it and of the link to the app in the guide, not the smaller text of the footer links.
+						.textStyle(.body)
+						.hstack(justification: .center)
+						.flexWrap()
+						.gap(row: .rootEm(1.25), column: .rootEm(2))
+				}
 			}
 			.style(AppFooterLinks.Styles.root, AppFooterLinks.Styles.guides)
-			// The space below the guide, and a little more, so the list reads as navigation after the guide, not as a part of it.
+			// The space below the guide, and a little more, so the list reads as navigation after the guide, not as a part of it. From small tablets, as wide as the box to get the app in the guide, not as narrow as the guides at the end of an app page, so each title is one line on a tablet, and not as wide as the parts of an app page. The guides stay in one column until laptops.
 			.style {
-				$0.margin(top: .rootEm(1), horizontal: .auto, bottom: .length(.partSpacing(rootEm: 5)))
+				$0
+					.margin(top: .rootEm(1), horizontal: .auto, bottom: .length(.partSpacing(rootEm: 5)))
+					.from(.smallTablet) {
+						$0.frame(maxWidth: .length(Style.ColumnWidth.prose.maximum + .boxInset * 2))
+					}
 			}
 		}
 
@@ -188,7 +277,7 @@ struct GuidePage: Page {
 	}
 
 	/**
-	Who wrote the guide, below the title, like “By Sindre Sorhus, who makes the Folder Peek app”, with the small photo of the about page. The guide recommends the app of its author, so the line says it openly, and the maker of the app knows how it works.
+	Who wrote the guide, below the title, like “By Sindre Sorhus, who makes the Folder Peek app”, with the small photo of the about page. The guide recommends the apps of its author, so the line says it openly and names all of them, like “who makes the Menu Bar Calendar and Dato apps”, and the maker of the apps knows how they work.
 	*/
 	private var byline: some HTML<HTMLTag.p> {
 		p {
@@ -215,12 +304,15 @@ struct GuidePage: Page {
 				}
 				", "
 				// “the … app”, as the names of some apps are common words, and “who makes Today” reads like a sentence about time.
-				// One unit, so a narrow screen moves the whole clause to the next line, and never splits the name of the app.
+				// One unit, so a narrow screen moves the whole clause to the next line, and only a list of several apps that is wider than the screen wraps inside it.
 				span {
-					"who makes the \(app.title) app"
+					"who makes the \(apps.map(\.title).formattedList(.and)) \(apps.count == 1 ? "app" : "apps")"
 				}
+				// Balanced, so a list of apps that wraps does not leave “Dato apps” alone on the last line.
 				.style {
-					$0.display(.inlineBlock)
+					$0
+						.display(.inlineBlock)
+						.textWrap(.balance)
 				}
 			}
 		}
@@ -234,23 +326,34 @@ struct GuidePage: Page {
 	}
 
 	/**
-	Up to 4 other guides of the topic of the guide, in the order of the list of guides. The guides of other apps come first, one for each app, and then more guides of the same apps, so a topic with many guides about one app, like Supercharge, also shows the other apps.
+	Up to 4 other guides of the topic of the guide, the guides about the same task first, like the other screenshot guides below “How to Find Your Screenshots on Mac”: each word of the title of another guide that the title or the description of this guide also has counts 2, and each such word of its description counts 1. The words are the words of the suggestions of the feedback page, without stopwords, and other forms of a word count too (``SuggestedQuestion/words(in:)``, ``SuggestedQuestion/isForm(_:of:)``). For the same score, the guides after this one in the list of guides come first, and then the guides from the start of the topic, so a guide that shares no words shows its neighbors. A guide that the text of this guide links to is left out, as the reader already saw the link, so the place goes to a guide that the reader does not know yet.
 	*/
 	private var moreGuides: [Guide] {
-		// The apps that already have a guide in the list, starting with the app of this guide.
-		var listedApps: Set = [app.slug]
-		var firstGuidesOfApps = [Guide]()
-		var otherGuides = [Guide]()
+		let topicGuides = content.guides(of: guide.frontmatter.topic).map(\.guide)
 
-		for other in content.resolvedGuides where other.guide.frontmatter.topic == guide.frontmatter.topic && other.guide.path != guide.path {
-			if listedApps.insert(other.app.slug).inserted {
-				firstGuidesOfApps.append(other.guide)
-			} else {
-				otherGuides.append(other.guide)
+		guard let position = topicGuides.firstIndex(where: { $0.path == guide.path }) else {
+			return []
+		}
+
+		let words = SuggestedQuestion.words(in: "\(guide.task) \(guide.description)")
+		// The links are resolved, like `/guides/find-screenshots-mac#steps` for `guide:find-screenshots-mac#steps`.
+		let linkedPaths = Set(guide.markdown.links.compactMap { (try? LinkDestination(validating: $0.destination))?.sitePath })
+
+		func sharedWordCount(_ text: String) -> Int {
+			Set(SuggestedQuestion.words(in: text)).count { word in
+				words.contains { SuggestedQuestion.isForm(word, of: $0) }
 			}
 		}
 
-		return Array((firstGuidesOfApps + otherGuides).prefix(4))
+		let otherGuides = Array(topicGuides[(position + 1)...] + topicGuides[..<position])
+
+		return otherGuides
+			.filter { !linkedPaths.contains($0.path) }
+			.map { (guide: $0, score: sharedWordCount($0.task) * 2 + sharedWordCount($0.description)) }
+			// The sort is stable, so the same score keeps the order after this guide.
+			.sorted(using: KeyPathComparator(\.score, order: .reverse))
+			.prefix(4)
+			.map(\.guide)
 	}
 
 	/**
@@ -262,10 +365,23 @@ struct GuidePage: Page {
 			type: .article,
 			title: guide.title,
 			description: guide.description,
+			dateModified: guide.lastModified,
 			images: [socialImageURL, app.iconURL, screenshot?.asset.path.absoluteURL].compactMap(\.self)
 		)
 
 		article.about = apps.map { Schema.Reference(id: $0.structuredDataID) }
 		return article
+	}
+}
+
+extension Style {
+	/**
+	A link at the end of a guide, like “More about Gifski” and “All 25 Mac Menu Bar Guides”, in the accent of the app of the guide, or at the end of a list of guides, like “Settings to Change on a New Mac” (``AudienceGuidesPage``). The arrow is only on the screen, so the name of the link is its text. The row of the link keeps space around it, so its tap area takes no taps from another link.
+	*/
+	func guideEndLink() -> Self {
+		moreLink()
+			.color(.accentText)
+			.trailingArrow()
+			.minimumTapArea()
 	}
 }

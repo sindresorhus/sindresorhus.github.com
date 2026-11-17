@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Click [Supercharge](../apps/supercharge/index.md) in the menu bar, and choose “Eject All Disks”. Without an app, show the disks on the desktop, select them all, and press ++Command+E++.
+	Click [Supercharge](/supercharge) in the menu bar, and choose “Eject All Disks”. [Without an app](#without-an-app), show the disks on the desktop, select them all, and press ++Command+E++.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md). Its icon is in the menu bar.
+1. Open [Supercharge](/supercharge). Its icon is in the menu bar.
 1. Click the icon, and choose “Eject All Disks”. All the disks that can be ejected are ejected.
 }
 
@@ -26,7 +26,7 @@ For a keyboard shortcut, open the Supercharge settings, click “Shortcuts”, a
 @Steps {
 1. In Finder, choose “Finder › Settings”, click “General”, and turn on “External disks” below “Show these items on the desktop:”.
 1. Click the desktop, and select all the disk icons. Hold ++Command++ and click each one, or drag a box around them.
-1. Press ++Command+E++. The selected disks are ejected.
+1. Press ++Command+E++. The selected disks are ejected. <source:https://support.apple.com/102650>
 }
 
 You can also click the eject button next to each disk in the Finder sidebar. This is good for one or two disks. Supercharge is for when you unplug a dock with many disks every day.

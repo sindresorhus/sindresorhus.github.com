@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	Add the “Remove Duplicates from List” action of the free [Actions](../apps/actions/index.md) app after the action that makes the list. Its result has each item one time. Without an app, you build a loop with the actions of Shortcuts.
+	Add the “Remove Duplicates from List” action of the free [Actions](/actions) app after the action that makes the list. Its result has each item one time. [Without an app](#without-an-app), you build a loop with the actions of Shortcuts.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In your shortcut, add the “Remove Duplicates from List” action below the action that makes the list.
+1. Install [Actions](/actions), and open it once.
+1. In your shortcut, add the [“Remove Duplicates from List”](/actions#:~:text=Remove%20Duplicates%20from%20List) action below the action that makes the list.
 1. On iPhone, touch and hold the “List” field, and select the variable that has the list. Do not tap the field quickly.
 1. Run the shortcut. The result, “Deduplicated List”, has each item one time.
 }
@@ -24,7 +24,7 @@ apps: [
 @Tips {
 - For the lines of a text, use the “Remove Duplicate Lines” action.
 - If Shortcuts says that it “couldn't convert from Text to NSString”, change the preview of the result to the list view. This is a bug in the Shortcuts app.
-- To put the list in order after that, [use the “Sort List” action](shortcuts-sort-list.md).
+- To put the list in order after that, [use the “Sort List” action](guide:shortcuts-sort-list).
 }
 
 ## Without an app

@@ -62,6 +62,13 @@ struct App: ContentDocument {
 		icon?.tint
 	}
 
+	/**
+	The color of the glow below the icon in a row of icons, like on a category page (``CGImage/glowColor``). Unlike ``tint``, a white icon with a colored glyph and a colorful icon have one too. `nil` for an icon without color.
+	*/
+	var glowColor: Color? {
+		icon?.glowColor
+	}
+
 	private let icon: Icon?
 
 	/**
@@ -89,12 +96,16 @@ struct App: ContentDocument {
 
 	/**
 	- Parameter sharedQuestions: The questions of `content/shared-questions.md`, which the app picks from.
+	- Parameter appIconCopies: The JPEG XL copies of the icons of the apps (``iconJPEGXLCopies(project:)``), for the icons before the links to other app pages. Without them, like in a test, the icons are only PNG.
+	- Parameter videoPublicationDates: The Git dates the site loaded for every video. Without them, an app with videos reads the dates itself.
 	- Parameter loadShortcuts: Loads the shared shortcuts that the page links to (``Shortcut``). Without them, like in a test, the links stay links.
 	*/
 	init(
 		file decodedFile: DecodedMarkdownFile<Frontmatter>,
 		sharedQuestions library: SharedQuestions.Library,
 		project: Project,
+		appIconCopies: [RoutePath: JPEGXLCopy] = [:],
+		videoPublicationDates: [URL: Date]? = nil,
 		loadShortcuts: (Set<Shortcut.ID>) async -> [Shortcut.ID: Shortcut] = { _ in [:] }
 	) async throws {
 		let file = decodedFile.source
@@ -118,7 +129,7 @@ struct App: ContentDocument {
 		self.sharedQuestions = try SharedQuestions(pickedBy: decodedFile, from: library)
 
 		// The shortcuts are loaded before the text is rendered, as the text shows them as cards.
-		let shortcuts = await loadShortcuts(Document(parsing: file.body, options: .parseBlockDirectives).shortcutIDs)
+		let shortcuts = await loadShortcuts(file.parsedBody.shortcutIDs)
 		self.shortcuts = Array(shortcuts.values)
 
 		let options = MarkdownDocument.Options.appPage(
@@ -126,7 +137,8 @@ struct App: ContentDocument {
 			project: project,
 			frontmatter: frontmatter,
 			sharedQuestions: sharedQuestions,
-			shortcuts: shortcuts
+			shortcuts: shortcuts,
+			appIconCopies: appIconCopies
 		)
 		let parsed = file.parsedMarkdown(options: options)
 		let body = parsed.document
@@ -278,7 +290,7 @@ struct App: ContentDocument {
 
 		self.feedbackNote = feedbackNote
 
-		self.media = try await MediaAsset.discover(in: Self.assetDirectory(slug: file.slug), project: project)
+		self.media = try await MediaAsset.discover(in: Self.assetDirectory(slug: file.slug), project: project, videoPublicationDates: videoPublicationDates)
 
 		self.icon = try await Icon(path: Self.iconPath(slug: file.slug), project: project)
 	}
@@ -403,6 +415,19 @@ extension App {
 		assetDirectory(slug: slug).appending("icon.png")
 	}
 
+	/**
+	The JPEG XL copies of the icons of all the apps, by the path of the icon, like `/dato/icon.png`, for the icons before the links to the app pages (``MarkdownDocument/Options/addAppLinkIcons(project:iconCopies:excluding:)``), as the text of the pages renders while the apps load. An icon that cannot be read, or whose copy is not smaller, has none. Each app makes the copy of its icon again when it loads (``iconJPEGXL``), from the cache, and reports the mistakes of its icon.
+	*/
+	static func iconJPEGXLCopies(project: Project) async -> [RoutePath: JPEGXLCopy] {
+		let iconPaths = directory.fileURL(in: project.root).directories.compactMap { try? iconPath(slug: ContentSlug(validating: $0.lastPathComponent)) }
+
+		let copies = await iconPaths.concurrentMap { path in
+			(path: path, copy: try? await JPEGXLCopy(of: path, project: project))
+		}
+
+		return Dictionary(uniqueKeysWithValues: copies.compactMap { icon in icon.copy.map { (icon.path, $0) } })
+	}
+
 	static let placeholderIconPath = #path("/assets/app-icon-placeholder.png")
 
 	var hasPlaceholderIcon: Bool {
@@ -422,6 +447,11 @@ extension App {
 		case writeReview
 
 		case qrCode
+
+		/**
+		The link in the text of the trial card, for a visitor who tried the app and comes back to buy it.
+		*/
+		case trial
 
 		/**
 		The App Store banner in Safari on iOS.
@@ -448,6 +478,8 @@ extension App {
 				"web-write-review"
 			case .qrCode:
 				"web-qr-code"
+			case .trial:
+				"web-trial"
 			case .smartBanner:
 				"web-smart-banner"
 			case .guide(let slug):
@@ -529,7 +561,7 @@ extension App {
 	The Gumroad page of the app, which opens the checkout (`wanted=true`).
 	*/
 	var gumroadURL: URL? {
-		purchase.gumroad.map { $0.id.url.appending(queryItems: [URLQueryItem(name: "wanted", value: "true")]) }
+		purchase.gumroad?.checkoutURL
 	}
 
 	var setappURL: URL? {
@@ -594,6 +626,22 @@ extension App {
 	*/
 	var description: String {
 		frontmatter.description ?? (markdown.introduction ?? frontmatter.subtitle).shortenedForSnippet
+	}
+
+	/**
+	The title of the demo videos of the app, like “Gifski demo”, in the video sitemap and the structured data.
+	*/
+	var demoVideoTitle: String {
+		"\(frontmatter.title) demo"
+	}
+
+	/**
+	The subtitle as the pages show it, like in the hero, on app cards, and on the App Timeline: the names of places on Apple devices, “Home Screen”, “Lock Screen”, and “menu bar”, have a no-break space, so a line does not break inside them, like “Home” at the end of a line and “Screen” on the next.
+	*/
+	var displaySubtitle: String {
+		frontmatter.subtitle.replacing(placeName) { match in
+			match.output.replacing(" ", with: "\u{00A0}")
+		}
 	}
 
 	/**
@@ -709,7 +757,12 @@ extension App {
 
 extension App {
 	/**
-	The four most similar apps (shared platforms, menu bar, price). Many apps are equally similar, so a daily shuffle picks among them, not the publication date, which would show the same few newest apps on most pages. The shuffle changes daily, but builds on the same day are the same.
+	The number of apps in “You Might Also Like”.
+	*/
+	static let relatedAppCount = 4
+
+	/**
+	The four most similar apps: the apps of `relatedApps` in the frontmatter first, in their order, then the apps of a shared hand-picked category, then by shared platforms, menu bar, and price. Many apps are equally similar, so a daily shuffle picks among them, not the publication date, which would show the same few newest apps on most pages. The shuffle changes daily, but builds on the same day are the same.
 	*/
 	func relatedApps(from candidates: [App], on date: Date) -> [App] {
 		struct Candidate {
@@ -717,11 +770,15 @@ extension App {
 			let score: Int
 		}
 
+		let pickedApps = frontmatter.relatedApps.compactMap { slug in
+			candidates.first { $0.slug == slug }
+		}
+
 		var generator = SeededRandomNumberGenerator.daily(slug.value, on: date)
 
 		// The sort is stable, so equally similar apps keep the shuffled order.
-		return candidates
-			.filter { $0.slug != slug && !$0.isRedirect }
+		let scoredApps: [App] = candidates
+			.filter { $0.slug != slug && !$0.isRedirect && !frontmatter.relatedApps.contains($0.slug) }
 			.shuffled(using: &generator)
 			.map { candidate in
 				var score = candidate.platforms.count(where: frontmatter.platforms.contains) * 3
@@ -737,11 +794,17 @@ extension App {
 					score += 1
 				}
 
+				// More than all the other points together, so an app of the same hand-picked category, like another browser app, comes before the apps that only share the platforms, the menu bar, and the price, also when they share more platforms.
+				if candidate.categories.contains(where: frontmatter.categories.contains) {
+					score += 100
+				}
+
 				return Candidate(app: candidate, score: score)
 			}
 			.sorted(using: KeyPathComparator(\.score, order: .reverse))
-			.prefix(4)
 			.map(\.app)
+
+		return Array((pickedApps + scoredApps).prefix(Self.relatedAppCount))
 	}
 }
 
@@ -777,6 +840,11 @@ extension App {
 		The lowest OS version that the app runs on, like `'26'` for “Requires macOS 26 or later”, or `'26.1'`. All the platforms have the same version numbers from 26, so one version is enough, and it must be 26 or later. Only for an app whose version the build cannot get (``AppListing/minimumOSVersion``): an app that is not on the App Store and has no appcast, like an iOS app that is not released yet, or an App Store app while the App Store has no version of 26 or later for it, like before it is released. The other apps get it from the App Store or from their appcast, and `website check` warns when they have it.
 		*/
 		var minimumOSVersion: OSVersion?
+
+		/**
+		The size in bytes of the model that the app downloads at its first launch, like `16_000_000_000` for the 16 GB model of Imago, as the size of the App Store has only the app. The Size fact of the page and the Markdown copy add it below the size of the app (``AppListing/sizeLines``). Not for an app that has the model in its download, like Aiko.
+		*/
+		var downloadedModelSize: SafeInteger?
 
 		// Compatibility limits, like Menu Bar Spacing not working on macOS 27, are documented in the app page content.
 
@@ -833,6 +901,11 @@ extension App {
 		*/
 		var categories = [HandPickedCategory]()
 
+		/**
+		The slugs of the apps that the page recommends first in “You Might Also Like”, in this order, like `['menu-bar-spacing']`, at most ``App/relatedAppCount``. The scored picks of the day fill the other places (``App/relatedApps(from:on:)``). Each must be another active app with its own page.
+		*/
+		var relatedApps = [ContentSlug]()
+
 		var links = OrderedMapping<AbsoluteURL>()
 		var overflowLinks = OrderedMapping<AbsoluteURL>()
 
@@ -853,7 +926,7 @@ extension App {
 		var feedbackNames = [String]()
 
 		/**
-		A free version of the app for users that cannot access the App Store, which the build adds as the “Non-App Store Version” section at the end of the page.
+		A free version of the app for people who cannot use the App Store, which the build adds as the “Non-App Store Version” section near the end of the page, before “Older Versions”.
 		*/
 		var nonAppStoreVersion: NonAppStoreVersion?
 
@@ -877,6 +950,11 @@ extension App {
 		var pressQuotes = [PressQuote]()
 
 		/**
+		The story of the App Store that features the app, like `https://apps.apple.com/story/id1547490016`, as the hero shows “Featured by Apple” with a link to it. Only add a story that names the app.
+		*/
+		var appStoreStory: AppStoreStory?
+
+		/**
 		What the app sends to other services, like the text sent to an AI service. The privacy policy shows it instead of saying that no data is collected. Plain text, not Markdown.
 		*/
 		@PlainText var privacyNote: String?
@@ -885,6 +963,18 @@ extension App {
 		Markdown shown on the feedback page when the app is selected.
 		*/
 		var feedbackNote: String?
+
+		// The title is a name, and the press quotes are the words of other people, so they are not checked.
+		var proseTexts: [ProseText] {
+			[
+				(subtitle, [CodingKeys.subtitle]),
+				(description, [CodingKeys.description]),
+				(privacyNote, [CodingKeys.privacyNote]),
+				(trial?.limitations, [CodingKeys.trial, Trial.CodingKeys.limitations]),
+				(announcement?.text, [CodingKeys.announcement, Announcement.CodingKeys.text]),
+				(announcement?.link?.text, [CodingKeys.announcement, Announcement.CodingKeys.link, Announcement.Link.CodingKeys.text]),
+			]
+		}
 
 		func validate(into problems: inout FrontmatterProblems<Self>) {
 			validatePublicationDate(into: &problems)
@@ -926,6 +1016,12 @@ extension App {
 				}
 			}
 			problems.addRepeatedItems(of: sharedQuestions, at: .sharedQuestions)
+			problems.addRepeatedItems(of: relatedApps, at: .relatedApps)
+
+			for (index, slug) in relatedApps.enumerated().dropFirst(App.relatedAppCount) {
+				problems.add("“You Might Also Like” shows at most \(App.relatedAppCount) apps. Remove `\(slug)` or another app.", at: .relatedApps, index: index)
+			}
+
 			// In any case, as the feedback page finds the app by a name in any case.
 			problems.addRepeatedItems(of: feedbackNames.map(\.feedbackLookupKey), at: .feedbackNames)
 
@@ -996,7 +1092,7 @@ extension App {
 				nonAppStoreVersion != nil,
 				appStoreID == nil
 			{
-				problems.add("`nonAppStoreVersion` is for apps on the App Store, for users that cannot access it.", at: .nonAppStoreVersion)
+				problems.add("`nonAppStoreVersion` is for apps on the App Store, for people who cannot use it.", at: .nonAppStoreVersion)
 			}
 		}
 	}
@@ -1041,7 +1137,7 @@ extension App {
 		var url: AbsoluteURL
 
 		/**
-		The oldest macOS version that the trial runs on, like `'26'` or `'26.4'`, which the trial shows next to its button. Only for a trial that needs a newer version than the app, like a trial of a version that is not on the App Store yet. Without it, the trial has the requirement of the app, which the hero shows, so the card shows no requirement of its own. `website check` warns when it is the version of the app.
+		The oldest macOS version that the trial runs on, like `'26'` or `'26.4'`, which the trial shows next to its button. Only for a trial that needs a newer version than the app, like a trial of a version that is not on the App Store yet. Without it, the trial has the requirement of the app, which the hero shows, and the trial dialog, which covers the hero (``AppListing/trialCard``). `website check` warns when it is the version of the app.
 		*/
 		var macOS: OSVersion?
 
@@ -1114,7 +1210,19 @@ extension App {
 		The requirement that the trial shows next to its button, like “Requires macOS 26 or later”, or `nil` without `macOS`, as the requirement of the app is in the hero.
 		*/
 		var requirementSentence: String? {
-			macOS.map { $0.macOSRequirementSentence }
+			macOS.map { OSRequirement.macOS($0).sentence }
+		}
+
+		/**
+		Whether the trial is only for the Mac: a download, like a zip file. A trial on TestFlight is also for the other platforms of the app.
+		*/
+		var isMacOnly: Bool {
+			switch kind {
+			case .testFlight:
+				false
+			case .download:
+				true
+			}
 		}
 	}
 
@@ -1169,6 +1277,13 @@ extension App {
 		The price in US dollars, like `20` or `4.99`, which the page shows. `website check` warns when Gumroad has another price.
 		*/
 		var price: Price
+
+		/**
+		The page of the product, which opens the checkout (`wanted=true`).
+		*/
+		var checkoutURL: URL {
+			id.url.appending(queryItems: [URLQueryItem(name: "wanted", value: "true")])
+		}
 	}
 
 	@Frontmatter
@@ -1187,6 +1302,11 @@ extension App {
 		The year of the article, like `2021`, which the source shows.
 		*/
 		var year: Int?
+
+		/**
+		The award that the article gives the app, like `Best Mac App Runner-Up`, which the source shows with the year in place of the year alone, like “Best Mac App Runner-Up 2025”, so a visitor sees it near the top of the page. The `url` goes to the award, like the section of the app in a list of awards. Only for a quote of an article.
+		*/
+		@PlainText var award: String?
 
 		/**
 		The language of the article, like `German`, when the quote is translated to English.
@@ -1228,8 +1348,8 @@ extension App {
 
 				// A quote copied from an article can have straight quotes and apostrophes, like “Let's”, so the page shows typographic ones, like the App Store reviews. The highlight is changed the same way, so it is still in the quote.
 				var typographicQuote = self
-				typographicQuote.quote = quote.typographicQuotes
-				typographicQuote.highlight = highlight?.typographicQuotes
+				typographicQuote.quote = quote.typographicPunctuation
+				typographicQuote.highlight = highlight?.typographicPunctuation
 
 				return Resolved(quote: typographicQuote, attribution: attribution)
 			}
@@ -1279,10 +1399,18 @@ extension App {
 				problems.add(error.reason, at: .url)
 			}
 
+			// An award is given by a publication in an article, which the source links to, not by a person.
+			if
+				award != nil,
+				url == nil || isBuyerReview
+			{
+				problems.add("The quote of \(source) in `pressQuotes` has an `award`, but it is not a quote of an article. Add the `url` and the `year` of the article, or remove the `award`.", at: .award)
+			}
+
 			// The page finds the highlight in the quote with typographic quotes (``resolved``), and an apostrophe can become another quote mark in the highlight alone, like “'s go” in “Let's go”.
 			if
 				let highlight,
-				!quote.typographicQuotes.contains(highlight.typographicQuotes)
+				!quote.typographicPunctuation.contains(highlight.typographicPunctuation)
 			{
 				problems.add("The `highlight` of the `pressQuotes` quote from \(source) is not in its quote.", at: .highlight)
 			}
@@ -1455,6 +1583,30 @@ struct TestFlightInvitation: ValidatedValue, Hashable {
 	}
 }
 
+/**
+A story of the App Store, where its editors feature apps, validated before it becomes a link on an app page.
+*/
+struct AppStoreStory: ValidatedValue, Hashable {
+	let url: URL
+
+	/**
+	Creates a story from an HTTPS link to a story on the App Store, without a storefront, like `us`, so Apple shows the story of the storefront of the visitor, in their language.
+	*/
+	init(validating url: URL) throws(ContentError) {
+		guard
+			url.scheme == "https",
+			url.host() == "apps.apple.com",
+			url.pathComponents.count == 3,
+			url.pathComponents[1] == "story",
+			url.pathComponents[2].wholeMatch(of: /id\d+/) != nil
+		else {
+			throw ContentError(reason: "Must be a link to a story of the App Store, like `https://apps.apple.com/story/id1547490016`, got \(url).")
+		}
+
+		self.url = url
+	}
+}
+
 extension App {
 	/**
 	The icon of the app and the assets derived from it. `nil` when the app has no icon yet, so its page shows the placeholder.
@@ -1464,6 +1616,7 @@ extension App {
 		let enclosure: Enclosure?
 		let jpegXL: JPEGXLCopy?
 		let tint: Color?
+		let glowColor: Color?
 
 		/**
 		Loads the icon and its derivatives once. A missing icon is `nil`, so a placeholder has no feed enclosure or JPEG XL copy.
@@ -1478,6 +1631,7 @@ extension App {
 			self.enclosure = fileSize.flatMap { Enclosure(url: path.absoluteURL, length: $0, mimeType: "image/png") }
 			self.jpegXL = try await JPEGXLCopy(of: path, project: project)
 			self.tint = await file.cachedValue(using: .iconAccentColor)
+			self.glowColor = await file.cachedValue(using: .iconGlowColor)
 		}
 	}
 }
@@ -1489,4 +1643,16 @@ extension FileRead where Value == Color?, Failure == Never {
 	fileprivate static var iconAccentColor: Self {
 		Self("iconAccentColor") { CGImage.read($0)?.accentColor }
 	}
+
+	/**
+	The color of the glow below the icon, shared by all uses of a version of the image.
+	*/
+	fileprivate static var iconGlowColor: Self {
+		Self("iconGlowColor") { CGImage.read($0)?.glowColor }
+	}
 }
+
+/**
+The names of places on Apple devices that a line must not break inside (``App/displaySubtitle``).
+*/
+private nonisolated(unsafe) let placeName = /\b(?:(?:Home|Lock) Screen|menu bar)\b/.ignoresCase()

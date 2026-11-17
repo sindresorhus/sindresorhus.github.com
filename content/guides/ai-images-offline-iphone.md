@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	The free [Amazing AI](../apps/amazing-ai/index.md) app makes images from a description with Stable Diffusion. It runs on your iPhone, also without the internet. Image Playground, the built-in app, uses Apple servers. Amazing AI needs an iPhone 15 Pro or later.
+	The free [Amazing AI](/amazing-ai) app makes images from a description with Stable Diffusion. It runs on your iPhone, also without the internet. Image Playground, the built-in app, uses Apple servers. Amazing AI needs an iPhone 15 Pro or later.
 }
 
 ## With Amazing AI
 
 @Steps {
-1. Install [Amazing AI](../apps/amazing-ai/index.md).
+1. Install [Amazing AI](/amazing-ai).
 1. In “Prompt”, describe the image in detail, like “photo of a white unicorn in a forest at sunrise, high-quality”.
 1. Tap the send key on the keyboard. Keep the app open while it works. The first image takes a long time, as iOS must prepare the AI model one time.
 1. Touch and hold an image that you want to keep, and choose “Save to Photos” or “Save to Files”. The app does not keep the images.
@@ -26,7 +26,7 @@ The prompts and the images stay on your iPhone. Amazing AI uses Stable Diffusion
 @Tips {
 - To leave something out of the image, write `##` after the prompt, and then what to leave out, like “photo of a cake, high-quality ## strawberry, out of frame”.
 - Generate several images of the same prompt, and keep the best one. The results are different each time.
-- On a Mac, [Imago](generate-ai-images-offline-mac.md) makes much better images with a newer model.
+- On a Mac, [Imago](/imago) makes much better images with a newer model. <guide:generate-ai-images-offline-mac>
 }
 
 ## Without an app

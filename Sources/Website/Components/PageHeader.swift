@@ -36,8 +36,9 @@ struct PageHeader<Intro: HTML>: HTML {
 
 	var body: some HTML<HTMLTag.header> {
 		header {
+			// A word with a hyphen stays on one line, like in the headings of Markdown.
 			h1 {
-				title
+				MarkdownTheme.site.headingTextHTML(title)
 			}
 			.style(PageHeaderStyles.title)
 

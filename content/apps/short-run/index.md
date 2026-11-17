@@ -42,33 +42,52 @@ Since shortcuts can open URLs, folders, apps, and run shell scripts or AppleScri
 
 **Features**
 
-- Instant Access – All your favorite shortcuts available from the menu bar
-- Smart Organization – Organize shortcuts into sections and submenus
-- App-Specific Shortcuts – Show different shortcuts based on the active app
-- Linked Folders – Display folders from the Shortcuts app dynamically
-- Keyboard Shortcut – Toggle the menu with a customizable hotkey
-- Quick Keys – Assign 0-9 and a-z keys to shortcuts for instant triggering when menu is open
-- Customizable Menu Bar Icon – Choose between multiple menu bar icons to match your style
-- Launch at Login – Always ready when you need it
+- Instant Access
+	:: All your favorite shortcuts available from the menu bar
+- Smart Organization
+	:: Organize shortcuts into sections and submenus
+- App-Specific Shortcuts
+	:: Show different shortcuts based on the active app
+- Linked Folders
+	:: Display folders from the Shortcuts app dynamically
+- Keyboard Shortcut
+	:: Toggle the menu with a customizable hotkey
+- Quick Keys
+	:: Assign 0–9 and a–z keys to shortcuts for instant triggering when menu is open
+- Customizable Menu Bar Icon
+	:: Choose between multiple menu bar icons to match your style
+- Launch at Login
+	:: Always ready when you need it
 
 #### Common use cases
 
-- Essential Folders – Instantly jump to Desktop, Downloads, current project, or that deeply nested work directory
-- Daily Websites – One-click access to X, Gmail, GitHub, or your company dashboard
-- File Management – Bulk rename photos, compress for email, convert between formats, organize screenshots
-- System Shortcuts – Toggle Dark Mode, empty trash, force-quit apps
-- Developer Workflows – Open terminal here, restart local server, run build scripts, push to Git
-- Text & Clipboard – Create meeting summary, clean text
-- Quick Actions – Take annotated screenshots, start screen recording, set focus modes, create calendar events
+- Essential Folders
+	:: Instantly jump to Desktop, Downloads, current project, or that deeply nested work directory
+- Daily Websites
+	:: One-click access to X, Gmail, GitHub, or your company dashboard
+- File Management
+	:: Bulk rename photos, compress for email, convert between formats, organize screenshots
+- System Shortcuts
+	:: Toggle Dark Mode, empty trash, force-quit apps
+- Developer Workflows
+	:: Open terminal here, restart local server, run build scripts, push to Git
+- Text & Clipboard
+	:: Create meeting summary, clean text
+- Quick Actions
+	:: Take annotated screenshots, start screen recording, set focus modes, create calendar events
 
 #### URL scheme {#url-scheme}
 
 Supports the `shortrun://` URL scheme for running shortcuts silently in the background without opening the Shortcuts app. Works exactly like the standard [Shortcuts URL scheme](https://support.apple.com/guide/shortcuts-mac/apd624386f42/mac) `shortcuts://` but executes silently. Perfect for automation workflows and third-party integrations.
 
 Examples:
+
 - `shortrun://run-shortcut?name=My%20Shortcut`
+	:: Run the shortcut “My Shortcut”.
 - `shortrun://run-shortcut?name=My%20Shortcut&input=text&text=Hello`
-- `shortrun://run-shortcut?name=My%20Shortcut&input=clipboard` gives the copied text to the shortcut as its input.
+	:: Run the shortcut with the text “Hello” as its input.
+- `shortrun://run-shortcut?name=My%20Shortcut&input=clipboard`
+	:: Run the shortcut with the copied text as its input.
 
 *It does not support `shortcuts://x-callback-url`.*
 
@@ -97,7 +116,7 @@ Short Run benefits:
 - Choose the order of shortcuts
 - Organize shortcuts into sections and submenus
 - Show some shortcuts only when a specific app is active
-- Assign quick keys (0-9, a-z) to shortcuts for instant triggering when menu is open
+- Assign quick keys (0–9, a–z) to shortcuts for instant triggering when menu is open
 - Cleaner interface with just the shortcut name
 - Menu closes automatically when running a shortcut
 - Open the menu with a keyboard shortcut and navigate to shortcuts using arrow keys
@@ -109,7 +128,7 @@ Short Run benefits:
 
 In macOS 26 and later, Spotlight can run shortcuts, and you can give a shortcut a quick key, like a few letters, that you type in Spotlight. This works well when you know the name of the shortcut.
 
-Short Run is a menu that you organize and browse: you choose the order, put shortcuts into sections and submenus, show some shortcuts only when a specific app is active, and run a shortcut with one key (0-9, a-z) while the menu is open.
+Short Run is a menu that you organize and browse: you choose the order, put shortcuts into sections and submenus, show some shortcuts only when a specific app is active, and run a shortcut with one key (0–9, a–z) while the menu is open.
 
 ### How do I disable the built-in Shortcuts menu bar item to avoid duplication? {#how-do-i-disable-the-built-in-shortcuts-menu-bar-item-to-avoid-duplication}
 
@@ -172,7 +191,8 @@ I have reported it to Apple: [FB19805797](https://github.com/feedback-assistant/
 
 ### My shortcut fails when it needs “Full Disk Access” {#my-shortcut-fails-when-it-needs-full-disk-access}
 
-Give Short Run “Full Disk Access” too (“[System Settings › Privacy & Security › Full Disk Access](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension)”).
+Give Short Run “Full Disk Access” too (“[System Settings › Privacy & Security › Full Disk Access](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_AllFiles)”).
+
 Short Run is what actually executes the shortcut, so it needs the same permission as the Shortcuts app.
 
 ### Can I assign hotkeys to individual shortcuts? {#can-i-assign-hotkeys-to-individual-shortcuts}

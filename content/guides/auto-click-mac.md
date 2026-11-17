@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	macOS has no auto clicker. With [Shortcutie](../apps/shortcutie/index.md), make a shortcut with a “Repeat” action, and put its “Click Mouse Button” action and a “Wait” action in the repeat. Without an app, Dwell clicks when you hold the pointer still, but only one time each time.
+	macOS has no auto clicker. With [Shortcutie](/shortcutie), make a shortcut with a “Repeat” action, and put its “Click Mouse Button” action and a “Wait” action in the repeat. [Without an app](#without-an-app), Dwell clicks when you hold the pointer still, but only one time each time.
 }
 
 ## With Shortcutie
 
 @Steps {
-1. Install [Shortcutie](../apps/shortcutie/index.md), and open it once. It asks for Accessibility access, which it needs to click.
+1. Install [Shortcutie](/shortcutie), and open it once. It asks for Accessibility access, which it needs to click.
 1. In the Shortcuts app, make a new shortcut, and add the “Repeat” action. Set the number of times, like 100.
 1. Inside the repeat, add the “Click Mouse Button” action of Shortcutie, and choose “Single Click” and “Left”.
 1. Below it, inside the repeat, add the “Wait” action, and set the time between the clicks.
@@ -34,7 +34,7 @@ When “X” and “Y” are empty, the action clicks where the pointer is. To c
 Dwell of the Accessibility Keyboard clicks for you when you hold the pointer still on an item ([Apple’s guide](https://support.apple.com/guide/mac-help/mchl437b47b0/mac)):
 
 @Steps {
-1. Open “System Settings › Accessibility › Keyboard”, and turn on “Accessibility Keyboard”.
+1. Open “[System Settings › Accessibility › Keyboard](x-apple.systempreferences:com.apple.Accessibility-Settings.extension)”, and turn on “Accessibility Keyboard”.
 1. Click the info button next to it, go to Dwell, and turn on “Show dwell actions in menu bar”.
 1. Choose “Left Click” in the Dwell menu, and hold the pointer still on an item.
 }

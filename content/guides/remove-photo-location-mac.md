@@ -2,20 +2,20 @@
 title: 'How to Remove the Location from a Photo on Mac'
 description: 'Remove the GPS location from a photo in Preview, or from many photos at once in the right-click menu of Finder with Supercharge.'
 publicationDate: 2026-11-07
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'supercharge'
 ]
 ---
 
 @QuickAnswer {
-	Open the photo in Preview, choose “Tools › Show Location Info”, and click “Remove Location Info”. To remove the location from many photos at once, select them in Finder, right-click, and choose “Remove Location Metadata” from [Supercharge](../apps/supercharge/index.md).
+	Open the photo in Preview, choose “Tools › Show Location Info”, and click “Remove Location Info”. To remove the location from many photos at once, select them in Finder, right-click, and choose “Remove Location Metadata” from [Supercharge](/supercharge).
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), click “Tweaks”, and click “Configure…” next to “Context menu items”.
+1. Open the settings of [Supercharge](/supercharge), click “Tweaks”, and click “Configure…” next to “Context menu items”.
 1. In the “Main Menu” tab, turn on “Remove Image Location Metadata”. To remove all metadata, like the camera, the date, and the location, also turn on “Remove All Image Metadata”.
 1. Select the photos in Finder, right-click, and choose “Remove Location Metadata” or “Remove All Metadata”.
 }
@@ -32,4 +32,4 @@ The right-click items cannot show in synced folders, like iCloud Drive and Dropb
 1. Click “Remove Location Info”, and save the photo.
 }
 
-Preview removes the location from one photo at a time. In the Photos app, you can hide the location of photos: select them, and choose “Image › Location › Hide Location”. Supercharge is faster for many photos, and also removes the other metadata. [How to remove all metadata without an app.](remove-photo-metadata-mac.md)
+Preview removes the location from one photo at a time. In the Photos app, you can hide the location of photos: select them, and choose “Image › Location › Hide Location”. <source:https://support.apple.com/guide/personal-safety/ips0d7a5df82/web> Supercharge is faster for many photos, and also removes the other metadata. [How to remove all metadata without an app.](guide:remove-photo-metadata-mac)

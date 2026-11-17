@@ -2,20 +2,20 @@
 title: 'How to Make Subtitles for a Video on Mac'
 description: 'Make an SRT or WebVTT subtitle file from the speech in a video on your Mac with Aiko, which transcribes 100 languages offline.'
 publicationDate: 2026-11-07
-topic: 'text-images-and-sound'
+topic: 'audio-and-video'
 apps: [
 	'aiko'
 ]
 ---
 
 @QuickAnswer {
-	Drop the video on the window of [Aiko](../apps/aiko/index.md). When the transcription is done, click the export button in the toolbar, and choose “SRT (Subtitles)”. macOS cannot make a subtitle file from speech: Live Captions only shows captions while the audio plays.
+	Drop the video on the window of [Aiko](/aiko). When the transcription is done, click the export button in the toolbar, and choose “SRT (Subtitles)”. macOS cannot make a subtitle file from speech: Live Captions only shows captions while the audio plays.
 }
 
 ## With Aiko
 
 @Steps {
-1. Open the settings of [Aiko](../apps/aiko/index.md), and turn on “Optimize for subtitles”. It keeps each subtitle at 84 characters or less, so a subtitle can stop in the middle of a sentence.
+1. Open the settings of [Aiko](/aiko), and turn on “Optimize for subtitles”. It keeps each subtitle at 84 characters or less, so a subtitle can stop in the middle of a sentence.
 1. Drop the video on the Aiko window, or click “Import”.
 1. Wait while Aiko transcribes. A long video takes some minutes.
 1. Click the export button in the toolbar, and choose “SRT (Subtitles)” or “WebVTT (Subtitles)”.

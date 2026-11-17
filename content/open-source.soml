@@ -1,0 +1,592 @@
+# The projects of the open source page (`OpenSourceCatalog`), by group, in the order of the page. The key of a group is the ID of its section. The summaries are close to the descriptions of the repos.
+#
+# A group has two or three projects, or a multiple of four, so the cards fill the rows of the grid. The page has no Electron projects, like `electron-store`.
+
+http: [
+	{
+		name: 'Got'
+		repository: 'sindresorhus/got'
+		summary: 'Human-friendly and powerful HTTP requests for Node.js.'
+		language: 'TypeScript'
+	}
+	{
+		name: 'Ky'
+		repository: 'sindresorhus/ky'
+		summary: 'A tiny and elegant HTTP client based on the Fetch API.'
+		language: 'TypeScript'
+	}
+	# The following were intentionally excluded: is-online, public-ip, is-up.
+	{
+		name: 'normalize-url'
+		repository: 'sindresorhus/normalize-url'
+		summary: 'Normalize a URL.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'fetch-extras'
+		repository: 'sindresorhus/fetch-extras'
+		summary: 'Useful utilities for working with Fetch.'
+		language: 'JavaScript'
+	}
+]
+
+promises: [
+	{
+		name: 'p-limit'
+		repository: 'sindresorhus/p-limit'
+		summary: 'Run promise-returning and async functions with limited concurrency.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'p-queue'
+		repository: 'sindresorhus/p-queue'
+		summary: 'Promise queue with concurrency control.'
+		language: 'TypeScript'
+	}
+	{
+		name: 'p-map'
+		repository: 'sindresorhus/p-map'
+		summary: 'Map over promises concurrently.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'p-retry'
+		repository: 'sindresorhus/p-retry'
+		summary: 'Retry a promise-returning or async function.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'p-throttle'
+		repository: 'sindresorhus/p-throttle'
+		summary: 'Throttle promise-returning and async functions.'
+		language: 'JavaScript'
+	}
+	# The following were intentionally excluded: pify, delay, Emittery, p-cancelable.
+	{
+		name: 'p-progress'
+		repository: 'sindresorhus/p-progress'
+		summary: 'Create a promise that reports progress.'
+		language: 'TypeScript'
+	}
+	{
+		name: 'p-memoize'
+		repository: 'sindresorhus/p-memoize'
+		summary: 'Memoize promise-returning and async functions.'
+		language: 'TypeScript'
+	}
+	{
+		name: 'p-event'
+		repository: 'sindresorhus/p-event'
+		summary: 'Promisify an event by waiting for it to be emitted.'
+		language: 'JavaScript'
+	}
+]
+
+command-line-tools: [
+	{
+		name: 'np'
+		repository: 'sindresorhus/np'
+		summary: 'A better “npm publish”.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'Pure'
+		repository: 'sindresorhus/pure'
+		summary: 'Pretty, minimal, and fast Zsh prompt.'
+		language: 'Shell'
+	}
+	{
+		name: 'fkill'
+		repository: 'sindresorhus/fkill-cli'
+		summary: 'Fabulously kill processes. Cross-platform.'
+		language: 'JavaScript'
+	}
+	# The following were intentionally excluded: fast-cli, speed-test.
+	{
+		name: 'emoj'
+		repository: 'sindresorhus/emoj'
+		summary: 'Find relevant emoji from text on the command-line.'
+		language: 'TypeScript'
+	}
+]
+
+command-line-apps: [
+	{
+		name: 'Chalk'
+		repository: 'chalk/chalk'
+		summary: 'Terminal string styling done right.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'Ora'
+		repository: 'sindresorhus/ora'
+		summary: 'Elegant terminal spinner.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'meow'
+		repository: 'sindresorhus/meow'
+		summary: 'A helper for command-line apps, like for their arguments and help text.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'boxen'
+		repository: 'sindresorhus/boxen'
+		summary: 'Create boxes in the terminal.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'log-update'
+		repository: 'sindresorhus/log-update'
+		summary: 'Log by overwriting the previous output in the terminal, like for progress bars.'
+		language: 'JavaScript'
+	}
+	# The following were intentionally excluded: terminal-link, cli-spinners, update-notifier, yoctocolors, log-symbols.
+	{
+		name: 'string-width'
+		repository: 'sindresorhus/string-width'
+		summary: 'Get the visual width of a string.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'figures'
+		repository: 'sindresorhus/figures'
+		summary: 'Unicode symbols with fallbacks for older terminals.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'cli-truncate'
+		repository: 'sindresorhus/cli-truncate'
+		summary: 'Truncate a string to fit a specific number of columns.'
+		language: 'JavaScript'
+	}
+]
+
+files: [
+	{
+		name: 'globby'
+		repository: 'sindresorhus/globby'
+		summary: 'User-friendly glob matching.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'file-type'
+		repository: 'sindresorhus/file-type'
+		summary: 'Detect the file type of a file, stream, or data.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'find-up'
+		repository: 'sindresorhus/find-up'
+		summary: 'Find a file or directory by walking up parent directories.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'trash'
+		repository: 'sindresorhus/trash'
+		summary: 'Move files and directories to the trash.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'del'
+		repository: 'sindresorhus/del'
+		summary: 'Delete files and directories.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'cpy'
+		repository: 'sindresorhus/cpy'
+		summary: 'Copy files.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'move-file'
+		repository: 'sindresorhus/move-file'
+		summary: 'Move a file, directory, or symlink, also to another device.'
+		language: 'JavaScript'
+	}
+	# The following was intentionally excluded: make-dir.
+	{
+		name: 'tempy'
+		repository: 'sindresorhus/tempy'
+		summary: 'Get a random temporary file or directory path.'
+		language: 'JavaScript'
+	}
+]
+
+system: [
+	{
+		name: 'Execa'
+		repository: 'sindresorhus/execa'
+		summary: 'Process execution for humans.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'open'
+		repository: 'sindresorhus/open'
+		summary: 'Open URLs, files, and executables. Cross-platform.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'clipboardy'
+		repository: 'sindresorhus/clipboardy'
+		summary: 'Access the system clipboard (copy and paste).'
+		language: 'JavaScript'
+	}
+	{
+		name: 'get-port'
+		repository: 'sindresorhus/get-port'
+		summary: 'Get an available TCP port.'
+		language: 'JavaScript'
+	}
+]
+
+text: [
+	{
+		name: 'slugify'
+		repository: 'sindresorhus/slugify'
+		summary: 'Slugify a string.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'camelcase'
+		repository: 'sindresorhus/camelcase'
+		summary: 'Convert a dash, dot, underscore, or space separated string to camelCase.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'pretty-bytes'
+		repository: 'sindresorhus/pretty-bytes'
+		summary: 'Convert bytes to a human-readable string: 1337 → 1.34 kB.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'pretty-ms'
+		repository: 'sindresorhus/pretty-ms'
+		summary: 'Convert milliseconds to a human-readable string: 1337000000 → 15d 11h 23m 20s.'
+		language: 'JavaScript'
+	}
+]
+
+objects: [
+	{
+		name: 'dot-prop'
+		repository: 'sindresorhus/dot-prop'
+		summary: 'Get, set, or delete a property of a nested object with a dot path.'
+		language: 'JavaScript'
+	}
+	# The following was intentionally excluded: on-change.
+	{
+		name: 'debounce'
+		repository: 'sindresorhus/debounce'
+		summary: 'Delay function calls until a set time elapses after the last invocation.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'quick-lru'
+		repository: 'sindresorhus/quick-lru'
+		summary: 'Simple “Least Recently Used” (LRU) cache.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'memoize'
+		repository: 'sindresorhus/memoize'
+		summary: 'Memoize functions, so calls with the same input are faster.'
+		language: 'TypeScript'
+	}
+]
+
+web: [
+	{
+		name: 'query-string'
+		repository: 'sindresorhus/query-string'
+		summary: 'Parse and stringify URL query strings.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'copy-text-to-clipboard'
+		repository: 'sindresorhus/copy-text-to-clipboard'
+		summary: 'Copy text to the clipboard in modern browsers.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'element-ready'
+		repository: 'sindresorhus/element-ready'
+		summary: 'Detect when an element is ready in the DOM.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'github-markdown-css'
+		repository: 'sindresorhus/github-markdown-css'
+		summary: 'The minimal amount of CSS to replicate the GitHub Markdown style.'
+		language: 'CSS'
+	}
+]
+
+images: [
+	# The following were intentionally excluded: Pageres, gulp-imagemin, image-type, term-img.
+	{
+		name: 'capture-website'
+		repository: 'sindresorhus/capture-website'
+		summary: 'Capture screenshots of websites.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'image-dimensions'
+		repository: 'sindresorhus/image-dimensions'
+		summary: 'Get the dimensions of an image.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'terminal-image'
+		repository: 'sindresorhus/terminal-image'
+		summary: 'Display images in the terminal.'
+		language: 'JavaScript'
+	}
+]
+
+linting: [
+	{
+		name: 'XO'
+		repository: 'xojs/xo'
+		summary: 'JavaScript and TypeScript linter with great defaults.'
+		language: 'TypeScript'
+	}
+	{
+		name: 'eslint-plugin-unicorn'
+		repository: 'sindresorhus/eslint-plugin-unicorn'
+		summary: 'More than 300 powerful ESLint rules.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'eslint-config-xo'
+		repository: 'xojs/eslint-config-xo'
+		summary: 'The ESLint config of XO.'
+		language: 'JavaScript'
+	}
+	# The following was intentionally excluded: eslint-plugin-ava.
+	{
+		name: 'eslint-package-json'
+		repository: 'sindresorhus/eslint-package-json'
+		summary: 'Powerful ESLint rules for package.json.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'eslint-cssicorn'
+		repository: 'sindresorhus/eslint-cssicorn'
+		summary: 'Powerful ESLint rules for CSS.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'eslint-node-test'
+		repository: 'sindresorhus/eslint-node-test'
+		summary: 'ESLint rules for the Node.js built-in test runner (node:test).'
+		language: 'JavaScript'
+	}
+	{
+		name: 'awesome-lint'
+		repository: 'sindresorhus/awesome-lint'
+		summary: 'Linter for Awesome lists.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'eslint-formatter-pretty'
+		repository: 'sindresorhus/eslint-formatter-pretty'
+		summary: 'Pretty ESLint formatter.'
+		language: 'JavaScript'
+	}
+]
+
+testing: [
+	{
+		name: 'AVA'
+		repository: 'avajs/ava'
+		summary: 'Node.js test runner that lets you develop with confidence.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'type-fest'
+		repository: 'sindresorhus/type-fest'
+		summary: 'A collection of essential TypeScript types.'
+		language: 'TypeScript'
+	}
+	{
+		name: 'ts-extras'
+		repository: 'sindresorhus/ts-extras'
+		summary: 'Essential utilities for TypeScript projects.'
+		language: 'TypeScript'
+	}
+	# The following was intentionally excluded: ow.
+	{
+		name: 'test-extras'
+		repository: 'sindresorhus/test-extras'
+		summary: 'Assertions and utilities that make node:test better.'
+		language: 'JavaScript'
+	}
+]
+
+file-formats: [
+	# File formats keep the spec repos and the Swift implementation of SOML. The following were intentionally excluded: `soml` (the reference parser), `SimpleColorPalette` (a Swift implementation), and the implementations of other file formats.
+	{
+		name: 'SOML'
+		repository: 'soml-lang/soml'
+		summary: 'A config format for humans. The spec is a draft.'
+	}
+	{
+		name: 'Simple Color Palette'
+		repository: 'simple-color-palette/spec'
+		summary: 'A minimal JSON-based file format for color palettes. The spec is a work in progress.'
+	}
+	{
+		name: 'SOML Swift'
+		repository: 'soml-lang/SOMLSwift'
+		summary: 'A Swift implementation of the SOML format.'
+		language: 'Swift'
+	}
+]
+
+swift: [
+	{
+		name: 'Defaults'
+		repository: 'sindresorhus/Defaults'
+		summary: 'Swifty and modern UserDefaults.'
+		language: 'Swift'
+	}
+	{
+		name: 'KeyboardShortcuts'
+		repository: 'sindresorhus/KeyboardShortcuts'
+		summary: 'Add user-customizable global keyboard shortcuts to your macOS app.'
+		language: 'Swift'
+	}
+	# The following were intentionally excluded: Settings, CircularProgress, ExceptionCatcher, CustomButton, touch-bar-simulator.
+	{
+		name: 'LaunchAtLogin'
+		repository: 'sindresorhus/LaunchAtLogin-Modern'
+		summary: 'Add “Launch at Login” to your macOS app in seconds.'
+		language: 'Swift'
+	}
+	{
+		name: 'DockProgress'
+		repository: 'sindresorhus/DockProgress'
+		summary: 'Show progress in the Dock icon of your app.'
+		language: 'Swift'
+	}
+	{
+		name: 'Regex'
+		repository: 'sindresorhus/Regex'
+		summary: 'Swifty regular expressions.'
+		language: 'Swift'
+	}
+	{
+		name: 'Percentage'
+		repository: 'sindresorhus/Percentage'
+		summary: 'A percentage type for Swift.'
+		language: 'Swift'
+	}
+	{
+		name: 'DSStore'
+		repository: 'sindresorhus/DSStore'
+		summary: 'Read and write macOS .DS_Store files in Swift.'
+		language: 'Swift'
+	}
+	{
+		name: 'ExtendedAttributes'
+		repository: 'sindresorhus/ExtendedAttributes'
+		summary: 'Manage extended attributes in Swift.'
+		language: 'Swift'
+	}
+]
+
+mac: [
+	{
+		name: 'create-dmg'
+		repository: 'sindresorhus/create-dmg'
+		summary: 'Create a good-looking DMG for your macOS app in seconds.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'macos-trash'
+		repository: 'sindresorhus/macos-trash'
+		summary: 'Move files and folders to the trash from the command line.'
+		language: 'Swift'
+	}
+	# The following were intentionally excluded: dark-mode, wallpaper.
+	{
+		name: 'macos-wallpaper'
+		repository: 'sindresorhus/macos-wallpaper'
+		summary: 'Manage the desktop wallpaper on macOS.'
+		language: 'Swift'
+	}
+]
+
+apps: [
+	{
+		name: 'Gifski'
+		repository: 'sindresorhus/Gifski'
+		summary: 'Convert videos to high-quality GIFs on your Mac.'
+		language: 'Swift'
+	}
+	{
+		name: 'Pasteboard Viewer'
+		repository: 'sindresorhus/Pasteboard-Viewer'
+		summary: 'Inspect the system pasteboards.'
+		language: 'Swift'
+	}
+	{
+		name: 'Blear'
+		repository: 'sindresorhus/Blear'
+		summary: 'Transform photos into blurry wallpapers for your iPhone.'
+		language: 'Swift'
+	}
+	# The following was intentionally excluded: Plash (not open source).
+]
+
+lists: [
+	{
+		name: 'Awesome'
+		repository: 'sindresorhus/awesome'
+		summary: 'Awesome lists about all kinds of interesting topics.'
+	}
+	{
+		name: 'Awesome Node.js'
+		repository: 'sindresorhus/awesome-nodejs'
+		summary: 'Delightful Node.js packages and resources.'
+	}
+	{
+		name: 'Awesome npm'
+		repository: 'sindresorhus/awesome-npm'
+		summary: 'Awesome npm resources and tips.'
+	}
+	{
+		name: 'Awesome Sci-Fi'
+		repository: 'sindresorhus/awesome-scifi'
+		summary: 'Sci-fi worth consuming.'
+	}
+]
+
+fun: [
+	{
+		name: 'cat-names'
+		repository: 'sindresorhus/cat-names'
+		summary: 'Get popular cat names.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'dog-names'
+		repository: 'sindresorhus/dog-names'
+		summary: 'Get popular dog names.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'cows'
+		repository: 'sindresorhus/cows'
+		summary: 'ASCII cows.'
+		language: 'JavaScript'
+	}
+	{
+		name: 'superb'
+		repository: 'sindresorhus/superb'
+		summary: 'Get superb-like words.'
+		language: 'JavaScript'
+	}
+]

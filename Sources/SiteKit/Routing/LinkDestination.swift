@@ -119,27 +119,98 @@ public enum LinkDestination: ValidatedValue, Hashable, Sendable, CustomStringCon
 
 	The list is in the code, not read from the system of the build, as the build can run on another macOS version, like on GitHub Actions.
 	*/
-	enum SystemSettingsPane: String, CaseIterable {
+	public enum SystemSettingsPane: String, CaseIterable, Sendable {
 		case accessibility = "com.apple.Accessibility-Settings.extension"
 		case airDropHandoff = "com.apple.AirDrop-Handoff-Settings.extension"
+		case appearance = "com.apple.Appearance-Settings.extension"
 		case appleAccount = "com.apple.systempreferences.AppleIDSettings"
 		case battery = "com.apple.Battery-Settings.extension"
 		case controlCenter = "com.apple.ControlCenter-Settings.extension"
 		case dateTime = "com.apple.Date-Time-Settings.extension"
 		case desktopDock = "com.apple.Desktop-Settings.extension"
+		case displays = "com.apple.Displays-Settings.extension"
 		case focus = "com.apple.Focus-Settings.extension"
 		case keyboard = "com.apple.Keyboard-Settings.extension"
 		case languageRegion = "com.apple.Localization-Settings.extension"
 		case lockScreen = "com.apple.Lock-Screen-Settings.extension"
 		case loginItems = "com.apple.LoginItems-Settings.extension"
+		case mouse = "com.apple.Mouse-Settings.extension"
+		case network = "com.apple.Network-Settings.extension"
+		case notifications = "com.apple.Notifications-Settings.extension"
 		case privacySecurity = "com.apple.settings.PrivacySecurity.extension"
+		case screenTime = "com.apple.Screen-Time-Settings.extension"
+		case sharing = "com.apple.Sharing-Settings.extension"
 		case sound = "com.apple.Sound-Settings.extension"
+		case trackpad = "com.apple.Trackpad-Settings.extension"
 		case wallpaper = "com.apple.Wallpaper-Settings.extension"
 
 		/**
 		The scheme of the links to System Settings.
 		*/
-		static let scheme = "x-apple.systempreferences"
+		public static let scheme = "x-apple.systempreferences"
+
+		/**
+		The items of the path to the pane after “System Settings”, as the content writes them, like `["General", "Login Items & Extensions"]` for “System Settings › General › Login Items & Extensions”.
+		*/
+		public var pathItems: [String] {
+			let path = switch self {
+			case .accessibility:
+				"Accessibility"
+			case .airDropHandoff:
+				"General › AirDrop & Continuity"
+			case .appearance:
+				"Appearance"
+			case .appleAccount:
+				"Apple Account"
+			case .battery:
+				"Battery"
+			case .controlCenter:
+				"Menu Bar"
+			case .dateTime:
+				"General › Date & Time"
+			case .desktopDock:
+				"Desktop & Dock"
+			case .displays:
+				"Displays"
+			case .focus:
+				"Focus"
+			case .keyboard:
+				"Keyboard"
+			case .languageRegion:
+				"General › Language & Region"
+			case .lockScreen:
+				"Lock Screen"
+			case .loginItems:
+				"General › Login Items & Extensions"
+			case .mouse:
+				"Mouse"
+			case .network:
+				"Network"
+			case .notifications:
+				"Notifications"
+			case .privacySecurity:
+				"Privacy & Security"
+			case .screenTime:
+				"Screen Time"
+			case .sharing:
+				"General › Sharing"
+			case .sound:
+				"Sound"
+			case .trackpad:
+				"Trackpad"
+			case .wallpaper:
+				"Wallpaper"
+			}
+
+			return path.split(separator: " › ").map(String.init)
+		}
+
+		/**
+		The link that opens the pane, like `x-apple.systempreferences:com.apple.Focus-Settings.extension`.
+		*/
+		public var link: String {
+			"\(Self.scheme):\(rawValue)"
+		}
 	}
 
 	/**
@@ -161,6 +232,17 @@ public enum LinkDestination: ValidatedValue, Hashable, Sendable, CustomStringCon
 	*/
 	public var isFragment: Bool {
 		if case .fragment = self {
+			return true
+		}
+
+		return false
+	}
+
+	/**
+	Whether the link goes to another site, like the App Store.
+	*/
+	public var isOtherSite: Bool {
+		if case .url = self {
 			return true
 		}
 

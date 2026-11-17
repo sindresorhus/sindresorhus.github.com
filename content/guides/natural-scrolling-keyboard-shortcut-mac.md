@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	The scroll direction is the “Natural scrolling” switch in “System Settings › Trackpad” and “System Settings › Mouse”. macOS has no keyboard shortcut for it. [Shortcutie](../apps/shortcutie/index.md) adds the “Set Natural Scrolling” action to the Shortcuts app, so a shortcut with a keyboard shortcut can change the direction.
+	The scroll direction is the “Natural scrolling” switch in “[System Settings › Trackpad](x-apple.systempreferences:com.apple.Trackpad-Settings.extension)” and “[System Settings › Mouse](x-apple.systempreferences:com.apple.Mouse-Settings.extension)”. macOS has no keyboard shortcut for it. [Shortcutie](/shortcutie) adds the “Set Natural Scrolling” action to the Shortcuts app, so a shortcut with a keyboard shortcut can change the direction.
 }
 
 With natural scrolling, the content moves in the same direction as your fingers. Many people like this on a trackpad, but not with the wheel of a mouse. macOS has one setting for both, so a change for the mouse also changes the trackpad.
@@ -17,14 +17,14 @@ With natural scrolling, the content moves in the same direction as your fingers.
 ## With Shortcutie
 
 @Steps {
-1. Install [Shortcutie](../apps/shortcutie/index.md), and open it once.
+1. Install [Shortcutie](/shortcutie), and open it once.
 1. In the Shortcuts app, click the add button to make a new shortcut.
 1. Add the “Set Natural Scrolling” action of Shortcutie, and set it to off. This is the shortcut for the mouse.
 1. Click the details button of the shortcut, click “Add Keyboard Shortcut”, and press the keys that you want.
 1. Make a second shortcut in the same way, but keep the action on, and give it another keyboard shortcut. This is the shortcut for the trackpad.
 }
 
-The change is immediate. To run the shortcuts in one click, [put them in the menu bar](add-shortcut-to-menu-bar-mac.md).
+The change is immediate. To run the shortcuts in one click, [put them in the menu bar](guide:add-shortcut-to-menu-bar-mac).
 
 For one shortcut that changes the direction each time, add the “Get Natural Scrolling” action, and below it an “If” action that checks its result, with a “Set Natural Scrolling” action for each of the two cases.
 

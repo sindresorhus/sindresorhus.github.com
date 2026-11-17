@@ -85,7 +85,7 @@ struct SponsorList: HTML {
 				// Two columns, so the logos, which are mostly wide, have room to be large.
 				Style()
 					.grid(columns: 2)
-					.gap(.rootEm(1))
+					.gap(.cardSpacing)
 			case .sponsor:
 				// Every logo is in a box of the same size, on a light plate in both modes, as the logos are made for a light background. In dark mode, the plate is a little dimmer, so it does not glare. Each logo has a height for its aspect ratio (``MarkdownPage/Logo/relativeHeight``), so wide and square logos look about as large.
 				Style()
@@ -123,8 +123,10 @@ struct SponsorList: HTML {
 						$0.font(size: .rootEm(2.25))
 					}
 			case .price:
+				// A quiet note after the name of the tier, not a second title.
 				Style()
-					.font(.small)
+					.secondaryText(.small)
+					.fontWeight(.regular)
 					.letterSpacing(.zero)
 			}
 		}

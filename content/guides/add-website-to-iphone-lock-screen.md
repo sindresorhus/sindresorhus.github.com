@@ -2,7 +2,7 @@
 title: 'How to Add a Website to the iPhone Lock Screen'
 description: 'Open a website, an app, or a shortcut from a widget on the Lock Screen with Quick Launch, or use the controls of the Lock Screen.'
 publicationDate: 2026-10-31
-topic: 'iphone'
+topic: 'lock-screen-and-home-screen'
 apps: [
 	'quick-launch'
 ]
@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Make a widget in [Quick Launch](../apps/quick-launch/index.md) with the URL of the website, and add the Quick Launch widget below the clock of the Lock Screen. Without an app, the Lock Screen controls can open an app or run a shortcut, but they cannot open a website directly.
+	Make a widget in [Quick Launch](/quick-launch) with the URL of the website, and add the Quick Launch widget below the clock of the Lock Screen. [Without an app](#without-an-app), the Lock Screen controls can open an app or run a shortcut, but they cannot open a website directly.
 }
 
 ## With Quick Launch
 
 @Steps {
-1. Open [Quick Launch](../apps/quick-launch/index.md), and tap the add button.
+1. Open [Quick Launch](/quick-launch), and tap the add button.
 1. Choose “URL” as the action, and enter the website, like `https://example.com`.
 1. In “Icon”, tap “Choose”, and choose the icon, like “Website Icon”, “Symbol”, or “Characters” (up to two characters).
 1. Tap the checkmark button to save the widget.

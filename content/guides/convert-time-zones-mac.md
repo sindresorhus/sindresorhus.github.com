@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	In [Zone Bar](../apps/zone-bar/index.md), right-click the time zone of the time that you have, choose “Go to Date & Time…”, and set the day and the time. All your clocks then show that moment in their time zone. Without an app, the World Clock of the Clock app shows the time now in each city, and the Calendar app can show an event in another time zone at your time.
+	In [Zone Bar](/zone-bar), right-click the time zone of the time that you have, choose “Go to Date & Time…”, and set the day and the time. All your clocks then show that moment in their time zone. [Without an app](#without-an-app), the World Clock of the Clock app shows the time now in each city, and the Calendar app can show an event in another time zone at your time.
 }
 
 ## With Zone Bar
 
 @Steps {
-1. Add your time zones to [Zone Bar](../apps/zone-bar/index.md). [How to add them.](show-time-zones-menu-bar-mac.md)
+1. Add your time zones to [Zone Bar](/zone-bar). [How to add them.](guide:show-time-zones-menu-bar-mac)
 1. Click a clock in the menu bar. Right-click the time zone of the time that you have, like New York for a meeting at 15:00 New York time, and choose “Go to Date & Time…”.
 1. Choose the day in the calendar, and type the time in the time field. The time is in the time zone that you right-clicked.
 1. Read the time in your other clocks.

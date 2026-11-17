@@ -62,7 +62,8 @@ struct SiteLayout<Content: Page>: HTMLDocument {
 		MetadataHead(
 			path: page.path,
 			metadata: page.metadata,
-			socialImage: page.socialImage
+			socialImage: page.socialImage,
+			hasMarkdownCopy: page.markdownCopy != nil
 		)
 
 		// The styles of the components on the page. The shared styles are in the stylesheet that every page links to.
@@ -132,11 +133,13 @@ struct SiteBody<Content: Page>: HTML {
 
 		SiteHeader(variant: page.navigation, background: page.headerBackground)
 
+		// The layout holds only a reference to the body, so the levels of its render stay small (``SiteKit/AnyHTML``).
 		main(.id(Self.mainID)) {
-			page.body
+			AnyHTML(page.body)
 		}
 
-		SiteFooter(app: page.feedbackApp)
+		SiteFooter(app: page.feedbackApp, parents: page.parents, pageTitle: page.breadcrumbTitle)
+
 		UnicornEasterEgg()
 		LinkPreview()
 	}
@@ -151,6 +154,11 @@ private struct MetadataHead: HTML {
 
 	let socialImage: SocialImage
 
+	/**
+	Whether the page has a Markdown copy (``Page/markdownCopy``), which the head links to.
+	*/
+	let hasMarkdownCopy: Bool
+
 	private var canonicalURL: String {
 		path.absoluteURL.absoluteString
 	}
@@ -164,12 +172,12 @@ private struct MetadataHead: HTML {
 	)
 
 	/**
-	Fetches a page of the site when the pointer rests on a link to it, and prerenders it when the link is pressed, so it opens at once. On a phone, Chrome also fetches the large links near the last tap. A prerender also loads the images of the page, which is too much data for a link that the visitor may not open. Not the 1999 page, which is large, and not the random app page, which picks another app each time, or the feedback form, in a prerender. Browsers without the Speculation Rules API ignore it. Encoded once, as every page has the same rules.
+	Fetches a page of the site when the pointer rests on a link to it, and prerenders it when the link is pressed, so it opens at once. On a phone, Chrome also fetches the large links near the last tap. A prerender also loads the images of the page, which is too much data for a link that the visitor may not open. Not the 1999 page, which is large, and not the random app and guide pages, which pick another app or guide each time, or the feedback form, in a prerender. Browsers without the Speculation Rules API ignore it. Encoded once, as every page has the same rules.
 	*/
 	private static let speculationRules = JSONScript(
 		speculationRules: SpeculationRules(
 			prefetch: [SpeculationRules.Rule(excludedPaths: [.geoCities], eagerness: .moderate)],
-			prerender: [SpeculationRules.Rule(excludedPaths: [.geoCities, .randomApp, .feedback], eagerness: .conservative)]
+			prerender: [SpeculationRules.Rule(excludedPaths: [.geoCities, .randomApp, .randomGuide, .feedback], eagerness: .conservative)]
 		)
 	)
 
@@ -203,8 +211,8 @@ private struct MetadataHead: HTML {
 		link(.rel("apple-touch-icon"), .href(#path("/apple-touch-icon.png")))
 		link(.rel(.icon), .href(metadata.favicon))
 
-		// The feed of the page first, like the release notes of an app, as a feed reader shows the feeds in this order, and some take the first one.
-		for feed in metadata.feeds + SiteFeed.allCases.map(\.link) {
+		// The feed of the page first, like the release notes of an app or the new guides on a guide, as a feed reader shows the feeds in this order, and some take the first one. A site-wide feed is only listed once.
+		for feed in metadata.feeds + SiteFeed.allCases.map(\.link).filter({ !metadata.feeds.contains($0) }) {
 			link(
 				.rel("alternate"),
 				.type(.rss),
@@ -214,7 +222,7 @@ private struct MetadataHead: HTML {
 		}
 
 		// The Markdown copy of the page, and `llms.txt`, which describes the site, for AI assistants, as the llms.txt proposal suggests. A copy is much smaller to read than the page.
-		if Site.pagesWithMarkdownCopies.contains(path) {
+		if hasMarkdownCopy {
 			link(.rel("alternate"), .type(.markdown), .href(path.markdownCopy))
 		}
 
@@ -222,7 +230,19 @@ private struct MetadataHead: HTML {
 			link(.rel("alternate"), .type(.json), .href(dataFile))
 		}
 
+		if let discordEmbed = metadata.discordEmbed {
+			JSONScript(id: DiscordEmbed.id, type: DiscordEmbed.scriptType, discordEmbed)
+		}
+
 		link(.rel("describedby"), .href(Site.llmsPath))
+
+		// The search of the site, which a browser can add to its address bar (``SiteSearch/openSearchPath``).
+		link(
+			.rel("search"),
+			.type(MediaType("application/opensearchdescription+xml")),
+			.title(Site.name),
+			.href(SiteSearch.openSearchPath)
+		)
 
 		for origin in metadata.preconnectOrigins {
 			link(.rel("preconnect"), .href(.url(origin.url)))
@@ -256,11 +276,20 @@ private struct MetadataHead: HTML {
 		if case .article(let publishedOn, let modifiedOn, let tags) = metadata.kind {
 			meta(.property("article:published_time"), .content(publishedOn.description))
 			meta(.property("article:modified_time"), .content(modifiedOn.description))
-			meta(.property("article:author"), .content(Site.author.name))
+			// Discord reads only a date with a time and an offset. Noon in UTC is the same day from UTC−12 to UTC+11, as Discord shows the date in the time zone of the reader.
+			meta(.property("og:pubdate"), .content("\(publishedOn)T12:00:00Z"))
+			// Open Graph wants the URL of a profile page, and the about page has the `profile` type.
+			meta(.property("article:author"), .content(RoutePath.about.absoluteURL.absoluteString))
 
 			for tag in tags {
 				meta(.property("article:tag"), .content(tag.rawValue))
 			}
+		}
+
+		if case .profile = metadata.kind {
+			meta(.property("profile:first_name"), .content(Site.author.givenName))
+			meta(.property("profile:last_name"), .content(Site.author.familyName))
+			meta(.property("profile:username"), .content(Site.author.username))
 		}
 	}
 }
@@ -307,12 +336,12 @@ extension Stylesheet {
 					$0.scrollBehavior(.smooth)
 				}
 			}
-			// The text grows a little, from 16px on 1280px wide screens to 17px on 1920px wide screens, so large screens get larger text without a jump at a breakpoint, but lines of text do not get too long.
+			// The text grows a little, from 16px on 1280px wide screens to 18px on 2560px wide screens, so large screens get larger text without a jump at a breakpoint. The columns of text are in rem, so they grow with the text, and a line keeps its number of characters.
 			.fluidFontSize(
 				fromRem: 1,
-				toRem: 1.0625,
+				toRem: 1.125,
 				between: .desktop,
-				and: Breakpoint(minimumWidthInRem: 120)
+				and: Breakpoint(minimumWidthInRem: 160)
 			)
 		)
 

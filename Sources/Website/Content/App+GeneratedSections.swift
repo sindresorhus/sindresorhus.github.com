@@ -132,7 +132,7 @@ extension LinkDestination {
 
 extension App.Frontmatter {
 	/**
-	The Markdown of the app page with what the build adds from the facts of the app: the “Trial” section, the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, the “Older Versions” and “Non-App Store Version” sections, and, unless the app is archived, the feedback question in the FAQ section. The download cards become plain Markdown by default; the app renderer supplies their HTML presentation.
+	The Markdown of the app page with what the build adds from the facts of the app: the “Trial” section, the common questions that apply to it (``CommonQuestion``), the shared questions that it picks, the “Non-App Store Version” and “Older Versions” sections, and, unless the app is archived, the feedback question in the FAQ section. The download cards become plain Markdown by default; the app renderer supplies their HTML presentation.
 
 	- Parameter faqIntroduction: Blocks directly below the heading of the FAQ section, before any text of the file there, like the links to ask an assistant that only the page shows (``AssistantLinks``).
 	*/
@@ -157,12 +157,14 @@ extension App.Frontmatter {
 			blocks.addFeedbackQuestion(appTitle: title)
 		}
 
-		// Added before the older versions, which ``addOlderVersions(_:isPaid:)`` then inserts above it.
+		// The newest download first, so the downloads go from the newest version to the oldest, like the release notes.
 		if let nonAppStoreVersion {
 			blocks += [App.Section.nonAppStoreVersion.heading] + renderDownloadCard(nonAppStoreVersion.downloadCard(isOnSeveralPlatforms: platforms.count > 1))
 		}
 
-		blocks.addOlderVersions(olderVersions, isPaid: isPaid)
+		if !olderVersions.isEmpty {
+			blocks += olderVersions.markdownSection(isPaid: isPaid)
+		}
 
 		// Last, so the questions are added at the same places as without it.
 		if let faqHeadingIndex = blocks.firstIndex(of: .faq) {
@@ -195,7 +197,7 @@ extension App.Frontmatter {
 	}
 
 	/**
-	The text of the trial of the app, so every app promises the same trial in the same words. A trial on TestFlight is the full app for 14 days. Another trial is only for the Mac, so an app on several platforms says “the macOS app”. Its data carries over to the purchase on the App Store, for an app that is there. A trial that limits some features names them (``App/Trial/limitations``) instead of “The only limitation is …”.
+	The text of the trial of the app, so every app promises the same trial in the same words. A trial on TestFlight is the full app for 14 days. Another trial is only for the Mac, so an app on several platforms says “the macOS app”. Its data carries over to the purchase, which is a link to the App Store, or to Gumroad for an app that is not on the App Store. A trial that limits some features names them (``App/Trial/limitations``) instead of “The only limitation is …”.
 	*/
 	private func trialText(of trial: App.Trial) -> [any BlockMarkup] {
 		switch trial.kind {
@@ -214,14 +216,24 @@ extension App.Frontmatter {
 			]
 		case .download(_, let limitations):
 			let subject = platforms.count > 1 ? "The trial of the macOS app" : "The trial"
-			let store = appStoreID == nil ? "" : " on the App Store"
 			let text = if let limitations {
 				"\(subject) has a reminder to buy the app every 12 hours, and no automatic updates. \(limitations)"
 			} else {
 				"\(subject) is fully functional. The only limitation is a reminder to buy the app every 12 hours, and no automatic updates."
 			}
 
-			return [Paragraph(Markdown.Text("\(text) All data and settings carry over if you buy it\(store). Move the trial to the Trash before you install the app you bought."))]
+			// The place to buy the app is a link, for a visitor who comes back to the card to buy it.
+			let purchase: [any InlineMarkup] = if let appStoreID {
+				[Markdown.Text("buy it on the "), Markdown.Link(destination: .url(appStoreID.url(placement: .trial)), text: "App Store")]
+			} else if let gumroad {
+				[Markdown.Link(destination: .url(gumroad.checkoutURL), text: "buy it")]
+			} else {
+				[Markdown.Text("buy it")]
+			}
+
+			let sentences: [any InlineMarkup] = [Markdown.Text("\(text) All data and settings carry over if you ")] + purchase + [Markdown.Text(". Move the trial to the Trash before you install the app you bought.")]
+
+			return [Paragraph(sentences)]
 		}
 	}
 }
@@ -231,12 +243,12 @@ extension App.NonAppStoreVersion {
 	The download card from the version's metadata. It says “macOS version” for an app on several platforms, as the version is only for the Mac.
 	*/
 	func downloadCard(isOnSeveralPlatforms: Bool) -> AppDownloadCard {
-		// Not on Setapp, as the version is for users that cannot use an app store.
+		// Not on Setapp, as the version is for people who cannot use an app store.
 		AppDownloadCard(
-			text: [Paragraph(Markdown.Text("A special \(isOnSeveralPlatforms ? "macOS " : "")version for users that cannot access the App Store. It won’t receive automatic updates. I will update it here once a year."))],
+			text: [Paragraph(Markdown.Text("A special \(isOnSeveralPlatforms ? "macOS " : "")version for people who cannot use the App Store. It does not update automatically. I will update it here once a year."))],
 			buttonTitle: "Download \(version)",
 			url: url,
-			requirement: OSVersion(major: macOS).macOSRequirementSentence
+			requirement: OSRequirement.macOS(OSVersion(major: macOS)).sentence
 		)
 	}
 }
@@ -435,24 +447,14 @@ extension App {
 		*/
 		private static func questions(file: MarkdownFile, project: Project) throws -> (byID: [ElementID: CommonQuestion], headings: [SiteKit.Heading]) {
 			var options = MarkdownDocument.Options.content(file, project: project)
-			options.headingDirectives = FAQDirectives.all + [First.self]
+			options.headingDirectives = FAQDirectives.all + [First.self, AnswerOf.self]
 			let parsed = file.parsedMarkdown(options: options)
 			let document = parsed.document
 			let headings = try parsed.rendered().headings
+			let sectionsByLine = sections(of: document, in: file)
 
-			// Each question is a top-level heading and the blocks up to the next one, by the line of the heading.
-			var sectionsByLine = [SiteKit.SourceLocation.Line: [any BlockMarkup]]()
-			var sectionLine: SiteKit.SourceLocation.Line?
-
-			for block in document.blockChildren {
-				if block is Markdown.Heading {
-					sectionLine = file.line(of: block)
-				}
-
-				if let sectionLine {
-					sectionsByLine[sectionLine, default: []].append(block)
-				}
-			}
+			// The general FAQ is only read when a question takes its answer from there.
+			let generalAnswers = try headings.contains { $0.contains(AnswerOf.self) } ? AnswerOf.generalAnswers(project: project) : [:]
 
 			var questionsByID = [ElementID: CommonQuestion]()
 			var questionHeadings = [SiteKit.Heading]()
@@ -494,8 +496,36 @@ extension App {
 					continue
 				}
 
+				let hasAnswer = blocks.dropFirst().contains { !$0.isCommentOnly }
+
+				// The answer of the general FAQ, after the heading of the question, without its directives, like `<!-- @faq.general -->`.
+				if let generalID = heading[AnswerOf.self] {
+					guard !hasAnswer else {
+						errors.append(file.error(line: heading.line, "The question “\(heading.text)” has its own answer and takes the answer of the general FAQ (`@\(AnswerOf.name)`). Keep one."))
+						continue
+					}
+
+					guard let generalAnswer = generalAnswers[generalID] else {
+						let suggestion = generalID.rawValue.closest(in: generalAnswers.keys.map(\.rawValue)).map { " Did you mean `\($0)`?" } ?? ""
+						errors.append(file.error(line: heading.line, "`@\(AnswerOf.name) \(generalID)` is not the ID of a question in `\(AnswerOf.generalFAQPath)`.\(suggestion)"))
+						continue
+					}
+
+					// A link of the general FAQ to one of its questions, like `#refund`, would go to the app page.
+					let fragmentLinks = generalAnswer.flatMap { $0.descendants(of: Markdown.Link.self) }.compactMap(\.destination).filter { $0.hasPrefix("#") }
+
+					guard fragmentLinks.isEmpty else {
+						errors.append(file.error(line: heading.line, "The answer of `\(generalID)` in `\(AnswerOf.generalFAQPath)` links to \(fragmentLinks.map { "`\($0)`" }.formattedList(.and)), which would go to the app pages. Use a site path, like `/apps/faq#refund`."))
+						continue
+					}
+
+					questionsByID[heading.id] = CommonQuestion(title: heading.text, blocks: [blocks[0]] + generalAnswer, isFirst: heading.contains(First.self))
+					questionHeadings.append(heading)
+					continue
+				}
+
 				// The blocks start with the heading, and a directive below it, like `<!-- @faq.first -->`, is not an answer.
-				guard blocks.dropFirst().contains(where: { !$0.isCommentOnly }) else {
+				guard hasAnswer else {
 					errors.append(file.missingAnswerError(question: heading.text, line: heading.line))
 					continue
 				}
@@ -510,6 +540,74 @@ extension App {
 			}
 
 			return (questionsByID, questionHeadings)
+		}
+
+		/**
+		The sections of a file: each heading at the top level and the blocks up to the next heading, by the line of the heading.
+		*/
+		private static func sections(of document: Markdown.Document, in file: MarkdownFile) -> [SiteKit.SourceLocation.Line: [any BlockMarkup]] {
+			var sectionsByLine = [SiteKit.SourceLocation.Line: [any BlockMarkup]]()
+			var sectionLine: SiteKit.SourceLocation.Line?
+
+			for block in document.blockChildren {
+				if block is Markdown.Heading {
+					sectionLine = file.line(of: block)
+				}
+
+				if let sectionLine {
+					sectionsByLine[sectionLine, default: []].append(block)
+				}
+			}
+
+			return sectionsByLine
+		}
+	}
+}
+
+extension App.SharedQuestions {
+	/**
+	The question takes its answer from a question of the general FAQ, by the ID of its heading, like `<!-- @faq.answer-of export-settings -->`, so the answer is in one place, and the app pages show it without a link to another page. The question has no answer of its own.
+
+	The answer is shown on the app pages, so a link in it to a section of the general FAQ, like `#refund`, is an error: it must be a site path, like `/apps/faq#refund`. The general FAQ has no relative links to files.
+	*/
+	enum AnswerOf: HeadingDirective {
+		static let name: HeadingDirectiveName = "faq.answer-of"
+		typealias Value = ElementID
+
+		/**
+		The path of the general FAQ, relative to the root of the project.
+		*/
+		static let generalFAQPath = "content/pages/apps/faq.md"
+
+		static func decode(values: [String]) throws(ContentError) -> ElementID {
+			guard values.count == 1 else {
+				throw ContentError(reason: "Give the ID of one question of the general FAQ, like `export-settings`.")
+			}
+
+			return try ElementID(validating: values[0])
+		}
+
+		/**
+		The answers of the questions of the general FAQ, by the IDs of their headings, without the headings and their directives.
+		*/
+		fileprivate static func generalAnswers(project: Project) throws -> [ElementID: [any BlockMarkup]] {
+			let file = try MarkdownFile(url: project.root.appending(path: generalFAQPath))
+			let parsed = file.parsedMarkdown(options: .faqPage(file, project: project))
+			let sectionsByLine = App.SharedQuestions.sections(of: parsed.document, in: file)
+			var answers = [ElementID: [any BlockMarkup]]()
+
+			for heading in try parsed.rendered().headings {
+				guard
+					let line = heading.line,
+					let blocks = sectionsByLine[line]
+				else {
+					continue
+				}
+
+				answers[heading.id] = blocks.dropFirst().filter { !$0.isCommentOnly }
+			}
+
+			return answers
 		}
 	}
 }
@@ -588,7 +686,8 @@ extension [any BlockMarkup] {
 
 		let answer = Paragraph(
 			Markdown.Text("Click the feedback button in the app or "),
-			Markdown.Link(destination: App.feedbackURL(appTitle: appTitle, referrer: .faq), text: "send it here.")
+			Markdown.Link(destination: App.feedbackURL(appTitle: appTitle, referrer: .faq), text: "send it here"),
+			Markdown.Text(".")
 		)
 
 		let question = App.Section.feedbackQuestion
@@ -616,14 +715,15 @@ extension [any BlockMarkup] {
 	}
 
 	/**
-	Adds the “Older Versions” section before the “Non-App Store Version” section, or at the end.
+	The number of questions in the FAQ section, like for the button that searches the questions of a long FAQ (``SiteSearch/OpenButton``). Zero without a FAQ section.
 	*/
-	fileprivate mutating func addOlderVersions(_ olderVersions: [App.OlderVersion], isPaid: Bool) {
-		guard !olderVersions.isEmpty else {
-			return
+	var faqQuestionCount: Int {
+		guard let faqIndex = firstIndex(of: .faq) else {
+			return 0
 		}
 
-		insert(contentsOf: olderVersions.markdownSection(isPaid: isPaid), at: firstIndex(of: .nonAppStoreVersion) ?? endIndex)
+		return contentOfSection(afterHeadingAt: faqIndex, level: App.Section.faq.level) { ($0 as? Markdown.Heading)?.headingLevel }
+			.count { ($0 as? Markdown.Heading)?.headingLevel == .h3 }
 	}
 
 	/**
@@ -644,14 +744,14 @@ extension [App.OlderVersion] {
 	/**
 	The “Older Versions” section of an app page.
 
-	The versions of paid apps are free, but they only run on their macOS version, so they do not say “or later” (`+`).
+	The versions of paid apps are free, but they only run on their macOS version, so they do not say “or later”. The section ends with how to install a zip file, like the download cards (``AppDownloadCard/installSentence``), in the small text of a side note.
 	*/
 	func markdownSection(isPaid: Bool) -> [any BlockMarkup] {
 		let items = map { olderVersion in
 			ListItem(
 				Paragraph(
 					Markdown.Link(destination: .url(olderVersion.url), text: olderVersion.version.value),
-					Markdown.Text(" for macOS \(olderVersion.macOS.rawValue)\(isPaid ? "" : "+")")
+					Markdown.Text(" for \(isPaid ? olderVersion.macOS.title : olderVersion.macOS.requirement.description)")
 				)
 			)
 		}
@@ -662,8 +762,10 @@ extension [App.OlderVersion] {
 		]
 
 		if isPaid {
-			section.append(Paragraph(Markdown.Text("These are free for everyone but they will not run on newer macOS versions.")))
+			section.append(Paragraph(Markdown.Text("These are free for everyone, but they will not run on newer macOS versions.")))
 		}
+
+		section.append(Paragraph(Emphasis(Markdown.Text(AppDownloadCard.installSentence))))
 
 		return section
 	}

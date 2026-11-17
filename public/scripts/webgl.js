@@ -54,3 +54,58 @@ export function startShader(gl, {fragment, setUp}) {
 
 	return true;
 }
+
+/**
+Calls `frame(time)` at most 30 times a second while the canvas is on screen, the tab is visible, and `canRun()` is true, like when the shaders are set up. The time is in seconds from `startTime`, and it does not move while the loop is paused, so the drawing continues where it stopped. A long gap, like after a stall, counts as 100 ms. Call `update()` after a change that `canRun()` reads, like a lost canvas. Returns `update`, the `time`, and whether it `isRunning`.
+*/
+export function shaderLoop(canvas, {frame, canRun, startTime = 0}) {
+	let time = startTime;
+	let lastFrameTime = 0;
+	let animationFrame;
+	let isOnScreen = false;
+
+	const animate = now => {
+		animationFrame = requestAnimationFrame(animate);
+
+		if (now - lastFrameTime < 1000 / 31) {
+			return;
+		}
+
+		time += Math.min(now - lastFrameTime, 100) / 1000;
+		lastFrameTime = now;
+		frame(time);
+	};
+
+	const update = () => {
+		const shouldRun = isOnScreen && !document.hidden && canRun();
+
+		if (shouldRun === (animationFrame !== undefined)) {
+			return;
+		}
+
+		if (shouldRun) {
+			lastFrameTime = performance.now();
+			animationFrame = requestAnimationFrame(animate);
+		} else {
+			cancelAnimationFrame(animationFrame);
+			animationFrame = undefined;
+		}
+	};
+
+	new IntersectionObserver(([entry]) => {
+		isOnScreen = entry.isIntersecting;
+		update();
+	}).observe(canvas);
+
+	document.addEventListener('visibilitychange', update);
+
+	return {
+		update,
+		get time() {
+			return time;
+		},
+		get isRunning() {
+			return animationFrame !== undefined;
+		},
+	};
+}

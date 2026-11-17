@@ -14,20 +14,20 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open the free [Googly Eyes](../apps/googly-eyes/index.md) app. Two eyes show in the menu bar, follow your pointer, and blink when you click. macOS has nothing like it built in.
+	Open the free [Googly Eyes](/googly-eyes) app. Two eyes show in the menu bar, follow your pointer, and blink when you click. macOS has nothing like it built in.
 }
 
 ## With Googly Eyes
 
 @Steps {
-1. Open [Googly Eyes](../apps/googly-eyes/index.md). The eyes show in the menu bar.
+1. Open [Googly Eyes](/googly-eyes). The eyes show in the menu bar.
 1. Move the pointer. The eyes look at it.
 1. Click anywhere. The eyes blink.
 }
 
 In the settings, you can change the size of the eyes, and make the left button blink the left eye and the right button the right eye.
 
-With several displays, the eyes on a display that is not active stay still until you click on that display. [Why.](../apps/googly-eyes/index.md#does-it-support-multiple-screens)
+With several displays, the eyes on a display that is not active stay still until you click on that display. [Why.](/googly-eyes#does-it-support-multiple-screens)
 
 ## Without an app
 

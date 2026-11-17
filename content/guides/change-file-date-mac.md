@@ -9,15 +9,15 @@ apps: [
 ---
 
 @QuickAnswer {
-	Finder shows the dates of a file, but cannot change them. The free [Actions](../apps/actions/index.md) app adds the “Set Creation and Modification Date of File” action to the Shortcuts app, which sets the creation date, the modification date, or both. Without an app, use the `touch` command in Terminal.
+	Finder shows the dates of a file, but cannot change them. The free [Actions](/actions) app adds the “Set Creation and Modification Date of File” action to the Shortcuts app, which sets the creation date, the modification date, or both. [Without an app](#without-an-app), use the `touch` command in Terminal.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
+1. Install [Actions](/actions), and open it once.
 1. In the Shortcuts app, click the add button to make a new shortcut.
-1. Add the “Set Creation and Modification Date of File” action of Actions.
+1. Add the [“Set Creation and Modification Date of File”](/actions#:~:text=Set%20Creation%20and%20Modification%20Date%20of%20File) action of Actions.
 1. In the action, click the file field, and choose the file.
 1. Click “Creation and Modification Date” to choose which date to set: “Creation Date”, “Modification Date”, or both.
 1. Click the date field, and set the date and the time.

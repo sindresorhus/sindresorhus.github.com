@@ -45,16 +45,16 @@ Simple by design. No sync, no widgets, no iOS version. Just your clocks, always 
 
 **Features**
 
-- **Menu Bar Display**\
-  Show up to 10 clocks directly in your menu bar
-- **Time Travel**\
-  Slide to see what time it will be hours from now across all time zones
-- **Custom Labels**\
-  Name each clock (“Tokyo Office”, “Mom”) and add emoji icons
-- **Keyboard Shortcut**\
-  Toggle the window with a global shortcut
-- **Adjustable Text Size**\
-  Make it comfortable to read
+- Menu Bar Display
+	:: Show up to 10 clocks directly in your menu bar
+- Time Travel
+	:: Slide to see what time it will be hours from now across all time zones
+- Custom Labels
+	:: Name each clock (“Tokyo Office”, “Mom”) and add emoji icons
+- Keyboard Shortcut
+	:: Toggle the window with a global shortcut
+- Adjustable Text Size
+	:: Make it comfortable to read
 
 #### Privacy
 
@@ -78,7 +78,7 @@ See [how to make the app show up in the menu bar](/apps/faq#app-not-showing-in-m
 
 No. This is a glanceable menu bar app. Seconds clutter the UI and have real performance costs in menu bar updates.
 
-### Can it show the UTC offset (e.g. UTC+8)? {#can-it-show-the-utc-offset-eg-utc8}
+### Can it show the UTC offset (like UTC+8)? {#can-it-show-the-utc-offset-eg-utc8}
 
 No. I want to keep it minimal. The focus is on name and time. You can right-click a time zone to see it.
 

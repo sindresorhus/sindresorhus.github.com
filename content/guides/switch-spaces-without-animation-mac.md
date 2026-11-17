@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	macOS has no setting to turn off the slide between desktops. In the “Shortcuts” settings of [Supercharge](../apps/supercharge/index.md), set keyboard shortcuts for “Switch to next space” and “Switch to previous space”. They switch at once, without the slide. Without an app, turn on “Reduce motion” in the Accessibility settings.
+	macOS has no setting to turn off the slide between desktops. In the “Shortcuts” settings of [Supercharge](/supercharge), set keyboard shortcuts for “Switch to next space” and “Switch to previous space”. They switch at once, without the slide. [Without an app](#without-an-app), turn on “Reduce motion” in the Accessibility settings.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Shortcuts”.
+1. Open the settings of [Supercharge](/supercharge), and click “Shortcuts”.
 1. In the “Action” section, set a shortcut for “Switch to next space” and for “Switch to previous space”.
 1. Press a shortcut to go to the desktop next to the current one.
 }

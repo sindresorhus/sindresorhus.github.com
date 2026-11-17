@@ -510,15 +510,16 @@ struct GeoCitiesCrafts: ScriptedElement {
 		.style(GeoCitiesPage.Styles.smallButton, GeoCitiesPage.Styles.dimmedWhenDisabled)
 	}
 
-	private func window(_ title: String, @HTMLBuilder content: () -> some HTML) -> some HTML {
+	private func window(_ title: String, @HTMLBuilder content: @escaping () -> some HTML) -> some HTML {
 		section(.tabindex(-1)) {
 			h3 {
 				title
 			}
 			.style(GeoCitiesPage.Styles.titleBar)
 
+			// Made only when it renders, like the content of a window of Windows 98 (``GeoCitiesWindows/window(_:title:size:describedBy:content:)``).
 			div {
-				content()
+				GeoCitiesPage.Deferred(content())
 			}
 			.style(GeoCitiesPage.Styles.windowBody)
 		}

@@ -19,12 +19,14 @@ extension ProseStyles {
 		.descendants("tbody tr:not(:last-child)") {
 			$0.border(.bottom, tableBorder)
 		}
+		// The lines of a cell get similar lengths, like the headings, so a short cell does not end with one word alone. A cell is a few short lines, which is what balance is for.
 		.descendants("th, td") {
 			$0
 				.padding(vertical: .em(0.75), horizontal: .em(1))
 				.textAlign(.leading)
+				.textWrap(.balance)
 		}
-		// Long code, like a URL, breaks at any character, so it does not make its column too wide for a phone, like the URL scheme of Dato.
+		// Long code, like a URL, breaks at any character, so it does not make its column too wide for a phone.
 		.descendants("td code") {
 			$0.overflowWrap(.anywhere)
 		}
@@ -61,13 +63,28 @@ extension ProseStyles {
 	private static let tableContainerBorderWidth = Length.pixels(1)
 
 	/**
-	A table that is wider than the content scrolls horizontally instead of making the page scroll. A thin border around it, like a box, which has the color of the secondary text while the container has the focus of the keyboard (it is focusable, so keyboard users can scroll a wide table).
+	A table that is wider than the content scrolls horizontally instead of making the page scroll. A thin border around it, like a box, which has the color of the secondary text while the container has the focus of the keyboard (it is focusable, so keyboard users can scroll a wide table). On phones, a table directly in the text goes to the edges of the screen, like a code block, without the borders at its sides and the corners.
 	*/
 	static let tableContainerStyle = Style()
 		.overflow(horizontal: .auto)
 		.widerThanProse()
 		.border(tableBorder, width: tableContainerBorderWidth)
 		.cornerRadius(.boxRadius)
+		// Like a code block (``CodeBlock``), so the columns have more room, and the text of the first column starts where the paragraphs start. Only a table directly in the prose, as the prose is one gutter from the edges, but a list or a box is not.
+		.below(.smallTablet) {
+			$0.directlyInside(ProseStyles.root.selector) {
+				$0
+					.margin(.horizontal, .length(-.pageGutter))
+					.border(.horizontal, width: .zero)
+					.cornerRadius(.zero)
+					.descendants(":is(th, td):first-child") {
+						$0.padding(.leading, .pageGutter)
+					}
+					.descendants(":is(th, td):last-child") {
+						$0.padding(.trailing, .pageGutter)
+					}
+			}
+		}
 		.focusVisible {
 			$0.borderColor(.secondaryText)
 		}

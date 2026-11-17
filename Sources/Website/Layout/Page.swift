@@ -70,6 +70,26 @@ protocol Page: RouteConvertible, Sendable {
 	The name of the page in a link to it from a list of pages, like the suggestion of the 404 page. Defaults to the title. An app page has the name of the app, like “Dato”, as its title also has the subtitle.
 	*/
 	var linkTitle: String { get }
+
+	/**
+	The pages above this page, for the breadcrumb at the top of the footer, like “Apps” and “Supercharge” for the release notes of Supercharge. Defaults to the pages above the app of ``navigation``: “Apps” for an app page, and also the app for a page about the app. Another page below `/apps`, like the FAQ, the categories, and the terms, has “Apps”. Other pages have none, like a guide or a blog post, which already end with a link to the list of them. A page can have its own, like an archived app, which also has “Archived Apps”, and a list of guides for an audience, which has “Guides”.
+	*/
+	var parents: [LabeledLink] { get }
+
+	/**
+	The name of the page at the end of the breadcrumb (``parents``). Defaults to ``linkTitle``. A page about an app leaves out the name of the app, like “Release Notes”, as the breadcrumb already has it.
+	*/
+	var breadcrumbTitle: String { get }
+
+	/**
+	The page as Markdown, for AI assistants, at its own path, like `/dato.md` (``RoutePath/markdownCopy``), which the `<head>` of the page links to. Defaults to `nil`, as most pages that are made in Swift have no copy. The site publishes the copies of the pages of `llms-full.txt` and of the pages that are made in Swift (``Site/specialPages``), like the apps page. Another page, like the release notes, has no published copy, so a copy on it would be a link of the head to a file that does not exist, which the build reports as a broken link.
+	*/
+	var markdownCopy: MarkdownCopy? { get }
+
+	/**
+	More words that the search of the site finds the page by, besides its title (``SiteSearch/Index``), like “changelog” for the release notes. Defaults to none. Only the words that people search for and that the title does not have, as the description of a page would match too many searches.
+	*/
+	var searchKeywords: [String] { get }
 }
 
 extension Page where Head == EmptyHTML {
@@ -108,6 +128,29 @@ extension Page {
 
 	var linkTitle: String {
 		metadata.title
+	}
+
+	var searchKeywords: [String] {
+		[]
+	}
+
+	var parents: [LabeledLink] {
+		switch navigation {
+		case .standard:
+			path != .apps && path.starts(with: .apps) ? [.apps] : []
+		case .app:
+			[.apps]
+		case .appSubpage(let app):
+			[.apps, LabeledLink(app.title, path: app.path)]
+		}
+	}
+
+	var breadcrumbTitle: String {
+		linkTitle
+	}
+
+	var markdownCopy: MarkdownCopy? {
+		nil
 	}
 
 	/**
@@ -194,6 +237,14 @@ struct DraftPage<Wrapped: Page>: Page {
 
 	var linkTitle: String {
 		wrapped.linkTitle
+	}
+
+	var parents: [LabeledLink] {
+		wrapped.parents
+	}
+
+	var breadcrumbTitle: String {
+		wrapped.breadcrumbTitle
 	}
 }
 

@@ -22,7 +22,8 @@ struct Badge: HTML {
 		var style: Style {
 			switch self {
 			case .standard:
-				Self.fill(.gray(200).opacity(0.8), dark: .gray)
+				// Translucent, like in dark mode, so on a card it takes the color of the card, also the accent of the card under the pointer. In dark mode, a light gray is brighter than the colors of the other badges, so it is a weaker tint, and a colored badge next to it, like “New”, leads, like in light mode.
+				Self.fill(.black.opacity(0.07), dark: .gray, darkOpacity: 0.13)
 			case .new:
 				Self.fill(.teal(100), dark: .teal)
 			case .platform:
@@ -41,11 +42,11 @@ struct Badge: HTML {
 		}
 
 		/**
-		A light fill with dark text, and in dark mode a dark tint of the palette with light text, so the badge does not outshine the card it is on. The text in dark mode is the lightest shade, so it is easy to read on the tint.
+		A light fill with dark text, and in dark mode a dark tint of the palette (the opacity of a light shade) with light text, so the badge does not outshine the card it is on. The text in dark mode is the lightest shade, so it is easy to read on the tint.
 		*/
-		private static func fill(_ light: Color, dark palette: Palette) -> Style {
+		private static func fill(_ light: Color, dark palette: Palette, darkOpacity: Double = 0.2) -> Style {
 			Style()
-				.background(light, dark: palette.color(200).opacity(0.2))
+				.background(light, dark: palette.color(200).opacity(darkOpacity))
 				.color(.black.opacity(0.7), dark: palette.color(100))
 		}
 	}
@@ -78,7 +79,7 @@ struct Badge: HTML {
 			Style()
 				.display(.inlineBlock)
 				.padding(.horizontal, .rootEm(0.375))
-				.cornerRadius(.rootEm(0.5))
+				.cornerRadius(.capsule)
 				.font(size: Badge.fontSize.value(default: .rootEm(0.6875)))
 				.bold()
 				.trimmedText()

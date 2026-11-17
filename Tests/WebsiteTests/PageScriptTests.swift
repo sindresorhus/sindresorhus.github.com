@@ -56,7 +56,6 @@ struct PageScriptTests {
 			Self.sentFeedbackPath,
 			RoutePath.contact.description,
 			RoutePath.apps.description,
-			RoutePath.appdle.description,
 			RoutePath.now.description,
 			post.path.description,
 			RoutePath.notFound.description
@@ -76,7 +75,7 @@ struct PageScriptTests {
 	}
 
 	@Test
-	func `the filter of the app picker finds apps by a name without spaces and punctuation, and with a typo, with the names first`() async throws {
+	func `the filter of the app picker finds apps by a name without spaces and punctuation, and with a typo, by the start of a word, with the names first`() async throws {
 		let webView = try await Self.makeWebView()
 		#expect(try await webView.loadingErrors(of: RoutePath.feedback.description) == [])
 
@@ -93,6 +92,11 @@ struct PageScriptTests {
 		#expect(withTypo == ["Gifski"])
 		let withPunctuation: [String] = try await webView.result(of: visibleApps, arguments: ["query": "dsstore"])
 		#expect(withPunctuation == ["DS_Store Inspector"])
+
+		// A word matches only at the start of a word, so “ai” does not find an app with “remaining” in its subtitle.
+		let atWordStart: [String] = try await webView.result(of: visibleApps, arguments: ["query": "ai"])
+		#expect(atWordStart.contains("Aiko"), "\(atWordStart)")
+		#expect(!atWordStart.contains("Battery Indicator"), "\(atWordStart)")
 
 		// The apps whose name has the words come before the apps whose subtitle has them.
 		let byNameFirst: [String] = try await webView.result(of: visibleApps, arguments: ["query": "menu bar"])
@@ -314,110 +318,6 @@ struct PageScriptTests {
 	}
 
 	/**
-	When a guess is not one of the apps, Appdle suggests the closest name, also for a name of 4 letters with a typo, or the one name that has the guess in it, and nothing for a part of several names. The suggestion shows in the next frame, which an offscreen web view does not draw, so the test runs it at once.
-	*/
-	@Test
-	func `Appdle suggests the name that the visitor meant`() async throws {
-		let webView = try await Self.makeWebView()
-		#expect(try await webView.loadingErrors(of: RoutePath.appdle.description) == [])
-
-		let status = """
-		window.requestAnimationFrame = callback => callback();
-		const form = document.querySelector('#appdle-form');
-		form.elements.guess.value = name;
-		form.requestSubmit();
-		return document.querySelector('#appdle-status').textContent;
-		"""
-
-		let typo: String = try await webView.result(of: status, arguments: ["name": "daot"])
-		#expect(typo.contains("Dato"), "\(typo)")
-		let part: String = try await webView.result(of: status, arguments: ["name": "color picker"])
-		#expect(part.contains("System Color Picker"), "\(part)")
-		let partOfSeveralNames: String = try await webView.result(of: status, arguments: ["name": "menu bar"])
-		#expect(partOfSeveralNames.contains("is not one of the apps"), "\(partOfSeveralNames)")
-	}
-
-	/**
-	A warning waits for an animation frame so screen readers can announce it again. A later guess or restart owns the status before that frame runs, so an earlier warning must not replace it.
-	*/
-	@Test
-	func `Appdle cancels warnings when a later action owns the status`() async throws {
-		let webView = try await Self.makeWebView()
-		#expect(try await webView.loadingErrors(of: RoutePath.appdle.description) == [])
-
-		let outcomes: [String: Bool] = try await webView.result(of: """
-		const frames = new Map();
-		let nextFrame = 0;
-		window.requestAnimationFrame = callback => {
-			const identifier = nextFrame++;
-			frames.set(identifier, callback);
-			return identifier;
-		};
-		window.cancelAnimationFrame = identifier => frames.delete(identifier);
-		const flushFrames = () => {
-			for (const [identifier, callback] of [...frames]) {
-				if (frames.delete(identifier)) {
-					callback(performance.now());
-				}
-			}
-		};
-		const form = document.querySelector('#appdle-form');
-		const status = document.querySelector('#appdle-status');
-		const attempts = document.querySelector('#appdle-attempts');
-		const restart = document.querySelector('#appdle-restart');
-		const {firstDay, puzzles} = JSON.parse(document.querySelector('#appdle-data').textContent);
-		const today = new Date();
-		const day = Math.max(firstDay, Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86_400_000));
-		const correctName = puzzles[day % puzzles.length].title;
-		const wrongName = [...form.elements.guess.list.options].map(option => option.value).find(name => name !== correctName);
-		const submit = name => {
-			form.elements.guess.value = name;
-			form.requestSubmit();
-		};
-		const outcomes = {};
-
-		submit('qzxvbnm');
-		submit(wrongName);
-		const wrongStatus = status.textContent;
-		flushFrames();
-		outcomes.wrongGuess = attempts.children.length === 1 && wrongStatus.startsWith('Not ') && status.textContent === wrongStatus;
-
-		restart.click();
-		submit('qzxvbnm');
-		submit(correctName);
-		const winningStatus = status.textContent;
-		flushFrames();
-		outcomes.winningGuess = winningStatus === 'You got it in 1 guess!' && status.textContent === winningStatus;
-
-		// The reset operation must also cancel a pending warning, independently of an accepted guess.
-		restart.click();
-		submit('qzxvbnm');
-		restart.click();
-		const restartedStatus = status.textContent;
-		flushFrames();
-		outcomes.restart = attempts.children.length === 0 && restartedStatus.endsWith('guesses left.') && status.textContent === restartedStatus;
-
-		submit('qzxvbnm');
-		submit('wvkxjfz');
-		const pendingWarnings = frames.size;
-		flushFrames();
-		outcomes.newestWarning = pendingWarnings === 1 && status.textContent.includes('wvkxjfz') && !status.textContent.includes('qzxvbnm');
-
-		const warning = status.textContent;
-		submit('wvkxjfz');
-		const clearedForRepeat = status.textContent === '' && frames.size === 1;
-		flushFrames();
-		outcomes.repeatedWarning = clearedForRepeat && status.textContent === warning;
-		return outcomes;
-		""")
-
-		for (name, passed) in outcomes {
-			#expect(passed, "\(name) must preserve the latest status.")
-		}
-		#expect(outcomes.count == 5)
-	}
-
-	/**
 	A URL parameter with the name of a field, like `email`, is not added as a second field, which would make `form.elements.email` a list and stop the script.
 	*/
 	@Test
@@ -450,28 +350,6 @@ struct PageScriptTests {
 		#expect(whileTyping.isEmpty)
 		let whenDone: String = try await webView.result(of: warning, arguments: ["eventName": "change"])
 		#expect(whenDone == "Your email address looks incorrect.")
-	}
-
-	/**
-	A name that is close to the name of an app does not count as a guess, and the name of an app counts without its case and spaces, whether it is right or wrong. The suggestion for the close name shows in the next frame, which an offscreen web view does not draw, so the test does not check it.
-	*/
-	@Test
-	func `Appdle counts only the names of the apps`() async throws {
-		let webView = try await Self.makeWebView()
-		#expect(try await webView.loadingErrors(of: RoutePath.appdle.description) == [])
-
-		let guess = """
-		const form = document.querySelector('#appdle-form');
-		form.elements.guess.value = name;
-		form.requestSubmit();
-		return document.querySelector('#appdle-attempts').children.length;
-		"""
-
-		let nameWithSpace: String = try await webView.result(of: "return [...document.querySelectorAll('#appdle-names option')].map(option => option.value).find(name => name.includes(' '))")
-		let closeNameGuessCount: Int = try await webView.result(of: guess, arguments: ["name": nameWithSpace + "x"])
-		#expect(closeNameGuessCount == 0)
-		let nameWithoutSpacesGuessCount: Int = try await webView.result(of: guess, arguments: ["name": nameWithSpace.lowercased().replacing(" ", with: "")])
-		#expect(nameWithoutSpacesGuessCount == 1)
 	}
 
 	/**

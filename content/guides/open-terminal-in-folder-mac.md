@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	In Finder, choose “View › Show Path Bar”, Control-click the folder in the path bar at the bottom of the window, and choose “Open in Terminal”. To open your terminal app from the right-click menu of a folder or of an empty area of a window, use [Supercharge](../apps/supercharge/index.md).
+	In Finder, choose “View › Show Path Bar”, ++Control++-click the folder in the path bar at the bottom of the window, and choose “Open in Terminal”. To open your terminal app from the right-click menu of a folder or of an empty area of a window, use [Supercharge](/supercharge).
 }
 
 Go2Shell of ZipZapMac opened a terminal at the Finder folder from a button in the toolbar. Its last update (2.5) is from 2019, it needs Rosetta on Apple silicon, and Homebrew disabled it in March 2026 because it is not maintained.
@@ -17,7 +17,7 @@ Go2Shell of ZipZapMac opened a terminal at the Finder folder from a button in th
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), click “Tweaks”, and click “Configure…” next to “Context menu items”.
+1. Open the settings of [Supercharge](/supercharge), click “Tweaks”, and click “Configure…” next to “Context menu items”.
 1. In the “Main Menu” tab, turn on “Open in Terminal”. It has the name of your terminal app, like “Open in Ghostty”.
 1. Right-click a folder in Finder, or an empty area of the folder that is open, and choose the item.
 }
@@ -30,7 +30,7 @@ The right-click items cannot show in synced folders, like iCloud Drive and Dropb
 
 @Steps {
 1. Open the folder in Finder. If you do not see the path bar at the bottom of the window, choose “View › Show Path Bar”.
-1. Control-click the folder in the path bar, and choose “Open in Terminal”. For a new tab, choose “Services › New Terminal Tab at Folder”.
+1. ++Control++-click the folder in the path bar, and choose “Open in Terminal”. For a new tab, choose “Services › New Terminal Tab at Folder”.
 }
 
 You can also type `cd ` in Terminal, and drag the folder into the window. The built-in way only opens the Terminal app. Supercharge is faster when you do it often, or when you use another terminal app.

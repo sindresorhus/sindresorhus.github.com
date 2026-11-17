@@ -10,6 +10,9 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 6465745322
+categories: [
+	'notes'
+]
 sharedQuestions: [
 	'blurry-secondary-display'
 	'widget-transparent-background'

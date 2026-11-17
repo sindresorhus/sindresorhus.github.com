@@ -7,6 +7,22 @@ import Testing
 @testable import Website
 
 struct NowPageTests {
+	@Test(arguments: [false, true])
+	func `the Markdown copy keeps reading and listening after the page text and omits empty lists`(hasReadingAndListening: Bool) async throws {
+		let now = hasReadingAndListening ? "now: {reading: ['First book', 'Second book'], listening: ['An album']}" : ""
+		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n\(now)\n---\n\nText.", slug: "now")
+		let content = SiteContent.test(pages: [page])
+		let route = try #require(Site(content: content).textFileRoutes.first { $0.path == #path("/now.md") })
+		let markdown = String(decoding: try await route.renderedFile(), as: UTF8.self)
+
+		if hasReadingAndListening {
+			#expect(markdown.contains("Text.\n\n**Reading:** First book and Second book\n\n**Listening to:** An album"))
+		} else {
+			#expect(!markdown.contains("**Reading:**"))
+			#expect(!markdown.contains("**Listening to:**"))
+		}
+	}
+
 	@Test(.temporaryDirectory)
 	func `the latest Bluesky post skips reposts and keeps the links of its text`() async throws {
 		// The link starts after “🦄 ”, which is 5 bytes in UTF-8, so the byte offsets differ from the character offsets.
@@ -25,7 +41,8 @@ struct NowPageTests {
 		#expect(post.date == Date(timeIntervalSince1970: 1_791_027_627.083))
 		#expect(post.segments == [
 			BlueskyPost.Segment(text: "🦄 New: ", link: nil),
-			BlueskyPost.Segment(text: "github.com/sindresorhus...", link: #URL("https://github.com/sindresorhus/eslint-cssicorn")),
+			// Bluesky shortens the text of a long link, so the page shows the whole host and path.
+			BlueskyPost.Segment(text: "github.com/sindresorhus/eslint-cssicorn", link: #URL("https://github.com/sindresorhus/eslint-cssicorn")),
 			BlueskyPost.Segment(text: " Enjoy", link: nil),
 		])
 	}
@@ -63,13 +80,13 @@ struct NowPageTests {
 			pages: [page],
 			appData: SiteContent.AppData(releases: [
 				#repository("sindresorhus/test-meta"): [
-					GitHubRelease(tagName: "v2.0.0", publishedAt: try Date("2021-10-07T08:00:00Z", strategy: .iso8601), notesHTML: ""),
-					GitHubRelease(tagName: "v3.0.0", publishedAt: try Date("2021-10-07T09:00:00Z", strategy: .iso8601), notesHTML: ""),
+					GitHubRelease(tagName: "v2.0.0", publishedAt: try Date("2021-10-07T08:00:00Z", strategy: .iso8601), notes: .empty),
+					GitHubRelease(tagName: "v3.0.0", publishedAt: try Date("2021-10-07T09:00:00Z", strategy: .iso8601), notes: .empty),
 				],
 			]),
 			buildDate: Date(timeIntervalSince1970: 1_791_374_400)
 		)
-		let html = try NowPage(page: page, content: content).renderedHTML()
+		let html = try NowPage(page: page, now: try #require(content.now), content: content).renderedHTML()
 		let section = try #require(html.firstMatch(of: /<h2 id="on-this-day".*?<\/section>/.dotMatchesNewlines())).output
 		let rows = section.matches(of: /<a href="[^"]*">([^<]*)<\/a><span[^>]*>([^<]*)<\/span>/)
 
@@ -96,7 +113,7 @@ struct NowPageTests {
 		let page = try await MarkdownPage(markdown: "---\ntitle: 'Now'\n---\n\nText.", slug: "now")
 		let content = SiteContent.test(pages: [page], npmStatistics: statistics, buildDate: Date(timeIntervalSince1970: 1_791_374_400))
 
-		let html = try NowPage(page: page, content: content).renderedHTML()
+		let html = try NowPage(page: page, now: try #require(content.now), content: content).renderedHTML()
 
 		#expect(html.contains("npmjs.com/package/chalk"))
 		#expect(html.contains("npmjs.com/package/pid-port"))
@@ -128,7 +145,7 @@ struct NowPageTests {
 		// The section, and whether it is hidden.
 		func buildingNow(npmStatistics: NPMStatistics) throws -> (html: Substring, isHidden: Bool) {
 			let content = SiteContent.test(pages: [page], npmStatistics: npmStatistics)
-			let html = try NowPage(page: page, content: content).renderedHTML()
+			let html = try NowPage(page: page, now: try #require(content.now), content: content).renderedHTML()
 			let section = try #require(html.firstMatch(of: /<section([^>]*)><h2 id="building-now".*?<\/section>/.dotMatchesNewlines()))
 			return (section.output.0, section.output.1.contains("hidden"))
 		}
@@ -176,7 +193,7 @@ struct NowPageTests {
 			buildDate: Date(timeIntervalSince1970: 1_791_374_400)
 		)
 
-		let html = try NowPage(page: page, content: content).renderedHTML()
+		let html = try NowPage(page: page, now: try #require(content.now), content: content).renderedHTML()
 
 		#expect(html.contains("execa/releases/tag/v10.1.0"))
 		#expect(!html.contains("execa/releases/tag/v10.0.0"))
@@ -191,10 +208,10 @@ struct NowPageTests {
 		let content = try await SiteContent.website
 		let page = try #require(content.page(.now))
 
-		let html = try NowPage(page: page, content: content).renderedHTML()
+		let html = try NowPage(page: page, now: try #require(content.now), content: content).renderedHTML()
 
 		#expect(html.contains("<h1"))
-		#expect(html.contains(try #require(page.status?.inlineHTML)))
+		#expect(html.contains(try #require(content.now?.status?.inlineHTML.rawValue)))
 		#expect(html.contains("Newest App"))
 		// The commits load in the browser, so the group is there, with placeholder rows that screen readers skip, and the hidden link to GitHub for when they cannot load.
 		#expect(html.contains(#"id="latest-commits""#))
@@ -250,10 +267,10 @@ struct NowPageTests {
 			buildDate: buildDate
 		)
 
-		let html = try NowPage(page: page, content: content).renderedHTML()
+		let html = try NowPage(page: page, now: try #require(content.now), content: content).renderedHTML()
 
 		#expect(html.contains(">3</span> <span class=\"\(StatCard.Styles.label.className)\">days with contributions</span>"))
-		#expect(html.contains(">7</span> <span class=\"\(StatCard.Styles.label.className)\">busiest day, January 2</span>"))
+		#expect(html.contains(">7</span> <span class=\"\(StatCard.Styles.label.className)\">contributions on the busiest day, January 2</span>"))
 		#expect(html.contains(">2</span> <span class=\"\(StatCard.Styles.label.className)\">repositories committed to</span>"))
 		// A private repo, which a personal token can see, is left out.
 		#expect(html.contains(#"Most commits went to <a href="https://github.com/sindresorhus/ky">ky</a> (1163), <a href="https://github.com/chalk/chalk">chalk/chalk</a> (2), and <a href="https://github.com/sindresorhus/got">got</a> (1)."#))
@@ -282,8 +299,8 @@ struct NowPageTests {
 			try await App(title: title, publicationDate: "2020-01-01", platforms: [.iOS], frontmatter: "appStoreID: \(id)", slug: title.lowercased())
 		}
 
-		func review(_ title: String, date: String) throws -> AppStoreReview {
-			AppStoreReview(
+		func review(_ title: String, date: String) throws -> StoreReview {
+			StoreReview(
 				title: title,
 				text: "A review that is long enough to be shown on the page of the app.",
 				author: "A reviewer",
@@ -303,7 +320,7 @@ struct NowPageTests {
 			buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601)
 		)
 
-		let nowPage = NowPage(page: page, content: content)
+		let nowPage = NowPage(page: page, now: try #require(content.now), content: content)
 		let html = try nowPage.renderedHTML()
 		let lastModified = try #require(SOML.Date("2026-10-06"))
 		#expect(nowPage.sitemapEntry.lastModified == lastModified)
@@ -338,7 +355,7 @@ struct NowPageTests {
 			buildDate: try Date("2026-10-07T12:00:00Z", strategy: .iso8601)
 		)
 
-		let html = try NowPage(page: page, content: content).renderedHTML()
+		let html = try NowPage(page: page, now: try #require(content.now), content: content).renderedHTML()
 		let updates = try #require(html.firstMatch(of: /Latest Updates<\/h3>.*?<\/ul>/.dotMatchesNewlines())).output
 
 		#expect(updates.contains(">Updated</a>"))
@@ -363,7 +380,7 @@ struct NowPageTests {
 		activity.weekActivity = GitHub.Activity(contributionCount: 245, commitCount: 171, commentCount: 32)
 		let content = SiteContent.test(pages: [page], recentActivity: activity, buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601))
 
-		let html = try NowPage(page: page, content: content).renderedHTML()
+		let html = try NowPage(page: page, now: try #require(content.now), content: content).renderedHTML()
 		#expect(html.contains("This Week in Open Source"))
 
 		for (value, label) in [("245", "contributions"), ("171", "commits"), ("83", "issues closed"), ("61", "pull requests merged from others"), ("32", "comments")] {
@@ -415,6 +432,7 @@ struct NowPageTests {
 			followerCount: 1,
 			starCount: 2,
 			maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1),
+			appleReportCount: 1,
 			repositories: repositories
 		)
 		let content = SiteContent.test(
@@ -425,7 +443,7 @@ struct NowPageTests {
 			buildDate: try Date("2026-10-13T12:00:00Z", strategy: .iso8601)
 		)
 
-		let html = try NowPage(page: page, content: content).renderedHTML()
+		let html = try NowPage(page: page, now: try #require(content.now), content: content).renderedHTML()
 		let year = try #require(html.split(separator: #"id="year""#).last)
 		let parts = year.split(separator: "npm</h3>")
 		try #require(parts.count == 2)

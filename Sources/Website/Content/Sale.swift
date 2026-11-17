@@ -51,7 +51,7 @@ extension MarkdownPage {
 	- Parameter today: The day of the build.
 	*/
 	func sales(on today: SOML.Date, project: Project) -> [Sale] {
-		let document = Document(parsing: file.body, options: .parseBlockDirectives)
+		let document = file.parsedBody
 		var rewriter = ScheduledContentRewriter(today: today)
 		let visibleDocument = rewriter.visit(document) as? Document ?? document
 

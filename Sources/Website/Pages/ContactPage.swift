@@ -8,7 +8,7 @@ struct ContactPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: "Contact", description: "How to contact Sindre Sorhus.")
+		PageMetadata(title: "Contact", description: "Email Sindre Sorhus. For questions about an app, use the feedback form.")
 	}
 
 	var headerBackground: SiteHeader.Background {
@@ -245,6 +245,10 @@ extension ContactPage {
 					.zIndex(10)
 					.frame(width: .percent(100))
 					.margin(.top, .rootEm(-4))
+					// On a short screen, like a phone in landscape, the shift would move the top of the content under the header.
+					.media(.shortScreen) {
+						$0.margin(.top, .zero)
+					}
 					.textAlign(.center)
 			case .reveal:
 				// The parts fade in one after the other. The first part is the second child, after the hidden title.
@@ -337,7 +341,7 @@ extension ContactPage {
 					.vstack(alignment: .center)
 					.gap(row: .rootEm(0.25))
 					// Like the other secondary text of the site, not the smallest size, as the visitor must read the rules before writing.
-					.font(size: .rootEm(0.9375), lineHeight: 1.5)
+					.font(.callout)
 					.color(Self.smallTextColor)
 					.textLinks()
 					.from(.smallTablet) {

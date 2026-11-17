@@ -26,8 +26,8 @@ enum ArticleDirective: BlockDirectiveDefinition {
 	typealias Arguments = Article
 	static let name = "Article"
 
-	static func render(arguments: Article, contentHTML: String, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) -> String {
-		contentHTML
+	static func render(arguments: Article, content: HTMLFragment, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) -> HTMLFragment {
+		content
 	}
 }
 
@@ -80,15 +80,15 @@ let invalid = MarkdownDocument.ReleaseNotesOptions(resolveLink: { (_: String) th
 	throw .unrelated
 })
 #elseif INVALID_MARKDOWN_RENDER_ERROR
-let invalid = MarkdownDocument.Options.BlockDirectiveRenderer { (_: String) throws(CustomizationFailure) -> String in
+let invalid = MarkdownDocument.Options.BlockDirectiveRenderer { (_: HTMLFragment) throws(CustomizationFailure) -> HTMLFragment in
 	throw .unrelated
 }
 #elseif INVALID_MARKDOWN_ARGUMENT_RENDER_ERROR
-let invalid = MarkdownDocument.Options.BlockDirectiveRenderer { (_: Article, _: String) throws(CustomizationFailure) -> String in
+let invalid = MarkdownDocument.Options.BlockDirectiveRenderer { (_: Article, _: HTMLFragment) throws(CustomizationFailure) -> HTMLFragment in
 	throw .unrelated
 }
 #elseif INVALID_MARKDOWN_CONTEXT_RENDER_ERROR
-let invalid = MarkdownDocument.Options.BlockDirectiveRenderer { (_: Article, _: String, _: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(CustomizationFailure) -> String in
+let invalid = MarkdownDocument.Options.BlockDirectiveRenderer { (_: Article, _: HTMLFragment, _: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(CustomizationFailure) -> HTMLFragment in
 	throw .unrelated
 }
 #elseif INVALID_MARKDOWN_REWRITE_ERROR
@@ -99,7 +99,7 @@ let invalid = MarkdownDocument.Options.BlockDirectiveRenderer(
 	render: { $0 }
 )
 #elseif INVALID_MARKDOWN_INLINE_ERROR
-let invalid = MarkdownDocument.Options.InlineAttributesRenderer { (_: Article, _: String) throws(CustomizationFailure) -> String in
+let invalid = MarkdownDocument.Options.InlineAttributesRenderer { (_: Article, _: HTMLFragment) throws(CustomizationFailure) -> HTMLFragment in
 	throw .unrelated
 }
 #elseif INVALID_BLOCK_DEFINITION_ERROR
@@ -107,7 +107,7 @@ enum InvalidDefinition: BlockDirectiveDefinition {
 	typealias Arguments = Article
 	static let name = "Invalid"
 
-	static func render(arguments: Article, contentHTML: String, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(CustomizationFailure) -> String {
+	static func render(arguments: Article, content: HTMLFragment, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(CustomizationFailure) -> HTMLFragment {
 		throw .unrelated
 	}
 }
@@ -179,8 +179,8 @@ let slug: ContentSlug = "article"
 let directory: Project.ContentDirectory = "content/articles"
 let notes = MarkdownDocument(releaseNotes: "Notes", options: MarkdownDocument.ReleaseNotesOptions(resolveLink: { $0 }))
 let options = MarkdownDocument.Options(
-	inlineAttributes: .init { (_: Article, contentHTML) in
-		contentHTML
+	inlineAttributes: .init { (_: Article, content) in
+		content
 	},
 	blockDirectives: ["Article": ArticleDirective.renderer],
 	resolveLink: { $0 }

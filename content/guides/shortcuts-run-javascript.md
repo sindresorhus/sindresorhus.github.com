@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	The “Run JavaScript on Web Page” action of Shortcuts needs a web page from Safari as its input. To run JavaScript on a text in any shortcut, like to change it with a regular expression, add the “Transform Text with JavaScript” action of the free [Actions](../apps/actions/index.md) app.
+	The “Run JavaScript on Web Page” action of Shortcuts needs a web page from Safari as its input. To run JavaScript on a text in any shortcut, like to change it with a regular expression, add the “Transform Text with JavaScript” action of the free [Actions](/actions) app.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In your shortcut, add the “Transform Text with JavaScript” action of Actions.
+1. Install [Actions](/actions), and open it once.
+1. In your shortcut, add the [“Transform Text with JavaScript”](/actions#:~:text=Transform%20Text%20with%20JavaScript) action of Actions.
 1. In the first field, choose the text, like the result of the action above it.
 1. In the second field, write the code. The text is in the `$text` variable, and the code must return a string.
 }
@@ -24,7 +24,10 @@ apps: [
 For example, this code keeps only the lines that have an email address:
 
 ```js
-return $text.split('\n').filter(line => line.includes('@')).join('\n');
+return $text
+	.split('\n')
+	.filter(line => line.includes('@'))
+	.join('\n');
 ```
 
 The result is “Transformed Text”. To return an object, return it as JSON with `JSON.stringify()`, and give the result to the “Get Dictionary from Input” action of Shortcuts.
@@ -33,7 +36,7 @@ The code runs in JavaScriptCore, the JavaScript engine of Safari, and without a 
 
 ## Without an app
 
-**On a web page:** The “Run JavaScript on Web Page” action runs your code on the page that is open in Safari, like to get data from the page, or to change it. On iPhone and iPad, turn on “Show in Share Sheet” in the details of the shortcut, and run the shortcut from the share sheet of Safari. Before the first run, you must turn on “Allow Running Scripts” in the settings of Shortcuts. [Apple’s instructions.](https://support.apple.com/guide/shortcuts/apdb71a01d93/ios)
+**On a web page:** The “Run JavaScript on Web Page” action runs your code on the page that is open in Safari, like to get data from the page, or to change it. On iPhone and iPad, turn on “Show in Share Sheet” in the details of the shortcut, and run the shortcut from the share sheet of Safari. Before the first run, you must turn on “Allow Running Scripts” in the settings of Shortcuts. <source:https://support.apple.com/guide/shortcuts/apdb71a01d93/ios>
 
 **On Mac:** The “Run JavaScript for Mac Automation” action runs JavaScript that controls the apps of your Mac. It is not on iPhone or iPad.
 

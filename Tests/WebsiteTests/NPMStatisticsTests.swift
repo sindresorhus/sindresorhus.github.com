@@ -134,15 +134,15 @@ struct NPMStatisticsTests {
 	}
 
 	/**
-	The description is shown as text, so it has no backticks of code, and a description with no text left is none, so the package is not a project of the day. The label of the weekly downloads has the noun in the plural unless the count is 1.
+	The description is shown as text, so it has no backticks of code and no escapes of HTML, and a description with no text left is none, so the package is not a project of the day. The label of the weekly downloads has the noun in the plural unless the count is 1.
 	*/
 	@Test(.temporaryDirectory)
 	func `the description is read without the backticks of code, an empty one is none, and the weekly downloads have a label`() async throws {
-		let cache = try ResponseCache.npm(search: #"{"objects": [{"package": {"name": "p-map", "version": "7.0.0", "description": "Map over `promises` concurrently ", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 4200000}}, {"package": {"name": "empty", "version": "1.0.0", "description": " `` ", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 1}}, {"package": {"name": "none", "version": "1.0.0", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 0}}], "total": 3}"#)
+		let cache = try ResponseCache.npm(search: #"{"objects": [{"package": {"name": "p-map", "version": "7.0.0", "description": "Map over `promises` concurrently ", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 4200000}}, {"package": {"name": "empty", "version": "1.0.0", "description": " `` ", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 1}}, {"package": {"name": "none", "version": "1.0.0", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 0}}, {"package": {"name": "cat", "version": "1.0.0", "description": "My cat&#39;s pajamas module", "date": "2026-10-05T14:57:36.835Z"}, "downloads": {"weekly": 0}}], "total": 4}"#)
 		let statistics = await NPMStatistics.load(cache: cache, warnings: WarningCollector())
 
-		#expect(statistics.packages?.map(\.description) == ["Map over promises concurrently", nil, nil])
-		#expect(statistics.packages?.map(\.weeklyDownloadsLabel) == ["4.2M+ downloads a week", "1 download a week", "0 downloads a week"])
+		#expect(statistics.packages?.map(\.description) == ["Map over promises concurrently", nil, nil, "My cat’s pajamas module"])
+		#expect(statistics.packages?.map(\.weeklyDownloadsLabel) == ["4.2M+ downloads a week", "1 download a week", "0 downloads a week", "0 downloads a week"])
 	}
 
 	@Test(.temporaryDirectory)

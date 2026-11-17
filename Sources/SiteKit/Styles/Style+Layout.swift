@@ -290,6 +290,15 @@ extension Style {
 	}
 
 	/**
+	How many rows the element spans in a grid, from the row with the number, like `gridRowSpan(2, from: 1)` for the first and second rows. The rows count from 1, like in CSS.
+	*/
+	public func gridRowSpan(_ count: Int, from start: Int) -> Self {
+		precondition(count > 0, "A grid or row count must be positive.")
+		precondition(start != 0, "A grid line index must not be zero.")
+		return declaration(.gridRow, CSSValue(raw: "\(start) / span \(count)"))
+	}
+
+	/**
 	Flows the content through columns, like a newspaper: as many columns as fit, each at least the minimum width, and at most the maximum count. Children of different heights fit together, like cards. Use ``keepsTogether()`` on the children, so each stays in one column, and ``gap(row:column:)`` for the space between the columns.
 	*/
 	public func columns(_ maximumCount: Int, minimumWidth: Length) -> Self {

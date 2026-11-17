@@ -90,7 +90,7 @@ struct SuggestedQuestion: Encodable {
 	}
 
 	/**
-	The patterns of ``words(in:)``, which the script of ``FAQSuggestions`` also uses for the message, so the two split a text in the same way. Each pattern is valid in Swift and in JavaScript.
+	The patterns of ``words(in:)``, which the scripts also use (`/scripts/words.js`), for the message of ``FAQSuggestions`` and the query of ``SiteSearch``, so they split a text in the same way. Each pattern is valid in Swift and in JavaScript.
 	*/
 	struct WordPatterns: Encodable {
 		let apostrophe = "['’]"
@@ -144,7 +144,7 @@ struct SuggestedQuestion: Encodable {
 	}
 
 	/**
-	The rules of ``isForm(_:of:)``, which the script of ``FAQSuggestions`` also uses for the words of the message, so the page and the check of the keywords agree. Each pattern is valid in Swift and in JavaScript.
+	The rules of ``isForm(_:of:)``, which the scripts also use (`/scripts/words.js`), for the words of the message of ``FAQSuggestions`` and of the query of ``SiteSearch``, so the pages and the check of the keywords agree. Each pattern is valid in Swift and in JavaScript.
 	*/
 	struct WordForms: Encodable {
 		struct StemStep: Encodable {
@@ -269,11 +269,11 @@ extension SuggestedQuestion {
 
 extension SuggestedQuestion {
 	/**
-	A guide, as a suggestion for the apps that it is about: its title without “How to”, as the label already says that it is a guide.
+	A guide, as a suggestion for the apps that it is about: its task (``Guide/task``), as the label already says that it is a guide.
 	*/
 	init(_ guide: Guide) {
 		self.init(
-			question: String(guide.frontmatter.title.trimmingPrefix("How to ")),
+			question: guide.task,
 			url: .path(guide.path),
 			label: .guide
 		)

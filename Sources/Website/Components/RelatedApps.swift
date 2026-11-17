@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-Four similar apps as cards: the best matches by platform, menu bar, and price, with a daily shuffle among equally good matches. The page leaves it out when there are none.
+Four similar apps as cards: the best matches by hand-picked category (like the clock apps), platform, menu bar, and price, with a daily shuffle among equally good matches. The page leaves it out when there are none.
 */
 struct RelatedApps: HTML {
 	let relatedApps: [App]

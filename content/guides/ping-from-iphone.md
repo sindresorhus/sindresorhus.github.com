@@ -2,21 +2,21 @@
 title: 'How to Ping an IP Address or Server from iPhone'
 description: 'iPhone has no Terminal and no ping command. Ping an IP address or a server from iPhone with the Ping action of the free Actions app in Shortcuts.'
 publicationDate: 2026-11-13
-topic: 'iphone'
+topic: 'internet-and-network'
 apps: [
 	'actions'
 ]
 ---
 
 @QuickAnswer {
-	iPhone has no Terminal, so it has no `ping` command. The free [Actions](../apps/actions/index.md) app adds a “Ping” action to the Shortcuts app. Type a domain or an IP address, run the shortcut, and see the average time and the packet loss.
+	iPhone has no Terminal, so it has no `ping` command. The free [Actions](/actions) app adds a “Ping” action to the Shortcuts app. Type a domain or an IP address, run the shortcut, and see the average time and the packet loss.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In the Shortcuts app, make a new shortcut, and add the “Ping” action.
+1. Install [Actions](/actions), and open it once.
+1. In the Shortcuts app, make a new shortcut, and add the [“Ping”](/actions#:~:text=Ping) action.
 1. Type a domain or an IP address, like `192.168.1.1` or `apple.com`.
 1. Add the “Show Content” action, and run the shortcut.
 }

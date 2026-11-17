@@ -3,28 +3,43 @@ import {finePointer, prefersReducedMotion} from '/scripts/dom.js';
 const excluded = new URLSearchParams(location.search).get('exclude');
 
 if (excluded) {
-	const slugs = new Set(excluded.split(','));
+	// Without hyphens, as the apps make “dsstore-inspector” of “DS_Store Inspector”, and its slug here is “ds-store-inspector”.
+	const withoutHyphens = slug => slug.replaceAll('-', '');
+	const slugs = new Set(excluded.split(',').map(slug => withoutHyphens(slug)));
 	const cards = [...document.querySelectorAll('[data-slug]')];
 
-	const excludedCards = cards.filter(card => slugs.has(card.dataset.slug));
-
-	for (const card of excludedCards) {
-		card.hidden = true;
+	for (const card of cards) {
+		card.hidden = slugs.has(withoutHyphens(card.dataset.slug));
 	}
 
-	const hiddenCount = excludedCards.length;
+	const shownCount = cards.filter(card => !card.hidden).length;
 
-	// A section with all its apps hidden, like “Featured”, is hidden too, so its title is not above an empty grid.
-	for (const [section, sectionCards] of Map.groupBy(cards, card => card.closest('section'))) {
-		if (section && sectionCards.every(card => card.hidden)) {
+	// It says what the list shows, not what it leaves out.
+	if (shownCount < cards.length) {
+		const notice = document.querySelector('#apps-filter-notice');
+		document.querySelector('#apps-filter-count').textContent = `The ${shownCount} ${shownCount === 1 ? 'app' : 'apps'} that you do not have yet.`;
+		notice.hidden = false;
+
+		// The apps that are left are one grid without titles, as the list is about the apps that the visitor does not have, not about the featured apps of the day, and a hidden featured app would leave a hole in its row. The featured apps stay first.
+		// A card outside a section has no group to hide.
+		const sections = Map.groupBy(cards, card => card.closest('section')).keys().filter(Boolean).toArray();
+		const lastSection = sections.at(-1);
+		const grid = cards.at(-1).parentElement;
+		grid.prepend(...cards.filter(card => !card.hidden && card.parentElement !== grid));
+
+		for (const section of sections.slice(0, -1)) {
 			section.hidden = true;
 		}
-	}
 
-	if (hiddenCount > 0) {
-		const notice = document.querySelector('#apps-filter-notice');
-		document.querySelector('#apps-filter-count').textContent = `${hiddenCount} ${hiddenCount === 1 ? 'app' : 'apps'} filtered out.`;
-		notice.hidden = false;
+		if (lastSection) {
+			// The title of the other apps, “More Apps”, is only there below the featured apps.
+			const title = lastSection.querySelector(':scope > h2');
+			if (title) {
+				title.hidden = true;
+			}
+
+			lastSection.hidden = shownCount === 0;
+		}
 	}
 }
 

@@ -23,6 +23,13 @@ struct BlogPost: ContentDocument {
 	let readingTime: Int
 
 	/**
+	The reading time as a fact, like “4 min read”, for the top of the page and the social card.
+	*/
+	var readingTimeText: String {
+		"\(readingTime) min read"
+	}
+
+	/**
 	The root frontmatter order follows the declarations, with status first and related facts together. Missing properties stay absent.
 	*/
 	static var formattingKeys: [Frontmatter.CodingKeys] {
@@ -47,7 +54,10 @@ struct BlogPost: ContentDocument {
 			throw file.error(line: file.bodyStartLine, "A post with `redirectURL` has no page, so it cannot have text.")
 		}
 
-		self.markdown = try MarkdownDocument(parsing: file, options: .content(file, project: project))
+		// Each section has a link that copies its URL, like on app pages, so a reader can send a section of a long post.
+		var options = MarkdownDocument.Options.content(file, project: project)
+		options.addsHeadingAnchors = true
+		self.markdown = try MarkdownDocument(parsing: file, options: options)
 
 		if let error = markdown.titleHeadingError(in: file) {
 			throw error
@@ -92,6 +102,13 @@ extension BlogPost {
 		*/
 		var redirectFrom = [RoutePath]()
 		static let redirectFromKey = CodingKeys.redirectFrom
+
+		var proseTexts: [ProseText] {
+			[
+				(title, [CodingKeys.title]),
+				(description, [CodingKeys.description]),
+			]
+		}
 
 		func validate(into problems: inout FrontmatterProblems<Self>) {
 			validatePublicationDate(into: &problems)

@@ -66,7 +66,7 @@ Copy text from a web page or a document, and paste it without the fonts, colors,
 
 Pure Paste clears the formatting (fonts, colors, bold, links, tables, etc.) in the background as you copy, and leaves files, images, and passwords from password managers alone.
 
-Beyond basic formatting removal, Pure Paste can also remove invisible characters (including AI watermarks), footnote references (like in text from Wikipedia), and the “mailto:” prefix of email addresses, normalize quotes and lists, trim leading and trailing whitespace, remove tracking parameters from URLs, and much more.
+Beyond basic formatting removal, Pure Paste can also remove invisible characters (including AI watermarks), footnote references (like in text from Wikipedia), and the “mailto:” prefix of email addresses, [normalize quotes](guide:smart-quotes-to-straight-quotes-mac) and lists, trim leading and trailing whitespace, remove tracking parameters from URLs, and much more.
 
 You can also choose to manually clear formatting whenever needed instead of automatically.
 
@@ -86,7 +86,7 @@ Rich text copied from a different device will not have its formatting cleared be
 
 ## Frequently Asked Questions {#faq}
 
-### Why not just use the `Paste and Match Style` menu item or ++Option+Shift+Command+V++? {#why-not-just-use-the-paste-and-match-style-menu-item-or-v}
+### Why not just use the “Paste and Match Style” menu item or ++Option+Shift+Command+V++? {#why-not-just-use-the-paste-and-match-style-menu-item-or-v}
 
 - This app can make it the default behavior.
 - That menu item is not available in all apps.
@@ -95,7 +95,7 @@ Rich text copied from a different device will not have its formatting cleared be
 - This app can exclude certain apps, preserve links, normalize (quotes, newlines, lists, etc.) and also remove tracking parameters from URLs.
 - The app has workarounds (9000+ lines of code) for lots of apps to make the experience *just work*.
 
-### Why not just remap the `Paste and Match Style` keyboard shortcut to ++Command+V++? {#why-not-just-remap-the-paste-and-match-style-keyboard-shortcut-to-v}
+### Why not just remap the “Paste and Match Style” keyboard shortcut to ++Command+V++? {#why-not-just-remap-the-paste-and-match-style-keyboard-shortcut-to-v}
 
 Same as the above except the first two list items.
 

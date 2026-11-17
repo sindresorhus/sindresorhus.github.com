@@ -2,7 +2,7 @@
 title: 'How to Convert HEIC to JPG or PNG on Mac and iPhone'
 description: 'Convert HEIC photos to JPEG or PNG with the Convert Image quick action in Finder or in the Files app, or with the free HEIC Converter app on Mac.'
 publicationDate: 2026-10-29
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'heic-converter'
 ]
@@ -13,7 +13,7 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	On a Mac, Control-click the HEIC photos in Finder, choose “Quick Actions › Convert Image”, and choose “JPEG” or “PNG”. On an iPhone, save the photos from the Photos app to the Files app, select them in Files, touch and hold one of them, and choose “Quick Actions › Convert Image”. For control of the JPEG quality and the metadata, use the free [HEIC Converter](../apps/heic-converter/index.md) on Mac.
+	On a Mac, ++Control++-click the HEIC photos in Finder, choose “Quick Actions › Convert Image”, and choose “JPEG” or “PNG”. On an iPhone, save the photos from the Photos app to the Files app, select them in Files, touch and hold one of them, and choose “Quick Actions › Convert Image”. For control of the JPEG quality and the metadata, use the free [HEIC Converter](/heic-converter) on Mac.
 }
 
 HEIC is the photo format of the iPhone camera. It makes smaller files than JPEG with the same quality, but many websites, apps, and devices that are not from Apple cannot open it. JPEG (also written JPG) works everywhere.
@@ -21,7 +21,7 @@ HEIC is the photo format of the iPhone camera. It makes smaller files than JPEG 
 ## With HEIC Converter
 
 @Steps {
-1. Open [HEIC Converter](../apps/heic-converter/index.md), and drop the HEIC photos on its window, or click “Open Files”.
+1. Open [HEIC Converter](/heic-converter), and drop the HEIC photos on its window, or click “Open Files”.
 1. Choose the folder for the converted photos.
 1. Choose “JPEG” or “PNG”, and set the quality with the slider.
 1. Click “Convert”.
@@ -37,7 +37,7 @@ Finder converts HEIC photos itself, also many at a time:
 
 @Steps {
 1. Select the HEIC photos in Finder.
-1. Control-click them, and choose “Quick Actions › Convert Image”.
+1. ++Control++-click them, and choose “Quick Actions › Convert Image”. <source:https://support.apple.com/guide/mac-help/mchl97ff9142/mac>
 1. Choose “JPEG” (or “PNG”) in “Format” and a size in “Image Size”, and click “Convert to JPEG” (or “Convert to PNG”). To keep the location and the other metadata, select “Preserve Metadata”.
 }
 

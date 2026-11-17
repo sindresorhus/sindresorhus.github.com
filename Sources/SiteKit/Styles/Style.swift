@@ -238,6 +238,13 @@ extension Style {
 	}
 
 	/**
+	Styles while the pointer is over the element, while it has the focus of the keyboard, or while it is pressed, so a tap on a phone, where nothing hovers, shows it too, like the fill of a chip.
+	*/
+	public func hoverOrFocusVisibleOrActive(_ content: (Self) -> Self) -> Self {
+		hoverOrFocusVisible(content).active(content)
+	}
+
+	/**
 	Styles each element inside that shows its focus, like one focus ring for all the controls of a page with its own look.
 	*/
 	public func focusVisibleInside(_ content: (Self) -> Self) -> Self {
@@ -344,10 +351,24 @@ extension Style {
 	}
 
 	/**
+	Styles while the element is not the last child of its parent, like a separator after each item of a row but the last: `&:not(:last-child)`.
+	*/
+	public func notLastChild(_ content: (Self) -> Self) -> Self {
+		nested("&:not(:last-child)", content)
+	}
+
+	/**
 	Styles while the element has no children, not even text, like a list that a script has not filled in yet.
 	*/
 	public func empty(_ content: (Self) -> Self) -> Self {
 		nested("&:empty", content)
+	}
+
+	/**
+	Styles while every child of the element is hidden (the `hidden` attribute), or it has no children, like a list whose filter hides all its items: `&:not(:has(> :not([hidden])))`.
+	*/
+	public func allChildrenHidden(_ content: (Self) -> Self) -> Self {
+		nested("&:not(:has(> :not([hidden])))", content)
 	}
 
 	/**
@@ -488,6 +509,13 @@ extension Style {
 	*/
 	public func children(_ selector: CSSSelector, _ content: (Self) -> Self) -> Self {
 		nested("& > \(selector.groupedForCombinator)", content)
+	}
+
+	/**
+	Styles while the element has a direct child that matches the selector, like a list item that is only a link: `&:has(> selector)`. A list of selectors is in `:is()`, like in ``children(_:_:)``.
+	*/
+	public func hasChild(_ selector: CSSSelector, _ content: (Self) -> Self) -> Self {
+		nested("&:has(> \(selector.groupedForCombinator))", content)
 	}
 
 	/**

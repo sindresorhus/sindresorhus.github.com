@@ -8,6 +8,8 @@ sharedQuestions: [
 Each question is a level 3 heading with a short ID, followed by its answer. Link to pages with site paths, like `/apps/faq#refund`, as the answers are shown on the app pages.
 
 The questions go after the questions of the app. A question about a problem has the `@faq.first` directive below its heading, so it goes before them.
+
+A question with the same answer as a question of the general FAQ (`content/pages/apps/faq.md`) has no answer here, but the `@faq.answer-of` directive with the ID of that question, like `@faq.answer-of export-settings` in a comment below its heading, so the answer is in one place.
 -->
 
 ### How can I turn off automatic filename suggestions when saving? {#suggested-filenames}
@@ -29,8 +31,7 @@ Yes, it’s native and written in Swift and SwiftUI.
 Much of the functionality would not be possible in the App Store because of [sandboxing](/apps/faq#macos-sandbox).
 
 ### How can I export, import, sync, transfer, or back up the settings? {#backup-settings}
-
-[See this answer](/apps/faq#export-settings)
+<!-- @faq.answer-of export-settings -->
 
 ### The app randomly quits {#randomly-quits}
 <!-- @faq.first -->
@@ -58,8 +59,7 @@ Sure! Find an icon you like in the [SF Symbols app](https://developer.apple.com/
 
 ### The menu bar item looks blurry or is not dimmed on my secondary display {#blurry-secondary-display}
 <!-- @faq.first -->
-
-[See this answer](/apps/faq#menu-bar-secondary-display)
+<!-- @faq.answer-of menu-bar-secondary-display -->
 
 ### Why does it not show week 53? {#week-53}
 
@@ -178,7 +178,7 @@ https://some-video-call-service.com/join/23423
 
 Removing tracking parameters improves privacy and also makes URLs more aesthetically pleasing. Tracking parameters are used by many websites to track your browsing activity across websites. [Learn more about UTM parameters.](https://en.wikipedia.org/wiki/UTM_parameters)
 
-The app supports 200+ common tracking parameters (e.g. Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
+The app supports 200+ common tracking parameters (like Google UTM) and it has special support for removing tracking from links to X (Twitter), Facebook, and TikTok.
 
 Before: `https://foo.com?utm_content=buffercf3b2&utm_source=snapchat.com`\
 After: `https://foo.com`

@@ -18,7 +18,7 @@ extension Project {
 	static let empty = Project.site(root: URL.temporaryDirectory.appending(path: "website-tests-empty-project"))
 
 	/**
-	A project of the site in a new directory of the `.temporaryDirectory` trait, with the files, and the directories of the posts, guides, and pages, and the site settings, which loading needs. A file with the path of the settings replaces them. It leaves out `content/apps`, which a test that adds an app creates with the file of the app.
+	A project of the site in a new directory of the `.temporaryDirectory` trait, with the files, and the directories of the posts, guides, and pages, and the site settings and the open source projects, which loading needs. A file with the path of the settings replaces them. It leaves out `content/apps`, which a test that adds an app creates with the file of the app.
 	*/
 	static func testSite(files: [String: String]) throws -> Self {
 		let requiredFiles = [
@@ -26,6 +26,7 @@ extension Project {
 			"content/guides/.keep": "",
 			"content/pages/.keep": "",
 			SiteSettings.path: SiteSettings.testSOML,
+			OpenSourceCatalog.path: OpenSourceCatalog.testSOML,
 		]
 
 		return .site(root: try URL.temporaryDirectory(files: requiredFiles.merging(files) { _, file in file }))
@@ -83,14 +84,14 @@ extension SiteContent {
 	/**
 	The text of the content warnings, with the paths relative to the project (``SiteKit/SourceLocation/description(relativeTo:)``), like in a build, which runs in the project root. A file outside the project keeps its full path, so the test shows it.
 
-	- Parameter kinds: Only the warnings of these kinds. Default: all the warnings.
+	- Parameter kinds: Only the warnings of these kinds. Default: all the warnings, but not the pages that no other page links to (`.unlinkedPage`), as a test publishes few or no pages, so nothing links to the others.
 	- Parameter published: The published site. Default: nothing.
 	- Parameter textFiles: Only check the text of these files (``SiteContent/warnings(published:routes:textFiles:)``). Default: all the files.
 	*/
 	func warningTexts(of kinds: Warning.Kind..., published: PublishedSite = PublishedSite(routeFiles: [:], publicFiles: []), textFiles: [URL]? = nil) async -> [String] {
 		await warnings(published: published, routes: Site(content: self).routes(), textFiles: textFiles)
 			.warnings
-			.filter { kinds.isEmpty || kinds.contains($0.kind) }
+			.filter { kinds.isEmpty ? $0.kind != .unlinkedPage : kinds.contains($0.kind) }
 			.map { warning in
 				warning.location.map { "\($0.description(relativeTo: project.root)): \(warning.message)" } ?? warning.message
 			}
@@ -99,17 +100,16 @@ extension SiteContent {
 
 extension SiteContent {
 	/**
-	Content that a test makes without files, with no apps, posts, or pages unless given, built now, in the empty project (``SiteKit/Project/empty``).
+	Content that a test makes without content files, with no apps, posts, or pages unless given, built now, in the empty project (``SiteKit/Project/empty``), with the test settings (``SiteSettings/testFile``) and the open source projects of the website (``OpenSourceCatalog/testFile``).
 	*/
 	static func test(
 		apps: [App] = [],
 		posts: [BlogPost] = [],
-		guides: [Guide] = [],
+		guides: [Guide.Resolved] = [],
 		pages: [MarkdownPage] = [],
 		sharedQuestions: App.SharedQuestions.Library = .empty,
-		settings: SiteSettings = SiteSettings(),
+		settingsFile: SOMLFile<SiteSettings> = SiteSettings.testFile,
 		featuredApps: [App] = [],
-		resolvedGuides: [Guide.Resolved] = [],
 		appData: AppData = .none,
 		recentRepositories: [GitHubRepository] = [],
 		popularRepositories: [GitHubRepository] = [],
@@ -126,9 +126,9 @@ extension SiteContent {
 			guides: guides,
 			pages: pages,
 			sharedQuestions: sharedQuestions,
-			settings: settings,
+			settingsFile: settingsFile,
+			openSourceFile: OpenSourceCatalog.testFile,
 			featuredApps: featuredApps,
-			resolvedGuides: resolvedGuides,
 			appData: appData,
 			recentRepositories: recentRepositories,
 			popularRepositories: popularRepositories,
@@ -279,6 +279,27 @@ extension SiteSettings {
 	A `content/site.soml` with the required values, for a project of a test.
 	*/
 	static let testSOML = "appUserCount: 1\nsupportEmailCount: 1\n"
+
+	/**
+	A `content/site.soml` with ``testSOML``, for content that a test makes without files. It is in the temporary directory of the system, like the empty project (``SiteKit/Project/empty``), as the files of the `.temporaryDirectory` trait are only for one test. It is written atomically, as tests in parallel processes write the same file.
+	*/
+	static let testFile = {
+		let url = URL.temporaryDirectory.appending(path: "website-tests-site.soml")
+		try! Data(testSOML.utf8).write(to: url, options: .atomic)
+		return try! SOMLFile<SiteSettings>(url: url)
+	}()
+}
+
+extension OpenSourceCatalog {
+	/**
+	The `content/open-source.soml` of the website, for a project of a test, as each group needs its projects.
+	*/
+	static let testSOML = try! String(contentsOf: Project.website.root.appending(path: path), encoding: .utf8)
+
+	/**
+	The `content/open-source.soml` of the website, for content that a test makes without files, as each group needs its projects.
+	*/
+	static let testFile = try! SOMLFile<OpenSourceCatalog>(url: Project.website.root.appending(path: path))
 }
 
 extension Guide {

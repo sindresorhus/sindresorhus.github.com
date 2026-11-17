@@ -9,6 +9,9 @@ platforms: [
 isMenuBarApp: true
 appStoreID: 6754022187
 hasNoNetworkAccess: true
+categories: [
+	'files'
+]
 nonAppStoreVersion: {
 	version: '1.0.1'
 	macOS: 26
@@ -25,7 +28,7 @@ olderVersions: [
 	}
 ]
 # feedbackNote: '''
-# 	[The app randomly disappears/quits](/apps/faq#randomly-quits)
+# 	If the app randomly disappears or quits, see [what to do](/apps/faq#randomly-quits).
 # 	'''
 pressQuotes: [
 	{
@@ -43,8 +46,6 @@ AirDrop files, folders, links, and text simply by dragging them onto the app’s
 You can also share files or text directly from your clipboard or use the built-in file picker, both with customizable keyboard shortcuts.
 
 Rich text content is converted to plain text. Rich-text files are sent as files.
-
-*Requires macOS 26 or later*
 
 ## Tips
 

@@ -1,9 +1,11 @@
-import {parts} from '/scripts/dom.js';
+import {partList, parts} from '/scripts/dom.js';
 import {searchKey, filterByWords} from '/scripts/edit-distance.js';
 
 class NPMPackageList extends HTMLElement {
 	#filter;
 	#status;
+	#npmSearch;
+	#npmSearchQuery;
 	#list;
 	#rows;
 	#shownRows;
@@ -16,10 +18,12 @@ class NPMPackageList extends HTMLElement {
 	}
 
 	connectedCallback() {
-		({filter: this.#filter, status: this.#status, list: this.#list, showMore: this.#showMore} = parts(this));
+		({filter: this.#filter, status: this.#status, npmSearch: this.#npmSearch, list: this.#list, showMore: this.#showMore} = parts(this));
+		// The maintainer of the search on npm, which `#update` adds the words of the filter to.
+		this.#npmSearchQuery = new URL(this.#npmSearch.href).searchParams.get('q');
 
 		// The text of a row is the name and the description of its package, not its downloads. The name key is the name without a scope, like “slugify” for `@sindresorhus/slugify`, as that is what a visitor types.
-		this.#rows = [...this.querySelectorAll('[data-part="row"]')].map(row => {
+		this.#rows = partList(this, 'row').map(row => {
 			const {text, link} = parts(row);
 			return {row, textKey: searchKey(text.textContent), nameKey: searchKey(link.textContent.replace(/^@[^/]+\//, ''))};
 		});
@@ -92,6 +96,7 @@ class NPMPackageList extends HTMLElement {
 		this.#list.append(...Array.from(orderedRows, ({row}) => row));
 
 		this.#status.textContent = isClosest ? 'No package matches. This is the package with the closest name.' : this.#statusText(searchKey(this.#filter.value) !== '', matches.length);
+		this.#updateNPMSearch(isClosest || matches.length === 0);
 		this.#showMore.hidden = matches.length <= this.#visibleCount;
 		// Each batch is as large as all the rows before it, so the next click shows as many rows as show now, or the rest.
 		this.#showMore.textContent = `Show ${Math.min(this.#visibleCount, matches.length - this.#visibleCount)} more`;
@@ -129,10 +134,21 @@ class NPMPackageList extends HTMLElement {
 		CSS.highlights.set('npm-filter-match', new Highlight(...ranges));
 	}
 
+	// When no package of the list matches, a link to a search of all my packages on npm with the words of the filter, as the list only has the packages with a repository.
+	#updateNPMSearch(isShown) {
+		this.#npmSearch.hidden = !isShown;
+
+		if (isShown) {
+			const url = new URL(this.#npmSearch.href);
+			url.searchParams.set('q', `${this.#npmSearchQuery} ${this.#filter.value.trim()}`);
+			this.#npmSearch.href = url.href;
+		}
+	}
+
 	// The number of matching packages while the filter has text, like “49 packages”, so screen readers hear that the filter worked. Nothing without a filter, where the list has all the packages.
 	#statusText(isFiltering, matchCount) {
 		if (matchCount === 0) {
-			return 'No package matches. Try another word.';
+			return 'No package of the list matches.';
 		}
 
 		if (!isFiltering) {

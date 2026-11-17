@@ -1,3 +1,4 @@
+// @ts-check
 class InlineNote extends HTMLElement {
 	// Whether the note was open when the pointer last went down on the link. The browser can close the note on the press, as the link is outside the note, so the click must not open it again.
 	#wasOpen = false;
@@ -9,19 +10,21 @@ class InlineNote extends HTMLElement {
 		this.#note.addEventListener('toggle', this.#updateExpanded);
 	}
 
+	// Swift renders the link as the only child.
 	get #link() {
-		return this.firstElementChild;
+		return /** @type {HTMLAnchorElement} */ (this.firstElementChild);
 	}
 
 	// The note is at the end of the document, as it can have paragraphs, so the link names it, like `popovertarget` of a button.
 	get #note() {
-		return document.getElementById(this.#link.hash.slice(1));
+		return /** @type {HTMLElement} */ (document.getElementById(this.#link.hash.slice(1)));
 	}
 
 	#rememberState = () => {
 		this.#wasOpen = this.#note.matches(':popover-open');
 	};
 
+	/** @param {MouseEvent} event */
 	#toggle = event => {
 		event.preventDefault();
 
@@ -35,8 +38,9 @@ class InlineNote extends HTMLElement {
 		this.#note.togglePopover({source: this.#link});
 	};
 
+	/** @param {ToggleEvent} event */
 	#updateExpanded = event => {
-		this.#link.ariaExpanded = event.newState === 'open';
+		this.#link.ariaExpanded = String(event.newState === 'open');
 	};
 }
 

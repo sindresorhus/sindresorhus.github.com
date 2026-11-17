@@ -26,6 +26,8 @@ struct BlogPostPage: Page {
 			article: post,
 			title: post.title,
 			description: post.description,
+			// The page shows only the month that the post was published, and an update is in the text of the post, like the “Update, October 2026” alerts. The sitemap has the last change of the file (``sitemapEntry``).
+			modifiedOn: post.publicationDate,
 			tags: post.tags,
 			// Search engines do not index an unlisted post, like it is not in the sitemap.
 			isIndexed: post.isListed
@@ -77,7 +79,14 @@ struct BlogPostPage: Page {
 							}
 						}
 					}
-					.vstack(spacing: .rootEm(2.5))
+					// The same space between the posts as on the blog page.
+					.style {
+						$0
+							.vstack(spacing: .rootEm(2.5))
+							.from(.tablet) {
+								$0.gap(.rootEm(4))
+							}
+					}
 				}
 				.style(Styles.morePosts)
 			}
@@ -88,10 +97,20 @@ struct BlogPostPage: Page {
 	}
 
 	/**
-	The two newest other posts, for readers who reach the end.
+	The two other posts with the most shared tags, newest first, for readers who reach the end.
 	*/
 	private var morePosts: [BlogPost] {
-		Array(content.listedPosts.filter { $0.slug != post.slug }.prefix(2))
+		let tags = Set(post.tags)
+
+		return content.listedPosts
+			.filter { $0.slug != post.slug }
+			.map { (post: $0, sharedTags: tags.intersection($0.tags).count) }
+			.sorted(using: [
+				KeyPathComparator(\.sharedTags, order: .reverse),
+				KeyPathComparator(\.post.frontmatter.publicationDate, order: .reverse)
+			])
+			.prefix(2)
+			.map(\.post)
 	}
 
 	private static let morePostsTitleID = ElementID("more-posts")
@@ -102,6 +121,7 @@ struct BlogPostPage: Page {
 			type: .blogPosting,
 			title: post.title,
 			description: post.description,
+			dateModified: post.publicationDate,
 			images: [socialImageURL],
 			keywords: post.tags.map(\.rawValue).nilIfEmpty
 		)
@@ -124,8 +144,14 @@ extension BlogPostPage {
 			case .root:
 				Style().pagePadding()
 			case .header:
-				// Lines up with the text of the post.
-				Style().contentColumn(.prose)
+				// Lines up with the text of the post. From small tablets, the description is one step larger than the text of the post, like the same description on the blog (``ArticleRow``), so it reads as the deck of the post, not as its first paragraph.
+				Style()
+					.contentColumn(.prose)
+					.nested(PageHeaderStyles.intro.selector) {
+						$0.from(.smallTablet) {
+							$0.font(.extraLarge)
+						}
+					}
 			case .meta:
 				// The same text as the other dates and numbers of the site, like on the blog index.
 				Style()
@@ -137,9 +163,15 @@ extension BlogPostPage {
 				Style()
 					.contentColumn(.prose)
 					.margin(.top, .rootEm(4))
-					.padding(.top, .rootEm(4))
-					.border(.top, .separator)
 					.opacity(0.8)
+					// The rule after the post is as wide as the text, inside the space of the page at the sides, with the same space above and below it.
+					.before {
+						$0
+							.content("")
+							.display(.block)
+							.border(.top, .separator)
+							.margin(.bottom, .rootEm(4))
+					}
 			case .morePostsHeader:
 				Style()
 					.hstack(alignment: .baseline, justification: .spaceBetween, spacing: .rootEm(1))
@@ -149,9 +181,8 @@ extension BlogPostPage {
 					.textStyle(.lead, weight: .semibold)
 					.color(.secondaryText)
 			case .allPosts:
-				// The arrow is only on the screen, so the name of the link is its text.
+				// The arrow is only on the screen, so the name of the link is its text. The size of the text, like “All Guides” at the end of a guide.
 				Style()
-					.textStyle(.caption)
 					.moreLink()
 					.trailingArrow()
 			case .rule:

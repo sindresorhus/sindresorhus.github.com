@@ -68,14 +68,15 @@ struct GeoCitiesPrintShop: ScriptedElement {
 			"Every school in Bergen had The Print Shop on the computers of the computer room, and every classroom had a banner from it. Make a card, a sign, letterhead, or a banner as long as the hallway, and print it on the dot matrix printer. The whole school can hear it."
 		}
 
+		// Made only when they render, as the parts of the lab are deep (``GeoCitiesPage/Deferred``).
 		div {
-			computer
+			GeoCitiesPage.Deferred(computer)
 
-			printer
+			GeoCitiesPage.Deferred(printer)
 
-			printout
+			GeoCitiesPage.Deferred(printout)
 
-			card
+			GeoCitiesPage.Deferred(card)
 		}
 		.style(Styles.lab, GeoCitiesPage.Styles.scriptingOnly)
 

@@ -20,7 +20,6 @@ extension ProseStyles {
 				.shadow(BoxShadow(y: .pixels(-1), color: keyEdgeColor, isInset: true))
 				.cornerRadius(.smallRadius)
 				.padding(vertical: .em(0.1), horizontal: .em(0.45))
-				.margin(.horizontal, .em(0.15))
 				// A key with a name of two words, like “Caps Lock”, goes to the next line as a whole, so the key cap is not cut in two.
 				.textWrap(.nowrap)
 		}
@@ -32,6 +31,8 @@ extension ProseStyles {
 		.inherits(.fontFamily)
 		.display(.inlineBlock)
 		.frame(maxWidth: .percent(100))
+		// The normal line breaking, not the `pretty` wrapping of the paragraph, which can break before a `+`, so a line starts with “+ ⌘ Command”.
+		.textWrapStyle(.auto)
 		// A key with its padding and border is not higher than the line, so a shortcut does not make its line taller, also in a table, which has tighter lines.
 		.children("kbd") {
 			$0
@@ -69,7 +70,7 @@ extension ProseStyles {
 					.content(String(modifier.glyph), alternativeText: "")
 					.margin(.trailing, .em(0.3))
 			}
-			// The padding and the margin are in `rem`, the size of the other keys, as `em` is zero here. The `table` in the selector makes it as specific as the style of the keys (``keyboardKeys``), so it wins over that style.
+			// The padding and the glyph are in `rem`, as `em` is zero here, with the size and the padding of the other keys in the 15 px text of a table (0.8 em), so all the keys of a shortcut have one height. The space at the sides is on the `+` (``keySeparatorStyle``), like for the other keys. The `table` in the selector makes it as specific as the style of the keys (``keyboardKeys``), so it wins over that style.
 			.inside("table td, table th") {
 				$0.below(.smallTablet) {
 					// An inline block, like the keys of a shortcut, as a key alone in a cell, like `++Option++`, is inline, and its line box would be 0 px high.
@@ -77,11 +78,10 @@ extension ProseStyles {
 						.display(.inlineBlock)
 						.lineHeight(1.2)
 						.font(size: .zero)
-						.padding(vertical: .rootEm(0.08), horizontal: .rootEm(0.4))
-						.margin(.horizontal, .rootEm(0.12))
+						.padding(vertical: .rootEm(0.075), horizontal: .rootEm(0.3375))
 						.before {
 							$0
-								.font(size: .rootEm(0.8))
+								.font(size: .rootEm(0.75))
 								.margin(.zero)
 						}
 				}
@@ -90,12 +90,16 @@ extension ProseStyles {
 
 	/**
 	The `+` between the keys of a shortcut. It can be selected, so a copied shortcut is “Command+C”, not “CommandC”. Screen readers skip it, as they read each key.
+
+	The space between the keys is on the `+`, not on the keys, so a key has no space at its outer sides, and a comma or a period after a key touches it, like it touches a word.
 	*/
 	static let keySeparatorStyle = Style()
 		.font(size: .em(0.6))
+		.margin(.horizontal, .em(0.2))
 		.fontWeight(.semibold)
 		.color(.secondaryText)
-		.verticalAlign(.middle)
+		// In the middle of the labels of the keys, which are capitals and glyphs, not in the middle of the lowercase letters of the text (`middle`).
+		.verticalAlign(.em(0.15))
 		// A shortcut that is wider than the column can wrap after a `+`, also when it is kept on one line with the punctuation after it, but not in a table.
 		.textWrap(.wrap)
 		.inside("td, th") {

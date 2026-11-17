@@ -50,7 +50,7 @@ pressQuotes: [
 		year: 2023
 	}
 ]
-feedbackNote: '[The app randomly disappears/quits](/today#randomly-quits)'
+feedbackNote: 'If the app randomly disappears or quits, see [what to do](/today#randomly-quits).'
 ---
 
 See today’s events in your menu bar, and nothing else. Click an event to show it in the Calendar app, or join an upcoming video call directly from the menu.

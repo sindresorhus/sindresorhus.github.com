@@ -2,7 +2,7 @@
 title: 'How to Make a Widget with One Photo on iPhone'
 description: 'Show one photo, or a few photos that you choose, in a Home Screen widget with Photo Widget, or show an album with the Album widget of the Photos app.'
 publicationDate: 2026-10-29
-topic: 'iphone'
+topic: 'lock-screen-and-home-screen'
 apps: [
 	'photo-widget'
 ]
@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Add the photo to [Photo Widget](../apps/photo-widget/index.md), add its “Photos” widget to the Home Screen, and choose the photo in the options of the widget. Without an app, make an album with only that photo, and show the album with the “Album” widget of the Photos app.
+	Add the photo to [Photo Widget](/photo-widget), add its “Photos” widget to the Home Screen, and choose the photo in the options of the widget. [Without an app](#without-an-app), make an album with only that photo, and show the album with the “Album” widget of the Photos app.
 }
 
 ## With Photo Widget
 
 @Steps {
-1. Open [Photo Widget](../apps/photo-widget/index.md), tap the Add Photos button (“+”), then tap “Photo Library” (or “Files”), and choose the photos. The app can have up to 100 photos.
+1. Open [Photo Widget](/photo-widget), tap the Add Photos button (“+”), then tap “Photo Library” (or “Files”), and choose the photos. The app can have up to 100 photos.
 1. Go to the Home Screen. Touch and hold the background until the apps begin to jiggle, tap “Edit”, then tap “Add Widget”.
 1. Find Photo Widget, tap it, swipe to the “Photos” widget in the size you want, and tap “Add Widget”. Tap “Done”.
 1. Touch and hold the widget, and tap “Edit Widget”.
@@ -29,6 +29,8 @@ screenshot: {
 With more than one photo, the widget changes the photo at the interval that you choose in “Refresh Interval”, like “1 hour”. “Same as App Setting” uses the “Refresh Interval” in the settings of the app, which is 1 hour at first. iOS can update a widget less often than the interval.
 
 “Crop” is on at first, so the photo fills the widget. Turn it off to show all of the photo, with the color of “Background Color” around it.
+
+On Mac, see [how to put a photo widget on the Mac desktop](guide:photo-widget-mac).
 
 @Tips {
 - Each widget has its own photos and options, so you can have one widget with one photo, and another widget with a slideshow.
@@ -43,7 +45,7 @@ With more than one photo, the widget changes the photo at the interval that you 
 The Photos app has two widgets: “Featured” shows Memories and Featured Photos that iOS chooses, and “Album” shows the photos of an album that you choose. To show one photo:
 
 @Steps {
-1. In the Photos app, tap “Collections”, tap “Albums”, tap the Add button, and tap “New Album”. Give the album a name, add only the photo, and tap “Create”.
+1. In the Photos app, tap “Collections”, tap “Albums”, tap the Add button, and tap “New Album”. Give the album a name, add only the photo, and tap “Create”. <source:https://support.apple.com/guide/iphone/iphc0fc668ab/ios>
 1. Add the “Album” widget of the Photos app to the Home Screen, like in the steps above.
 1. Touch and hold the widget, tap “Edit Widget”, tap the album (it is “Favorites” at first), and choose your new album below “My Albums”.
 }

@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Open Terminal, type `chmod +x ` with a space at the end, drag the file into the window, and press ++Return++. To do it from the right-click menu of Finder, use “Make Executable” from [Supercharge](../apps/supercharge/index.md).
+	Open Terminal, type `chmod +x ` with a space at the end, drag the file into the window, and press ++Return++. To do it from the right-click menu of Finder, use “Make Executable” from [Supercharge](/supercharge).
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), click “Tweaks”, and click “Configure…” next to “Context menu items”.
+1. Open the settings of [Supercharge](/supercharge), click “Tweaks”, and click “Configure…” next to “Context menu items”.
 1. In the “Main Menu” tab, turn on “Make Executable”.
 1. Right-click the file in Finder, and choose “Make Executable”.
 }

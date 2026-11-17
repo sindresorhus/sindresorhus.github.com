@@ -49,7 +49,125 @@ extension MarkdownDocument.Options {
 
 		// The Markdown arguments of the directives, like the summary of `@Details`, get the checks of the document when they render, like the names of keys, the links, and the platforms of badges (``MarkdownDocument/Options/BlockDirectiveRenderer/Context``).
 		options.blockDirectives = .site(sponsorTiers: sponsorTiers, today: today)
+		// The tags of guides are named with the titles of their guides.
+		options.linkTags = .site(project: project)
 		return options
+	}
+
+	/**
+	Shows the small icon of one of my apps before the first link to its page in the text, like “Second Clock” on the page of Dato, and before each link that starts a list item with a `:: ` line, so a reader sees that the text names an app of mine, and how it looks (``MarkdownDocument/Options/linkIcon``). A link to the product of an app on Gumroad, like `https://sindresorhus.gumroad.com/l/supercharge/BLACKFRIDAY` in a list of a sale, counts as a link to its page. A link to one of the excluded apps has none, like the app of an app page, which the page already shows. The icon is only in the HTML, so the Markdown copy and the link previews do not change.
+
+	Limitation: The text renders before the other apps are loaded, so a link to an archived or unlisted app gets the icon too, and a Gumroad product is the app with the same slug, as the IDs of the products are the slugs of their apps.
+
+	- Parameter iconCopies: The JPEG XL copies of the icons of the apps, by the path of the icon (``App/iconJPEGXLCopies(project:)``), which are made before the text renders.
+	- Parameter excludedApps: The paths of the apps whose links get no icon, like `/dato` on the page of Dato.
+	*/
+	mutating func addAppLinkIcons(
+		project: Project,
+		iconCopies: [RoutePath: JPEGXLCopy],
+		excluding excludedApps: Set<RoutePath> = []
+	) {
+		linkIcon = { destination in
+			let pagePath = URL(string: destination).flatMap(GumroadProductID.init(productURL:)).map { "/\($0)" } ?? String(destination.prefix { $0 != "#" && $0 != "?" })
+
+			guard
+				let path = try? RoutePath(validating: pagePath),
+				!excludedApps.contains(path)
+			else {
+				return nil
+			}
+
+			let iconPath = path.appending("icon.png")
+			let pageFile = App.directory.fileURL(in: project.root).appending(path: path.relativePath).pageBundleIndex
+
+			guard
+				pageFile.isFile,
+				RoutePath(contentFile: pageFile, project: project) == path,
+				project.existingPublicFile(iconPath) != nil
+			else {
+				return nil
+			}
+
+			// About as large as the capital letters, on the baseline, so the line keeps its height. It is in the link, so it opens the page too, and it is an inline block, so the underline is only below the name. The space before it is larger than a space between words, so the icon does not touch the word before the link.
+			return AppIcon(decorative: iconPath, jpegXL: iconCopies[iconPath], size: 32)
+				.style {
+					$0.linkIconPlacement()
+				}
+				.renderFragment()
+		}
+	}
+
+	/**
+	Shows the small icon of each app before the heading of its section, which is “With” and the title of the app, like “With Dato” in a guide (``MarkdownDocument/Options/headingIcon``), so the sections of the apps look different from the built-in way at a glance, and a guide with several apps shows which app each section uses. The titles are read from the files of the apps, as the text renders before the apps are loaded, like the titles of the guide tags (``Guide/task(slug:project:)``).
+
+	- Parameter iconCopies: The JPEG XL copies of the icons of the apps, by the path of the icon (``App/iconJPEGXLCopies(project:)``).
+	- Parameter apps: The slugs of the apps, like the `apps` of a guide.
+	*/
+	mutating func addAppHeadingIcons(
+		project: Project,
+		iconCopies: [RoutePath: JPEGXLCopy],
+		apps: [ContentSlug]
+	) {
+		let iconPathsByHeading = Dictionary(
+			apps.compactMap { slug -> (String, RoutePath)? in
+				guard
+					let file = App.sourceFile(for: slug, in: project),
+					let title = (try? MarkdownFile(url: file).decodeFrontmatter(as: App.Frontmatter.self))?.title
+				else {
+					return nil
+				}
+
+				let iconPath = App.path(slug: slug).appending("icon.png")
+				return ("With \(title)", project.existingPublicFile(iconPath) == nil ? App.placeholderIconPath : iconPath)
+			}
+		) { first, _ in first }
+
+		headingIcon = { text in
+			// About as large as the capital letters of the heading, on the baseline, like the icon of an app link, with the space of a word after it.
+			iconPathsByHeading[text].map { iconPath in
+				AppIcon(decorative: iconPath, jpegXL: iconCopies[iconPath], size: 32)
+					.style {
+						$0
+							.frame(size: .em(1.1))
+							.verticalAlign(.em(-0.18))
+							.margin(.trailing, .em(0.35))
+					}
+					.renderFragment()
+			}
+		}
+	}
+
+	/**
+	Shows the small icon of a shared shortcut before the first link to it in a sentence, like the icon of an app before a link to its page (``addAppLinkIcons(project:iconCopies:excluding:)``), so a reader sees that the link adds a ready-made shortcut. A link that is a card already shows the icon (``ShortcutCard``), and a link to a shortcut that did not load has none. Call it after ``addAppLinkIcons(project:iconCopies:excluding:)``, as it keeps the icons of the app links.
+	*/
+	mutating func addShortcutLinkIcons(_ shortcuts: [Shortcut.ID: Shortcut]) {
+		let appLinkIcon = linkIcon
+
+		linkIcon = { destination in
+			guard let shortcut = Shortcut.ID(link: destination).flatMap({ shortcuts[$0] }) else {
+				return appLinkIcon?(destination)
+			}
+
+			// Inline, like the icon of an app link, and with the corners of an icon of the Shortcuts app, like on the card, as the icon from iCloud is a square.
+			return JPEGXLPicture(copy: shortcut.iconJPEGXL) {
+				img(
+					.src(shortcut.iconPath),
+					.alt(""),
+					.width(32),
+					.height(32),
+					.lazyLoading,
+					.asyncDecoding
+				)
+				.style {
+					$0
+						.plainImage()
+						.display(.inlineBlock)
+						.linkIconPlacement()
+						.cornerRadius(.percent(22.5))
+				}
+			}
+			.renderFragment()
+		}
 	}
 
 	/**
@@ -74,16 +192,21 @@ extension MarkdownDocument.Options {
 	}
 
 	/**
-	What content files and the samples of the gallery have: the site's classes, platform badges, the block directives, inline notes as `InlineNote`, and code blocks as `CodeBlock`, with a copy button and Swift and SOML highlighting.
+	What content files and the samples of the gallery have: the site's classes, platform badges, the block directives, “Guide” and “Details” tags (`<guide:slug>` and `<section:id>`), inline notes as `InlineNote`, code blocks as `CodeBlock`, with a copy button and Swift and SOML highlighting, and the headings that `@Chips` links to as groups with a title that stays at the top of the screen.
 	*/
-	private static let contentFeatures = Self(
-		theme: .site,
-		inlineAttributes: .init(render: renderPlatformBadge),
-		// The content directives also have examples in the gallery.
-		blockDirectives: .site(),
-		codeBlock: CodeBlock.render,
-		inlineNote: InlineNote.render
-	)
+	private static let contentFeatures: Self = {
+		var options = Self(
+			theme: .site,
+			inlineAttributes: .init(render: renderPlatformBadge),
+			// The content directives also have examples in the gallery.
+			blockDirectives: .site(),
+			linkTags: .site(project: nil),
+			codeBlock: CodeBlock.render,
+			inlineNote: InlineNote.render
+		)
+		options.groupedHeadingIDs = ChipsArguments.linkedHeadingIDs
+		return options
+	}()
 
 	/**
 	The questions below the “Frequently Asked Questions” heading of an app page are collapsible, below links to ask an assistant about the page (``AssistantLinks``), and followed by a link to the general FAQ and, unless the app is archived, a link to send a message. A platform badge must be for a platform of the app. Each section has a link that copies its URL. The common questions that apply to the app (``CommonQuestion``), the shared questions that it picks, and, unless the app is archived, the feedback question are added to the questions, and the older versions get their section (``App/Frontmatter/addingGeneratedSections(to:sharedQuestions:renderDownloadCard:)``). A link that is alone in its paragraph or list item to one of the shortcuts is a card (``ShortcutCard``).
@@ -93,18 +216,22 @@ extension MarkdownDocument.Options {
 		project: Project,
 		frontmatter: App.Frontmatter,
 		sharedQuestions: App.SharedQuestions,
-		shortcuts: [Shortcut.ID: Shortcut]
+		shortcuts: [Shortcut.ID: Shortcut],
+		appIconCopies: [RoutePath: JPEGXLCopy]
 	) -> Self {
 		// Download cards come from typed metadata, rather than content directives.
 		var options = content(file, project: project)
+		// The page already shows the icon of its own app.
+		options.addAppLinkIcons(project: project, iconCopies: appIconCopies, excluding: [App.path(slug: file.slug)])
+		options.addShortcutLinkIcons(shortcuts)
 
 		// A badge for a platform that the app is not on would say that a part works on a platform where the app is not. The arguments of the directives get the check too.
-		options.inlineAttributes = .init { (attributes: PlatformBadgeAttributes, contentHTML: String) throws(ContentError) in
+		options.inlineAttributes = .init { (attributes: PlatformBadgeAttributes, content: HTMLFragment) throws(ContentError) in
 			guard frontmatter.platforms.contains(attributes.platform) else {
 				throw ContentError(reason: "The platform badge is for \(attributes.platform.rawValue), but the app is not on it. Add it to `platforms`, or remove the badge.")
 			}
 
-			return renderPlatformBadge(attributes: attributes, contentHTML: contentHTML)
+			return renderPlatformBadge(attributes: attributes, content: content)
 		}
 
 		// The feedback page suggests the questions of the FAQ section. The picked shared questions have their own directives too.
@@ -112,27 +239,15 @@ extension MarkdownDocument.Options {
 		// The end of the questions is where a visitor who did not find the answer gives up, so it says that a message is welcome. An archived app gets no support.
 		// A note about the FAQ, like the line about the assistants below its heading (``AssistantLinks``), so it has the same look, and does not read as the start of the next section.
 		let feedbackURL = App.feedbackURL(appTitle: frontmatter.title, referrer: .faq)
-		let footer: @Sendable () -> String = {
-			p {
-				"Did not find the answer? "
-
-				a(.href(feedbackURL)) {
-					"Send me a message"
-				}
-
-				". I read and reply to all messages."
-			}
-			.style {
-				$0.secondaryText()
-			}
-			.render()
+		let footer: @Sendable () -> HTMLFragment = {
+			UnansweredQuestionNote(feedback: feedbackURL).renderFragment()
 		}
 
 		options.collapsibleSections = MarkdownDocument.CollapsibleSections(
 			level: .h3,
 			startHeadingID: App.Section.faq.id,
 			moreLink: .init(title: "More FAQs", destination: .path(.faq)),
-			footerHTML: frontmatter.isArchived ? nil : footer
+			footer: frontmatter.isArchived ? nil : footer
 		)
 		options.addsHeadingAnchors = true
 
@@ -140,10 +255,25 @@ extension MarkdownDocument.Options {
 		let assistantLinks = frontmatter.isUnlisted ? nil : AssistantLinks(appTitle: frontmatter.title, markdownCopyURL: App.path(slug: file.slug).markdownCopy.absoluteURL)
 
 		options.rewrite = { document in
-			frontmatter.addingGeneratedSections(
+			var faqIntroduction = assistantLinks.map { [HTMLBlock($0.render())] } ?? []
+
+			// A long FAQ, like the 87 questions of Dato, gets a button that opens the search of the site with the name of the app, so a visitor finds an answer without reading the titles of all the questions.
+			if Array(document.blockChildren).faqQuestionCount >= 20 {
+				let searchButton = SiteSearch.OpenButton(query: "\(frontmatter.title) ") {
+					Icon.search.size(.rootEm(1))
+					"Search Questions"
+				}
+				.style {
+					$0.chip(hasIcon: true)
+				}
+
+				faqIntroduction.insert(HTMLBlock(searchButton.render()), at: 0)
+			}
+
+			return frontmatter.addingGeneratedSections(
 				to: document.showingShortcutCards(shortcuts),
 				sharedQuestions: sharedQuestions,
-				faqIntroduction: assistantLinks.map { [HTMLBlock($0.render())] } ?? []
+				faqIntroduction: faqIntroduction
 			) { card in
 				[HTMLBlock(card.render())]
 			}
@@ -176,6 +306,8 @@ enum BlockDirectiveName: String, CaseIterable {
 	case tips = "Tips"
 	case cards = "Cards"
 	case columns = "Columns"
+	case chips = "Chips"
+	case photos = "Photos"
 	case steps = "Steps"
 	case changelog = "Changelog"
 	case socialLinks = "SocialLinks"
@@ -206,9 +338,13 @@ enum BlockDirectiveName: String, CaseIterable {
 				(arguments.title.map { [Paragraph(Strong(Markdown.Text($0)))] } ?? []) + content
 			}
 		case .cards:
-			.init(content: .unorderedList, render: renderCards)
+			.init(content: .unorderedList, rewriteContent: markingLinkCards, render: renderCards)
 		case .columns:
 			.init(content: .unorderedList, render: renderColumns)
+		case .chips:
+			.init(content: .unorderedList, rewriteContent: ChipsArguments.checkingLinks, render: ChipsArguments.render)
+		case .photos:
+			.init(content: .unorderedList, render: renderPhotos)
 		case .steps:
 			.init(content: .orderedList, render: renderSteps)
 		case .changelog:
@@ -219,23 +355,23 @@ enum BlockDirectiveName: String, CaseIterable {
 			}
 		case .sponsors:
 			sponsorTiers.isEmpty ? nil : .init(content: .empty) { _ in
-				SponsorList(tiers: sponsorTiers).render()
+				SponsorList(tiers: sponsorTiers).renderFragment()
 			}
 		case .scheduled:
 			today.map { today in
-				.init { (arguments: ScheduledArguments, contentHTML: String) -> String in
+				.init { (arguments: ScheduledArguments, content: HTMLFragment) -> HTMLFragment in
 					if arguments.contains(today) {
-						return contentHTML
+						return content
 					}
 
 					guard
 						let sale = arguments.sale,
 						let announcement = arguments.saleAnnouncement(on: today)
 					else {
-						return ""
+						return .empty
 					}
 
-					return MarkdownTheme.site.alert(.tip, title: sale, contentHTML: p { announcement }.render())
+					return MarkdownTheme.site.alert(.tip, title: sale, content: p { announcement }.renderFragment())
 				}
 			}
 		}
@@ -272,6 +408,23 @@ extension BlockDirective {
 	The renderers for ``plainBlocks``, which do not depend on the page.
 	*/
 	private static let siteRenderers = [String: MarkdownDocument.Options.BlockDirectiveRenderer].site()
+}
+
+extension PlainMarkdownRewriter {
+	/**
+	A rewriter with the tags of links of the site (``Swift/Dictionary/site(project:)``), so no text for readers outside the site has a tag as raw text, like `<guide:find-screenshots-mac>`.
+
+	- Parameter project: Names a “Guide” tag with the task of its guide, like `[Guide: Find Screenshots on Mac](guide:find-screenshots-mac)`. Without it, like in the link previews, the tag is only its text.
+	- Parameter linkDestination: Resolves the destinations of links and images, like to absolute URLs.
+	- Parameter blockDirective: The blocks of a block directive, by default what the page shows from it (``Markdown/BlockDirective/plainBlocks``).
+	*/
+	static func site(
+		project: Project?,
+		linkDestination: ((String) -> String)? = nil,
+		blockDirective: @escaping (BlockDirective) -> [any BlockMarkup] = { $0.plainBlocks }
+	) -> Self {
+		Self(linkDestination: linkDestination, linkTags: .site(project: project), blockDirective: blockDirective)
+	}
 }
 
 /**
@@ -316,13 +469,13 @@ private struct PlatformBadgeAttributes {
 A platform badge, like `^[macOS only](platform: "macOS")`.
 */
 @Sendable
-private func renderPlatformBadge(attributes: PlatformBadgeAttributes, contentHTML: String) -> String {
+private func renderPlatformBadge(attributes: PlatformBadgeAttributes, content: HTMLFragment) -> HTMLFragment {
 	span {
-		HTMLRaw(contentHTML)
+		content
 	}
 	.style(Badge.Styles.root, Badge.Kind.platform)
 	.attributes(.data("platform", value: attributes.platform.rawValue))
-	.render()
+	.renderFragment()
 }
 
 /**
@@ -345,9 +498,9 @@ extension DetailsArguments: BlockDirectiveDefinition {
 
 	static func render(
 		arguments: DetailsArguments,
-		contentHTML: String,
+		content: HTMLFragment,
 		context: MarkdownDocument.Options.BlockDirectiveRenderer.Context
-	) throws(ContentError) -> String {
+	) throws(ContentError) -> HTMLFragment {
 		let summary = try context.inlineDocument(parsing: arguments.summary)
 
 		// A click on the summary opens the section, so a link in it could not be followed.
@@ -355,7 +508,7 @@ extension DetailsArguments: BlockDirectiveDefinition {
 			throw ContentError(reason: "The `summary` cannot have links, as a click on it opens the section. Put the link in the section.")
 		}
 
-		return MarkdownTheme.site.collapsibleSection(titleHTML: summary.inlineHTML, contentHTML: contentHTML)
+		return MarkdownTheme.site.collapsibleSection(title: summary.inlineHTML, content: content)
 	}
 
 	static func plainBlocks(arguments: Self, content: [any BlockMarkup]) -> [any BlockMarkup] {
@@ -388,10 +541,10 @@ extension FeatureArguments: BlockDirectiveDefinition {
 
 	static func render(
 		arguments: FeatureArguments,
-		contentHTML: String,
+		content: HTMLFragment,
 		context: MarkdownDocument.Options.BlockDirectiveRenderer.Context
-	) throws(ContentError) -> String {
-		let titleHTML = try context.inlineDocument(parsing: arguments.title).inlineHTML
+	) throws(ContentError) -> HTMLFragment {
+		let title = try context.inlineDocument(parsing: arguments.title).inlineHTML
 
 		return section {
 			// The label is text, not generated content, so find in the page finds it, and screen readers say it before the title.
@@ -403,15 +556,15 @@ extension FeatureArguments: BlockDirectiveDefinition {
 			}
 
 			h2 {
-				HTMLRaw(titleHTML)
+				title
 			}
 			.style(FeatureSectionStyles.title, when: arguments.label == nil)
 			.style(FeatureSectionStyles.labeledTitle, when: arguments.label != nil)
 
-			HTMLRaw(contentHTML)
+			content
 		}
 		.style(FeatureSectionStyles.root)
-		.render()
+		.renderFragment()
 	}
 
 	static func plainBlocks(arguments: Self, content: [any BlockMarkup]) -> [any BlockMarkup] {
@@ -437,10 +590,10 @@ private enum FeatureSectionStyles: String, StyleSet {
 	var style: Style {
 		switch self {
 		case .root:
-			// The margin separates the last section from the content after it. Between sections, it collapses into the larger top margin of the next title.
+			// The margin separates the last section from the content after it, with the space between two sections (the space above a title of prose), so the content after it does not look like a part of the last section. Between sections, it collapses into the same top margin of the next title.
 			Style()
 				.counterIncrement(Counters.feature)
-				.margin(.bottom, .rootEm(4))
+				.margin(.bottom, .length(.partSpacing(rootEm: 5)))
 		case .title:
 			// The number is in the accent of the page, like the color of the icon on an app page. Screen readers skip it, as the title says what the section is, and “zero one” before it is noise.
 			Style()
@@ -454,11 +607,13 @@ private enum FeatureSectionStyles: String, StyleSet {
 		case .label:
 			// The number and the label are one line with the look of the number alone, and the space above a title of prose, as the line is the start of the section. The number is before the label, and screen readers skip it, like the number of a title without a label.
 			Style()
-				.margin(top: .rootEm(5), horizontal: .zero, bottom: .rootEm(0.75))
+				.margin(top: .length(.partSpacing(rootEm: 5)), horizontal: .zero, bottom: .rootEm(0.75))
 				.featureNumber()
 				// The label is text, so it has the accent for text, which has the contrast of text, also for a light accent in light mode or a dark accent in dark mode. The number alone is a mark (``Color/accentMark``).
 				.color(.accentText)
 				.textCase(.uppercase)
+				// Capitals need more space between the letters than the digits of the number alone.
+				.letterSpacing(.em(0.06))
 				.before {
 					$0.content(counter: Counters.feature, style: .decimalLeadingZero, suffix: " · ", alternativeText: "")
 				}
@@ -475,7 +630,7 @@ extension Style {
 	*/
 	fileprivate func featureNumber() -> Self {
 		fontFamily(.rounded)
-			.font(size: .rootEm(0.9375), lineHeight: 1.5)
+			.font(.callout)
 			.fontWeight(.bold)
 			.letterSpacing(.em(0.02))
 			.monospacedDigit()
@@ -487,17 +642,17 @@ extension Style {
 The short answer at the top of a guide, like `@QuickAnswer { Hold Fn and click the link. }`, in a box with a “Quick Answer” label, for readers who only want the answer.
 */
 @Sendable
-private func renderQuickAnswer(contentHTML: String) -> String {
+private func renderQuickAnswer(content: HTMLFragment) -> HTMLFragment {
 	aside {
 		p {
 			"Quick Answer"
 		}
 		.style(QuickAnswerStyles.label)
 
-		HTMLRaw(contentHTML)
+		content
 	}
 	.style(QuickAnswerStyles.root)
-	.render()
+	.renderFragment()
 }
 
 /**
@@ -510,9 +665,11 @@ private enum QuickAnswerStyles: String, StyleSet {
 	var style: Style {
 		switch self {
 		case .root:
+			// Below tablets, as wide as the screen, like the box to get the app below it, so its text starts where the paragraphs start. It has no corners there, and only the edges at its top and bottom.
 			Style()
 				.proseCard()
 				.color(.primaryText)
+				.screenWideBelowTablet()
 		case .label:
 			// A block as wide as its text, not an inline block, so its margin and the margin of the answer below it collapse into one space, a little less than the padding of the box, so the label stays with the answer.
 			Style()
@@ -520,11 +677,11 @@ private enum QuickAnswerStyles: String, StyleSet {
 				.margin(.bottom, .rootEm(1))
 				.padding(vertical: .rootEm(0.125), horizontal: .rootEm(0.625))
 				.cornerRadius(.capsule)
-				.font(size: .rootEm(0.8125), lineHeight: 1.5)
-				.fontWeight(.semibold)
-				// Not the color of links, as it is not a link, but the darker one of links with more contrast, so the small text has enough contrast on the tint in light mode.
-				.color(.lightDark(.primary(700), .primary(400)))
-				.background(.primary(500).opacity(0.1))
+				// The size and weight of the other short labels above content (``Style/eyebrow()``).
+				.textStyle(.caption, weight: .semibold)
+				// Not the color of links, as it is not a link, but the accent for text, so the small text has the contrast of text on the tint of the accent, also on a guide in the color of its app.
+				.color(.accentText)
+				.background(Color.pageAccent.opacity(0.1))
 		}
 	}
 }
@@ -538,6 +695,11 @@ struct AppDownloadCard: HTML {
 	let url: AbsoluteURL
 	var requirement: String?
 	var setappURL: URL?
+
+	/**
+	How to install a zip file of an app, which the card shows below a zip download, the “Older Versions” section of an app page below its list, and the top of the page of older versions. It names the zip file and the app, so it reads well without a sentence about an app before it. The folder is its name in Finder, not its path.
+	*/
+	static let installSentence = "Download the zip file to the Downloads folder, double-click it to unzip, and then move the app to the “Applications” folder."
 
 	var body: some HTML<HTMLTag.div> {
 		// Not an aside, as the download is part of the page about the app.
@@ -565,11 +727,8 @@ struct AppDownloadCard: HTML {
 				div {
 					if isZip {
 						p {
-							"Download it to the Downloads folder, double-click to unzip, and then move it to the "
-							code(.notTranslated) {
-								"/Applications"
-							}
-							" folder."
+							// “double-click” stays on one line, like in prose (``SiteKit/MarkdownTheme/textHTML(_:)``).
+							MarkdownTheme.site.headingTextHTML(Self.installSentence)
 						}
 					}
 
@@ -613,12 +772,21 @@ extension AppDownloadCard {
 		var style: Style {
 			switch self {
 			case .root:
+				// The stack has the space between the blocks, so the margins of the paragraphs of prose are reset.
+				// Directly in prose below tablets, as wide as the screen, like the Quick Answer of a guide, so its text starts where the paragraphs start. Not in another place, like the trial dialog of the app page.
 				Style()
 					.vstack(alignment: .start, spacing: .rootEm(1.25))
 					.proseCard()
-					.backgroundImage(Self.light(strength: 0.1), dark: Self.light(strength: 0.16))
+					.directlyInside(ProseStyles.root.selector) {
+						$0.screenWideBelowTablet()
+					}
+					// In dark mode, a dark accent gets the lightness of the selection (``Color/darkModeHighlightAccent``), so its light shows on the dark card.
+					.backgroundImage(Self.light(Color.pageAccent.opacity(0.1)), dark: Self.light(Color.darkModeHighlightAccent.opacity(0.16)))
 					.directlyAfter(":target") {
 						$0.targetHighlight()
+					}
+					.children("p") {
+						$0.margin(.zero)
 					}
 			case .actions:
 				Style()
@@ -642,10 +810,10 @@ extension AppDownloadCard {
 		}
 
 		/**
-		The light of the accent in the top leading corner, like the light of an interactive card under the pointer.
+		The light of a tint of the accent in the top leading corner, like the light of an interactive card under the pointer.
 		*/
-		private static func light(strength: Double) -> CSSImage {
-			.radialGradient(.circle(at: .init(x: .percent(0), y: .percent(0))), Color.pageAccent.opacity(strength).at(.percent(0)), Color.transparent.at(.percent(60)))
+		private static func light(_ color: Color) -> CSSImage {
+			.radialGradient(.circle(at: .init(x: .percent(0), y: .percent(0))), color.at(.percent(0)), Color.transparent.at(.percent(60)))
 		}
 	}
 }
@@ -682,7 +850,7 @@ extension TinyAppArguments: BlockDirectiveDefinition {
 	typealias Arguments = Self
 	static let name = BlockDirectiveName.tinyApp.rawValue
 
-	static func render(arguments: Self, contentHTML: String, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) -> String {
+	static func render(arguments: Self, content: HTMLFragment, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) -> HTMLFragment {
 		section {
 			// The icons load at once, as the first one is in the first screen, and a directive does not know whether it is the first. The tiny apps page has only a few.
 			AppIcon(decorative: arguments.icon ?? App.placeholderIconPath, size: 128, isAboveFold: true)
@@ -694,7 +862,7 @@ extension TinyAppArguments: BlockDirectiveDefinition {
 			.style(TinyAppStyles.title)
 
 			div {
-				HTMLRaw(contentHTML)
+				content
 
 				// The name of the app is in the links for screen readers, as a page has several cards, and a list of the links would have the same names.
 				div {
@@ -714,7 +882,7 @@ extension TinyAppArguments: BlockDirectiveDefinition {
 
 					if let macOS = arguments.macOS {
 						span {
-							macOS.macOSRequirementSentence
+							OSRequirement.macOS(macOS).sentence
 						}
 						.style(TinyAppStyles.requirement)
 					}
@@ -724,7 +892,7 @@ extension TinyAppArguments: BlockDirectiveDefinition {
 			.style(TinyAppStyles.text)
 		}
 		.style(TinyAppStyles.root)
-		.render()
+		.renderFragment()
 	}
 
 	/**
@@ -737,7 +905,7 @@ extension TinyAppArguments: BlockDirectiveDefinition {
 		]
 		.compactMap(\.self)
 
-		let requirement: [any BlockMarkup] = arguments.macOS.map { [Paragraph(Emphasis(Markdown.Text($0.macOSRequirementSentence)))] } ?? []
+		let requirement: [any BlockMarkup] = arguments.macOS.map { [Paragraph(Emphasis(Markdown.Text(OSRequirement.macOS($0).sentence)))] } ?? []
 		return [Markdown.Heading(level: .h2, Markdown.Text(arguments.title))] + content + [UnorderedList(links.map { ListItem(Paragraph($0)) })] + requirement
 	}
 }
@@ -775,7 +943,6 @@ enum TinyAppStyles: String, StyleSet {
 			// The icon is smaller on phones, where it is about as high as the title. In pixels, so it does not grow with larger text, which needs the room more than the icon.
 			Style()
 				.frame(size: .pixels(56))
-				.filter(AppCard.iconShadow)
 				.from(.smallTablet) {
 					$0
 						.frame(size: .pixels(72))
@@ -822,21 +989,36 @@ struct TipsArguments {
 A box of tips, like `@Tips { - Tip }`, with the look of a tip alert.
 */
 @Sendable
-private func renderTips(arguments: TipsArguments, contentHTML: String) -> String {
-	MarkdownTheme.site.alert(.tip, title: arguments.title ?? "Tips", contentHTML: contentHTML)
+private func renderTips(arguments: TipsArguments, content: HTMLFragment) -> HTMLFragment {
+	MarkdownTheme.site.alert(.tip, title: arguments.title ?? "Tips", content: content)
 }
 
-/**
-The list of a directive, like the steps of `@Steps`, with `role="list"`, so VoiceOver in Safari still says that it is a list and how many items it has, as the styles remove its bullets. The content is the one list that the renderer checked, so the first list tag is its own.
-*/
-private func addingListRole(to contentHTML: String) -> String {
-	contentHTML.replacing(listStartTag, maxReplacements: 1) { match in
-		"<\(match.1) role=\"list\""
+extension HTMLFragment {
+	/**
+	The list of a directive, like the steps of `@Steps`, with `role="list"`, so VoiceOver in Safari still says that it is a list and how many items it has, as the styles remove its bullets. The content is the one list that the renderer checked, so the first list tag is its own.
+	*/
+	func addingListRole() -> Self {
+		let html = rawValue.replacing(listStartTag, maxReplacements: 1) { match in
+			"<\(match.1) role=\"list\""
+		}
+
+		return Self(rawValue: html)
+	}
+
+	/**
+	The list of a directive, like the steps of `@Steps`, with its list role (``addingListRole()``) in a box with the style of the directive.
+	*/
+	fileprivate func listDirective(style: some StyleSet) -> Self {
+		div {
+			addingListRole()
+		}
+		.style(style)
+		.renderFragment()
 	}
 }
 
 /**
-The start of the tag of a list, like `<ol` of `<ol start="2">`, for ``addingListRole(to:)``. Not a literal in the function, as Swift parses a regex literal each time the code runs, and it runs for each directive.
+The start of the tag of a list, like `<ol` of `<ol start="2">`, for ``HTMLFragment/addingListRole()``. Not a literal in the function, as Swift parses a regex literal each time the code runs, and it runs for each directive.
 */
 nonisolated(unsafe) private let listStartTag = /<(ol|ul)\b/
 
@@ -844,24 +1026,121 @@ nonisolated(unsafe) private let listStartTag = /<(ol|ul)\b/
 A list as cards, like `@Cards { - Focus is a feature }`, so a list of short points is easy to scan. The text of each item is the title of its card, and a nested list is smaller text below it. From tablets, the cards flow through two columns, so cards of different heights fit together.
 */
 @Sendable
-private func renderCards(contentHTML: String) -> String {
-	div {
-		HTMLRaw(addingListRole(to: contentHTML))
+private func renderCards(content: HTMLFragment) -> HTMLFragment {
+	content.listDirective(style: CardListStyles.root)
+}
+
+/**
+Marks the title of each card of `@Cards` that is only a link, like `- [Random color](https://www.color.pizza)`, also with tags after it, like `<guide:bing-wallpaper-mac>`, so the whole card is the link (``LinkCard``).
+
+- Parameter content: One bulleted list, the cards, which the renderer checked (`.unorderedList`).
+*/
+@Sendable
+private func markingLinkCards(in content: [any BlockMarkup]) -> [any BlockMarkup] {
+	content.map { (block: any BlockMarkup) -> any BlockMarkup in
+		guard var cards = block as? UnorderedList else {
+			return block
+		}
+
+		cards.setListItems(cards.listItems.map(LinkCard.markingTitle(of:)))
+		return cards
 	}
-	.style(CardListStyles.root)
-	.render()
+}
+
+/**
+A card that is a link as a whole, while the link is only its title, like a card of `@Cards` that is only a link, “Random color” of the use cases of Plash. The link of the title covers the card (``Style/cardCoveringLink()``), and the card lights up under the pointer and with the focus of the keyboard, like other cards that are links (``Style/cardSurface(isInteractive:)``). An arrow after the title says where the link goes: “↗” to another site, and “→” to a page of the site. Other links in the card, like a “Guide” tag, stay above the covering link, so they keep working.
+
+Give the title the ``title`` class, and the card the look of ``card``.
+*/
+enum LinkCard: String, StyleSet {
+	case title
+
+	/**
+	The look of the card around a ``title``: the positioned parent of the covering link, with the light of an interactive card. Its other links are above the covering link.
+	*/
+	static let card = Style()
+		.position(.relative)
+		.cardSurface()
+		.children("a") {
+			$0.position(.relative)
+		}
+
+	var style: Style {
+		switch self {
+		case .title:
+			// The arrow is after the link, so the underline of a link does not go under it, and screen readers skip it.
+			Style()
+				// The weight of the title of the card, like a link in a title of a card that is not a link card.
+				.children("a") {
+					$0
+						.cardCoveringLink()
+						.inherits(.fontWeight)
+				}
+				.after {
+					$0
+						.content(" →", alternativeText: "")
+						.fontFamily(.system)
+						.fontWeight(.regular)
+						.color(.secondaryText)
+				}
+				.hasChild("a[href^='https:']") {
+					$0.after {
+						$0.content(" ↗", alternativeText: "")
+					}
+				}
+		}
+	}
+
+	/**
+	The card with its link in a span of ``title`` when it is only a link, also with tags after it, like “Guide”, and has nothing below it, or the card as it is.
+	*/
+	static func markingTitle(of card: ListItem) -> ListItem {
+		guard
+			card.childCount == 1,
+			var paragraph = card.child(at: 0) as? Paragraph,
+			let link = paragraph.child(at: 0) as? Markdown.Link,
+			paragraph.inlineChildren.dropFirst().allSatisfy({ $0.isSpaceOrTag })
+		else {
+			return card
+		}
+
+		let title: [any InlineMarkup] = [
+			// Collected, as the page does not collect a class in the text of HTML.
+			InlineHTML(#"<span class="\#(Self.title.collectedClassName)">"#),
+			link,
+			InlineHTML("</span>"),
+		]
+
+		paragraph.setInlineChildren(title + paragraph.inlineChildren.dropFirst())
+		var card = card
+		card.replaceChildrenInRange(0..<1, with: [paragraph] as [any BlockMarkup])
+		return card
+	}
+}
+
+extension InlineMarkup {
+	/**
+	Whether the markup is only whitespace, or a link whose text is its destination, like a tag (`<guide:slug>`).
+	*/
+	fileprivate var isSpaceOrTag: Bool {
+		if let text = self as? Markdown.Text {
+			return text.string.allSatisfy(\.isWhitespace)
+		}
+
+		guard let link = self as? Markdown.Link else {
+			return false
+		}
+
+		return link.plainText == link.destination
+	}
 }
 
 /**
 A list of short items in columns, like `@Columns { - Zoom }`, so a long list of names, like the services that an app supports, does not make a narrow column several screens tall. It is opt-in, as a list of sentences reads better in one column.
 */
 @Sendable
-private func renderColumns(contentHTML: String) -> String {
-	div {
-		HTMLRaw(addingListRole(to: contentHTML))
-	}
-	.style(ColumnListStyles.root)
-	.render()
+private func renderColumns(content: HTMLFragment) -> HTMLFragment {
+	content.listDirective(style: ColumnListStyles.root)
 }
 
 /**
@@ -878,13 +1157,63 @@ private enum ColumnListStyles: String, StyleSet {
 				$0
 					.margin(.zero)
 					.columns(4, minimumWidth: .rootEm(8))
-					.gap(column: .rootEm(1.25))
+					// The bullet of a column hangs in the gap, so the gap is the space of the bullet and 1.5 rem.
+					.gap(column: .rootEm(2.25))
 					.children("li") {
 						$0
 							.keepsTogether()
 							.margin(top: .zero, horizontal: .zero, bottom: .rootEm(0.5))
 							// A wrapped name has its lines closer than the items, so it reads as one item.
 							.lineHeight(1.35)
+					}
+			}
+	}
+}
+
+/**
+A row of three small photos with captions, like `@Photos { - [![Me at the family computer](family-computer.jpg)](family-computer.jpg) }` with a nested item as the caption, so a few old photos are visible in the text, not only links. Each photo links to the full image.
+*/
+@Sendable
+private func renderPhotos(content: HTMLFragment) -> HTMLFragment {
+	content.listDirective(style: PhotoListStyles.root)
+}
+
+/**
+The styles of `@Photos` lists.
+*/
+private enum PhotoListStyles: String, StyleSet {
+	case root
+
+	var style: Style {
+		// Three columns at all widths, so the photos are a row. Each photo is cut to 4:3, so the captions start on one line, also with a tall photo. A nested list is the caption, in the small text of a caption.
+		Style()
+			.proseBlockMargin()
+			.children("ul") {
+				$0
+					.plainList()
+					.grid(columns: 3)
+					.gap(row: .rootEm(1), column: .rootEm(0.75))
+					.from(.tablet) {
+						$0.gap(row: .rootEm(1), column: .rootEm(1.25))
+					}
+					.children("li") {
+						$0
+							.descendants("p") {
+								$0.margin(.zero)
+							}
+							.descendants("img") {
+								$0
+									.display(.block)
+									.frame(width: .percent(100), height: .auto)
+									.margin(.zero)
+									.aspectRatio(4.0 / 3)
+									.objectFit(.cover)
+							}
+							.children("ul") {
+								$0
+									.detailsList()
+									.secondaryText()
+							}
 					}
 			}
 	}
@@ -907,7 +1236,7 @@ enum CardListStyles: String, StyleSet {
 					.from(.tablet) {
 						$0
 							.columns(2, minimumWidth: .rootEm(15))
-							.gap(column: .rootEm(1))
+							.gap(column: .cardSpacing)
 					}
 					// Not a stack, so the links in the text stay in its lines. An inline block as wide as its column keeps its bottom margin in its column, as Safari otherwise moves the margin of the last card of a column to the top of the next column.
 					.children("li") {
@@ -915,21 +1244,27 @@ enum CardListStyles: String, StyleSet {
 							.display(.inlineBlock)
 							.frame(width: .percent(100))
 							.verticalAlign(.top)
-							.margin(top: .zero, horizontal: .zero, bottom: .rootEm(1))
-							.padding(.cardPadding)
-							.cardSurface(isInteractive: false)
+							.margin(top: .zero, horizontal: .zero, bottom: .length(.cardSpacing))
+							.plainCard()
 							.keepsTogether()
 							.textStyle(.body, weight: .semibold)
 							.color(.primaryText)
+							// The title is balanced, so it does not end with one word, like “most-starred”. The text below it keeps its wrap.
+							.textWrap(.balance)
 							// A link in the title has the weight of the title, as the underline already shows it.
 							.children("a") {
 								$0.inherits(.fontWeight)
+							}
+							// A card that is only a link is the link as a whole.
+							.hasChild(LinkCard.title.selector) {
+								$0.combined(with: LinkCard.card)
 							}
 							.children("ul") {
 								$0
 									.detailsList()
 									.secondaryText()
 									.fontWeight(.regular)
+									.textWrap(.pretty)
 							}
 					}
 			}
@@ -937,15 +1272,55 @@ enum CardListStyles: String, StyleSet {
 }
 
 /**
-A numbered list as steps, with each number in a circle in the accent of the page and a line to the next, like `@Steps { 1. Write down every idea }`, for a short list of steps in order, like how I make an app. A nested list is smaller text below its item.
+A numbered list as steps, with each number in a circle in the accent of the page and a line to the next, like `@Steps { 1. Write down every idea }`, for a short list of steps in order, like how I make an app. A nested list is smaller text below its item. Below a heading, each step has an ID and a link that copies its URL (``HTMLFragment/addingStepLinks(headingID:)``).
 */
 @Sendable
-private func renderSteps(contentHTML: String) -> String {
-	div {
-		HTMLRaw(addingListRole(to: contentHTML))
+private func renderSteps(content: HTMLFragment, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) -> HTMLFragment {
+	(context.headingID.map { content.addingStepLinks(headingID: $0) } ?? content).listDirective(style: StepListStyles.root)
+}
+
+/**
+The tag of a list or a list item, like `<ol>`, `</ul>`, or `<li>`, for ``HTMLFragment/addingStepLinks(headingID:)``. Not a literal in the function, as Swift parses a regex literal each time the code runs.
+*/
+nonisolated(unsafe) private let listOrListItemTag = /<(\/?)(ol|ul|li)\b[^>]*>/
+
+extension HTMLFragment {
+	/**
+	The steps with IDs from the heading above them and their numbers, like `with-dato-step-2`, so a reader can send one step, like the one that does not work, and the link goes to it. The number of each step is a link that copies its URL, like the link of a heading (`data-copy-link`). Only the items of the list get IDs, not the items of a nested list.
+
+	Limitation: A second list of steps below the same heading has no IDs, as its IDs would be the IDs of the first list (``SiteKit/MarkdownDocument/Options/BlockDirectiveRenderer/Context/headingID``).
+	*/
+	fileprivate func addingStepLinks(headingID: ElementID) -> Self {
+		var listDepth = 0
+		var stepNumber = 0
+
+		let html = rawValue.replacing(listOrListItemTag) { match -> String in
+			let (tag, closingSlash, name) = match.output
+
+			guard name == "li" else {
+				listDepth += closingSlash.isEmpty ? 1 : -1
+				return String(tag)
+			}
+
+			guard
+				closingSlash.isEmpty,
+				listDepth == 1
+			else {
+				return String(tag)
+			}
+
+			stepNumber += 1
+			let id = ElementID("\(headingID)-step-\(stepNumber)")
+
+			let link = a(.href(.fragment(id)), .hook(ProseStyles.Hooks.copyLink), .ariaLabel("Copy link to step \(stepNumber)")) {}
+				.style(StepListStyles.link)
+				.renderFragment()
+
+			return #"<li id="\#(id.rawValue.escapedForHTML)""# + tag.dropFirst("<li".count) + link.rawValue
+		}
+
+		return Self(rawValue: html)
 	}
-	.style(StepListStyles.root)
-	.render()
 }
 
 /**
@@ -954,17 +1329,54 @@ The styles of `@Steps` lists. The items are numbered with a CSS counter, like `@
 enum StepListStyles: String, StyleSet {
 	case root
 
+	/**
+	The link over the number of a step that copies the URL of the step (``HTMLFragment/addingStepLinks(headingID:)``).
+	*/
+	case link
+
 	enum Counters: String, CounterSet {
 		case step
 	}
 
 	var style: Style {
+		switch self {
+		case .root:
+			Self.rootStyle
+		case .link:
+			Self.linkStyle
+		}
+	}
+
+	/**
+	The link is a circle over the number, which the pointer and the keyboard focus make darker, like a button. After a copy, the circle is filled, with a checkmark in place of the number, like the link of a heading (`site.js`).
+	*/
+	private static let linkStyle = Style()
+		.position(.absolute)
+		.top(.zero)
+		.leading(.zero)
+		.frame(size: .lineHeight(1))
+		.cornerRadius(.circle)
+		.cursor(.pointer)
+		.transition(.backgroundColor, timing: .stateChange)
+		.hoverOrFocusVisible {
+			$0.background(.accentMark.opacity(0.14))
+		}
+		.when(ProseStyles.States.copied) {
+			$0
+				.background(.accentMark)
+				.after {
+					$0
+						.content("")
+						.position(.absolute)
+						.inset(.percent(22))
+						.background(.pageBackground)
+						.maskImage(.url(#path("/assets/check.svg")))
+				}
+		}
+
+	private static var rootStyle: Style {
 		Style()
 			.proseBlockMargin()
-			// Right below a heading, the space of the heading, like the text, as the margin of this component wins over the rule of the prose.
-			.directlyAfter("h2, h3, h4, h5, h6") {
-				$0.margin(.top, .zero)
-			}
 			.children("ol") {
 				$0
 					.counterReset(Counters.step)
@@ -978,6 +1390,11 @@ enum StepListStyles: String, StyleSet {
 							.margin(.zero)
 							.padding(top: .zero, horizontal: .zero, bottom: .rootEm(1.75))
 							.padding(.leading, .rootEm(3))
+							// The step that a link goes to, like `#with-dato-step-2`, is highlighted for a moment, like a heading (``HTMLFragment/addingStepLinks(headingID:)``).
+							.cornerRadius(.rootEm(0.125))
+							.target {
+								$0.targetHighlight(.headingTargetHighlight)
+							}
 							// The number in a circle as high as a line of the text, so it lines up with the first line.
 							.before {
 								$0
@@ -994,13 +1411,13 @@ enum StepListStyles: String, StyleSet {
 									.textAlign(.center)
 									.color(.accentMark)
 							}
-							// The line from the circle to the next one, so the items read as steps in order.
+							// The line from the circle to the next one, so the items read as steps in order. It touches both circles, so the steps are one rail, also when a step is one line and the line is short. The next circle is at the top of the next item, so the line goes to the bottom of this one, with its padding.
 							.after {
 								$0
 									.content("")
 									.position(.absolute)
-									.top(.length(.lineHeight(1) + .rootEm(0.375)))
-									.bottom(.rootEm(0.375))
+									.top(.length(.lineHeight(1)))
+									.bottom(.zero)
 									.leading(.length(.lineHeight(0.5) - .pixels(1)))
 									.frame(width: .pixels(2))
 									.cornerRadius(.capsule)
@@ -1015,8 +1432,7 @@ enum StepListStyles: String, StyleSet {
 							}
 							.children("ul") {
 								$0
-									.plainList()
-									.margin(top: .rootEm(0.25), horizontal: .zero, bottom: .zero)
+									.detailsList()
 									.secondaryText(.body)
 							}
 					}
@@ -1028,12 +1444,8 @@ enum StepListStyles: String, StyleSet {
 A list of years with the changes of each, as a timeline, like `@Changelog { - 2014 }` with a nested `- Added: Awesome`. The kind before the colon of a change, like “Added”, becomes a badge. A change can also have no kind. Only the changes, the second level of the list, can have a kind.
 */
 @Sendable
-private func renderChangelog(contentHTML: String) -> String {
-	div {
-		HTMLRaw(addingListRole(to: contentHTML))
-	}
-	.style(ChangelogStyles.root)
-	.render()
+private func renderChangelog(content: HTMLFragment) -> HTMLFragment {
+	content.listDirective(style: ChangelogStyles.root)
 }
 
 /**
@@ -1230,11 +1642,12 @@ enum ChangelogStyles: String, StyleSet {
 												$0.margin(.zero)
 											}
 									}
-									// The badges have the same width, so the changes line up. In the middle of the first line.
+									// The badges have the same width, so the changes line up. The middle of the badge is in the middle of the capital letters of the first line, which is a little below the middle of the line (1.55rem high), whatever the size of the badge.
 									.nested(Badge.Styles.root.selector) {
 										$0
 											.position(.absolute)
-											.top(.em(0.3))
+											.top(.rootEm(0.79))
+											.offset(y: .percent(-50))
 											.leading(.zero)
 											.frame(width: .rootEm(5))
 											.textAlign(.center)
@@ -1301,12 +1714,12 @@ struct ScheduledArguments {
 	}
 
 	/**
-	What the page shows before the first day of a sale, in place of the content, like “Black Friday runs from November 27 to November 30. The apps and the discounts show here when the sale starts.”, or “Black Friday is on November 27. …” for a sale of one day, so a visitor who comes early knows when to come back. It is `nil` for a block without a `sale` name, and from the first day.
+	What the page shows before the first day of a sale, in place of the content, like “The sale runs from November 27 to November 30. The apps and the discounts show here when it starts.”, or “The sale is on November 27. …” for a sale of one day, so a visitor who comes early knows when to come back. The page shows it in an alert with the name of the sale as its title, and the Markdown copy with the name in bold before it, so the sentence does not repeat the name. It is `nil` for a block without a `sale` name, and from the first day.
 	*/
 	func saleAnnouncement(on day: SOML.Date) -> String? {
 		guard
 			day < from.date,
-			let sale
+			sale != nil
 		else {
 			return nil
 		}
@@ -1314,8 +1727,7 @@ struct ScheduledArguments {
 		let firstDay = from.date.foundationDate.formatted(.siteDayWithoutYear)
 		let days = from.date == until.date ? "is on \(firstDay)" : "runs from \(firstDay) to \(until.date.foundationDate.formatted(.siteDayWithoutYear))"
 
-		// The name comes first without “sale” after it, so a name like “Summer Sale” does not become “Summer Sale sale”.
-		return "\(sale) \(days). The apps and the discounts show here when the sale starts."
+		return "The sale \(days). The apps and the discounts show here when it starts."
 	}
 }
 
@@ -1323,7 +1735,7 @@ struct ScheduledArguments {
 The social links of the author, the same links as the footer, as chips with icons, like `@SocialLinks`. It has no content.
 */
 @Sendable
-private func renderSocialLinks(contentHTML: String) -> String {
+private func renderSocialLinks(content: HTMLFragment) -> HTMLFragment {
 	ul {
 		for link in Site.author.socialLinks {
 			li {
@@ -1334,7 +1746,7 @@ private func renderSocialLinks(contentHTML: String) -> String {
 		}
 	}
 	.style(SocialLinksStyles.root)
-	.render()
+	.renderFragment()
 }
 
 /**
@@ -1369,11 +1781,21 @@ private enum SocialLinksStyles: String, StyleSet {
 
 extension Style {
 	/**
-	The nested list of an item of a block directive, like the details of a card or the changes of a year: no bullets, in a column, a little below the item.
+	The nested list of an item of a block directive, like the details of a card or a step, or the changes of a year: no bullets, in a column, a little below the item.
 	*/
 	fileprivate func detailsList() -> Self {
 		plainList()
 			.vstack(spacing: .rootEm(0.5))
 			.margin(top: .rootEm(0.625), horizontal: .zero, bottom: .zero)
+	}
+
+	/**
+	The size and the place of the icon before the text of a link (``SiteKit/MarkdownDocument/Options/linkIcon``): about as large as the capital letters, on the baseline, so the line keeps its height, with more space before it than a space between words, so the icon does not touch the word before the link.
+	*/
+	fileprivate func linkIconPlacement() -> Self {
+		frame(size: .em(1.1))
+			.verticalAlign(.em(-0.18))
+			.margin(.leading, .em(0.2))
+			.margin(.trailing, .em(0.3))
 	}
 }

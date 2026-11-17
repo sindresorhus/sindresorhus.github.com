@@ -27,6 +27,17 @@ struct SharedPuzzlePage: Page {
 		.appSubpage(app)
 	}
 
+	var breadcrumbTitle: String {
+		"Shared Puzzle"
+	}
+
+	/**
+	The card of Pipoku, as the page is only there to be shared, and a chat makes its preview from it.
+	*/
+	var socialImage: SocialImage {
+		.cardOf(app)
+	}
+
 	var metadata: PageMetadata {
 		// The puzzle is in the query, so search engines would only see the message for a missing puzzle.
 		PageMetadata(

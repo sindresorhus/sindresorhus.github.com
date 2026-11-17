@@ -82,7 +82,7 @@ extension FeedsPage {
 			case .primaryGrid, .appGrid:
 				Style()
 					.display(.grid)
-					.gap(.rootEm(1))
+					.gap(.cardSpacing)
 					.from(.smallTablet) {
 						$0.gridColumns(2)
 					}
@@ -93,6 +93,8 @@ extension FeedsPage {
 					.grid(columns: .fixed(.rootEm(2.5)), .flexible())
 					.gap(column: .rootEm(0.75))
 					.alignItems(.center)
+					// The title and the description stay together in the middle of a card that is taller than them, like next to a card with a description of two lines.
+					.alignContent(.center)
 					.fontWeight(.regular)
 					.padding(vertical: .rootEm(1), horizontal: .rootEm(0.75))
 					.nested(Icon.selector) {
@@ -126,8 +128,9 @@ extension FeedsPage {
 				Style()
 					.frame(size: .rootEm(2.5))
 			case .appTitle:
+				// Like the titles of the feeds above.
 				Style()
-					.fontWeight(.semibold)
+					.textStyle(.headline)
 					.color(.primaryText)
 			}
 		}

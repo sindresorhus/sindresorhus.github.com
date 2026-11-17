@@ -12,6 +12,9 @@ hasSentry: true
 categories: [
 	'ai'
 ]
+relatedApps: [
+	'imago'
+]
 nonAppStoreVersion: {
 	version: '1.7.0'
 	macOS: 26
@@ -64,8 +67,7 @@ It runs locally on your device.
 > On macOS, the app is developed exclusively for Apple silicon. It is NOT compatible with devices running on Intel chips.\
 > On iOS, it requires at minimum an iPhone 15 Pro or iPad with an M1 processor.
 
-> [!TIP]
-> Check out my [Imago](/imago) app, which uses Flux 2 instead — a much better model.
+My [Imago](/imago) app uses Flux 2, a much better model.
 
 [Stable Diffusion](https://en.wikipedia.org/wiki/Stable_Diffusion) is a deep learning, text-to-image model used to generate detailed images conditioned on text descriptions.
 

@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open [Camera Preview](../apps/camera-preview/index.md), and press ++Return++. The app takes the photo at once and saves it in the “Camera Preview” folder in your Pictures folder. Without an app, open Photo Booth, click the Picture button, and click the Take Photo button.
+	Open [Camera Preview](/camera-preview), and press ++Return++. The app takes the photo at once and saves it in the “Camera Preview” folder in your Pictures folder. [Without an app](#without-an-app), open Photo Booth, click the Picture button, and click the Take Photo button.
 }
 
 ## With Camera Preview
 
 @Steps {
-1. Open [Camera Preview](../apps/camera-preview/index.md). A window shows the camera. To see yourself like in a mirror, choose “Camera › Flip Horizontally”. The photo is then flipped too.
+1. Open [Camera Preview](/camera-preview). A window shows the camera. To see yourself like in a mirror, choose “Camera › Flip Horizontally”. The photo is then flipped too.
 1. Choose “File › Take Photo”, or press ++Return++ or ++Space++. There is no countdown.
 1. Choose “File › Show Photos” to see the photo in Finder.
 }
@@ -41,4 +41,4 @@ Photo Booth comes with macOS ([Apple’s guide](https://support.apple.com/guide/
 1. Click the Take Photo button.
 }
 
-Photo Booth counts down for three seconds, and the screen flashes when it takes the photo. To take the photo without the countdown, hold ++Option++ while you click the Take Photo button. Photo Booth is free and has effects. Camera Preview saves each photo as a file at once, copies a photo to the clipboard, and has a smaller window. [How to see yourself on the camera.](see-camera-mac.md)
+Photo Booth counts down for three seconds, and the screen flashes when it takes the photo. To take the photo without the countdown, hold ++Option++ while you click the Take Photo button. Photo Booth is free and has effects. Camera Preview saves each photo as a file at once, copies a photo to the clipboard, and has a smaller window. [How to see yourself on the camera.](guide:see-camera-mac)

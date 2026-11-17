@@ -206,6 +206,7 @@ struct OverflowMenu: ScriptedElement {
 		.style(Styles.container)
 		.style(Styles.title, when: variant == .title)
 		.style(variant == .chip || pickerTitle != nil ? Styles.chip : Styles.dots)
+		.style(Styles.roundChip, when: variant == .chip)
 	}
 
 	/**
@@ -240,6 +241,11 @@ struct OverflowMenu: ScriptedElement {
 		case container
 		case title
 		case chip
+
+		/**
+		The “…” alone as a chip (``chip``), round, like the round icon buttons of the header.
+		*/
+		case roundChip
 
 		/**
 		The “…” in a circle, without a chip, next to a row of links or a title.
@@ -297,6 +303,12 @@ struct OverflowMenu: ScriptedElement {
 					.chip(hasIcon: true)
 					.margin(.zero)
 					.setting(OverflowMenu.color, to: .currentColor)
+			case .roundChip:
+				// As wide as it is high, which is the height of a chip with text.
+				Style()
+					.padding(.horizontal, .zero)
+					.frame(size: .length(LengthPercentage.lineHeight(1) + .rootEm(0.75)))
+					.justifyContent(.center)
 			case .dots:
 				// A round fill under the pointer, like the links next to it in the bar of an app page. A ring of the same fill makes the circle larger than the icon without moving the layout. The ring is always there, so only its color fades.
 				Style()

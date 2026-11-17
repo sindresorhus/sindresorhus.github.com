@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-The sticky site navigation. On small screens, the links are in a popover behind a menu button, which works without JavaScript, and closes with the Escape key or a click outside. On an app page, the popover also has the sections of the app. Its script also closes it when the keyboard focus moves out of it, after a tap on a section of the page, or when the window becomes as wide as a tablet, like a phone that rotates, and when it opens, it marks the section that the visitor is in.
+The sticky site navigation, with the search of the site (``SiteSearch``). On small screens, the links are in a popover behind a menu button, which works without JavaScript, and closes with the Escape key or a click outside. On an app page, the popover also has the sections of the app. Its script also closes it when the keyboard focus moves out of it, after a tap on a section of the page, or when the window becomes as wide as a tablet, like a phone that rotates, and when it opens, it marks the section that the visitor is in. The “…” menu of the app closes it after a choice (``OverflowMenu``).
 */
 struct SiteHeader: ScriptedElement {
 	static let script = ElementScript()
@@ -73,6 +73,9 @@ struct SiteHeader: ScriptedElement {
 					.accessibilityLabel(Site.name)
 					.style(Styles.brand)
 
+					// Next to the menu button on phones, and after the links from tablets, where this row is not a box of its own (``Styles/top``).
+					SiteSearch()
+
 					// Shows “×” while the menu is open.
 					button(.type(.button), .popoverTarget(Self.menuID)) {
 						span {
@@ -111,8 +114,8 @@ struct SiteHeader: ScriptedElement {
 					}
 					.style(Styles.links)
 
-					// On phones, the sticky header has no room for the sections of the app, so the menu has them, below the site links. From tablets, the navigation of the app has them (``AppSecondaryNavigation``).
-					if let app {
+					// On phones, the sticky header has no room for the sections of the app, so the menu has them, below the site links, with the “…” menu of the app at the end, so its pages, like the release notes, are not only in the app header far above. From tablets, the navigation of the app has them (``AppSecondaryNavigation``).
+					if case .app(let app, let hasGuides) = variant {
 						div {
 							// Screen readers get the name from the label of the list.
 							p(.notTranslated) {
@@ -129,6 +132,10 @@ struct SiteHeader: ScriptedElement {
 											.attributes(.part(Parts.appSectionLink))
 											.style(Styles.appSectionLink)
 									}
+								}
+
+								li {
+									OverflowMenu.appPage(app, hasGuides: hasGuides, variant: .chip)
 								}
 							}
 							.accessibilityLabel("\(app.title) sections", role: .list)
@@ -190,8 +197,9 @@ struct SiteHeader: ScriptedElement {
 			// A parent section, like “Apps” on an app page, is the current location, but not the current page.
 			.attributes(.ariaCurrent(currentPath == path ? .page : .item), when: isInSection(path))
 			.style(Styles.link)
-			.style(Styles.mobileOnly, when: isMobileOnly)
 		}
+		// The item, not only its link, so an empty item does not add one more gap to the row.
+		.style(Styles.mobileOnly, when: isMobileOnly)
 	}
 }
 
@@ -256,6 +264,15 @@ extension SiteHeader {
 		private static let glassFill = Color.pageBackground.opacity(0.8)
 		private static let glassBlur = Length.pixels(24)
 
+		/**
+		The size of the chips of the app in the menu, larger than the chips of the app header, so they are easy to tap.
+		*/
+		private static var appChipSize: Style {
+			Style()
+				.padding(vertical: .rootEm(0.625), horizontal: .rootEm(1.125))
+				.textStyle(.body, weight: .medium)
+		}
+
 		var style: Style {
 			switch self {
 			case .root:
@@ -314,21 +331,19 @@ extension SiteHeader {
 							.padding(.vertical, .rootEm(0.5))
 					}
 			case .navigationReplacedByApp:
-				// Fades out when the app header scrolls away, as the navigation of the app replaces it. Scrolling starts the fade, and it then finishes on its own. Without the script, it stays.
+				// Fades out when the app header scrolls away, as the navigation of the app replaces it. Without the script, it stays.
 				// On phones, it stays, so the menu button is always there.
 				Style()
 					.from(.tablet) {
-						$0
-							.transition(.filter, .visibility, timing: SiteHeader.navigationSwap)
-							.when(ancestorHas: AppSecondaryNavigation.Hooks.appHeroScrolledAway) {
-								$0
-									.filter(.opacity(0))
-									.visibility(false)
-							}
+						$0.navigationSwap(isShownWhileScrolledAway: false)
 					}
 			case .top:
+				// From tablets, the site name and the search button are items of the row of the navigation, so the search button can be after the links.
 				Style()
 					.hstack(justification: .spaceBetween)
+					.from(.tablet) {
+						$0.display(.contents)
+					}
 			case .brand:
 				// The space before the name is padding, so the keyboard focus can show as a fill around the name, like on the links. The name already has the strongest text color, so a color change would not show.
 				Style()
@@ -347,9 +362,7 @@ extension SiteHeader {
 					}
 					// On phones, the icon and the name of the app replace it while the app header has scrolled away (``AppSecondaryNavigation``).
 					.below(.tablet) {
-						$0.when(ancestorHas: AppSecondaryNavigation.Hooks.appHeroScrolledAway) {
-							$0.visibility(false)
-						}
+						$0.navigationSwap(isShownWhileScrolledAway: false)
 					}
 			case .menuToggle:
 				// The look of an icon link, as a style value instead of the class of ``IconLink``, as the order of rules from different style sets is not defined. It never shrinks, so it stays on the screen.
@@ -394,6 +407,8 @@ extension SiteHeader {
 						$0
 							.hstack(alignment: .center)
 							.position(.static)
+							// At the end of the row, before the search button.
+							.margin(.leading, .auto)
 							.padding(.zero)
 							.background(.transparent)
 							.overflow(.visible)
@@ -406,6 +421,17 @@ extension SiteHeader {
 					.font(.extraLarge4)
 					// Large text has tighter letters, like the titles of the pages.
 					.letterSpacing(.em(-0.025))
+					// On a short screen, like a phone in landscape, the links are a row at the size of the site name, so the links below them, like the sections of an app, are on the screen too.
+					.below(.tablet) {
+						$0.media(.shortScreen) {
+							$0
+								.flexDirection(.row)
+								.flexWrap(.wrap)
+								.gap(row: .zero, column: .rootEm(1))
+								.padding(.top, .rootEm(1))
+								.font(.extraLarge2)
+						}
+					}
 					.from(.tablet) {
 						$0
 							.flexDirection(.row)
@@ -458,7 +484,7 @@ extension SiteHeader {
 					.padding(top: .rootEm(2), horizontal: Self.brandMargin, bottom: .rootEm(1))
 					.hidden(from: .tablet)
 			case .appSectionsTitle:
-				// Like the titles of the groups of the footer.
+				// Like the titles of the groups of the footer from tablets. It stays small on phones, as it is a caption above chips, not above links of body text.
 				Style()
 					.margin(.bottom, .rootEm(0.75))
 					.textStyle(.caption, weight: .semibold)
@@ -467,15 +493,21 @@ extension SiteHeader {
 				Style()
 					.hstack(alignment: .center, spacing: .rootEm(0.5))
 					.flexWrap()
+					// The “…” menu at the end has the size of the section links, and their height, as it has only an icon. It is round (``OverflowMenu/Styles/roundChip``), so it is as wide as it is high.
+					.nested(OverflowMenu.Styles.chip.selector) {
+						$0
+							.combined(with: Self.appChipSize)
+							.padding(.horizontal, .zero)
+							.frame(size: .length(LengthPercentage.lineHeight(1) + .rootEm(1.25)))
+					}
 			case .appSectionLink:
 				// Larger than the chips of the app header, so they are easy to tap.
 				Style()
 					.chip()
-					.padding(vertical: .rootEm(0.625), horizontal: .rootEm(1.125))
-					.textStyle(.body, weight: .medium)
+					.combined(with: Self.appChipSize)
 					.display(.block)
 					// The section that the visitor is in has the tint of the accent of the app, like the section links of the navigation of the app.
-					.currentFill(Color.pageAccent.opacity(0.16))
+					.currentFill(.currentSectionFill)
 			}
 		}
 	}
@@ -502,9 +534,36 @@ extension SiteHeader {
 	}
 
 	/**
-	The fade between the site navigation and the navigation of the app, when the app header scrolls away or back. The script of ``AppSecondaryNavigation`` starts it.
+	The fade between the site navigation and the navigation of the app, when the app header scrolls away or back. The script of ``AppSecondaryNavigation`` starts it. Each row fades for this duration, one after the other (``Style/navigationSwap(isShownWhileScrolledAway:)``).
 
 	The fades use `filter: opacity()` instead of `opacity`, as the backdrop filter of the header blocks opacity animations of its children. `visibility` keeps the hidden links out of the keyboard focus.
 	*/
-	static let navigationSwap = AnimationTiming.easeInOut(duration: .milliseconds(250))
+	static let navigationSwapDuration = Duration.milliseconds(150)
+}
+
+extension Style {
+	/**
+	The fade of a row of the site header that another row replaces at the same place, like the site navigation and the navigation of an app, which replaces it while the app header has scrolled away (``SiteHeader/navigationSwapDuration``). The outgoing row fades out at once, and the incoming row fades in after it, so the names and the links of the two rows never show through each other. Scrolling starts the fade, and it then finishes on its own.
+
+	- Parameter isShownWhileScrolledAway: Whether the row shows while the app header has scrolled away, like the navigation of the app, or while it has not, like the site navigation.
+	*/
+	func navigationSwap(isShownWhileScrolledAway: Bool) -> Self {
+		let shown = { (style: Self) in
+			style
+				.filter()
+				.visibility(true)
+				.transitionDelay(SiteHeader.navigationSwapDuration)
+		}
+		let hidden = { (style: Self) in
+			style
+				.filter(.opacity(0))
+				.visibility(false)
+				.transitionDelay(.zero)
+		}
+		let style = transition(.filter, .visibility, timing: .easeInOut(duration: SiteHeader.navigationSwapDuration))
+
+		return isShownWhileScrolledAway
+			? hidden(style).when(ancestorHas: AppSecondaryNavigation.Hooks.appHeroScrolledAway, shown)
+			: shown(style).when(ancestorHas: AppSecondaryNavigation.Hooks.appHeroScrolledAway, hidden)
+	}
 }

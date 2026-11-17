@@ -234,6 +234,15 @@ extension HTML where Tag: HTMLTrait.Attributes.Global {
 	}
 }
 
+extension StyleSet {
+	/**
+	The class name of the style for HTML that is written as text, like a tag that a rewrite of Markdown adds, so the page collects the style set and has its rule, like with ``Elementary/HTML/style(_:)``. Use it while the HTML renders, like in a rewrite of a block directive.
+	*/
+	public var collectedClassName: String {
+		SiteKit.classNames(self)
+	}
+}
+
 /**
 The class names of the styles. The page collects the style sets, so it has their rules.
 */

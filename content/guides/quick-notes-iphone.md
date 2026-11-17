@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Add the Quick Note control to Control Center, and tap it to write a note over any app. The note goes in the Quick Notes folder of the Notes app. For one plain text note that is always the same note, open [Scratchpad](../apps/scratchpad/index.md) from its Lock Screen widget or its control.
+	Add the Quick Note control to Control Center, and tap it to write a note over any app. The note goes in the Quick Notes folder of the Notes app. For one plain text note that is always the same note, open [Scratchpad](/scratchpad) from its Lock Screen widget or its control.
 }
 
 ## With Scratchpad
 
 @Steps {
-1. Open [Scratchpad](../apps/scratchpad/index.md), and type. The text is saved as you type.
+1. Open [Scratchpad](/scratchpad), and type. The text is saved as you type.
 1. Lock the iPhone, touch and hold the Lock Screen, and tap “Customize”.
 1. Tap “Add Widgets”, choose Scratchpad, and tap the “Launcher” widget to add it. Tap “Done”.
 1. Tap the widget on the Lock Screen to open the note.
@@ -27,8 +27,8 @@ Scratchpad has only one note, in plain text, so you do not need to make or find 
 
 @Tips {
 - To add text from another app, select it, tap “Share”, and choose “Add to Scratchpad”. The text goes at the end of the note.
-- To have the same note on your Mac and iPad, turn on “iCloud Sync” in the settings on each device. On Mac, the note is in the menu bar. [Quick notes on Mac.](quick-notes-mac.md)
-- On Apple Watch, you can add text to the same note. [Notes on Apple Watch.](notes-apple-watch.md)
+- To have the same note on your Mac and iPad, turn on “iCloud Sync” in the settings on each device. On Mac, the note is in the menu bar. [Quick notes on Mac.](guide:quick-notes-mac)
+- On Apple Watch, you can add text to the same note. [Notes on Apple Watch.](guide:notes-apple-watch)
 }
 
 ## Without an app

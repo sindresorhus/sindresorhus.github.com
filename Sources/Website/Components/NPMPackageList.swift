@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-All the npm packages, most downloaded first, each as a row with its name, which links to the package on npm, its description, and its weekly downloads, with a field above them that filters the rows by name and description. JavaScript shows the first 20, with a button that says how many more it shows, twice as many each time, and filtering searches the whole list, with the packages whose name has the words first, and marks the words in the names and the descriptions that show. After a reload, the list shows as many rows as before, so the visitor is back at the package they read. The matching rows that the list does not show yet are hidden “until found”, so find in page also finds them. When no package matches, the package with the closest name shows, so a small typo still finds the package, and Enter opens the first package that shows. All the rows are in the HTML, so search engines and visitors without JavaScript see the whole list. Without JavaScript, there is no filter.
+All the npm packages, most downloaded first, each as a row with its name, which links to the package on npm, its description, and its weekly downloads (only the number, below one label above the list), with a field above them that filters the rows by name and description, and stays below the site header while the list scrolls. JavaScript shows the first 20, with a button that says how many more it shows, twice as many each time, and filtering searches the whole list, with the packages whose name has the words first, and marks the words in the names and the descriptions that show. After a reload, the list shows as many rows as before, so the visitor is back at the package they read. The matching rows that the list does not show yet are hidden “until found”, so find in page also finds them. When no package matches, the package with the closest name shows, so a small typo still finds the package, and Enter opens the first package that shows. All the rows are in the HTML, so search engines and visitors without JavaScript see the whole list. Without JavaScript, there is no filter.
 */
 struct NPMPackageList: ScriptedElement {
 	static let script = ElementScript()
@@ -28,20 +28,22 @@ struct NPMPackageList: ScriptedElement {
 	}
 
 	var content: some HTML {
-		input(
-			.part(Parts.filter),
-			.type(.search),
-			.placeholder("Filter packages"),
-			.autocomplete("off"),
-			.enterKeyHint(.go)
-		)
-		.autocorrectionDisabled()
-		.accessibilityLabel("Filter packages")
-		.style(FormFieldStyles.control)
-		// On the element, so it wins over the display of the field.
+		// The field stays below the site header while the list scrolls, so a visitor far down the list can change the words without scrolling back.
+		div {
+			input(
+				.part(Parts.filter),
+				.type(.search),
+				.placeholder("Filter packages"),
+				.autocomplete("off"),
+				.enterKeyHint(.go)
+			)
+			.autocorrectionDisabled()
+			.accessibilityLabel("Filter packages")
+			.style(FormFieldStyles.control)
+		}
 		.style {
 			$0
-				.margin(.bottom, .rootEm(1))
+				.stickyFilterField()
 				.hiddenWithoutScripting()
 				// The list then shows all the packages, like without JavaScript.
 				.when(ancestorHas: ScriptLoadFailure.Hooks.failed) {
@@ -56,6 +58,32 @@ struct NPMPackageList: ScriptedElement {
 					.margin(top: .zero, horizontal: .zero, bottom: .rootEm(0.5))
 					.color(.secondaryText)
 			}
+
+		// When no package of the list matches, the script shows a search of all my packages on npm with the words of the filter, as the list only has the packages with a repository, and a visitor may know a package by another name. The script keeps the maintainer of this link and adds the words.
+		a(.part(Parts.npmSearch), .href(.url(#URL("https://www.npmjs.com/search?q=maintainer%3Asindresorhus"))), .hidden) {
+			"Search all my packages on npm"
+		}
+		.style {
+			$0.textLink()
+		}
+
+		// The unit of the numbers of the rows, once, above their column, so the rows only have the numbers. Screen readers say the whole label on each row instead.
+		p {
+			"Downloads a week"
+		}
+		.accessibilityHidden()
+		.style {
+			$0
+				.margin(top: .zero, horizontal: .zero, bottom: .rootEm(0.25))
+				.secondaryText()
+				.from(.smallTablet) {
+					$0.textAlign(.trailing)
+				}
+				// Not above a list that shows no row, like when no package matches the filter.
+				.nested("&:not(:has(+ \(Styles.list.selector) > :not([hidden])))") {
+					$0.hidden()
+				}
+		}
 
 		// Keep the list semantics in Safari, as the styles remove its bullets.
 		ul(.role(.list), .part(Parts.list)) {
@@ -76,9 +104,18 @@ struct NPMPackageList: ScriptedElement {
 						}
 					}
 
-					if let downloads = package.weeklyDownloadsLabel {
+					// Only the number, like “950M+”, as the label above the list says what it counts.
+					if
+						let downloads = package.weeklyDownloads,
+						let label = package.weeklyDownloadsLabel
+					{
 						span {
-							downloads
+							span {
+								downloads.approximateCount
+							}
+							.accessibilityHidden()
+
+							VisuallyHidden(label)
 						}
 						.style(Styles.downloads)
 					}
@@ -104,6 +141,7 @@ struct NPMPackageList: ScriptedElement {
 		case text
 		case link
 		case status
+		case npmSearch
 		case showMore
 	}
 

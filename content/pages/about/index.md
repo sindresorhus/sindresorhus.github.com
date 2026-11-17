@@ -3,7 +3,7 @@ title: 'About'
 description: 'Sindre Sorhus is a full-time open-source developer who makes apps for Apple devices.'
 ---
 
-Hi, I’m Sindre ([hear how to say it](/assets/sindre-sorhus-pronunciation.m4a)). I make apps and open-source software, full time and on my own. In 2014, I quit my office job to backpack around Southeast Asia and work on open source. The backpacking ended, but the open source never did.
+Hi, I’m Sindre ([hear how to say&nbsp;it](/assets/sindre-sorhus-pronunciation.m4a)). I make apps and open&#8209;source software, full time and on my own. In 2014, I quit my office job to backpack around Southeast Asia and work on open source. The backpacking ended, but the open source never did.
 
 The [apps](/apps) are small, focused tools for Apple devices that each solve one problem well, and many of them are free. You can [read what people say about them](/apps/reviews).
 
@@ -16,7 +16,6 @@ In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorh
 @Cards {
 - Grew up in Norway
 - Started with [LEGO](lego.jpg), then made [simple websites](/1999) at nine
-	- My LEGO city took up almost the whole bedroom
 - Didn’t learn programming properly until my twenties
 	- Before that, I copied PHP and JavaScript without quite understanding them
 - Got into open source by contributing to [TodoMVC](https://todomvc.com), and later became one of its maintainers
@@ -24,7 +23,7 @@ In open source, I maintain [many npm packages](https://www.npmjs.com/~sindresorh
 - Not a company, just me
 - Coined the term “[ponyfill](https://github.com/sindresorhus/ponyfill)”
 - Started [Awesome](https://github.com/sindresorhus/awesome), one of the most-starred repos on GitHub
-- Love [Cà phê muối](https://en.wikipedia.org/wiki/Vietnamese_iced_coffee#Variations), [Es yen](https://en.wikipedia.org/wiki/Es_yen), and [Kaeng khiao wan](https://en.wikipedia.org/wiki/Green_curry)
+- Love [Cà phê muối](https://en.wikipedia.org/wiki/Vietnamese_iced_coffee#Variations), [Es&nbsp;yen](https://en.wikipedia.org/wiki/Es_yen), and [Kaeng khiao wan](https://en.wikipedia.org/wiki/Green_curry)
 	- Vietnamese salt coffee, Thai iced espresso, and Thai green curry
 - Thailand, Japan, and Vietnam are my favorite countries
 - Big fan of Japanese culture
@@ -54,6 +53,15 @@ Then, for a long time, nothing happened. My biggest blocker was Objective-C. It 
 The first app still took three more years. In January 2017, I got an idea for a small Mac app and had some free time, so I jumped right in and learned what I needed as I went. A month later, I released [my first Mac app](/battery-indicator). It was a battery indicator. Not exactly Coda. But after ten years of dreaming, it took one month to make.
 
 That era is mostly gone. Even [Delicious Library shut down](https://daringfireball.net/linked/2024/11/26/delicious-library-eol) in 2024. But the goal is still the same: make [apps](/apps) that would wow the younger me who opened Coda for the first time. Apple has featured some of them, but none of them are on that level yet. I’m slowly getting there.
+
+@Photos {
+- [![Me as a boy at the family computer](family-ibm-computer.jpg)](family-ibm-computer.jpg)
+	- 1996: The family computer, with Windows 95
+- [![The start page of my second website, with a cartoon eagle](second-website.jpg)](second-website.jpg)
+	- 2000: My second website, made in PowerPoint
+- [![Me as a boy, building with LEGO on the floor](lego.jpg)](lego.jpg)
+	- My LEGO city took up almost the whole bedroom
+}
 
 ## Changelog
 
@@ -194,7 +202,7 @@ That era is mostly gone. Even [Delicious Library shut down](https://daringfireba
 1. Ship it, and let reality decide. Some of my most popular apps are weekend projects, and some I spent months on went nowhere
 1. Read every support email and reply myself
 1. After every WWDC, go through all my apps to see how they can use the new features
-	- But wait a year before trusting a brand-new API
+	- But wait a year before trusting a brand&#8209;new API
 }
 
 ## What I Use {#uses}
@@ -206,7 +214,7 @@ The things I use every day.
 	- M4 Pro, with 48 GB of memory
 - iPhone 17 Pro, Apple Watch Series 7, and AirPods Pro 2
 - Desk: my lap. External displays: none
-	- I travel light: the laptop, the phone, some T-shirts, shorts, and boxers. That’s it
+	- I travel light: the laptop, the phone, some T&#8209;shirts, shorts, and boxers. That’s it
 - The apps in my Dock, for code
 	- [Sublime Text](https://www.sublimetext.com), Xcode, [iTerm2](https://iterm2.com), [Tower](https://www.git-tower.com), [Hopper](https://www.hopperapp.com), and [VirtualBuddy](https://github.com/insidegui/VirtualBuddy). Sublime Text because it’s instant. Tower because Git history is easier to see than to remember
 - The apps in my Dock, for everything else
@@ -214,7 +222,7 @@ The things I use every day.
 - [Claude Code](https://github.com/anthropics/claude-code) and [Codex](https://github.com/openai/codex) in the terminal
 - My own apps, every day
 	- [Lungo](/lungo), [Dato](/dato), and [Supercharge](/supercharge) in the menu bar
-- [Dracula](https://draculatheme.com) and [JetBrains Mono](https://www.jetbrains.com/lp/mono/) in Sublime Text
+- [Dracula](https://draculatheme.com) and [JetBrains&nbsp;Mono](https://www.jetbrains.com/lp/mono/) in Sublime Text
 	- Dark, of course, and tabs. Default dark theme in Xcode
 - Synthwave and chillstep while I code
 - Apple’s Passwords app, Gmail in Safari, and Google for search
@@ -255,6 +263,8 @@ Open source travels. I write a small package to solve my own problem, and years 
 	- CompuServe made it in 1987, and my [Gifski](/gifski) app still helps it look good
 - [Velja](/velja) means “to choose” in [Nynorsk](https://en.wikipedia.org/wiki/Nynorsk)
 	- A fitting name for an app that chooses your browser
+- [Dato](/dato) means “date” in Norwegian
+	- A short name for an app that shows the date in the menu bar
 - [Imago](/imago) is Latin for “image”
 	- In biology, it’s also the adult stage of an insect, like a butterfly
 - My package that does nothing gets thousands of downloads a week

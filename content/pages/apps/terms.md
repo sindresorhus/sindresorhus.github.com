@@ -3,7 +3,7 @@ title: 'Terms of Use'
 description: 'Terms of use for apps by Sindre Sorhus.'
 ---
 
-# Apps — Terms of Use
+# Terms of Use
 
 Please take a moment to familiarize yourself with the following guidelines. They are designed to ensure a beneficial experience for us both.
 
@@ -64,4 +64,4 @@ If you find a security problem in one of my apps or on this website, please tell
 
 ---
 
-Last Update: 2026-10-29
+Updated October 29, 2026

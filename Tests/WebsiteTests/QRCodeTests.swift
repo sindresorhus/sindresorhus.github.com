@@ -49,7 +49,8 @@ struct QRCodeTests {
 	func `the SVG draws the dark modules in the current color`() {
 		let html = QRCode(url: #URL("https://sindresorhus.com"), label: "QR code for “Dato”").render()
 
-		#expect(html.hasPrefix(#"<div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 "#))
+		#expect(html.hasPrefix("<div class="))
+		#expect(html.contains(#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 "#))
 		#expect(html.contains(#"aria-label="QR code for “Dato”""#))
 		#expect(html.contains(#"<path fill="currentColor" d="M"#))
 	}

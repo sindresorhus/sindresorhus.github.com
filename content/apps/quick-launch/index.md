@@ -29,9 +29,9 @@ feedbackNote: 'If you’re having problems with the Shortcuts app showing an err
 
 Quickly open websites, launch apps, and run shortcuts directly from your Lock Screen.
 
-For example, open google.com, launch TikTok, or run a shortcut to play a random music playlist.
+Open google.com, launch TikTok, or run a shortcut to play a random music playlist.
 
-When a widget runs a shortcut, the Shortcuts app opens to run it, as apps cannot run shortcuts in the background on iOS. Add the “Go to Home Screen” action at the end of the shortcut to leave the Shortcuts app when the shortcut is done.
+When a widget runs a shortcut, the Shortcuts app opens to run it, as apps cannot run shortcuts in the background on iOS. Add the “Go to Home Screen” action at the end of the shortcut to leave the Shortcuts app when the shortcut is done. <guide:run-shortcut-from-iphone-lock-screen>
 
 Here are [some more ideas](https://github.com/bhagyas/app-urls) of what you could open.
 

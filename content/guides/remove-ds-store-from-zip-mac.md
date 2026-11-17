@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	When you compress a folder in Finder, the zip file gets `.DS_Store` files and a `__MACOSX` folder, which people on Windows and Linux see. The “Clean Zip” action of the free [Actions](../apps/actions/index.md) app removes them from a zip file. Without an app, run `zip -d archive.zip "__MACOSX/*" "*.DS_Store"` in Terminal.
+	When you compress a folder in Finder, the zip file gets `.DS_Store` files and a `__MACOSX` folder, which people on Windows and Linux see. The “Clean Zip” action of the free [Actions](/actions) app removes them from a zip file. [Without an app](#without-an-app), run `zip -d archive.zip "__MACOSX/*" "*.DS_Store"` in Terminal.
 }
 
 ## With Actions
@@ -17,11 +17,11 @@ apps: [
 Make a shortcut one time, and then use it from the right-click menu of Finder:
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
+1. Install [Actions](/actions), and open it once.
 1. In the Shortcuts app, click the add button to make a new shortcut, and give it a name, like “Clean Zip”.
 1. Click the details button in the sidebar, and select “Use as Quick Action”, with “Finder” selected.
-1. Add the “Clean Zip” action of Actions. Its file field must show “Shortcut Input”. Then add the “Save File” action of Shortcuts.
-1. In Finder, Control-click a zip file, and choose “Quick Actions”, then your shortcut.
+1. Add the [“Clean Zip”](/actions#:~:text=Clean%20Zip) action of Actions. Its file field must show “Shortcut Input”. Then add the “Save File” action of Shortcuts.
+1. In Finder, ++Control++-click a zip file, and choose “Quick Actions”, then your shortcut.
 1. Choose where to save the clean zip file.
 }
 

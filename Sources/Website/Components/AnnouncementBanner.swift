@@ -67,20 +67,23 @@ struct AnnouncementBanner: HTML {
 					.padding(vertical: .rootEm(1), horizontal: .rootEm(1.25))
 					.border(.lightDark(.primary(200).opacity(0.4), .primary(700).opacity(0.3)))
 					.cornerRadius(.boxRadius)
+					// In dark mode, a little of the light brand colors, as a dark shade on the dark page is a dirty color, like maroon. So the banner is a quiet tint, and the icon and the button have the color.
 					.backgroundImage(
 						.linearGradient(
 							.toBottomRight,
-							.lightDark(.primary(100).opacity(0.5), .primary(900).opacity(0.25)),
-							.lightDark(.secondary(50).opacity(0.4), .secondary(900).opacity(0.2)),
-							.lightDark(.primary(50).opacity(0.5), .primary(950).opacity(0.25))
+							.lightDark(.primary(100).opacity(0.5), .primary(400).opacity(0.09)),
+							.lightDark(.secondary(50).opacity(0.4), .secondary(400).opacity(0.05)),
+							.lightDark(.primary(50).opacity(0.5), .primary(400).opacity(0.07))
 						)
 					)
 					.shadow(.small)
 					.textAlign(.center)
+					// In a row, the corners follow the round ends of the button: the padding plus half the height of a small button (2.3125rem).
 					.from(.smallTablet) {
 						$0
 							.flexDirection(.row)
 							.textAlign(.leading)
+							.cornerRadius(.rootEm(1 + 2.3125 / 2))
 					}
 			case .icon:
 				Style()
@@ -95,7 +98,7 @@ struct AnnouncementBanner: HTML {
 			case .text:
 				// On phones, the text is centered above the button, so its lines have about the same length, and the last line is not one or two words, like the date of a sale. Not from small tablets, where the text is in a row with the button, and shorter lines would leave a gap before the button.
 				Style()
-					.font(size: .rootEm(0.9375))
+					.font(size: TextSize.callout.size)
 					.fontWeight(.medium)
 					.color(.bodyText)
 					.below(.smallTablet) {

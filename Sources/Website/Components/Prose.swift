@@ -65,6 +65,10 @@ enum ProseStyles: String, StyleSet {
 	case keyboardShortcutWithPunctuation
 	case menuPathItem
 	case menuPathSeparator
+	case hyphenatedWord
+	case linkIcon
+	case linkTag
+	case shortCode
 	case tableContainer
 	case alert
 	case alertNote
@@ -86,7 +90,12 @@ enum ProseStyles: String, StyleSet {
 	case headingAnchor
 	case listSubtitle
 	case listDescription
+	case commandList
 	case boldLabel
+	case leadIn
+	case sideNote
+	case quoteSource
+	case headingGroup
 
 	/**
 	Every style is scoped, so the closest one wins over the prose root, like an alert inside prose, as the nearest scope wins when specificity is equal.
@@ -128,6 +137,16 @@ enum ProseStyles: String, StyleSet {
 			Self.menuPathItemStyle
 		case .menuPathSeparator:
 			Self.menuPathSeparatorStyle
+		case .hyphenatedWord:
+			Self.hyphenatedWordStyle
+		// The icon of an app before a link to its page stays on one line with the first word of the link (``SiteKit/MarkdownElement/linkIcon``).
+		case .linkIcon:
+			Style().textWrap(.nowrap)
+		case .linkTag:
+			Self.linkTagStyle
+		// Short inline code stays on one line (``SiteKit/MarkdownElement/shortCode``).
+		case .shortCode:
+			Style().textWrap(.nowrap)
 		case .tableContainer:
 			Self.tableContainerStyle
 		case .alert:
@@ -170,8 +189,19 @@ enum ProseStyles: String, StyleSet {
 			Self.listSubtitleStyle
 		case .listDescription:
 			Self.listDescriptionStyle
+		case .commandList:
+			Self.commandListStyle
 		case .boldLabel:
 			Self.boldLabelStyle
+		// A paragraph that ends with a colon has no style of its own, but the block below it has no space above it (``Style/proseBlockMargin()``).
+		case .leadIn:
+			Style()
+		case .sideNote:
+			Self.sideNoteStyle
+		case .quoteSource:
+			Self.quoteSourceStyle
+		case .headingGroup:
+			Self.headingGroupStyle
 		}
 	}
 }
@@ -208,6 +238,14 @@ extension MarkdownTheme {
 			ProseStyles.menuPathItem.className
 		case .menuPathSeparator:
 			ProseStyles.menuPathSeparator.className
+		case .hyphenatedWord:
+			ProseStyles.hyphenatedWord.className
+		case .linkIcon:
+			ProseStyles.linkIcon.className
+		case .linkTag:
+			ProseStyles.linkTag.className
+		case .shortCode:
+			ProseStyles.shortCode.className
 		case .tableContainer:
 			ProseStyles.tableContainer.className
 		case .collapsibleSections:
@@ -234,8 +272,18 @@ extension MarkdownTheme {
 			ProseStyles.listSubtitle.className
 		case .listDescription:
 			ProseStyles.listDescription.className
+		case .commandList:
+			ProseStyles.commandList.className
 		case .boldLabel:
 			ProseStyles.boldLabel.className
+		case .leadIn:
+			ProseStyles.leadIn.className
+		case .sideNote:
+			ProseStyles.sideNote.className
+		case .quoteSource:
+			ProseStyles.quoteSource.className
+		case .headingGroup:
+			ProseStyles.headingGroup.className
 		}
 	}
 }

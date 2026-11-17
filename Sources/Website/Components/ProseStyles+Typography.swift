@@ -25,23 +25,28 @@ extension ProseStyles {
 		.contentColumn(.prose)
 		.frame(width: .percent(100))
 		.font(size: .rootEm(1.125), lineHeight: 1.65)
+		// On phones, a line has about 38 characters, not 87, and a short line needs less space between lines, so the eye still finds the start of the next line. The line height of body text (``TextStyle/body``).
+		.below(.smallTablet) {
+			$0.lineHeight(1.55)
+		}
 		.letterSpacing(.zero)
 		.overflowWrap(.breakWord)
 		.color(.bodyText)
-		// Long words break with a hyphen only on phones, where the column is narrow, like the long answers of an FAQ. Only words of 8 letters or more, as a short word with a hyphen, like “mac-OS” or “al-ways”, is harder to read than a shorter line. An opening quote hangs outside the column, so the text lines up. Like in a book, for all prose, not only blog posts.
-		.below(.smallTablet) {
-			$0.hyphenation(minimumWordLength: 8)
-		}
+		// An opening quote hangs outside the column, so the text lines up. Like in a book, for all prose, not only blog posts. Words do not break with a hyphen, also not on phones, as a hyphen splits many short words, like “meet-ing,” (browsers count the punctuation after a word), and the lines are already even (`text-wrap: pretty`).
 		.hangingPunctuation(.first)
 		// A list has the space of a paragraph around it.
 		.descendants("p, ul, ol") {
 			$0.margin(vertical: .em(1), horizontal: .zero)
 		}
-		// A link wraps only between its words, as a hyphen in a link cuts its underline in two, so it looks like two links, like “Send me a mes-” and “sage”.
+		// A link wraps only between its words, also in a text that breaks long words (``Style/breaksLongWords()``), as a hyphen in a link cuts its underline in two, so it looks like two links, like “Send me a mes-” and “sage”.
 		.descendants("a") {
 			$0
 				.textLink()
 				.hyphenation(false)
+		}
+		// A link with code, like “`uint8array-extras` package”, has one straight underline below the code, as the underline position of each font is different, and the underline of the code would cut through its fill.
+		.descendants("a:has(code)") {
+			$0.underlinePosition(.under)
 		}
 		.descendants("strong") {
 			$0
@@ -76,7 +81,7 @@ extension ProseStyles {
 		// Larger headings, up to `h3`, get tighter letter spacing, like the system fonts of Apple platforms.
 		.descendants("h2") {
 			$0
-				.margin(top: .rootEm(5), horizontal: .zero, bottom: .rootEm(1.5))
+				.margin(top: .length(.partSpacing(rootEm: 5)), horizontal: .zero, bottom: .rootEm(1.5))
 				.textStyle(.sectionTitle)
 		}
 		// Each level is clearly smaller than the one above it: 22px, then the 18px of the text, and then 16px.
@@ -138,6 +143,16 @@ extension ProseStyles {
 		.descendants("blockquote, pre, img, video, picture, figure, \(class: ProseStyles.tableContainer), \(class: CodeBlock.Styles.root)") {
 			$0.proseBlockMargin()
 		}
+		// A collapsible section outside a group of questions, like `@Details`, is a block, like an alert. Sections in a row have the gap of the questions of an FAQ, so they do not touch. Only directly in the prose, as the questions of an FAQ are in their group, and a section in a box, like a box of tips, has the spacing of the box.
+		.children(":where(details)") {
+			$0.proseBlockMargin()
+		}
+		.children(":where(details:has(+ details))") {
+			$0.margin(.bottom, .length(collapsibleSectionSpacing))
+		}
+		.children(":where(details + details)") {
+			$0.margin(.top, .length(collapsibleSectionSpacing))
+		}
 		.descendants("\(class: CodeBlock.Styles.root)") {
 			$0.widerThanProse()
 		}
@@ -164,6 +179,10 @@ extension ProseStyles {
 				$0.content(.closeQuote)
 			}
 		}
+		// A quote with its source below it has only the space of the source between them (``ProseStyles/quoteSourceStyle``).
+		.descendants("blockquote:has(+ \(class: ProseStyles.quoteSource))") {
+			$0.margin(.bottom, .zero)
+		}
 		// The look of a picture of a window, like the screenshots of a guide, so a white image has an edge on the white page. App icons (`icon.png`) have their own shape and shadow.
 		.descendants("img:not([src$='/icon.png'])") {
 			$0.windowSurface()
@@ -174,17 +193,7 @@ extension ProseStyles {
 				.font(size: smallTextSize, lineHeight: 1.5)
 				.color(.secondaryText)
 		}
-		// Code is not hyphenated, like the prose on phones, as a hyphen would change it. A faint fill shows the code, not a heavier weight, so a sentence or a table with much code is not a wall of bold text.
-		.descendants("code") {
-			$0
-				.font(size: smallTextSize)
-				.padding(vertical: .em(0.125), horizontal: .em(0.375))
-				.cornerRadius(.smallRadius)
-				// Code that wraps over two lines has one fill, which the line break cuts, so the pieces of a long URL in a table do not become pills of their own.
-				.background(.black.opacity(0.05), dark: .white.opacity(0.09))
-				.color(.primaryText)
-				.hyphenation(false)
-		}
+		.combined(with: inlineCode)
 		// Strong text and code in links, quotes, headings, and table headers have the color of the text around them.
 		.descendants(":is(a, blockquote, h1, h2, h3, h4, h5, h6, th) :is(strong, code)") {
 			$0.inherits(.color)
@@ -200,6 +209,25 @@ extension ProseStyles {
 				.background(.transparent)
 				.inheritsFont()
 				.inherits(.color)
+		}
+
+	/**
+	Inline code, in prose and in other text with Markdown, like the introduction of an app hero. Code is not hyphenated, also in a text that breaks long words, as a hyphen would change it. A faint fill shows the code, not a heavier weight, so a sentence or a table with much code is not a wall of bold text. Code in a link has the color of the link.
+	*/
+	static let inlineCode = Style()
+		.descendants("code") {
+			$0
+				.font(size: smallTextSize)
+				// Little space at the sides, so a comma or a period right after the code does not look like it has a space before it.
+				.padding(vertical: .em(0.125), horizontal: .em(0.2))
+				.cornerRadius(.smallRadius)
+				// Code that wraps over two lines has one fill, which the line break cuts, so the pieces of a long URL in a table do not become pills of their own.
+				.background(.black.opacity(0.05), dark: .white.opacity(0.09))
+				.color(.primaryText)
+				.hyphenation(false)
+		}
+		.descendants("a code") {
+			$0.inherits(.color)
 		}
 
 	/**
@@ -220,6 +248,12 @@ extension ProseStyles {
 		}
 		.children(":where(:last-child)") {
 			$0.margin(.bottom, .zero)
+		}
+		// Also the last block of the last section, like a list, as its margin goes through the section, so the page ends with the same space above the footer as other pages.
+		.children(":where(section:last-child)") {
+			$0.children(":where(:last-child)") {
+				$0.margin(.bottom, .zero)
+			}
 		}
 
 	/**
@@ -245,12 +279,52 @@ extension ProseStyles {
 		}
 
 	/**
-	A paragraph that only has bold text, like `**Highlights**` or `**More features**`, which works as a label for the list or text below it. It has slightly more space above than the space between paragraphs, so it reads as the start of a new group, and not as the end of the text above. The space below stays, so the label stays with its content. The renderer only gives this class to a paragraph that has nothing but bold text, so a line like `**macOS:** Click …` keeps the normal space. This is intentional.
+	A list where each item is code with a `:: ` line below it, like the URL scheme of an app (``SiteKit/MarkdownElement/commandList``). It is a reference, so it has no bullets and no indent, and the code starts at the edge of the text, which gives a long URL more room on a phone. The items have a little more space between them, as each has two lines. The features of an app, which start with text, keep their bullets.
+	*/
+	static let commandListStyle = Style()
+		.padding(.leading, .zero)
+		.children("li") {
+			$0
+				.display(.block)
+				.padding(.leading, .zero)
+				.margin(vertical: .em(0.75), horizontal: .zero)
+		}
+
+	/**
+	A paragraph that only has bold text, like `**Highlights**` or `**More features**`, which works as a label for the list or text below it. It has slightly more space above than the space between paragraphs, so it reads as the start of a new group, and not as the end of the text above. The space below stays, so the label stays with its content. The renderer only gives this class to a paragraph that has nothing but bold text and does not end with a period (``Markdown/Paragraph/isBoldLabel``), so a line like `**macOS:** Click …` and a bold sentence keep the normal space. This is intentional.
 	*/
 	static let boldLabelStyle = Style()
 		// Not as the first block, which has no space above, and not below a heading or a rule, which has its own space below.
 		.nested("&:not(:first-child, :is(hr, h1, h2, h3, h4, h5, h6, br) + &)") {
 			$0.margin(.top, .em(1.5))
+		}
+
+	/**
+	A paragraph that only has italic text, like `*Requires macOS 26 or later*` (``SiteKit/MarkdownElement/sideNote``): a side note in the small, secondary text of the details of a list item, not in italics, as italics are hard to read for more than a few words, and the note then reads as a note. The Markdown keeps the italics, so the Markdown copy does not change.
+	*/
+	static let sideNoteStyle = Style()
+		.listDetailText()
+		// Small text in the full width of prose has lines that are too long to read, so a side note keeps a line of about 75 characters.
+		.frame(maxWidth: .em(36))
+		.children("em") {
+			$0.italic(false)
+		}
+
+	/**
+	The source of the block quote above it, like “— Darius Foroux” (``SiteKit/MarkdownElement/quoteSource``), in the small text of the source of a press quote (``QuoteFigure``), and with the indent of the text of the quote: its padding (1em of the 18px text) and its line.
+	*/
+	static let quoteSourceStyle = Style()
+		.font(.footnote, weight: .medium)
+		.color(.secondaryText)
+		.margin(.top, .rootEm(0.75))
+		.padding(.leading, .rootEm(1.375))
+
+	/**
+	A heading that starts a group and the blocks below it (``SiteKit/MarkdownElement/headingGroup``), like a group of the features of Supercharge that the chips above the list link to. The title of the group stays below the header of the site while its blocks scroll, like the topics of the guides, so a visitor in the middle of a long list knows which group a row is in. The section stops it at the end of its group, so the title of the next group replaces it.
+	*/
+	static let headingGroupStyle = Style()
+		.children(":first-child") {
+			$0.stickySectionTitle()
 		}
 
 	/**
@@ -268,10 +342,40 @@ extension ProseStyles {
 		.color(.secondaryText)
 
 	/**
-	Blog posts: colored links and optimized legibility. The hyphenation and hanging punctuation are in ``typography``, for all prose.
+	A word with a hyphen in a heading or a title, like “To-Do” (``SiteKit/MarkdownElement/hyphenatedWord``), which stays on one line.
+	*/
+	static let hyphenatedWordStyle = Style()
+		.textWrap(.nowrap)
+
+	/**
+	A link that is a small tag, like “Guide ›” for `<guide:find-screenshots-mac>` after a feature (``SiteKit/MarkdownElement/linkTag``): a quiet pill in the color of secondary text, so the link reads as a side note, not as a part of the feature, and a list with many of them stays calm. It is an inline block, so “Guide ›” stays on one line, and it is a little above the baseline, so it is in the middle of the capital letters. It has one size, like a chip, also in the smaller text of a nested list and in the larger text of an introduction. The space around it is in `em`, so it follows that size.
+	*/
+	static let linkTagStyle = Style()
+		.display(.inlineBlock)
+		.font(.footnote)
+		.fontWeight(.medium)
+		.padding(vertical: .em(0.05), horizontal: .em(0.65))
+		.margin(.leading, .em(0.25))
+		.verticalAlign(.em(0.165))
+		.cornerRadius(.capsule)
+		.color(.secondaryText)
+		.background(.card)
+		.noUnderline()
+		.hoverFill(.cardHover, color: .primaryText)
+		.after {
+			$0.content(" ›", alternativeText: "")
+		}
+		// A tag that goes to another site, like “Apple ↗” for the instructions of Apple (`SourceSite`), has an arrow that points out of the page.
+		.nested("&[href^='https:']") {
+			$0.after {
+				$0.content(" ↗", alternativeText: "")
+			}
+		}
+
+	/**
+	Blog posts: colored links, optimized legibility, and a fainter fill of code in headings. The hanging punctuation is in ``typography``, for all prose.
 	*/
 	static let articleStyle = Style()
-		.padding(.bottom, .rootEm(5))
 		// Ligatures and kerning are on by default.
 		.declaration(raw: .textRendering, "optimizeLegibility")
 		.descendants("a") {
@@ -283,6 +387,10 @@ extension ProseStyles {
 						.underlineColor(.link)
 						.underlineThickness(.pixels(4))
 				}
+		}
+		// Code in a heading has a fainter fill than in the text, so a question like “Why did `Buffer` exist?” reads as one title, not as a sentence with buttons in it. The fill stays, so the code is still set off. Only in posts, as their headings are titles, while on app pages the fill marks a menu item or a glyph in a question, like “…”.
+		.descendants(":is(h2, h3, h4) code") {
+			$0.background(.black.opacity(0.03), dark: .white.opacity(0.05))
 		}
 
 	/**
@@ -308,7 +416,7 @@ extension ProseStyles {
 		.frame(maxWidth: .length(.min(.rootEm(24), .viewportWidth(100) - .rootEm(2))))
 		.padding(vertical: .rootEm(0.75), horizontal: .rootEm(1))
 		.popoverSurface()
-		.font(size: .rootEm(0.9375), lineHeight: 1.5)
+		.font(.callout)
 		.textAlign(.leading)
 		.color(.bodyText)
 		.trimmingChildMargins()
@@ -347,10 +455,18 @@ extension Style {
 	}
 
 	/**
-	The space of a block in prose above and below the element (``ProseStyles/blockSpacing``), like code, an alert, or a card, so it is set off from the text.
+	The space of a block in prose above and below the element (``ProseStyles/blockSpacing``), like code, an alert, or a card, so it is set off from the text. Right below a heading, a bold label (``ProseStyles/boldLabelStyle``), or a paragraph that ends with a colon (``SiteKit/MarkdownElement/leadIn``), it has only the space below them, like the text, so “Apple’s instructions:” is as close to its steps as to a list.
 	*/
 	func proseBlockMargin() -> Self {
 		margin(vertical: .length(ProseStyles.blockSpacing), horizontal: .zero)
+			// Right below a heading, a bold label, or a paragraph that ends with a colon, the space of the heading or the paragraph, like the text. Here, and not only in ``ProseStyles/spacing``, as the margin of a component, like steps or cards, wins over the rules of the prose.
+			.directlyAfter("h2, h3, h4, h5, h6, \(ProseStyles.boldLabel.selector), \(ProseStyles.leadIn.selector)") {
+				$0.margin(.top, .zero)
+			}
+			// In a list item, the paragraph has only the space of list items below it, so the block below “Run this command:” of a step has the space of a paragraph above it, like below a paragraph that ends with a colon outside a list. More specific than the rule above, so it wins.
+			.directlyAfter("li > \(ProseStyles.leadIn.selector)") {
+				$0.margin(.top, .em(1))
+			}
 	}
 
 	/**
@@ -362,5 +478,9 @@ extension Style {
 			.widerThanProse()
 			.cardSurface(isInteractive: false)
 			.trimmingChildMargins()
+			// No space below the last card, like the last block of prose (``ProseStyles/spacing``), which has no specificity, so the margin of the card would win, and add to the space at the end of a page, like the last tiny app.
+			.lastChild {
+				$0.margin(.bottom, .zero)
+			}
 	}
 }

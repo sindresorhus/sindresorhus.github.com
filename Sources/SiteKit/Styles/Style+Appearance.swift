@@ -19,7 +19,14 @@ extension Style {
 	A background image, like a gradient from ``CSSImage/linearGradient(_:_:_:_:in:)``. Several images are layers, and the first one is on top.
 	*/
 	public func backgroundImage(_ image: CSSImage, _ moreImages: CSSImage...) -> Self {
-		declaration(.backgroundImage, CSSValue([image] + moreImages, separator: ", "))
+		backgroundImage([image] + moreImages)
+	}
+
+	/**
+	Background images that the code makes, like one gradient for each item of a list. The first one is on top. Without images, there is no background image (`none`).
+	*/
+	public func backgroundImage(_ images: [CSSImage]) -> Self {
+		declaration(.backgroundImage, CSSValue(images, separator: ", ", emptyValue: "none"))
 	}
 
 	/**
@@ -136,6 +143,14 @@ extension Style {
 
 	public func cornerRadius(_ radius: LengthPercentage) -> Self {
 		declaration(.borderRadius, radius)
+	}
+
+	/**
+	The radius of the two corners at the end of the block, which are the bottom corners in horizontal text (`border-end-start-radius` and `border-end-end-radius` in CSS), like square bottom corners for a row that joins the content below it.
+	*/
+	public func bottomCornerRadius(_ radius: LengthPercentage) -> Self {
+		declaration(.borderEndStartRadius, radius)
+			.declaration(.borderEndEndRadius, radius)
 	}
 
 	/**
@@ -302,6 +317,13 @@ extension Style {
 	*/
 	public func fieldSizing(_ sizing: FieldSizing) -> Self {
 		declaration(.fieldSizing, sizing)
+	}
+
+	/**
+	Whether the visitor can resize the element with its grabber, like `.disabled` for a text area that grows with its text.
+	*/
+	public func resize(_ resize: Resize) -> Self {
+		declaration(.resize, resize)
 	}
 }
 
@@ -476,6 +498,13 @@ extension Style {
 	}
 
 	/**
+	The delay before the transitions of the element start, like a fade in that waits for the fade out of another element. The `transition` shorthand resets it, so set it after the transition, or in a state, like `.when(…) { $0.transitionDelay(.milliseconds(150)) }`.
+	*/
+	public func transitionDelay(_ delay: Duration) -> Self {
+		declaration(.transitionDelay, CSSValue(raw: delay.cssValue))
+	}
+
+	/**
 	The properties expected to change soon (`will-change`), like `.willChange(.transform)`. An empty list restores `auto`. Use only for an observed performance need, as preparing many elements can consume more resources.
 	*/
 	public func willChange(_ properties: Property...) -> Self {
@@ -569,6 +598,20 @@ extension Style {
 	Makes a view timeline of a descendant available to all descendants, like a view timeline of a section for the header.
 	*/
 	public func timelineScope(_ timeline: ViewTimeline) -> Self {
+		declaration(.timelineScope, CSSValue(raw: timeline.name.description))
+	}
+
+	/**
+	Names the scrolling of the element on one axis, for scroll-driven animations of other elements (``AnimationTimeline/scrolling(_:)``). An ancestor of those elements needs the timeline in ``timelineScope(_:)``.
+	*/
+	public func scrollTimeline(_ timeline: ScrollTimeline) -> Self {
+		declaration(.scrollTimeline, CSSValue(raw: "\(timeline.name) \(timeline.axis.rawValue)"))
+	}
+
+	/**
+	Makes a scroll timeline of a descendant available to all descendants, like the scrolling of code for a fade next to it.
+	*/
+	public func timelineScope(_ timeline: ScrollTimeline) -> Self {
 		declaration(.timelineScope, CSSValue(raw: timeline.name.description))
 	}
 

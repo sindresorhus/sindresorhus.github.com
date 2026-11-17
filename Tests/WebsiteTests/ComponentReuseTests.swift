@@ -59,9 +59,9 @@ struct ComponentReuseTests {
 		#expect(css.contains("--primary-text: light-dark(var(--gray-900), #fff);"))
 		#expect(css.contains("--secondary-text: light-dark(var(--gray-500), var(--gray-400));"))
 		#expect(css.contains("--secondary-text: light-dark(var(--gray-700), var(--gray-300));"))
-		#expect(css.contains("--page-background: light-dark(#fff, oklch(14% .012 264));"))
+		#expect(css.contains("--page-background: light-dark(#fff, #07090e);"))
 		#expect(SemanticColor.pageBackgroundColors.light.resolved.description == "#fff")
-		#expect(SemanticColor.pageBackgroundColors.dark.resolved.description == "oklch(14% .012 264)")
+		#expect(SemanticColor.pageBackgroundColors.dark.resolved.description == "#07090e")
 	}
 
 	@Test

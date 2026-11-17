@@ -3,20 +3,21 @@ title: 'How to Copy a File Path on Mac'
 description: 'Copy the path of a file or folder in Finder with Option+Command+C, or with a Copy Path item in the right-click menu from Supercharge.'
 publicationDate: 2026-11-07
 topic: 'finder-and-desktop'
+shortcut: 'Option+Command+C'
 apps: [
 	'supercharge'
 ]
 ---
 
 @QuickAnswer {
-	Select the file in Finder, and press ++Option+Command+C++. Or right-click the file, hold ++Option++, and choose “Copy … as Pathname”. To have a “Copy Path” item in the right-click menu without the ++Option++ key, use [Supercharge](../apps/supercharge/index.md).
+	Select the file in Finder, and press ++Option+Command+C++. Or right-click the file, hold ++Option++, and choose “Copy … as Pathname”. To have a “Copy Path” item in the right-click menu without the ++Option++ key, use [Supercharge](/supercharge).
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), click “Tweaks”, and click “Configure…” next to “Context menu items”.
-1. In the “Main Menu” tab, turn on “Copy Path”. You can also turn on “Copy Filename”, “Copy File URL”, and “Copy Markdown Link”.
+1. Open the settings of [Supercharge](/supercharge), click “Tweaks”, and click “Configure…” next to “Context menu items”.
+1. In the “Main Menu” tab, turn on “Copy Path”. You can also turn on “Copy Filename” ([guide](guide:copy-file-names-mac)), “Copy File URL”, and “Copy Markdown Link”.
 1. Right-click a file or folder in Finder, and choose “Copy Path”. To copy the path of the open folder, right-click an empty area of the window.
 }
 

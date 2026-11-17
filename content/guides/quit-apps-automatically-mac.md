@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	macOS cannot quit an app after you stop using it. [Supercharge](../apps/supercharge/index.md) quits or hides the apps that you choose, like Slack, some minutes after you switch away from them.
+	macOS cannot quit an app after you stop using it. [Supercharge](/supercharge) quits or hides the apps that you choose, like Slack, some minutes after you switch away from them.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “Apps & Windows” section, click “Configure…” next to “Automatically quit or hide inactive apps”.
 1. Click the add button, and choose an app, like Slack.
 1. Choose “Quit” or “Hide”, and the time, from 1 minute to 24 hours. The default is 3 minutes.
@@ -28,7 +28,7 @@ The time starts when you switch away from the app. Supercharge does not quit or 
 
 macOS has no setting for this. Two built-in features come close:
 
-- **Screen Time:** “System Settings › Screen Time › Time Allowances” (“App Limits” on macOS 26 and earlier) sets how long you can use some kinds of apps each day, like social media.
-- **Quit all apps:** Quit all apps at once, like at the end of the day. See [How to Quit All Apps on Mac at Once](quit-all-apps-mac.md).
+- **Screen Time:** “[System Settings › Screen Time › Time Allowances](x-apple.systempreferences:com.apple.Screen-Time-Settings.extension)” (“App Limits” on macOS 26 and earlier) sets how long you can use some kinds of apps each day, like social media.
+- **Quit all apps:** Quit all apps at once, like at the end of the day. See [How to Quit All Apps on Mac at Once](guide:quit-all-apps-mac).
 
 Neither quits an app when you stop using it. Supercharge is for apps that you open for a moment and then forget, like chat apps.

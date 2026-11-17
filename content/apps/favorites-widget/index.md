@@ -25,9 +25,9 @@ sharedQuestions: [
 <!-- Call, message, or email your favorite people directly from the Lock Screen, Home Screen, or desktop. -->
 Call, message, or email your favorite people directly from the Lock Screen or Home Screen.
 
-A tap can also start a FaceTime video or audio call, or open the chat in WhatsApp or Telegram.
+A tap can also start a FaceTime video or audio call, or open the chat in WhatsApp or Telegram. <guide:add-whatsapp-chat-to-iphone-home-screen>
 
-The widget comes in small, medium, large, and extra large sizes for the Home Screen, and in round, rectangular, and inline sizes for the Lock Screen. To align widgets on the Lock Screen, add the empty “Spacer” widget.
+The widget comes in small, medium, large, and extra large sizes for the Home Screen, and in round, rectangular, and inline sizes for the Lock Screen. To align widgets on the Lock Screen, add the empty “Spacer” widget. <guide:add-contact-to-iphone-lock-screen>
 
 Edit a widget to give the contact another name, or to hide the name or the photo. On the Home Screen, the widget can also show the photo as a circle or as the full widget (“Full Image”), show the full name, and keep the colors of the photo when the Home Screen is tinted (“Keep Photo Colors”).
 

@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	[Day Progress](../apps/day-progress/index.md) shows how much of your day is left as a pie or a bar in the menu bar. Click it to see the percentage and the time until the end of the day. macOS only shows the time, so without an app, you count the hours yourself, or set a timer in the Clock app.
+	[Day Progress](/day-progress) shows how much of your day is left as a pie or a bar in the menu bar. Click it to see the percentage and the time until the end of the day. [Without an app](#without-an-app), count the hours yourself, or set a timer in the Clock app.
 }
 
 ## With Day Progress
 
 @Steps {
-1. Open [Day Progress](../apps/day-progress/index.md). The progress of your day shows in the menu bar.
+1. Open [Day Progress](/day-progress). The progress of your day shows in the menu bar.
 1. Open its settings, and click “Schedule”.
 1. Click the duration to edit it, or click the add button (+) below the list, and set the “Time range” of your day, like your work hours. Each day of the week can have its own times, and the end can be after midnight, like 2 AM.
 1. Click the menu bar item to see the time until the end, and the time since the start.
@@ -32,4 +32,6 @@ macOS has no setting that shows how much of the day is left. The menu bar clock 
 1. Set the time until the end of your day, and click “Start”.
 }
 
-The timer shows the time that is left, and a notification appears at the end, but you must set it again each day. [Apple’s instructions.](https://support.apple.com/guide/clock-mac/apdw3d5aebf9/mac) Day Progress follows your schedule by itself, and shows the progress at a glance in the menu bar.
+The timer shows the time that is left, and a notification appears at the end, but you must set it again each day. <source:https://support.apple.com/guide/clock-mac/apdw3d5aebf9/mac>
+
+Day Progress follows your schedule by itself, and shows the progress at a glance in the menu bar.

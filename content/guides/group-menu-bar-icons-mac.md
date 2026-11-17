@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open the free [Spaced](../apps/spaced/index.md) app, which adds a separator to the menu bar. Hold ++Command++, and drag the separator and the icons, so related icons sit together. Without an app, you can only change the order of the icons, with ++Command++ and drag, and turn some off.
+	Open the free [Spaced](/spaced) app, which adds a separator to the menu bar. Hold ++Command++, and drag the separator and the icons, so related icons sit together. [Without an app](#without-an-app), you can only change the order of the icons, with ++Command++ and drag, and turn some off.
 }
 
 ## With Spaced
 
 @Steps {
-1. Open [Spaced](../apps/spaced/index.md). It adds a separator to the menu bar.
+1. Open [Spaced](/spaced). It adds a separator to the menu bar.
 1. To add another separator, click a separator, and choose “New”.
 1. Hold ++Command++, and drag the separators and the icons of your apps, so each group has a separator between it and the next.
 }
@@ -30,7 +30,7 @@ screenshot: {
 - Turn on “Reduced opacity” in the settings, so the separators draw less attention.
 }
 
-Spaced only adds separators. It does not hide icons. On macOS 26 and earlier, [Menu Bar Spacing](../apps/menu-bar-spacing/index.md) makes the gap between the icons smaller, so more icons fit in the menu bar of a MacBook. It does not work on macOS 27.
+Spaced only adds separators. It does not hide icons. On macOS 26 and earlier, [Menu Bar Spacing](/menu-bar-spacing) makes the gap between the icons smaller, so more icons fit in the menu bar of a MacBook. It does not work on macOS 27.
 
 ## Without an app
 

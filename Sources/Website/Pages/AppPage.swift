@@ -15,6 +15,13 @@ struct AppPage: Page {
 	}
 
 	/**
+	An archived app is below the list of archived apps, where the apps page lists it, so a visitor from an old link sees what “archived” means and the other archived apps, like “Apps › Archived Apps › Jiffy”.
+	*/
+	var parents: [LabeledLink] {
+		app.isArchived ? [.apps, LabeledLink(AppCategory.archived.title, path: AppCategory.archived.path)] : [.apps]
+	}
+
+	/**
 	Whether guides are about the app, which the end of the page lists, and the “…” menus link to.
 	*/
 	private var hasGuides: Bool {
@@ -22,10 +29,23 @@ struct AppPage: Page {
 	}
 
 	/**
-	With the icon and the screenshots. An unlisted app is left out, as it is not indexed, like it is left out of the app lists, and like an unlisted post.
+	With the icon, the screenshots, and the demo videos, like in the structured data. An unlisted app is left out, as it is not indexed, like it is left out of the app lists, and like an unlisted post.
 	*/
 	var sitemapEntry: SitemapEntry {
-		SitemapEntry(lastModified: app.lastModified, images: ([app.iconURL] + app.screenshotURLs).map { AbsoluteURL($0) })
+		let videos = app.media.compactMap(\.video).map { video in
+			SitemapEntry.Video(
+				title: app.demoVideoTitle,
+				description: app.subtitle,
+				thumbnail: AbsoluteURL(video.poster.absoluteURL),
+				content: AbsoluteURL(video.path.absoluteURL)
+			)
+		}
+
+		return SitemapEntry(
+			lastModified: app.lastModified,
+			images: ([app.iconURL] + app.screenshotURLs).map { AbsoluteURL($0) },
+			videos: videos
+		)
 	}
 
 	var socialImage: SocialImage {
@@ -49,8 +69,26 @@ struct AppPage: Page {
 			appStoreID: app.showsAppStoreBanner ? app.appStoreID : nil,
 			favicon: app.iconPath,
 			video: app.media.lazy.compactMap(\.video).first,
-			feeds: app.releaseNotes.map { [$0.feed] } ?? []
+			feeds: app.releaseNotes.map { [$0.feed] } ?? [],
+			discordEmbed: discordEmbed
 		)
+	}
+
+	/**
+	The link preview of the page in Discord, like a small store page: the name with a link to the page, the description, and the icon, the first three screenshots, and the places to get the app as buttons, in the order of the buttons of the page.
+	*/
+	private var discordEmbed: DiscordEmbed {
+		let screenshots = app.screenshots.prefix(3).map(\.path.absoluteURL)
+		let buttons = app.downloadOptions.map { (title: $0.title, url: $0.url.absoluteURL(on: app.path)) }
+
+		let components: [DiscordEmbed.Component?] = [
+			.text("## [\(app.title)](\(app.absoluteURL.absoluteString))\n\(app.description)", thumbnail: app.iconURL),
+			screenshots.isEmpty ? nil : .gallery(screenshots),
+			buttons.isEmpty ? nil : .separator,
+			buttons.isEmpty ? nil : .linkButtons(buttons),
+		]
+
+		return DiscordEmbed(components: components.compactMap(\.self))
 	}
 
 	var body: some HTML {
@@ -90,11 +128,11 @@ struct AppPage: Page {
 				let sections = remainder.separatedBeforeFirstSection
 				let description = sections?.before ?? remainder
 
-				if !description.html.allSatisfy(\.isWhitespace) {
+				if !description.html.rawValue.allSatisfy(\.isWhitespace) {
 					Prose(markdown: description)
 				}
 
-				// After the features, a visitor who already uses another app asks how this one is different, and the answers are far down in the FAQ.
+				// After the features, a visitor who already uses another app asks how this one is different, and the answers are far down in the FAQ. The label and the chips are one row, like “Compared with Clock widget”, and the chips go below the label when they do not fit next to it.
 				if !comparisonLinks.isEmpty {
 					div {
 						p {
@@ -114,7 +152,9 @@ struct AppPage: Page {
 					.style {
 						$0
 							.contentColumn(.prose)
-							.vstack(alignment: .start, spacing: .rootEm(1))
+							.hstack(alignment: .center)
+							.flexWrap()
+							.gap(row: .rootEm(0.5), column: .rootEm(0.75))
 					}
 				}
 
@@ -133,11 +173,22 @@ struct AppPage: Page {
 
 				// The end of the page is set apart from the text above it, like the FAQ.
 				if app.isDownloadable {
-					AppCallToAction(listing: listing, buildDate: content.buildDate)
+					// The announcement again, right above the box, so a visitor who reads the whole page and gets the app at its end sees it too, like a bundle or a sale. It has the space above the box.
+					if let banner {
+						banner
+							.style {
+								$0.margin(.top, .length(.partSpacing(rootEm: 9)))
+							}
+					}
+
+					AppCallToAction(listing: listing, buildDate: content.buildDate, trialDialogID: AppHero.trialDialogID)
 						.style {
 							// Until there is space at its sides (``Breakpoint/proseWithGutters``), the panel is as wide as the screen, so it has no corners and no edges at its sides.
 							$0
 								.margin(.top, .length(.partSpacing(rootEm: 9)))
+								.directlyAfter(AnnouncementBanner.Styles.root.selector) {
+									$0.margin(.top, .rootEm(1.5))
+								}
 								.below(.proseWithGutters) {
 									$0
 										.cornerRadius(.zero)
@@ -153,7 +204,12 @@ struct AppPage: Page {
 				{
 					AppFacts(listing: listing, buildDate: content.buildDate)
 						.style {
-							$0.margin(.vertical, .length(.partSpacing(rootEm: 9)))
+							// Until there is space at its sides (``Breakpoint/proseWithGutters``), it has the space of the page at its sides, like the text above it, as it has no box around it.
+							$0
+								.margin(.vertical, .length(.partSpacing(rootEm: 9)))
+								.below(.proseWithGutters) {
+									$0.padding(.horizontal, .pageGutter)
+								}
 						}
 				}
 
@@ -193,10 +249,26 @@ struct AppPage: Page {
 
 	/**
 	The questions of the FAQ that compare the app with another app or feature (`@faq.compares`), as links to their answers, with the name of the other app, like “MeetingBar”. The page opens the question that a link points to.
+
+	Then the questions of my other apps that compare them with this app, as links to the answers on their pages, like “Menu Bar Calendar” on the page of Dato for “What does Dato add?”, so a comparison of two of my apps shows on both pages. An app that the page already compares with gets no second chip.
+
+	A link about one of my other apps has its icon, unless the app has only the placeholder icon, so a visitor sees that the comparison is with an app of mine.
 	*/
 	private var comparisonLinks: [LabeledLink] {
-		app.faqHeadings.compactMap { heading in
-			heading[FAQDirectives.Compares.self].map { LabeledLink($0, destination: .fragment(heading.id)) }
+		let links: [LabeledLink] = app.faqHeadings.compactMap { heading in
+			heading[FAQDirectives.Compares.self].map { name in
+				LabeledLink(name, destination: .fragment(heading.id), iconOf: content.activeAppsWithPages.first { $0.title == name })
+			}
+		}
+
+		let linksOfOtherApps: [LabeledLink] = content.activeAppsWithPages.flatMap { other in
+			other.faqHeadings
+				.filter { $0[FAQDirectives.Compares.self] == app.title }
+				.map { LabeledLink(other.title, destination: .path(other.path, fragment: $0.id), iconOf: other) }
+		}
+
+		return links + linksOfOtherApps.filter { link in
+			!links.contains { $0.title == link.title }
 		}
 	}
 }
@@ -211,7 +283,6 @@ extension AppPage {
 			case .root:
 				// Each part has its own width, like the app cards (``RelatedApps``), which are as wide as the content of the header.
 				Style()
-					.margin(.bottom, .rootEm(2.5))
 					.pagePadding()
 					.from(.laptop) {
 						$0.margin(.top, .rootEm(-2.5))
@@ -228,7 +299,7 @@ extension AppPage {
 }
 
 /**
-Links that open ChatGPT or Claude with a prompt to answer questions about an app from the Markdown copy of its page (``RoutePath/markdownCopy``), below the heading of the FAQ section of the page (``MarkdownDocument/Options/appPage(_:project:frontmatter:sharedQuestions:shortcuts:)``). The assistant reads the page and asks the visitor for the question (``Assistant/url(prompt:)``). The Markdown copy does not have the links, as the assistant reads it.
+Links that open ChatGPT or Claude with a prompt to answer questions about an app from the Markdown copy of its page (``RoutePath/markdownCopy``), below the heading of the FAQ section of the page (``MarkdownDocument/Options/appPage(_:project:frontmatter:sharedQuestions:shortcuts:appIconCopies:)``). The assistant reads the page and asks the visitor for the question (``Assistant/url(prompt:)``). The Markdown copy does not have the links, as the assistant reads it.
 */
 struct AssistantLinks: HTML {
 	enum Assistant {

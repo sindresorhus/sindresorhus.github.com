@@ -9,8 +9,8 @@ tags: [
 ]
 ---
 
-> [!NOTE]
-> **Update, October 2026:** Base64 and hex are now built into JavaScript, with [`Uint8Array#toBase64()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/toBase64), `Uint8Array.fromBase64()`, `Uint8Array#toHex()`, and `Uint8Array.fromHex()`. They are Baseline 2025 in browsers, and in Node.js 25 and later. The examples and the lint configs below are updated.
+> [!NOTE] Update, October 2026
+> Base64 and hex are now built into JavaScript, with [`Uint8Array#toBase64()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/toBase64), `Uint8Array.fromBase64()`, `Uint8Array#toHex()`, and `Uint8Array.fromHex()`. They are Baseline 2025 in browsers, and in Node.js 25 and later. The examples and the lint configs below are updated.
 
 The [`Buffer`](https://nodejs.org/api/buffer.html) type has been the cornerstone for binary data handling in Node.js since the beginning. However, these days we have [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array), which is a native JavaScript type and works cross-platform. While `Buffer` is an instance of `Uint8Array`, it introduces numerous methods that are not available in other JavaScript environments. Consequently, code leveraging Buffer-specific methods needs polyfilling, preventing many valuable packages from being browser-compatible.
 
@@ -97,7 +97,7 @@ Since `Buffer` is a subclass of `Uint8Array`, you can just treat it like a `Uint
 
 Most Node.js APIs accept `Uint8Array` too, so no extra work was required. Ideally, this code should also transition to [Web Crypto](https://nodejs.org/api/webcrypto.html), but that’s not relevant to this example.
 
-#### TypeScript
+### TypeScript
 
 ```diff
 -import {Buffer} from 'node:buffer';

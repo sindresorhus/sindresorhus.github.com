@@ -15,7 +15,7 @@ struct AppListing {
 	var appcast: Appcast?
 
 	/**
-	The product of an app that is sold on Gumroad, for its rating.
+	The product of an app that is sold on Gumroad, for its rating. Its reviews are in ``storeReviews``.
 	*/
 	var gumroadProduct: GumroadProduct?
 
@@ -25,15 +25,15 @@ struct AppListing {
 	var setappRating: SetappRating?
 
 	/**
-	The recent five-star App Store reviews, newest first, also the ones that ``reviews`` leaves out.
+	The recent five-star reviews on the App Store, or on Gumroad for an app that is sold there, newest first, also the ones that ``reviews`` leaves out.
 	*/
-	var appStoreReviews = [AppStoreReview]()
+	var storeReviews = [StoreReview]()
 
 	/**
-	The recent five-star App Store reviews, newest first. For a paid app, reviews that call it free are left out, as they were written while it was free and would confuse visitors about the price.
+	The recent five-star reviews (``storeReviews``), newest first. For a paid app, reviews that call it free are left out, as they were written while it was free and would confuse visitors about the price.
 	*/
-	var reviews: [AppStoreReview] {
-		appStoreReviews.filter { review in
+	var reviews: [StoreReview] {
+		storeReviews.filter { review in
 			!(app.isPaid && review.callsAppFree)
 		}
 	}
@@ -51,9 +51,24 @@ struct AppListing {
 	}
 
 	/**
+	The number of free updates of a paid app with release notes (``updateCount``), like 52 for Supercharge, as it shows that the one-time price includes the work that came later. `nil` for a free app, which has only free updates, and for an app without release notes or updates.
+	*/
+	var freeUpdateCount: Int? {
+		guard
+			app.isPaid,
+			app.releaseNotes != nil,
+			updateCount > 0
+		else {
+			return nil
+		}
+
+		return updateCount
+	}
+
+	/**
 	The four newest reviews, which the app page shows. They fill two rows of two, so none is alone in a row. The wall of love has more.
 	*/
-	var newestReviews: [AppStoreReview] {
+	var newestReviews: [StoreReview] {
 		Array(reviews.prefix(4))
 	}
 
@@ -85,21 +100,24 @@ struct AppListing {
 	/**
 	The lowest OS version (``minimumOSVersion``) with the platforms, like “macOS 26 or later”. An app on several platforms names them once, like “macOS, iOS, or visionOS 26 or later”, as the platforms share their version numbers.
 	*/
-	var requirement: String? {
-		guard let minimumOSVersion else {
-			return nil
-		}
-
-		let platforms = app.platforms.map(\.rawValue).formattedList(.or)
-
-		return "\(platforms) \(minimumOSVersion) or later"
+	var requirement: OSRequirement? {
+		minimumOSVersion.map { OSRequirement(platforms: app.platforms, version: $0) }
 	}
 
 	/**
-	The requirement (``requirement``) as a sentence, like “Requires macOS, iOS, or visionOS 26 or later”.
+	The trial card of the app (``App/Frontmatter/trialCard``) for the trial dialog, which covers the requirement of the hero, so the card shows it next to its button when the trial has no requirement of its own. A trial that is a download is only for the Mac, so it says only macOS, like “Requires macOS 27 or later”.
 	*/
-	var requirementSentence: String? {
-		requirement.map { OSVersion.requirementPrefix + $0 }
+	var trialCard: AppDownloadCard? {
+		guard
+			var card = app.frontmatter.trialCard,
+			let trial = app.frontmatter.trial
+		else {
+			return nil
+		}
+
+		let appRequirement = trial.isMacOnly ? minimumOSVersion.map(OSRequirement.macOS) : requirement
+		card.requirement = card.requirement ?? appRequirement?.sentence
+		return card
 	}
 
 	/**
@@ -123,23 +141,14 @@ struct AppListing {
 	}
 
 	/**
-	The lowest version of each platform, like “macOS 26 or later, iOS 26 or later”, for the structured data, which has no sentence around it.
-	*/
-	var minimumVersionsByPlatform: String? {
-		minimumOSVersion.map { version in
-			app.platforms.map { "\($0.rawValue) \(version) or later" }.joined(separator: ", ")
-		}
-	}
-
-	/**
-	The platforms and the requirement as one fact (``requirementSentence``), like “Requires macOS, iOS, or visionOS 26 or later”, or only the platforms when the requirement is unknown, like “Available on macOS and iOS”.
+	The platforms and the requirement as one fact (``requirement``), like “Requires macOS, iOS, or visionOS 26 or later”, or only the platforms when the requirement is unknown, like “Available on macOS and iOS”.
 	*/
 	var availabilityFact: String {
-		requirementSentence ?? "Available on \(app.platforms.map(\.rawValue).formattedList(.and))"
+		requirement?.sentence ?? "Available on \(app.platforms.map(\.rawValue).formattedList(.and))"
 	}
 
 	/**
-	The rating that the page shows after at least ten ratings and one whole year since publication: on the App Store, or on Gumroad for an app that is sold there, or else on Setapp, like for a Mac App Store app, as Apple gives no ratings for them. One source is enough, and the stores come before Setapp. The structured data has the same rating, as it must be visible on the page. Archived apps have no information section, so their rating is not shown.
+	The rating that the page shows after at least ten ratings and one whole year since publication: on the App Store (of the iPhone and the Mac version together for a universal app), or on Gumroad for an app that is sold there, or else on Setapp, like for an app that has no ratings on a store. One source is enough, and the stores come before Setapp. The structured data has the same rating, as it must be visible on the page. Archived apps have no information section, so their rating is not shown.
 	*/
 	func rating(at date: Date) -> AppRating? {
 		guard
@@ -309,6 +318,44 @@ struct AppListing {
 	*/
 	var fileSize: Int64? {
 		appStoreInfo?.fileSize ?? appcast?.fileSize
+	}
+
+	/**
+	The size of the download (``fileSize``) as text, like “6 MB” or “2.87 GB”, in whole megabytes below a gigabyte. A universal app has the size of each version, as they are often far apart, like “2.87 GB on Mac” and “1.84 GB on iPhone and iPad” for Aiko, with the Mac first, as most visitors use a Mac. Empty when the size is unknown.
+	*/
+	var fileSizeTexts: [String] {
+		func text(_ size: Int64) -> String {
+			// From 999.5 MB, which would round to “1000 MB”.
+			guard size >= 999_500_000 else {
+				return "\((Double(size) / 1_000_000).formatted(.number.grouping(.never).locale(.site).precision(.fractionLength(0)))) MB"
+			}
+
+			return size.formatted(.siteFileSize)
+		}
+
+		guard let fileSize else {
+			return []
+		}
+
+		guard let iOSFileSize = appStoreInfo?.iOSFileSize else {
+			return [text(fileSize)]
+		}
+
+		return [
+			"\(text(fileSize)) on Mac",
+			"\(text(iOSFileSize)) on iPhone and iPad",
+		]
+	}
+
+	/**
+	The size of the app as the Size fact of its page and its Markdown copy show it: the size of the download (``fileSizeTexts``), and then the model that the app downloads at its first launch (`downloadedModelSize`), like “66 MB” and “plus the 16 GB model” for Imago, as a visitor with little free space must see the large download before the purchase. Empty when the size of the download is unknown.
+	*/
+	var sizeLines: [String] {
+		guard !fileSizeTexts.isEmpty else {
+			return []
+		}
+
+		return fileSizeTexts + [app.frontmatter.downloadedModelSize.map { "plus the \(Int64($0.value).formatted(.siteFileSize)) model" }].compactMap(\.self)
 	}
 }
 

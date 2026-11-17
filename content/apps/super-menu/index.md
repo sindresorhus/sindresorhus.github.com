@@ -9,6 +9,9 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6806784705
+categories: [
+	'files'
+]
 sharedQuestions: [
 	'menu-bar-icons'
 	'backup-settings'
@@ -27,7 +30,7 @@ pressQuotes: [
 Build one fast, personal menu for everything you open often, like your project folders, your work apps, a few websites, and the shortcuts and scripts you run every day.
 
 @Feature(title: "Arranged your way") {
-Add files, folders, apps, links, shortcuts, and scripts from anywhere, and arrange them in sections and nested submenus, or show apps as icons, like a small Dock. Show groups only in the apps they are for, or only while you hold Option, and turn a group into a workspace that opens its files, folders, apps, and links with one click. Open the menu from the menu bar, or at the pointer with a keyboard shortcut. [Drag items into the organizer](#tips) to fill the menu in a minute.
+Add files, folders, apps, links, shortcuts, and scripts from anywhere, and arrange them in sections and nested submenus, or show apps as icons, like a small Dock. Show groups only in the apps they are for, or only while you hold Option, and turn a group into a workspace that opens its files, folders, apps, and links with one click. Open the menu from the menu bar, or at the pointer with a keyboard shortcut. [Drag items into the organizer](#tips) to fill the menu in a minute. <guide:add-apps-to-menu-bar-mac>
 }
 
 @Feature(title: "Browse folders without opening Finder") {
@@ -38,7 +41,7 @@ Hover over a folder to browse it, and preview files with Quick Look right in the
 Run shortcuts and [scripts](#scripts), or add a Shortcuts folder that stays in sync with the Shortcuts app. Add links that do things in other apps, with the date, the copied text, or text you enter inserted. Get back to recent files, switch between running apps, and see what you copied.
 }
 
-## Guide {#guide}
+## User Guide {#guide}
 
 To open the organizer, choose “Manage Menu” from the `…` submenu, or press ++Shift+Command+,++ while the menu is open. Use the Add button in the toolbar to add an item, a group, or a separator, or [drag items into the organizer](#tips).
 
@@ -55,7 +58,7 @@ A folder can show its contents as a section of the menu instead of a submenu, li
 - Click an item to open or run it. An app shows a dot while it is running, like in the Dock.
 - Click a folder to open it in Finder, or hover over it to browse its contents.
 - A drive, disk image, or network share has “Eject” at the end of its submenu. An added drive, like Macintosh HD, shows how much space is free.
-- When you have copied files or an image, a folder's submenu ends with “Paste”, which saves them in the folder. Hold ++Option++ to paste copied text as a text file.
+- When you have copied files or an image, a folder’s submenu ends with “Paste”, which saves them in the folder. Hold ++Option++ to paste copied text as a text file.
 - Files that you add directly and recent files show a Quick Look preview in their submenu. Files in a folder show it when the “Show file preview” setting of the folder is on.
 
 The submenu of a file has Show in Finder, Open With, Quick Look, Share, Copy File, Copy Path, and Move to Trash, and more actions for some files:
@@ -110,7 +113,7 @@ Make a smart folder with a filter and the Flattened layout. For example, add you
 
 ### Finder Saved Searches {#saved-searches}
 
-Add a `.savedSearch` file to show the results of a [Smart Folder](https://support.apple.com/guide/mac-help/create-or-change-a-smart-folder-on-mac-mchlp2804/mac) that you made in Finder. Edit the search in Finder, and the menu shows the new results, in the sort order of Finder's list view. Super Menu asks once for access to your home folder ([why](#home-folder-access)). If you drag or paste a Saved Search into the organizer, right-click it and choose “Authorize Search Results…”.
+Add a `.savedSearch` file to show the results of a [Smart Folder](https://support.apple.com/guide/mac-help/create-or-change-a-smart-folder-on-mac-mchlp2804/mac) that you made in Finder. Edit the search in Finder, and the menu shows the new results, in the sort order of Finder’s list view. Super Menu asks once for access to your home folder ([why](#home-folder-access)). If you drag or paste a Saved Search into the organizer, right-click it and choose “Authorize Search Results…”.
 
 ### Recent files {#recent-files}
 
@@ -180,8 +183,8 @@ Add a placeholder to a link, or to an argument of a [script](#scripts), to inser
 - `{clipboard text-in-image}`, `{clipboard qr}`: The text in a copied image, like a screenshot, or what a QR code in it contains
 - `{input}`: Text you enter when you open the link, like a search query. Use `{input multiline}` for several lines, and `{input password}` for hidden text, like a token, which is not stored. With `| shortcut`, it is in a temporary file while the shortcut runs.
 - `{input date}`, `{input datetime}`, `{input number}`, `{input file}`: A date, a date and time, a whole number, or a file or folder that you choose
-- `{date}`, `{time}`, `{datetime}`: Today's date (2026-10-18), the time (14:05), or both with the time zone
-- `{day}`, `{weekday}`, `{month}`, `{year}`, `{week}`: Parts of today's date, like Monday for `{weekday}`. `{week}` is the ISO week, so `{year}-W{week}` can be wrong for a few days around 1 January.
+- `{date}`, `{time}`, `{datetime}`: Today’s date (2026-10-18), the time (14:05), or both with the time zone
+- `{day}`, `{weekday}`, `{month}`, `{year}`, `{week}`: Parts of today’s date, like Monday for `{weekday}`. `{week}` is the ISO week, so `{year}-W{week}` can be wrong for a few days around 1 January.
 - `{timestamp}`: The Unix time in seconds, or `{timestamp milliseconds}`
 - `{uuid}`, `{random}`: A new unique ID, or a random number from 1 to 100
 - `{app}`, `{app-id}`, `{app-version}`: The name, bundle identifier, or version of the app you were in
@@ -262,7 +265,7 @@ The link editor shows mistakes in a placeholder, like a typo, and suggests a fix
 - `https://wa.me/{clipboard | digits}` starts a WhatsApp chat with a copied phone number
 - `obsidian://new?vault=Notes&name={clipboard | first-line | safe-filename}&content={clipboard}` creates a note from copied text, named after its first line
 - `https://github.com/owner/repo/issues/new?body=macOS%20{os-version},%20{mac-model},%20{app}%20{app-version}` starts a bug report with the details of your Mac and the app you were in
-- `mailto:?subject=Report%20for%20{date style="long"}` starts an email with today's date written out, like “Report for 24 December 2026”
+- `mailto:?subject=Report%20for%20{date style="long"}` starts an email with today’s date written out, like “Report for 24 December 2026”
 }
 
 ### Scripts {#scripts}
@@ -291,7 +294,7 @@ When you first add a script or Script Folder, Super Menu asks for access to its 
 - What a script prints is not shown. To show a result, use `display alert` in an AppleScript, or `osascript -e 'display alert "Done"'` in a shell script.
 - When a script fails, Super Menu names the configured action in the error alert, so two actions that use the same source file can be told apart. A shell script fails when it exits with a status other than 0. Choose “Copy Error Details” in the alert to copy the full original failure reason, including what the script wrote to standard error.
 - A shell script starts in the root folder (`/`), not in its own folder. Use absolute paths in your script, like `/opt/homebrew/bin/ffmpeg`, or paths based on `$HOME`, like `"$HOME/Downloads/file.txt"`. The environment can differ from Terminal, so use the full path to an interpreter or tool instead of relying on your shell settings or `PATH`.
-- A shell script runs through a link in Super Menu's Scripts folder. Its `$0` and `dirname "$0"` point to that link, not to the original script. To use files beside the script, give their paths explicitly.
+- A shell script runs through a link in Super Menu’s Scripts folder. Its `$0` and `dirname "$0"` point to that link, not to the original script. To use files beside the script, give their paths explicitly.
 - Scripts have no interactive Terminal session, and their standard input is `/dev/null`. Commands that need terminal input, password prompts in Terminal, and text interfaces are unsupported. Use [input placeholders](#link-placeholders) to pass arguments, or show a dialog from the script. Run scripts that need terminal interaction in Terminal.
 - Hold ++Option++ while clicking a script to open it in its default editor. In the organizer, right-click and choose “Open in Editor” for the source, “Edit…” for menu settings, or “Run Script” to try it. The Edit sheet has “Open in Editor” and “Show in Finder” beside the file, Run in the toolbar, and “Script guide” in the footer. Click Run or press ++Command+R++ to test draft arguments without saving. An activity indicator shows while running; Cancel still discards settings changes.
 - A script that you drop or paste into the organizer is added as a file, which opens the script instead of running it. Right-click it and choose “Use as Script…”, review its script settings, and click “Save” to change it to a runnable script.
@@ -301,15 +304,15 @@ When you first add a script or Script Folder, Super Menu asks for access to its 
 @Details(summary: "A shell script cannot run") {
 An “unknown interpreter” error can mean that the script is not executable or has no interpreter line. Check these three things:
 
-- **Execute permission:** The script must be executable. When the error alert offers “Copy Command”, click it and run the copied `chmod +x` command in Terminal. It is quoted for your script's exact path. Super Menu does not change the permissions itself.
+- **Execute permission:** The script must be executable. When the error alert offers “Copy Command”, click it and run the copied `chmod +x` command in Terminal. It is quoted for your script’s exact path. Super Menu does not change the permissions itself.
 - **Interpreter line:** The very first line must start with `#!` followed by the interpreter, like `#!/bin/sh` for a shell script. An executable text file without this line cannot run.
-- **Installed interpreter:** The interpreter named on that line must exist on your Mac. Making a script executable does not install its interpreter. For a tool you installed yourself, use its full path. With `#!/usr/bin/env python3`, Python must be available in the script's environment, which can differ from Terminal.
+- **Installed interpreter:** The interpreter named on that line must exist on your Mac. Making a script executable does not install its interpreter. For a tool you installed yourself, use its full path. With `#!/usr/bin/env python3`, Python must be available in the script’s environment, which can differ from Terminal.
 
 After fixing the file, run it again; you do not need to add it to the menu again. “Copy Error Details” in the error alert copies the full failure reason.
 }
 
 @Details(summary: "Script folders") {
-Choose “Script Folder…” in the Add menu to browse a folder and run its scripts when clicked. It is a normal folder with “Run scripts when clicked” enabled; you can change this in Advanced in the folder's settings. Scripts in subfolders run too, and other files still open normally. Folder scripts run without arguments. Use “Scripts…” to add a script independently when it needs arguments or should appear in file submenus.
+Choose “Script Folder…” in the Add menu to browse a folder and run its scripts when clicked. It is a normal folder with “Run scripts when clicked” enabled; you can change this in Advanced in the folder’s settings. Scripts in subfolders run too, and other files still open normally. Folder scripts run without arguments. Use “Scripts…” to add a script independently when it needs arguments or should appear in file submenus.
 
 To leave out other files, edit the folder and set “Filter” to “Kind Is” and “Kind” to “Script”. This uses the same script types as the script picker, including scripts that need their execute permission fixed. In Hierarchy, folders stay so you can browse into them. The filter controls what is listed; “Run scripts when clicked” controls whether those scripts run or open.
 }
@@ -321,7 +324,7 @@ Create a group, add the scripts to it, and edit the group. Leave “Show” set 
 
 **Keep scripts only in file submenus**
 
-Create a group for file actions, add the scripts to it, and turn on “Show in file submenus” in each script's settings. Set the group's “Show” setting to “Never”. The scripts are then available in “Run Script” in file submenus without taking space in the main menu.
+Create a group for file actions, add the scripts to it, and turn on “Show in file submenus” in each script’s settings. Set the group’s “Show” setting to “Never”. The scripts are then available in “Run Script” in file submenus without taking space in the main menu.
 
 Group visibility controls the main menu only. It does not restrict scripts in file submenus, even when the group is hidden or shown only for certain apps.
 }
@@ -330,7 +333,7 @@ Group visibility controls the main menu only. It does not restrict scripts in fi
 - **Not executable:** Choose “Copy Command” in the alert, then paste and run the command in Terminal. This changes its execute permission; it does not run the script.
 - **Interpreter or tool not found:** Check that the interpreter named by the first line is installed, and use its full path. Do the same for tools that the script calls, like `ffmpeg`. A script can work in Terminal but fail here because the environment differs.
 - **Script failed:** A shell script reports failure with an exit status other than 0. Read the error it wrote to standard error. “Copy Error Details” keeps the full failure reason if the alert shortens it.
-- **System access denied:** Check the macOS Privacy & Security permission named by the system's error. Access to Super Menu's Scripts folder only lets it set up the script; it does not grant every system permission the script's actions may require.
+- **System access denied:** Check the macOS Privacy & Security permission named by the system’s error. Access to Super Menu’s Scripts folder only lets it set up the script; it does not grant every system permission the script’s actions may require.
 - **Waiting for input:** There is no interactive Terminal session. Use input placeholders or a script-owned dialog, or run the script in Terminal.
 }
 
@@ -371,7 +374,7 @@ A shell script that copies the name of a file, with “Show in file submenus” 
 ```
 }
 
-### Keyboard Shortcuts {#keyboard-shortcuts}
+### Keyboard shortcuts {#keyboard-shortcuts}
 
 #### Menu
 
@@ -469,7 +472,7 @@ Yes. Add its `.savedSearch` file ([how](#saved-searches)). Super Menu can also m
 
 Yes, with a Smart Folder from Finder. For example, an “Inbox” with the files you added recently, wherever they are:
 
-1. In Finder, choose “File” › “New Smart Folder”, and choose where to search.
+1. In Finder, choose “File › New Smart Folder”, and choose where to search.
 2. Click the plus button and add a rule, like “Date Added” is within the last 7 days.
 3. Click “Save”, and sort it by Date Added in list view to show the newest first.
 4. In Super Menu, add the `.savedSearch` file ([how](#saved-searches)).
@@ -529,7 +532,7 @@ No. ++Option++-click it to show it in Finder, and drag it from there, or use “
 ### Can I drop files into a folder in the menu? {#drop-into-folder}
 <!-- @faq.keywords drag -->
 
-No, macOS menus cannot receive drops. Instead, copy the files and choose “Paste” at the end of the folder's submenu.
+No, macOS menus cannot receive drops. Instead, copy the files and choose “Paste” at the end of the folder’s submenu.
 
 ### Why do I get an error when opening a file? {#file-opening-error}
 
@@ -558,7 +561,7 @@ Yes. Edit a shortcut in the organizer and turn on “Show in file submenus”. I
 
 ### My shortcut fails when it needs “Full Disk Access” {#full-disk-access}
 
-Give Super Menu “Full Disk Access” too (“[System Settings › Privacy & Security › Full Disk Access](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension)”). Super Menu runs the shortcut, so it needs the same permission.
+Give Super Menu “Full Disk Access” too (“[System Settings › Privacy & Security › Full Disk Access](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_AllFiles)”). Super Menu runs the shortcut, so it needs the same permission.
 
 ### Can I pass input to a shortcut from the menu? {#shortcut-input}
 

@@ -3,7 +3,7 @@ import Foundation
 import SiteKit
 
 /**
-The file picker of the feedback form. Its script lists the picked files with the attachment template, so files can be added in several picks and removed one by one. A file that is too large to send is marked, and the form cannot be sent until it is removed.
+The file picker of the feedback form. Its script lists the picked files with the attachment template, so files can be added in several picks and removed one by one. A file that is too large to send is marked, and the form cannot be sent until it is removed. A crash report shows its app and version, and a note when it is of another app than the selected app, whose names the page script gives in the `app-names` attribute.
 */
 struct AttachmentPicker: ScriptedElement {
 	static let script = ElementScript()
@@ -31,6 +31,12 @@ struct AttachmentPicker: ScriptedElement {
 				.style(VisuallyHidden.Styles.root)
 		}
 		.style(Styles.picker)
+
+		// The limit before the pick, so a visitor does not first pick a large screen recording. The summary of two or more files takes its place.
+		span {
+			"Up to \(Self.maximumFileSize.formatted(.siteFileSize)) each"
+		}
+		.style(Styles.limit)
 
 		// The number and the total size of the files, which the script shows when there are two or more, so the visitor sees what is attached without scrolling through the chips. Formcarry accepts at most 50 MB in one message, which the total lets the visitor see before the send.
 		span(.part(Parts.summary), .role(.status)) {}
@@ -105,6 +111,10 @@ struct AttachmentPicker: ScriptedElement {
 					span(.part(Parts.crashReportDetails)) {}
 				}
 				.style(Styles.crashReportNotice)
+
+				// Shown below the details when the crash report is of another app than the selected app, like Safari for Dato, as the folder of the reports has the reports of all apps. The script writes the names, which the page script gives it in the `app-names` attribute.
+				span(.part(Parts.otherAppNotice), .hidden) {}
+					.style(Styles.otherAppNotice)
 			}
 			.style(Styles.attachment)
 		}
@@ -123,6 +133,7 @@ struct AttachmentPicker: ScriptedElement {
 		case removeButton
 		case tooLargeNotice
 		case crashReportDetails
+		case otherAppNotice
 	}
 
 	enum States: String, ElementStateSet {
@@ -140,6 +151,7 @@ struct AttachmentPicker: ScriptedElement {
 	enum Styles: String, ElementStyleSet {
 		case root
 		case picker
+		case limit
 		case summary
 		case fileList
 		case attachment
@@ -150,6 +162,7 @@ struct AttachmentPicker: ScriptedElement {
 		case tooLargeNotice
 		case crashReportNotice
 		case crashReportLabel
+		case otherAppNotice
 
 		var style: Style {
 			switch self {
@@ -162,10 +175,17 @@ struct AttachmentPicker: ScriptedElement {
 				Style()
 					.chip(hasIcon: true)
 					.cursor(.pointer)
-					.nested("&:has(:focus-visible)") {
+					.descendantFocusVisible {
 						$0
 							.background(.cardHover)
 							.color(.primaryText)
+					}
+			case .limit:
+				Style()
+					.margin(.leading, .rootEm(0.75))
+					.secondaryText()
+					.nested("&:has(+ :not(:empty))") {
+						$0.hidden()
 					}
 			case .summary:
 				Style()
@@ -173,9 +193,13 @@ struct AttachmentPicker: ScriptedElement {
 					.secondaryText()
 					.monospacedDigit()
 			case .fileList:
+				// The space above is only for the chips, so without files, the button below the picker has the space of the other fields.
 				Style()
 					.vstack(spacing: .rootEm(0.5))
 					.margin(.top, .rootEm(0.75))
+					.empty {
+						$0.margin(.zero)
+					}
 			// A row like the cards of the site, with the corner radius of the fields.
 			case .attachment:
 				Style()
@@ -213,9 +237,13 @@ struct AttachmentPicker: ScriptedElement {
 					// It starts from no width and takes the free space, so the sizes of all files are in one column at the end, and a long name does not wrap the size and the button to the next line in a row that wraps.
 					.flex(1)
 			case .size:
+				// In the red of the notice of a file that is too large, so the visitor sees which number breaks the limit.
 				Style()
 					.flexShrink(0)
 					.monospacedDigit()
+					.when(ancestorHas: States.tooLarge) {
+						$0.color(.red(600), dark: .red(400))
+					}
 			case .removeButton:
 				// A round button at the end of the row. The auto margin moves it there.
 				Style()
@@ -259,6 +287,12 @@ struct AttachmentPicker: ScriptedElement {
 					.textWrap(.nowrap)
 					.color(.bodyText)
 					.background(.cardHover)
+			case .otherAppNotice:
+				// In the amber of the warning of the email field (``FeedbackPage``), as it is a note, not an error.
+				Style()
+					.frame(width: .percent(100))
+					.textStyle(.caption)
+					.color(.amber(700), dark: .amber(400))
 			}
 		}
 	}

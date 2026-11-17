@@ -13,27 +13,27 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	In [Bare](../apps/bare/index.md), open the list, tap the “…” menu, and then “Share List”, and send the invitation. Everyone sees the changes right away. Without an app, make a list of the “Groceries” type in the Reminders app, and share it.
+	In [Bare](/bare), open the list, tap the “…” menu, and then “Share List”, and send the invitation. Everyone sees the changes right away. [Without an app](#without-an-app), make a list of the “Groceries” type in the Reminders app, and share it.
 }
 
 ## With Bare
 
-[Bare](../apps/bare/index.md) is a shopping list that sorts each item into its store section, like Produce or Dairy, as you add it.
+[Bare](/bare) is a shopping list that sorts each item into its store section, like Produce or Dairy, as you add it.
 
 @Steps {
-1. Open [Bare](../apps/bare/index.md), and open a list.
+1. Open [Bare](/bare), and open a list.
 1. Tap the “…” menu, and then “Share List”.
 1. Send the invitation, like in Messages.
 1. The other person opens the invitation on a device with Bare, while signed in to iCloud. The list then shows on both devices.
 }
 
-When one of you adds or checks off an item, the other sees it right away. Each list is shared on its own, so you can keep some lists private. With [Family Sharing](/apps/faq#family-sharing), your family gets the app at no extra cost. [More about sharing.](../apps/bare/index.md#share)
+When one of you adds or checks off an item, the other sees it right away. Each list is shared on its own, so you can keep some lists private. With [Family Sharing](/apps/faq#family-sharing), your family gets the app at no extra cost. [More about sharing.](/bare#share)
 
 @Tips {
 - Type “2 milk” to add two of an item.
 - Make one list for each store, and share only the ones you shop together.
 - For someone without an iPhone, use “Send as Text” in the “…” menu. They get the list as text, sorted by section.
-- [Put the list in a widget](shopping-list-widget-iphone.md) on the Home Screen, and check off items there.
+- [Put the list in a widget](guide:shopping-list-widget-iphone) on the Home Screen, and check off items there.
 }
 
 ## Without an app

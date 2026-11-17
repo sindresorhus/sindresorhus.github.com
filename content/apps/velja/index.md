@@ -11,6 +11,12 @@ isMenuBarApp: true
 appStoreID: 1607635845
 downloadCount: 130000
 hasSentry: true
+categories: [
+	'browsers'
+]
+relatedApps: [
+	'default-browser'
+]
 trial: {
 	url: 'https://www.dropbox.com/scl/fi/4qmbgqvgr5x3oiupm7ekz/Velja-3.2.4-trial-1789044969.zip?rlkey=vwh6ptvawi4sn5oh7sh7lmssg&raw=1'
 }
@@ -75,7 +81,7 @@ pressQuotes: [
 ]
 feedbackNote:
 	'''
-	**If you are on macOS 27, to use browser profiles, you need to allow access to browsers in “System Settings › Privacy & Security › Files & Folders › Velja”.**
+	**If you are on macOS 27, to use browser profiles, you need to allow access to browsers in “[System Settings › Privacy & Security › Files & Folders › Velja](x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_FilesAndFolders)”.**
 
 
 	[Can you support Safari profiles?](/velja#safari-profiles)
@@ -92,22 +98,20 @@ feedbackNote:
 
 Open each link in the right browser, profile, or app, automatically, or pick one from a prompt when you hold ++Fn++.
 
-For example, Google Meet links open in Chrome, Figma links in the Figma app, and links from Slack in your work profile.
-
-[In-depth review of Velja.](https://www.podfeet.com/blog/2022/11/velja/)
+Google Meet links can open in Chrome, Figma links in the Figma app, and links from Slack in your work profile.
 
 @Feature(title: "Open each link in the right place", label: "Rules") {
-	Make a rule for a website or for the app you click links in, and choose the browser, browser profile, or app that opens them. Some links need no rule at all: Velja can open Google Meet links in Chrome, and Zoom, Microsoft Teams, and Figma links in their desktop apps.
+	Make a rule for a website or for the app you click links in, and choose the browser, browser profile, or app that opens them. Some links need no rule at all: Velja can open Google Meet links in Chrome, and Zoom, Microsoft Teams, and Figma links in their desktop apps. <guide:open-links-in-specific-browser-mac>
 }
 
 @Feature(title: "Pick a browser when you click", label: "Browser prompt") {
-	Velja can show a prompt with your browsers for all links, only for links from some apps, or only when you hold ++Fn++ while you click. Press a key to pick a browser. ++Command++-click a browser to always open that website there.
+	Velja can show a prompt with your browsers for all links, only for links from some apps, or only when you hold ++Fn++ while you click. Press a key to pick a browser. ++Command++-click a browser to always open that website there. <guide:browser-picker-mac>
 }
 
 @Feature(title: "Keep work and personal browsing apart", label: "Profiles") {
-	Choose a browser profile anywhere you choose a browser: as the default, in the prompt, or in a rule. Send work links to your work profile and everything else to your personal one. Private windows work the same way, so you can open external links privately in Firefox or Chrome.
+	Choose a browser profile anywhere you choose a browser: [as the default](guide:open-links-in-chrome-profile-mac), in the prompt, or in a rule. Send work links to your work profile and everything else to your personal one. Private windows work the same way, so you can open external links privately in Firefox or Chrome.
 
-	See which browsers support [profiles](#supported-browsers-for-profiles) and [private windows](#supported-browsers-for-private-browsing).
+	See which browsers support [profiles](#supported-browsers-for-profiles) and [private windows](#supported-browsers-for-private-browsing). <guide:open-links-in-chrome-profile-mac>
 }
 
 ### Get started
@@ -118,10 +122,7 @@ For example, Google Meet links open in Chrome, Figma links in the Figma app, and
 1. Optionally, add a rule in “Settings › Rules”, like Google Meet links in Chrome.
 }
 
-> [!TIP]
-> You may also like my [Default Browser](/default-browser) app.
-
-### Example use-cases
+### Example use cases
 
 - Use Safari as your primary browser but open Google Meet links in Chrome
 - Open links to figma.com directly in the Figma desktop app
@@ -197,11 +198,11 @@ You can also have “copy URL” as a browser choice in the prompt by installing
 
 For example, to open all links you click in Slack in Chrome:
 
-- Open the Velja settings and go to the “Rules” pane.
-- Create a new rule and give it a name.
-- Select the browser to open. You can even choose a specific Chrome profile.
-- Create a new “Source Apps” matcher and select the app you want. For example, Slack.
-- Click “Save”.
+1. Open the Velja settings and go to the “Rules” pane.
+2. Create a new rule and give it a name.
+3. Select the browser to open. You can even choose a specific Chrome profile.
+4. Create a new “Source Apps” matcher and select the app you want. For example, Slack.
+5. Click “Save”.
 
 ### Run a shortcut for a link {#shortcut-rule}
 
@@ -232,9 +233,9 @@ For example, clicking the Velja extension icon in Safari should now open the lin
 
 ### Open links in a private/incognito window
 
-Select a destination such as **Firefox (Private)** or **Chrome (Private)** in Velja’s browser picker. You can use it as your primary browser to open external links privately, as your alternative browser, or in a custom rule for specific websites or source apps.
+Select a destination such as **Firefox (Private)** or **Chrome (Private)** in Velja’s browser picker. You can use it as your primary browser to open external links privately, as your alternative browser, or in a custom rule for specific websites or source apps. <guide:open-links-in-private-window-mac>
 
-To show private destinations in the browser prompt and menu, enable them in **Settings › Browsers › Shown Browsers**. For occasional use, right-click a supported browser in the prompt and choose **Open in Private Window**.
+To show private destinations in the browser prompt and menu, enable them in “Settings › Browsers › Shown Browsers”. For occasional use, right-click a supported browser in the prompt and choose **Open in Private Window**.
 
 [See supported browsers.](#supported-browsers-for-private-browsing) The browser chooses which profile to use; selecting a specific profile and forcing a new window are not supported. The browser may reuse an existing private window.
 
@@ -248,11 +249,11 @@ If you have a document with many URLs you want to open, select them, right-click
 
 Let’s say you have generated a website wrapper app for facebook.com using an app like [Unite](https://www.bzgapps.com/unite) or [Coherence](https://www.bzgapps.com/coherence), and you want all links to Facebook to go to this app instead of your browser:
 
-- Open the Velja settings and go to the “Rules” pane.
-- Create a new rule and give it a name.
-- Select the website wrapper app in the “Open in” field.
-- Create a new “URL Matchers” matcher and write “facebook.com” in the “Match” field.
-- Click “Save”.
+1. Open the Velja settings and go to the “Rules” pane.
+2. Create a new rule and give it a name.
+3. Select the website wrapper app in the “Open in” field.
+4. Create a new “URL Matchers” matcher and write “facebook.com” in the “Match” field.
+5. Click “Save”.
 
 ### Open default browser
 
@@ -270,12 +271,14 @@ If you want to force the browser prompt, you can either press ++Option++ when ac
 
 If you want to force the link to open in the background, press ++Shift++ when activating the service. [Known issue.](#chrome-background-bug)
 
-*You may have to enable the service in “[System Settings › Keyboard › Keyboard Shortcuts › Services](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”.*
+*You may have to enable the service in “[System Settings › Keyboard › Keyboard Shortcuts… › Services](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”.*
 
 ### Browser extensions
 
-- Safari — Built-in. Just enable it in the Safari settings.
-- [Chrome](https://chrome.google.com/webstore/detail/velja/gpipdgcamiclkcomcnogmlfpalggmcmk) — Also works in Edge, Brave, and other Chromium-based browsers.
+- Safari
+	:: Built-in. Turn it on in the Safari settings.
+- [Chrome](https://chrome.google.com/webstore/detail/velja/gpipdgcamiclkcomcnogmlfpalggmcmk)
+	:: Also works in Edge, Brave, and other Chromium-based browsers.
 - [Firefox](https://addons.mozilla.org/firefox/addon/velja/)
 
 ### Open the current website in a different browser
@@ -300,14 +303,14 @@ Velja generally cannot handle links clicked in a browser because browsers don’
 
 For Chrome, you can run the following commands in the Terminal app to ensure that these types of links always open in the associated app:
 
-```sh
+```console
 defaults write com.google.Chrome URLAllowlist -array-add 'velja:*'
 defaults write com.google.Chrome ExternalProtocolDialogShowAlwaysOpenCheckbox -bool true
 ```
 
 And for Edge:
 
-```sh
+```console
 defaults write com.microsoft.Edge URLAllowlist -array-add 'velja:*'
 defaults write com.microsoft.Edge ExternalProtocolDialogShowAlwaysOpenCheckbox -bool true
 ```
@@ -320,14 +323,14 @@ Hold the ++Option++ key when clicking a browser in the Velja menu to launch it i
 
 ### Open certain URLs in a specific browser profile
 
-- Open the Velja settings.
-- Go to the “Browsers” tab and grant access to browser profiles.
-- Go to the “Rules” tab.
-- Click “+”.
-- Choose a browser profile in “Open in”.
-- Click “+” for the “URL Matchers”.
-- Define a pattern that matches the URLs you want to match.
-- Click “Save”.
+1. Open the Velja settings.
+2. Go to the “Browsers” tab and grant access to browser profiles.
+3. Go to the “Rules” tab.
+4. Click “+”.
+5. Choose a browser profile in “Open in”.
+6. Click “+” for the “URL Matchers”.
+7. Define a pattern that matches the URLs you want to match.
+8. Click “Save”.
 
 Chrome’s AppleScript support does not know about profiles. Please star [the Chrome issue about AppleScript and profiles](https://issues.chromium.org/issues/40962200), as a fix would help Velja users.
 
@@ -338,6 +341,8 @@ Say you use different browser profiles for work and home and want them to switch
 ### Miscellaneous
 
 - In the Velja menu, you can click “History” to directly open the history window.
+- In “Settings › Advanced”, set a keyboard shortcut to open the copied link in your primary browser, and one for your alternative browser.
+- In “Settings › Extras”, turn on “Force opened links to be HTTPS” to open `http://` links that no rule handles with HTTPS, except local addresses. You can also turn on “Remove leading “mailto:” when copying email addresses”.
 
 ## Frequently Asked Questions {#faq}
 
@@ -373,7 +378,7 @@ First, make sure that the problem is Velja. Go to “[System Settings › Deskto
 
 Velja is not able to handle links clicked inside a browser. However, Velja comes with a Safari extension which you can enable in the Safari settings. You can then click the toolbar icon to open the current page with Velja or right-click a link to open it with Velja. There are also [extensions for other browsers](#browser-extensions).
 
-If you use a browser where Velja does not have a browser extension, you could also right-click the link and use the share extension \* or copy the link and then click “Open URL from Clipboard” in the Velja menu.
+If you use a browser where Velja does not have a browser extension, you could also right-click the link and use the share extension \* or copy the link and then click “Open URL from Clipboard” in the Velja menu, or press its keyboard shortcut (set it in “Settings › Advanced”).
 
 \* *Chrome (and Edge, Brave, etc.) does not have a “Share” item in its context menu. Please [star this issue](https://bugs.chromium.org/p/chromium/issues/detail?id=916291).*
 
@@ -401,7 +406,7 @@ Ensure Velja correctly identifies the source app where the link was clicked. To 
 
 If the URL was opened using the `open` command-line tool, it may not work as expected because `open` closes before Velja can capture the app name. To work around this, use the following command:
 
-```sh
+```console
 timeout 0.5 open --wait-apps "https://sindresorhus.com/velja"
 ```
 
@@ -486,7 +491,7 @@ If your favorite service is in the above list, I would recommend contacting them
 
 ### ClickUp with a custom workspace subdomain {#clickup-custom-subdomain}
 
-ClickUp Enterprise workspaces can have a custom subdomain (e.g., `acme.clickup.com`). If your workspace uses one, [let me know](/feedback?product=Velja&referrer=Website-FAQ) and I’ll add built-in support for it.
+ClickUp Enterprise workspaces can have a custom subdomain (like `acme.clickup.com`). If your workspace uses one, [let me know](/feedback?product=Velja&referrer=Website-FAQ) and I’ll add built-in support for it.
 
 In the meantime, you can use a custom rule with the “Transform URL” feature to rewrite the URL. Set the URL matcher to your subdomain and use this script:
 
@@ -528,7 +533,7 @@ For these links, set your Velja rule’s “Open in” field to Safari, Chrome, 
 
 ### How can I open specific URLs in a Chromium browser PWA? {#chromium-pwa}
 
-Velja supports opening specific URLs in Chromium PWAs (Chrome, Edge, Brave, etc.). This requires the “open.sh” helper script to be set up (Settings › Advanced). Velja launches the parent browser with the correct flags to open the PWA at the specific URL.
+Velja supports opening specific URLs in Chromium PWAs (Chrome, Edge, Brave, etc.). This requires the “open.sh” helper script to be set up (“Settings › Advanced”). Velja launches the parent browser with the correct flags to open the PWA at the specific URL.
 
 ### Can you support Firefox Multi-Account Containers? {#firefox-containers}
 
@@ -546,7 +551,7 @@ However, you can achieve it yourself using Velja’s URL transform feature.
 
 1. Install [Firefox Multi-Account Containers](https://addons.mozilla.org/firefox/addon/multi-account-containers/)
 2. Install [Open URL in Container](https://addons.mozilla.org/firefox/addon/open-url-in-container/)
-3. Create your containers in Firefox (e.g., “Work”, “Personal”)
+3. Create your containers in Firefox (like “Work”, “Personal”)
 4. Get the signature from the Open URL in Container extension settings (External Protocol section)
 
 **Creating a rule**
@@ -556,15 +561,15 @@ However, you can achieve it yourself using Velja’s URL transform feature.
 3. Add **URL Matchers** for domains you want in this container
 4. Enable **“Transform URL”** and add this script:
 
-```js
-const containerName = 'Work'; // Your container name
-const signature = 'YOUR_SIGNATURE'; // From extension settings
+	```js
+	const containerName = 'Work'; // Your container name
+	const signature = 'YOUR_SIGNATURE'; // From extension settings
 
-const originalURL = $.url.href;
-const containerURL = `ext+container:name=${encodeURIComponent(containerName)}&url=${encodeURIComponent(originalURL)}&signature=${signature}`;
+	const originalURL = $.url.href;
+	const containerURL = `ext+container:name=${encodeURIComponent(containerName)}&url=${encodeURIComponent(originalURL)}&signature=${signature}`;
 
-$.url = new URL(containerURL);
-```
+	$.url = new URL(containerURL);
+	```
 
 5. Click **“Run”** to test. The output should be `ext+container:name=Work&url=https%3A%2F%2F...`
 6. Save the rule
@@ -575,7 +580,7 @@ Repeat for each container you want to use.
 
 - Container names are case-sensitive.
 - The signature is the same for all containers.
-- If the signature changes (e.g., after reinstalling the extension), update all rules.
+- If the signature changes (like after reinstalling the extension), update all rules.
 
 ### Can you support Firefox profiles? {#firefox-profiles}
 
@@ -591,7 +596,7 @@ The legacy profiles (created with `about:profiles`) and the new profile groups a
 How to migrate:
 
 - Create a new profile with the [new profile manager](https://support.mozilla.org/kb/profile-management), then quit Firefox.
-- Open the old profile’s root directory using the [old profile manager](https://support.mozilla.org/kb/profile-manager-create-remove-switch-firefox-profiles), then go up one level to find the new profile folder (ends with “Profile 1”, e.g., VqlLK6hB.Profile 1).
+- Open the old profile’s root directory using the [old profile manager](https://support.mozilla.org/kb/profile-manager-create-remove-switch-firefox-profiles), then go up one level to find the new profile folder (ends with “Profile 1”, like VqlLK6hB.Profile 1).
 - Delete all files inside that new profile folder.
 - [Copy the contents from an old profile](https://support.mozilla.org/kb/profiles-where-firefox-stores-user-data#w_finding-your-profile-without-opening-firefox) into that folder.
 - Launch it using the [new profile manager](https://support.mozilla.org/kb/profile-management).
@@ -601,7 +606,7 @@ How to migrate:
 
 Chrome (and Chrome-based browsers) does not properly respect opening URLs in the background (it generally does not respect platform conventions). This can be reproduced even without Velja by setting Chrome as the system default browser in the System Settings and then running the following in the Terminal:
 
-```sh
+```console
 open --background 'https://sindresorhus.com'
 ```
 
@@ -735,7 +740,7 @@ Create a custom rule where you set the Spotlight app as “Source Apps”. The a
 
 ### How can I open Google Meet links in a desktop app? {#how-can-i-open-google-meet-links-in-a-desktop-app}
 
-You can choose an app to open Google Meet links in the “Apps” tab in the settings. The app must support these URLs. For example, create a Safari PWA from `https://meet.google.com/` using “Add to Dock”, then select the generated app in `~/Applications/Google Meet` in Velja. Chromium PWAs also work if you have the “open.sh” helper script set up (Settings › Advanced).
+You can choose an app to open Google Meet links in the “Apps” tab in the settings. The app must support these URLs. For example, create a Safari PWA from `https://meet.google.com/` using “Add to Dock”, then select the generated app in `~/Applications/Google Meet` in Velja. Chromium PWAs also work if you have the “open.sh” helper script set up (“Settings › Advanced”).
 
 ### I have both Firefox and Firefox Beta installed, but only one of them is showing up in Velja {#i-have-both-firefox-and-firefox-beta-installed-but-only-one-of-them-is-showing-up-in-velja}
 
@@ -751,7 +756,7 @@ Some apps support opening a URL but they don’t declare support for it. Velja m
 
 If you notice the cog icon when opening a URL with an app, I recommend sending feedback to the developer of the app. Right-click and copy [the link to this answer](#url-support-infoplist) to send to them.
 
-**To the developer. You must include this in the Info.plist of your app:**
+To the developer: you must include this in the Info.plist of your app:
 
 ```xml
 <key>CFBundleURLTypes</key>
@@ -774,7 +779,7 @@ If you notice the cog icon when opening a URL with an app, I recommend sending f
 <!-- @faq.keywords clicking prompt trigger alternative function -->
 <!-- @faq.pinned 4 -->
 
-Some third-party keyboards (e.g. Nuphy Air75) have a firmware issue where the Fn/Globe key-down event is only sent to macOS when the key is released, not when pressed. This means macOS cannot see the key as held down, so Velja cannot detect it.
+Some third-party keyboards (like Nuphy Air75) have a firmware issue where the Fn/Globe key-down event is only sent to macOS when the key is released, not when pressed. This means macOS cannot see the key as held down, so Velja cannot detect it.
 
 You can verify this with the [Key Codes](https://apps.apple.com/app/id414568915) app: enable “log key up events and modifier changes”, then press and hold the Globe key. On an affected keyboard, nothing appears until you release the key.
 
@@ -897,13 +902,13 @@ The app can be automated using the Shortcuts app or with a custom URL scheme.
 
 Its Shortcuts actions include “Open URLs”, “Open Browser Profile”, “Set Default Browser”, “Set Alternative Browser”, and “Remove Tracking Parameters from URLs”. A rule can also [run a shortcut](#shortcut-rule) with the link.
 
-### Custom URL scheme
+### URL scheme {#custom-url-scheme}
 
 You can open a URL using Velja from any tool that supports opening a URL. This includes a website, Bash, Node.js, Python, Swift, etc.
 
 For example, in your terminal:
 
-```sh
+```console
 open 'velja:open?url=https%3A%2F%2Fsindresorhus.com&prompt'
 ```
 
@@ -916,7 +921,7 @@ Leave out `&prompt` to not show the browser prompt.
 
 You can force the use of a specific browser by specifying an `app` parameter:
 
-```sh
+```console
 open 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=org.mozilla.firefox'
 ```
 
@@ -924,7 +929,7 @@ It expects the [bundle identifier](/apps/faq#find-bundle-identifier) of an app. 
 
 You can also specify a browser profile by adding the `profile` parameter (Velja 2.1.0 and later):
 
-```sh
+```console
 open 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=com.google.Chrome&profile=Work'
 ```
 
@@ -932,17 +937,17 @@ The `profile` parameter must be used together with the `app` parameter and expec
 
 To open in a [supported browser’s private mode](#supported-browsers-for-private-browsing), prefix its bundle identifier with `privateBrowser:`:
 
-```sh
+```console
 open 'velja:open?url=https%3A%2F%2Fsindresorhus.com&app=privateBrowser:org.mozilla.firefox'
 ```
 
 Private browser targets cannot be combined with the `profile` parameter.
 
-### Change default browser in Velja from the command-line
+### Command line {#change-default-browser-in-velja-from-the-command-line}
 
 Run this command:
 
-```sh
+```console
 defaults write com.sindresorhus.Velja defaultBrowser com.apple.Safari
 ```
 

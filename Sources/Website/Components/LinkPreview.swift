@@ -130,7 +130,7 @@ struct LinkPreview: HTML {
 				Style()
 					.display(.block)
 					.margin(.top, .rootEm(0.25))
-					.font(size: .rootEm(0.8125), lineHeight: 1.4)
+					.font(size: TextSize.footnote.size, lineHeight: 1.4)
 					.color(.secondaryText)
 			}
 		}
@@ -183,25 +183,24 @@ extension LinkPreview {
 			previews[shortcut.id.url.absoluteString] = Content(icon: shortcut.iconPath, name: shortcut.name, facts: "Shortcut")
 		}
 
-		// The links in the content, already resolved, like `/guides/flush-dns-cache-mac`, and a link to a section as the path and the fragment, like `/dato#refresh-interval` for `#refresh-interval` on the page of Dato. The feedback page shows the notes of the apps.
-		let contentLinks = Set(
-			content.documents.flatMap { document in
-				document.markdown.links.map { link -> String in
-					guard link.destination.hasPrefix("#") else {
-						return link.destination
-					}
+		// The links in the content to other pages, already resolved, like `/guides/flush-dns-cache-mac`. The feedback page shows the notes of the apps.
+		let documentLinks: [String] = content.documents.flatMap { $0.markdown.links.map(\.destination) }
+		let feedbackNoteLinks: [String] = content.apps.flatMap { $0.feedbackNote?.links.map(\.destination) ?? [] }
+		let pageLinks = documentLinks.filter { !$0.hasPrefix("#") } + feedbackNoteLinks
 
-					return "\(document.path)\(link.destination)"
+		// And a link to a section as the path and the fragment, like `/dato#refresh-interval` for `#refresh-interval` on the page of Dato.
+		let contentLinks = Set(
+			pageLinks
+				+ content.documents.flatMap { document in
+					document.markdown.links.map(\.destination).filter { $0.hasPrefix("#") }.map { "\(document.path)\($0)" }
 				}
-			}
-				+ content.apps.flatMap { $0.feedbackNote?.links.map(\.destination) ?? [] }
 		)
 
-		// A guide preview is for its page, also when the link has a query or a fragment. The FAQ previews below still need the whole links to find their questions.
-		let contentPagePaths = Set(contentLinks.compactMap { (try? LinkDestination(validating: $0))?.sitePath })
+		// A guide preview is for its page, also when the link has a query or a fragment, but not for a link of the guide to its own section, like “Without an app” in its short answer, which shows no preview. The FAQ previews below still need the whole links to find their questions.
+		let contentPagePaths = Set(pageLinks.compactMap { (try? LinkDestination(validating: $0))?.sitePath })
 
 		// The short answer of a guide (`description`), which the list of guides also shows, and the icon of the app that it is about. The lists of guides show no preview, so only the guides that a link in the content goes to are needed.
-		for resolved in content.resolvedGuides where contentPagePaths.contains(resolved.guide.path) {
+		for resolved in content.guides where contentPagePaths.contains(resolved.guide.path) {
 			let guide = resolved.guide
 
 			previews[guide.path.description] = Content(
@@ -246,7 +245,7 @@ extension LinkPreview {
 			addQuestions(
 				faq.markdown.headings.filter { $0.level == .h3 },
 				of: faq.path,
-				in: Document(parsing: faq.file.body, options: .parseBlockDirectives),
+				in: faq.file.parsedBody,
 				file: faq.file,
 				facts: "General FAQ"
 			)
@@ -258,9 +257,9 @@ extension LinkPreview {
 
 extension [any BlockMarkup] {
 	/**
-	The start of the section of the heading as text for a preview, like the start of the answer of a question: the paragraphs and the list items before its next heading, shortened to a few lines. An authored heading without a custom ID is found by its source line, so questions with the same title keep their own answers. A list item is its first paragraph, and it gets a period when it has no punctuation mark at its end, so the items read as sentences. `nil` when the section has no such text, like an answer that is only an image.
+	The start of the section of the heading as text for a preview, like the start of the answer of a question: the paragraphs and the list items before its next heading, shortened to a few lines. An authored heading without a custom ID is found by its source line, so questions with the same title keep their own answers. A list item is its first paragraph, and it gets a period when it has no punctuation mark at its end, so the items read as sentences. `nil` when the section has no such text, like an answer that is only an image. The site search shows it below a question too (``SiteSearch/Index``).
 	*/
-	fileprivate func previewText(ofSection question: SiteKit.Heading, in file: MarkdownFile) -> String? {
+	func previewText(ofSection question: SiteKit.Heading, in file: MarkdownFile) -> String? {
 		guard let heading = firstIndex(where: { block in
 			guard let heading = block as? Markdown.Heading else {
 				return false
@@ -279,7 +278,7 @@ extension [any BlockMarkup] {
 			switch block {
 			// A paragraph that is only bold text is a label for the text below it, like `**macOS**`, not the start of the answer (the rule of the `boldLabel` class of the renderer).
 			case let paragraph as Paragraph:
-				paragraph.childCount == 1 && paragraph.child(at: 0) is Strong ? [] : [paragraph]
+				paragraph.isBoldLabel ? [] : [paragraph]
 			case let list as any ListItemContainer:
 				list.children.compactMap { $0.child(at: 0) as? Paragraph }
 			default:
@@ -299,10 +298,10 @@ extension [any BlockMarkup] {
 
 extension Paragraph {
 	/**
-	The text of the paragraph for a preview: without the syntax of the site, like a keyboard shortcut, and without the backticks of inline code.
+	The text of the paragraph for a preview: without the syntax of the site, like a keyboard shortcut, and without the backticks of inline code. A tag is only its text, like “Guide”, as a preview is short.
 	*/
 	fileprivate var previewText: String {
-		var rewriter = PlainMarkdownRewriter(blockDirective: \.plainBlocks)
+		var rewriter = PlainMarkdownRewriter.site(project: nil)
 		return ((rewriter.visit(self) as? Paragraph) ?? self).plainText(includingImageDescriptions: false)
 	}
 }

@@ -12,11 +12,17 @@ struct LinkRow: HTML {
 	*/
 	var note: String?
 
+	/**
+	Whether the link has the arrow of a link to another site (``AppFooterLinks/Styles/otherSitePageLink``), like a search on GitHub in a list of pages of the site. A list where all links leave the site, like the downloads of older versions, does not need it.
+	*/
+	var isExternal = false
+
 	var body: some HTML<HTMLTag.li> {
 		li {
 			a(.href(link.destination)) {
 				link.title
 			}
+			.style(AppFooterLinks.Styles.otherSitePageLink, when: isExternal)
 
 			if let note {
 				" "
@@ -48,8 +54,7 @@ struct LinkRow: HTML {
 				// Smaller, like the descriptions of the rows of the App Timeline.
 				Style()
 					.display(.block)
-					.font(size: .em(0.875))
-					.color(.secondaryText)
+					.secondaryText()
 			}
 		}
 	}
@@ -60,6 +65,6 @@ extension LinkRow {
 	The app with its subtitle.
 	*/
 	init(app: App) {
-		self.init(link: LabeledLink(app.title, destination: app.url, description: app.subtitle))
+		self.init(link: LabeledLink(app.title, destination: app.url, description: app.displaySubtitle))
 	}
 }

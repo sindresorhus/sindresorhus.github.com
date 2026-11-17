@@ -29,7 +29,7 @@ struct BlueskyPost {
 	static let profileURL = #URL("https://bsky.app/profile").appending(path: handle)
 
 	/**
-	The five newest posts and reposts of the account, without replies. The build and `now.js` read the same URL.
+	The five newest posts and reposts of the account, without replies.
 	*/
 	static let feedURL = #URL("https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed").appending(formQueryItems: [URLQueryItem(name: "actor", value: handle), URLQueryItem(name: "limit", value: "5"), URLQueryItem(name: "filter", value: "posts_no_replies")])
 
@@ -194,7 +194,7 @@ private struct AuthorFeed: Decodable {
 				segments.append(.init(text: slice(position..<facet.index.byteStart), link: nil))
 			}
 
-			segments.append(.init(text: slice(facet.index.byteStart..<facet.index.byteEnd), link: link))
+			segments.append(.init(text: linkText(slice(facet.index.byteStart..<facet.index.byteEnd), link: link), link: link))
 			position = facet.index.byteEnd
 		}
 
@@ -203,5 +203,20 @@ private struct AuthorFeed: Decodable {
 		}
 
 		return segments
+	}
+
+	/**
+	The text of a link, with the whole host and path of its URL when Bluesky shortened them, like “github.com/sindresorhus/type-fest/releases/tag/v6.0.0” for “github.com/sindresorhus...”, as the shortened text does not say where the link goes.
+	*/
+	private static func linkText(_ text: String, link: URL) -> String {
+		guard
+			text.hasSuffix("..."),
+			let host = link.host()
+		else {
+			return text
+		}
+
+		let fullText = String(host.trimmingPrefix("www.")) + link.path(percentEncoded: false)
+		return fullText.hasPrefix(text.dropLast(3)) ? fullText : text
 	}
 }

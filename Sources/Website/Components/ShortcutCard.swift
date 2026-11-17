@@ -49,6 +49,7 @@ struct ShortcutCard: HTML {
 
 	enum Styles: String, StyleSet {
 		case root
+		case inMixedList
 		case icon
 		case text
 		case name
@@ -58,7 +59,7 @@ struct ShortcutCard: HTML {
 		var style: Style {
 			switch self {
 			case .root:
-				// A card in the text, with the same width for each card of a list, wide enough for a title that is a sentence. A list item with a card has no bullet. In a list with text items too, the card starts where their text starts. A list of only cards has no indent, so the cards line up with the text around the list.
+				// A card in the text, with the same width for each card of a list, wide enough for a title that is a sentence. A list of only cards has no bullets and no indent, so the cards line up with the text around the list. In a list with text items too, a card is one item of the list, with its bullet or number, and starts where the text of the other items starts.
 				// A compact card has the corners of a box, so they are parallel to the corners of the icon, which is close to the edge.
 				Style()
 					.cardSurface()
@@ -72,24 +73,29 @@ struct ShortcutCard: HTML {
 					.inside(":where(\(ProseStyles.collapsibleSection.selector))") {
 						$0.background(.pageBackground, dark: .card)
 					}
-					.nested("li:has(> &)") {
-						$0.listStyle(.none)
-					}
-					.nested(":is(ul, ol):has(> li > &):not(:has(> li > :not(&, & + :is(span, p))))") {
+					.nested(":is(ul, ol):has(> li > &):not(:has(> li > \(Self.inMixedList.selector)))") {
 						$0
 							.padding(.leading, .zero)
 							.children("li") {
-								$0.padding(.leading, .zero)
+								$0
+									.padding(.leading, .zero)
+									.listStyle(.none)
 							}
 					}
 					// The note of a card, the text after its link in a list item, which the Markdown of the page has after the card (``Shortcut``): small text below the card, inside its padding, so it reads as part of the card. It is a `span`, or a paragraph in a list with blank lines between its items.
 					.nested("& + :is(span, p)") {
 						$0
 							.display(.block)
-							.margin(top: .zero, horizontal: .zero, bottom: .rootEm(1))
+							.margin(top: .rootEm(0.5), horizontal: .zero, bottom: .rootEm(1))
 							.padding(vertical: .zero, horizontal: .rootEm(0.75))
 							.secondaryText()
 					}
+			case .inMixedList:
+				// In a list with text items too, the card is in the line of the marker of its item, which is then in the middle of the card. The space between the items is the space of the list, as the margins of an inline card do not collapse with the margins of its item.
+				Style()
+					.display(.inlineFlex)
+					.verticalAlign(.middle)
+					.margin(.vertical, .zero)
 			case .icon:
 				// The corners of an icon of the Shortcuts app. The icon from iCloud is a square.
 				Style()
@@ -112,12 +118,12 @@ struct ShortcutCard: HTML {
 				Style()
 					.secondaryText()
 			case .action:
-				// At the end of the card. Phones leave it out, so the name has the space. The whole card is the link.
+				// At the end of the card. Phones leave it out, so the name has the space. The whole card is the link. In the accent for text, like the link below the reviews, so the card has the color of the app.
 				Style()
 					.margin(.leading, .auto)
 					.flexShrink(0)
 					.font(size: .rootEm(0.875), lineHeight: 1.4)
-					.color(.link)
+					.color(.accentText)
 					.below(.smallTablet) {
 						$0.hidden()
 					}

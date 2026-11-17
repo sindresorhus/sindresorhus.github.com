@@ -14,7 +14,7 @@ struct PublicationInfo: HTML {
 
 			if !post.isRedirect {
 				span {
-					"\(post.readingTime) min read"
+					post.readingTimeText
 				}
 			}
 		}

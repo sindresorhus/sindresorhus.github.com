@@ -10,6 +10,9 @@ isPaid: true
 isMenuBarApp: true
 appStoreID: 1545870783
 hasSentry: true
+relatedApps: [
+	'simple-color-palette'
+]
 feedbackNames: [
 	'Color Picker'
 ]
@@ -63,20 +66,17 @@ The macOS color picker as an app, with more features. Pick a color from anywhere
 
 - Palettes
 - Recently picked colors
-- Quickly copy, paste, and convert colors in Hex, HSL, RGB, Unit RGB (0-1), OKLCH, LCH, and CMYK format
+- Quickly copy, paste, and convert colors in Hex, HSL, RGB, Unit RGB (0–1), OKLCH, LCH, and CMYK format <guide:convert-hex-to-oklch-mac>
 - Show as a normal app or in the menu bar
 - Pick a color or toggle the window from anywhere with a global keyboard shortcut
 - Make the window stay on top of all other windows
 - Copy the color in your preferred format after picking, and quit the app after picking
 - Show the color sampler when the window opens
-- Show the accessibility name of the color, like “very dark blue”
+- Show the accessibility name of the color, like “very dark blue” <guide:find-color-name-mac>
 - Launch it at login (when in the menu bar)
 - Hide menu bar icon
 - Shortcuts support
 - Import [Simple Color Palette](https://simplecolorpalette.com) and Adobe Swatch Exchange (ASE) palettes
-
-> [!TIP]
-> You may also like my [Simple Color Palette](/simple-color-palette) app.
 
 ## Tips
 
@@ -140,7 +140,7 @@ No. The color sampler in the app is provided by macOS and only supports showing 
 
 ### What is Unit RGB? {#what-is-unit-rgb}
 
-It represents RGB values in the range 0-1 instead of 0-255. This format is commonly used for programming (SwiftUI, AppKit, UIKit, etc.) and other graphics programming contexts. For example, `0.5, 0.5, 0.5` in [Unit RGB](https://rgbcolorpicker.com/0-1) is equivalent to `rgb(128, 128, 128)` in standard RGB. It accepts values in the format `0.1, 0.1, 0.1` and `0.1 0.1 0.1`, including with opacity `0.1, 0.1, 0.1, 0.5`.
+It represents RGB values in the range 0–1 instead of 0–255. This format is commonly used for programming (SwiftUI, AppKit, UIKit, etc.) and other graphics programming contexts. For example, `0.5, 0.5, 0.5` in [Unit RGB](https://rgbcolorpicker.com/0-1) is equivalent to `rgb(128, 128, 128)` in standard RGB. It accepts values in the format `0.1, 0.1, 0.1` and `0.1 0.1 0.1`, including with opacity `0.1, 0.1, 0.1, 0.5`.
 
 ### Can you support HSB? {#can-you-support-hsb}
 
@@ -186,7 +186,7 @@ The best practice is to use [Asset Catalog for colors](https://devblog.xero.com/
 
 ### Why does the OKLCH chroma value differ from other sources? {#why-does-the-oklch-chroma-value-differ-from-other-sources}
 
-The app displays the OKLCH chroma value as a percentage instead of an absolute value for better user-friendliness. For example, `oklch(70% 25% 135)` in the app corresponds to `oklch(70% 0.1 135)` on [oklch.com](https://oklch.com). Both are correct: the percentage form (0-100%) and the decimal form (0-0.4) are standard ways to express [OKLCH chroma](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch#c).
+The app displays the OKLCH chroma value as a percentage instead of an absolute value for better user-friendliness. For example, `oklch(70% 25% 135)` in the app corresponds to `oklch(70% 0.1 135)` on [oklch.com](https://oklch.com). Both are correct: the percentage form (0–100%) and the decimal form (0–0.4) are standard ways to express [OKLCH chroma](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch#c).
 
 ### How can I export color palettes? {#how-can-i-export-color-palettes}
 
@@ -212,24 +212,26 @@ While I love making free apps that are available to anyone, the high volume of s
 
 ## Scripting
 
-### URL scheme
-
-The app supports the `system-color-picker:` URL scheme for programmatic control:
-
-- `system-color-picker:pick` - Start the color sampler (eyedropper)
-- `system-color-picker:toggle` - Toggle the color picker window
-
-Example:
-
-```sh
-open --background 'system-color-picker:pick'
-```
-
-This can be used to create custom keyboard shortcuts in tools like [Raycast](https://raycast.com) and [Alfred](https://alfredapp.com).
-
 ### Shortcuts
 
 The app has the “Sample Color from Screen”, “Get Random Color”, “Import Palettes”, and “Get All Palettes” actions for Shortcuts. For example, sample a color from the screen and then do something with it.
 
 > [!TIP]
-> You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+> You can [run shortcuts from the command line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+
+### URL scheme
+
+The app supports the `system-color-picker:` URL scheme for programmatic control:
+
+- `system-color-picker:pick`
+	:: Start the color sampler (eyedropper).
+- `system-color-picker:toggle`
+	:: Toggle the color picker window.
+
+Example:
+
+```console
+open --background 'system-color-picker:pick'
+```
+
+This can be used to create custom keyboard shortcuts in tools like [Raycast](https://raycast.com) and [Alfred](https://alfredapp.com).

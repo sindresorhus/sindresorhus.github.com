@@ -32,7 +32,7 @@ sponsorTiers: [
 		]
 	}
 	{
-		title: 'Silver sponsor'
+		title: 'Silver Sponsor'
 		price: '$100/month'
 		sponsors: [
 			{
@@ -69,7 +69,7 @@ sponsorTiers: [
 		]
 	}
 	{
-		title: 'Top supporter'
+		title: 'Top Supporter'
 		price: '$50/month'
 		sponsors: [
 			{
@@ -105,6 +105,6 @@ I’m truly grateful to all the wonderful humans and companies supporting my ope
 
 See all supporters on [GitHub Sponsors](https://github.com/sponsors/sindresorhus).
 
-## Become a supporter
+## Become a Supporter
 
 [Support my open source work 🙌](/donate)

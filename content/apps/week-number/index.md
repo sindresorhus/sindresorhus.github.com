@@ -61,15 +61,12 @@ Always know which week it is. Useful if your work or school plans by week number
 
 - Week number in the menu bar
 - Customizable prefix
-- Find week number for a specific date
+- Find week number for a specific date <guide:week-number-of-date-mac>
 - “Get Week Number” action in Shortcuts, for any date
-- Widget
+- Widget <guide:week-number-widget-mac>
 
----
-
-Check out [Dato](/dato) for week number in the menu bar and more features and settings.
-
----
+> [!TIP]
+> Check out [Dato](/dato) for week number in the menu bar and more features and settings.
 
 ## Frequently Asked Questions {#faq}
 

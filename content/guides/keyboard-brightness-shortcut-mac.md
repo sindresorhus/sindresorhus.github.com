@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	With [Supercharge](../apps/supercharge/index.md), set your own keyboard shortcuts to make the keyboard backlight of a MacBook brighter and dimmer, like when you want other keys for it, or use an external keyboard. Without an app, press the keyboard brightness keys, or use the “Keyboard Brightness” slider in Control Center.
+	With [Supercharge](/supercharge), set your own keyboard shortcuts to make the keyboard backlight of a MacBook brighter and dimmer, like when you want other keys for it, or use an external keyboard. [Without an app](#without-an-app), press the keyboard brightness keys, or use the “Keyboard Brightness” slider in Control Center.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Shortcuts”.
+1. Open the settings of [Supercharge](/supercharge), and click “Shortcuts”.
 1. Find “Keyboard brightness”. You can type “brightness” in the search field of the settings.
 1. Click the “Increase” field, and press a keyboard shortcut, like ++Control+Option+F6++. Do the same for “Decrease”.
 }

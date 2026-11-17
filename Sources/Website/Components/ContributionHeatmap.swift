@@ -17,7 +17,13 @@ struct ContributionHeatmap: HTML {
 	let scale: ContributionScale
 
 	var body: some HTML<HTMLTag.div> {
-		div {
+		// From tablets, the weeks fill the width, so the whole year fits. Each week is a whole number of pixels wide, so all the cells are the same size, and the rest of the width is in the space between the weeks.
+		let weekCount = Double(calendar.weeks.count)
+		let gap = LengthPercentage.pixels(3)
+		let weekWidth = LengthPercentage.round((.percent(100) - gap * (weekCount - 1)) / weekCount, to: .pixels(1))
+		let weekGap = (LengthPercentage.percent(100) - weekWidth * weekCount) / (weekCount - 1)
+
+		return div {
 			div {
 				// Each week is a column: the name of its month, when the month starts in it, and its days.
 				for (week, monthName) in zip(calendar.weeks, monthNames) {
@@ -30,6 +36,13 @@ struct ContributionHeatmap: HTML {
 				}
 			}
 			.style(Styles.grid, Styles.cells)
+			.style {
+				$0.from(.tablet) {
+					$0
+						.gridAutoColumns(.fixed(weekWidth))
+						.gap(row: gap, column: weekGap)
+				}
+			}
 		}
 		.accessibilityHidden()
 		// Not a Tab stop, which browsers make a scroller without controls on phones, as it is hidden from screen readers and starts at the newest week.
@@ -38,7 +51,7 @@ struct ContributionHeatmap: HTML {
 	}
 
 	/**
-	The short name of the month of each week, like “Jan”, for the first week that starts in the month, and `nil` for the other weeks. A month with fewer than two weeks that start in it, which can only be the first or the last month of the year, has no name, as it would overlap the name of the next month or reach past the grid.
+	The short name of the month of each week, like “Jan”, for the first week that starts in the month, and `nil` for the other weeks. A month with fewer than two weeks that start in it, which can only be the first or the last month of the year, has no name, as it would overlap the name of the next month or reach past the grid. The first month needs three weeks, as the name of the next month comes right after it, and two weeks leave no space between the names, like “NovDec”.
 	*/
 	private var monthNames: [String?] {
 		let months = calendar.weeks.map { $0.days.first.map { $0.date.month } }
@@ -47,7 +60,8 @@ struct ContributionHeatmap: HTML {
 			guard
 				index == 0 || months[index - 1] != months[index],
 				index + 1 < months.count,
-				months[index + 1] == months[index]
+				months[index + 1] == months[index],
+				index > 0 || (index + 2 < months.count && months[index + 2] == months[index])
 			else {
 				return nil
 			}
@@ -94,6 +108,8 @@ struct ContributionHeatmap: HTML {
 				// On phones, the year is wider than the screen, so it scrolls sideways. Right to left, so it starts at the newest week, without a script. The grid inside is left to right again.
 				Style()
 					.overflow(horizontal: .auto)
+					// A horizontal swipe on a trackpad at the end does not go back in the history.
+					.overscrollBehavior(horizontal: .contain)
 					.scrollIndicators(.hidden)
 					.direction(.rightToLeft)
 					// The older weeks fade out at the left edge, so the cut week and month read as more to scroll to, not as a broken layout, as the scroll bar is hidden. The fade stays when the visitor scrolls to the oldest week, so the first few weeks of the year are faint then.
@@ -101,7 +117,7 @@ struct ContributionHeatmap: HTML {
 						$0.maskImage(.linearGradient(.toRight, Color.transparent.at(.zero), Color.black.at(.rootEm(3))))
 					}
 			case .grid:
-				// Cells that are large enough to see on phones, in a grid that is as wide as its cells. From tablets, the cells fill the width, so the whole year fits. The first row has the names of the months.
+				// Cells that are large enough to see on phones, in a grid that is as wide as its cells. From tablets, the cells fill the width, so the whole year fits, with the size of the weeks on the element (``body``), as it needs the number of weeks. The first row has the names of the months.
 				Style()
 					.display(.inlineGrid)
 					.verticalAlign(.top)
@@ -111,10 +127,7 @@ struct ContributionHeatmap: HTML {
 					.gridAutoColumns(.fixed(.rootEm(0.625)))
 					.gap(.pixels(2))
 					.from(.tablet) {
-						$0
-							.display(.grid)
-							.gridAutoColumns(.fraction(1))
-							.gap(.pixels(3))
+						$0.display(.grid)
 					}
 			case .monthName:
 				// Wider than its week, over the weeks after it, which have no name. Its box has no width, so the name does not make its column wider than the other weeks.

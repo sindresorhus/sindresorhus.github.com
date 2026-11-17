@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-A row of short facts, like “63 apps · 11 years of craft”, with dots between them on larger screens, and one fact on each line on phones.
+A row of short facts, like “63 apps · 11 years of craft”, with dots between them from small tablets, like a window that fills half of a laptop screen, and one fact on each line on phones.
 */
 struct StatList: HTML {
 	let stats: [String]
@@ -38,11 +38,11 @@ struct StatList: HTML {
 		var style: Style {
 			switch self {
 			case .root:
+				// The digits keep the widths of the font, as the facts do not change, so a “1” at the start of a line on phones does not leave a space before it.
 				Style()
 					.vstack(spacing: .rootEm(0.25))
 					.secondaryText()
-					.monospacedDigit()
-					.from(.tablet) {
+					.from(.smallTablet) {
 						// No space between the facts in a row, as the margins of the dots are the space, so the dots are in the middle.
 						$0
 							.flexDirection(.row)
@@ -52,18 +52,20 @@ struct StatList: HTML {
 			case .centered:
 				Style()
 					.alignItems(.center)
-					.from(.tablet) {
+					.from(.smallTablet) {
 						$0.justifyContent(.center)
 					}
 			case .stat:
-				// Screen readers skip the dot, as its alternative text is empty.
+				// The dot is at the end of the fact before it, like in ``FactLine``, so no line starts with a dot when the row wraps, like next to the photo of the about page at 640 px. Screen readers skip the dot, as its alternative text is empty.
 				Style()
-					.from(.tablet) {
-						$0.nested("& + &::before") {
-							$0
-								.content("·", alternativeText: "")
-								.margin(vertical: .zero, horizontal: .rootEm(0.5))
-								.opacity(0.5)
+					.from(.smallTablet) {
+						$0.notLastChild {
+							$0.after {
+								$0
+									.content("·", alternativeText: "")
+									.margin(vertical: .zero, horizontal: .rootEm(0.5))
+									.opacity(0.5)
+							}
 						}
 					}
 			}
@@ -118,14 +120,14 @@ enum FactLineStyles: String, StyleSet {
 	var style: Style {
 		switch self {
 		case .root:
-			// Each fact is a box, so a line only breaks between the facts, or inside a fact that is longer than the line. Screen readers skip the dots, as their alternative text is empty.
+			// Each fact is a box, so a line only breaks between the facts, or inside a fact that is longer than the line. Screen readers skip the dots, as their alternative text is empty (``Style/factSeparator()``).
 			Style()
 				.children("*") {
 					$0.display(.inlineBlock)
 				}
 				.children(":not(:last-child)") {
 					$0.after {
-						$0.content("\u{2002}·\u{2002}", alternativeText: "")
+						$0.factSeparator()
 					}
 				}
 		}
@@ -133,6 +135,15 @@ enum FactLineStyles: String, StyleSet {
 }
 
 extension Style {
+	/**
+	The dot after a fact, in a pseudo-element, which screen readers skip, as its alternative text is empty. The dot of the font is in the middle of the lowercase letters, but the facts are mostly capitals and digits, like “October 2026 · 7 min read”, so it is a little higher, in their middle. A relative position does not change the line box, so no line moves.
+	*/
+	func factSeparator() -> Self {
+		content("\u{2002}·\u{2002}", alternativeText: "")
+			.position(.relative)
+			.top(.em(-0.075))
+	}
+
 	/**
 	Each fact of a ``FactLine`` on its own line, without the dots, for a line of facts that would otherwise wrap after a dot, like on a small screen.
 	*/

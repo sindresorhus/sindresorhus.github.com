@@ -12,7 +12,7 @@ struct InlineNote: ScriptedElement {
 	/**
 	The HTML of the text.
 	*/
-	let textHTML: String
+	let text: HTMLFragment
 
 	/**
 	The ID of the popover with the note.
@@ -23,14 +23,14 @@ struct InlineNote: ScriptedElement {
 	The HTML of the text of a note, for ``SiteKit/MarkdownDocument/Options/inlineNote``.
 	*/
 	@Sendable
-	static func render(textHTML: String, noteID: ElementID) -> String {
-		Self(textHTML: textHTML, noteID: noteID).render()
+	static func render(text: HTMLFragment, noteID: ElementID) -> HTMLFragment {
+		Self(text: text, noteID: noteID).renderFragment()
 	}
 
 	var content: some HTML {
 		// The text as it is, with a dotted underline, which is solid under the pointer and while the note is open.
 		a(.href(.fragment(noteID)), .ariaExpanded(false)) {
-			HTMLRaw(textHTML)
+			text
 		}
 		.style {
 			$0

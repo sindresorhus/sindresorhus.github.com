@@ -1,5 +1,5 @@
 // The galaxy on the home page, drawn with WebGL. `home.js` loads it in dark mode, for visitors who allow motion.
-import {startShader} from '/scripts/webgl.js';
+import {shaderLoop, startShader} from '/scripts/webgl.js';
 
 const canvas = document.querySelector('#nebula');
 // Only with a hardware renderer, as a software renderer blocks the page for hundreds of milliseconds. Without WebGL, the page keeps its still background.
@@ -336,79 +336,45 @@ if (gl) {
 
 	document.addEventListener('click', event => {
 		// The time is stopped while the galaxy is paused, so a click then would give a ripple later.
-		if (frame === undefined) {
+		if (!loop.isRunning) {
 			return;
 		}
 
 		const aspect = window.innerWidth / window.innerHeight;
 		rippleX = (event.clientX / window.innerWidth  - 0.5) * aspect;
 		rippleY = -(event.clientY / window.innerHeight - 0.5);
-		rippleTime = (performance.now() - startTime) / 1000;
+		rippleTime = loop.time;
 	});
 
-	let startTime = performance.now();
-	// Time starts at 0 when the galaxy first renders.
-	let pauseStart = startTime;
-	let frame;
-	let isOnScreen = false;
-	let lastFrameTime = Number.NEGATIVE_INFINITY;
+	// At most 30 frames a second, like the glass of the apps page, as the galaxy turns slowly, and a frame costs much of the GPU on a large screen. Pause rendering when the tab is hidden, the canvas is scrolled off screen, or the canvas is not shown (light mode) to save GPU/battery. Time starts at 0 when the galaxy first renders.
+	const loop = shaderLoop(canvas, {
+		canRun: () => uniforms !== undefined && canvas.clientWidth > 0,
+		frame(shaderTime) {
+			// Smooth cursor position for natural lag
+			// The factors are for 30 frames a second: two steps of 0.05 and 0.90 at 60 frames, so the galaxy follows the pointer as fast as before the frame limit.
+			smoothPointerX += (targetPointerX - smoothPointerX) * 0.1;
+			smoothPointerY += (targetPointerY - smoothPointerY) * 0.1;
 
-	// At most 30 frames a second, like the glass of the apps page, as the galaxy turns slowly, and a frame costs much of the GPU on a large screen.
-	function draw(now = performance.now()) {
-		frame = requestAnimationFrame(draw);
+			// Smooth velocity; decay raw to zero so flow fades when mouse stops
+			smoothVelocityX += (pointerVelocityX - smoothVelocityX) * 0.1;
+			smoothVelocityY += (pointerVelocityY - smoothVelocityY) * 0.1;
+			pointerVelocityX *= 0.81;
+			pointerVelocityY *= 0.81;
 
-		if (now - lastFrameTime < 1000 / 31) {
-			return;
-		}
-
-		lastFrameTime = now;
-
-		// Smooth cursor position for natural lag
-		// The factors are for 30 frames a second: two steps of 0.05 and 0.90 at 60 frames, so the galaxy follows the pointer as fast as before the frame limit.
-		smoothPointerX += (targetPointerX - smoothPointerX) * 0.1;
-		smoothPointerY += (targetPointerY - smoothPointerY) * 0.1;
-
-		// Smooth velocity; decay raw to zero so flow fades when mouse stops
-		smoothVelocityX += (pointerVelocityX - smoothVelocityX) * 0.1;
-		smoothVelocityY += (pointerVelocityY - smoothVelocityY) * 0.1;
-		pointerVelocityX *= 0.81;
-		pointerVelocityY *= 0.81;
-
-		gl.clear(gl.COLOR_BUFFER_BIT);
-		const shaderTime = (performance.now() - startTime) / 1000;
-		gl.uniform1f(uniforms.time, shaderTime);
-		gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
-		gl.uniform2f(uniforms.pointer, smoothPointerX, smoothPointerY);
-		gl.uniform2f(uniforms.pointerVelocity, smoothVelocityX, smoothVelocityY);
-		gl.uniform3f(uniforms.ripple, rippleX, rippleY, rippleTime);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	}
-
-	// Pause rendering when the tab is hidden, the canvas is scrolled off screen, or the canvas is not shown (light mode) to save GPU/battery
-	function update() {
-		const shouldRun = uniforms !== undefined && canvas.clientWidth > 0 && isOnScreen && !document.hidden;
-
-		if (shouldRun === (frame !== undefined)) {
-			return;
-		}
-
-		if (shouldRun) {
-			// Shift startTime forward by pause duration so time is continuous on resume
-			startTime += performance.now() - pauseStart;
-			draw();
-		} else {
-			cancelAnimationFrame(frame);
-			frame = undefined;
-			pauseStart = performance.now();
-		}
-	}
-
-	document.addEventListener('visibilitychange', update);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			gl.uniform1f(uniforms.time, shaderTime);
+			gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+			gl.uniform2f(uniforms.pointer, smoothPointerX, smoothPointerY);
+			gl.uniform2f(uniforms.pointerVelocity, smoothVelocityX, smoothVelocityY);
+			gl.uniform3f(uniforms.ripple, rippleX, rippleY, rippleTime);
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		},
+	});
 
 	// The GPU can lose the canvas, like after the device sleeps. The galaxy stops until the browser gives the canvas back (`startShader`).
 	canvas.addEventListener('webglcontextlost', () => {
 		uniforms = undefined;
-		update();
+		loop.update();
 	});
 
 	canvas.addEventListener('webglcontextrestored', () => {
@@ -418,17 +384,12 @@ if (gl) {
 		}
 
 		resize();
-		update();
+		loop.update();
 	});
-
-	new IntersectionObserver(([entry]) => {
-		isOnScreen = entry.isIntersecting;
-		update();
-	}).observe(canvas);
 
 	// The canvas has no size while it is hidden with `display: none`, so this also starts and pauses the galaxy when the color scheme changes.
 	new ResizeObserver(() => {
 		resize();
-		update();
+		loop.update();
 	}).observe(canvas);
 }

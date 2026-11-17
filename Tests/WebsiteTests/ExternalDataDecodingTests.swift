@@ -61,6 +61,35 @@ struct ExternalDataDecodingTests {
 		#expect(product.rating?.average == average)
 	}
 
+	/**
+	Gumroad reviews have no title, and are left out like the App Store reviews: below five stars, too short, or without a message. A review with an unexpected shape is left out, and the product keeps its other reviews.
+	*/
+	@Test
+	func `Gumroad reviews become reviews without a title, newest first`() throws {
+		let product = try GumroadProduct(json: #"""
+		{
+			"price_cents": 2000,
+			"reviews": [
+				{"rating": 5, "message": "Great app.", "rater": {"name": "Short"}, "created_at": "2026-10-30T10:00:00Z"},
+				{"rating": 5, "message": "It's a wonderful app with plenty of useful tweaks for every Mac user.", "rater": {"name": "Older"}, "created_at": "2026-10-01T10:00:00Z"},
+				{"rating": 4, "message": "A good app with many useful tweaks, but it misses one feature that I need.", "rater": {"name": "Four stars"}, "created_at": "2026-10-25T10:00:00Z"},
+				{"rating": 5, "message": null, "rater": {"name": "No message"}, "created_at": "2026-10-24T10:00:00Z"},
+				{"rating": "5", "message": "A wonderful app with plenty of useful tweaks, but its rating is text.", "rater": {"name": "Text rating"}, "created_at": "2026-10-23T10:00:00Z"},
+				{"rating": 5, "message": "A wonderful app with plenty of useful tweaks, but its date is not a date.", "rater": {"name": "Bad date"}, "created_at": "yesterday"},
+				{"rating": 5, "message": "Absolutely outstanding piece of software that any savvy Mac user will appreciate.", "rater": {"name": "Krishna M. Sadasivam"}, "created_at": "2026-10-16T01:11:28Z"}
+			]
+		}
+		"""#)
+
+		#expect(product.reviews.map(\.author) == ["Krishna M. Sadasivam", "Older"])
+		let review = try #require(product.reviews.last)
+		#expect(review.title == nil)
+		#expect(review.store == .gumroad)
+		#expect(review.text == "It’s a wonderful app with plenty of useful tweaks for every Mac user.")
+		#expect(review.hidingKey == review.text)
+		#expect(try review.date == Date("2026-10-01T10:00:00Z", strategy: .iso8601))
+	}
+
 	@Test(arguments: [#"{}"#, #"{"price_cents":"499"}"#, #"{"price_cents":499,"ratings":{"count":"26","average":4.8}}"#, #"{"price_cents":499,"ratings":{"count":26,"average":"4.8"}}"#])
 	func `Gumroad normalization keeps required and wrongly typed wire failures`(json: String) {
 		#expect(throws: DecodingError.self) {
@@ -116,8 +145,8 @@ struct ExternalDataDecodingTests {
 		let app = try await App(publicationDate: "2026-01-01", frontmatter: "releasesRepository: 'sindresorhus/test'")
 		let info = try AppStoreInfo(json: #"{"trackId":123,"version":"2.0","currentVersionReleaseDate":"2025-12-31T00:00:00Z"}"#)
 		let listing = AppListing(app: app, appStoreInfo: info, releases: [
-			GitHubRelease(tagName: "v1.0", publishedAt: Date(year: 2026, month: 1, day: 1), notesHTML: ""),
-			GitHubRelease(tagName: "v3.0", publishedAt: Date(year: 2026, month: 10, day: 1), notesHTML: ""),
+			GitHubRelease(tagName: "v1.0", publishedAt: Date(year: 2026, month: 1, day: 1), notes: .empty),
+			GitHubRelease(tagName: "v3.0", publishedAt: Date(year: 2026, month: 10, day: 1), notes: .empty),
 		])
 		let candidates = listing.versionReleases
 

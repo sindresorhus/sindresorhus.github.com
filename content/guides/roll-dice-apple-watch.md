@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Open [Randa](../apps/randa/index.md) on Apple Watch, set the range to 1 and 6, and tap the number to roll again. Without an app, ask Siri to roll a die.
+	Open [Randa](/randa) on Apple Watch, set the range to 1 and 6, and tap the number to roll again. [Without an app](#without-an-app), ask Siri to roll a die.
 }
 
 ## With Randa
 
 @Steps {
-1. Open [Randa](../apps/randa/index.md) on Apple Watch.
+1. Open [Randa](/randa) on Apple Watch.
 1. Scroll down, and set the two numbers to 1 and 6.
 1. Tap the big number to roll. Each tap gives a new number, from 1 to 6.
 }

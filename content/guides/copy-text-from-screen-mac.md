@@ -2,7 +2,7 @@
 title: 'How to Copy Text from an Image or the Screen on Mac'
 description: 'Copy text that you cannot select, in an image, a video, or an app, with Text Lens, or with Live Text in Preview for a screenshot.'
 publicationDate: 2026-10-29
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'text-lens'
 ]
@@ -16,25 +16,25 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Use [Text Lens](../apps/text-lens/index.md): select an area of the screen, and the text is copied. Without an app, open the image in Preview, and select the text with Live Text. For text on the screen, take a screenshot first.
+	Use [Text Lens](/text-lens): select an area of the screen, and the text is copied. [Without an app](#without-an-app), open the image in Preview, and select the text with Live Text. For text on the screen, take a screenshot first.
 }
 
 ## With Text Lens
 
 @Steps {
-1. Click the [Text Lens](../apps/text-lens/index.md) icon in the menu bar, and choose “Capture”.
+1. Click the [Text Lens](/text-lens) icon in the menu bar, and choose “Capture”.
 1. Drag over the text.
 1. The text is copied. Paste it with ++Command+V++.
 }
 
-Text Lens works in images, videos, PDFs, presentations, and apps. It also reads QR codes and barcodes. You can set a keyboard shortcut for “Capture” in the settings, or turn on “Click menu bar icon to capture”. The text recognition runs on your Mac, so it also works offline.
+Text Lens works in images, videos, PDFs, presentations, and apps. It also reads QR codes and barcodes. [How to copy text from a video.](guide:copy-text-from-video-mac) [How to copy a table from an image.](guide:copy-table-from-image-mac) You can set a keyboard shortcut for “Capture” in the settings, or turn on “Click menu bar icon to capture”. The text recognition runs on your Mac, so it also works offline.
 
 ## Without an app
 
-macOS has Live Text, which finds the text in images. It works in Preview, Photos, and in images in Safari. To use it on text that is not in an image, take a screenshot first:
+macOS has Live Text, which finds the text in images. It works in Preview, Photos, and in images in Safari, and in a paused video in QuickTime Player and Safari. To use it on text that is not in an image or a video, take a screenshot first:
 
 @Steps {
 1. Press ++Shift+Command+4++, and drag over the text. By default, the screenshot is saved on the desktop.
 1. Open the screenshot in Preview.
-1. Drag over the text, and press ++Command+C++. If you cannot select the text, choose “Tools › Text Selection”.
+1. Drag over the text, and press ++Command+C++. If you cannot select the text, choose “Tools › Text Selection”. <source:https://support.apple.com/guide/preview/prvw625a5b2c/mac>
 }

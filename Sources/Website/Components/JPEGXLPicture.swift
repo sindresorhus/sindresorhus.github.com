@@ -20,16 +20,24 @@ struct JPEGXLPicture<Image: HTML>: HTML where Image.Tag == HTMLTag.img {
 				source(.srcset(copy.path), .type(.jpegXL))
 				image
 			}
-			// Only a wrapper of the sources, so the image is laid out as if it were alone. The source is hidden, as it would be an empty item in a flex or grid parent, which adds one more gap. The browser still reads its `srcset`.
 			.style {
-				$0.display(.contents)
-					.children("source") {
-						$0.hidden()
-					}
+				$0.pictureWrapper()
 			}
 		} else {
 			image
 		}
+	}
+}
+
+extension Style {
+	/**
+	A `<picture>` that is only a wrapper of the sources of its image, so the image is laid out as if it were alone, like an item of a flex or grid parent. The sources are hidden, as each would be an empty item in a flex or grid parent, which adds one more gap. The browser still reads their `srcset`.
+	*/
+	func pictureWrapper() -> Self {
+		display(.contents)
+			.children("source") {
+				$0.hidden()
+			}
 	}
 }
 

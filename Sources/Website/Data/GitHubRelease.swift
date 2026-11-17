@@ -8,7 +8,7 @@ struct GitHubRelease {
 	/**
 	The release notes rendered as HTML, once when the releases load. Empty when there are no notes.
 	*/
-	let notesHTML: String
+	let notes: HTMLFragment
 
 	/**
 	The version without the `v` prefix, like `1.2.0`.

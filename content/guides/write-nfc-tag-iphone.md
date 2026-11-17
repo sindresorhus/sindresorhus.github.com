@@ -10,15 +10,15 @@ apps: [
 ---
 
 @QuickAnswer {
-	iPhone can run a shortcut when it scans an NFC tag, but it cannot write a tag. The free [Actions](../apps/actions/index.md) app adds a “Write NFC Tag” action to the Shortcuts app, which writes text or a URL to a tag.
+	iPhone can run a shortcut when it scans an NFC tag, but it cannot write a tag. The free [Actions](/actions) app adds a “Write NFC Tag” action to the Shortcuts app, which writes text or a URL to a tag.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
+1. Install [Actions](/actions), and open it once.
 1. In the Shortcuts app, tap the add button to make a new shortcut.
-1. Add the “Write NFC Tag” action of Actions.
+1. Add the [“Write NFC Tag”](/actions#:~:text=Read%2FWrite%20NFC%20Tag) action of Actions.
 1. Enter the text or the URL, and choose “Text” or “URL” as the type.
 1. Run the shortcut, and hold the top of the iPhone near the tag within 20 seconds.
 }
@@ -34,9 +34,9 @@ Writing replaces everything on the tag. When a tag has a web, email, or phone UR
 To run a shortcut when your iPhone scans a tag, you do not need to write it:
 
 @Steps {
-1. In the Shortcuts app, tap the shortcut to run, or make a new one.
-1. Tap “Edit”, then “Automation”, and choose “NFC”. Tap “Scan”, and hold the iPhone near the tag.
-1. To run the shortcut without asking, tap “Edit”, then the Info button, tap “Privacy”, and turn on “Allow Running When Locked”.
+1. In the Shortcuts app, tap “Automation”, and tap the add button.
+1. Choose “NFC”, tap “Scan”, hold the iPhone near the tag, and give the tag a name.
+1. Choose “Run Immediately”, tap “Next”, and choose the shortcut.
 }
 
 [Apple’s instructions.](https://support.apple.com/guide/shortcuts/add-automations-apdfbdbd7123/ios) This is enough when you only want a tag that runs a shortcut on your own iPhone. Writing the tag is for a tag that other phones can use too, like a link to a website or a Wi-Fi page.

@@ -13,7 +13,13 @@ a(.href(.feeds)) {
 ```
 */
 enum Icon: HTML, CaseIterable, Encodable {
+	/**
+	The margin at the end of a chevron (``chevronRight``) in a box of 1.25 rem, like at the end of a FAQ row or a link card, which puts the end of its ink at the padding. The path ends at 16 of 24, so the empty space is a third of the box.
+	*/
+	static let chevronTrailingMargin = AutoLength.rootEm(-0.4167)
+
 	case menu
+	case search
 	case rss
 	case apps
 	case mail
@@ -40,6 +46,11 @@ enum Icon: HTML, CaseIterable, Encodable {
 	case ellipsis
 	case paperclip
 	case check
+
+	/**
+	A question mark in a circle, like for a question of a FAQ.
+	*/
+	case questionMark
 	case copy
 	case file
 	case book
@@ -127,6 +138,8 @@ enum Icon: HTML, CaseIterable, Encodable {
 		switch self {
 		case .menu:
 			#"<path d="M4 8h16M4 16h16"/>"#
+		case .search:
+			#"<path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0-14 0M21 21l-6-6"/>"#
 		case .rss:
 			#"<path d="M4 19a1 1 0 1 0 2 0a1 1 0 1 0-2 0"/><path d="M4 4a16 16 0 0 1 16 16M4 11a9 9 0 0 1 9 9"/>"#
 		case .apps:
@@ -171,6 +184,8 @@ enum Icon: HTML, CaseIterable, Encodable {
 			#"<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>"#
 		case .check:
 			#"<path d="M20 6 9 17l-5-5"/>"#
+		case .questionMark:
+			#"<path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 17v.01M12 13.5a1.5 1.5 0 0 1 1-1.5 2.6 2.6 0 1 0-3-4"/>"#
 		case .copy:
 			#"<path d="M7 9.667a2.667 2.667 0 0 1 2.667-2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1-2.667 2.667h-8.666a2.667 2.667 0 0 1-2.667-2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1-1.012-1.737v-10c0-1.1.9-2 2-2h10c.75 0 1.158.385 1.5 1"/>"#
 		case .file:

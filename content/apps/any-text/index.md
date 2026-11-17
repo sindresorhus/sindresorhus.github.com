@@ -11,6 +11,9 @@ platforms: [
 ]
 isPaid: true
 appStoreID: 1643199620
+relatedApps: [
+	'one-thing'
+]
 redirectFrom: [
 	'/lock-screen-one'
 ]
@@ -52,9 +55,6 @@ For macOS, it’s only available for Apple silicon Macs running macOS 26 or late
 On iOS, you can also show the text in a Live Activity: tap the title at the top of the screen where you write the text, and choose “Show as Live Activity”. iOS shows a Live Activity for up to 8 hours in the Dynamic Island and for up to 12 hours on the Lock Screen.
 
 Syncs across your devices with iCloud.
-
-> [!TIP]
-> You may also like my [One Thing](/one-thing) app for macOS.
 
 ## Tips
 
@@ -115,11 +115,11 @@ The widget sizes are controlled by Apple. The provided size is the largest it al
 
 ### Can you make the widget background transparent? {#widget-transparent-background}
 
-The app cannot make its widget transparent, but iOS can make all widgets and app icons see-through: touch and hold the Home Screen, tap “Edit” › “Customize”, and choose “Clear”.
+The app cannot make its widget transparent, but iOS can make all widgets and app icons see-through: touch and hold the Home Screen, tap “Edit › Customize”, and choose “Clear”.
 
 ### Can you remove the title shown below the widget? {#can-you-remove-the-title-shown-below-the-widget}
 
-Apple does not allow removing the title. Some apps managed to do it early on, but these days, Apple rejects any attempt at doing that. However, you can hide the titles of all apps and widgets on the Home Screen: touch and hold the Home Screen, tap “Edit” › “Customize”, and choose “Large”.
+Apple does not allow removing the title. Some apps managed to do it early on, but these days, Apple rejects any attempt at doing that. However, you can hide the titles of all apps and widgets on the Home Screen: touch and hold the Home Screen, tap “Edit › Customize”, and choose “Large”.
 
 ### How can I remove the date prefix from the inline Lock Screen widget above the clock? {#how-can-i-remove-the-date-prefix-from-the-inline-lock-screen-widget-above-the-clock}
 
@@ -145,17 +145,17 @@ No, widgets only support tapping interactions.
 
 The text in the widgets can be changed using the Shortcuts app.
 
-### Shortcuts app
+### Shortcuts {#shortcuts-app}
 
 - [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)
-- [How to run shortcuts from the command-line on macOS](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
+- [How to run shortcuts from the command line on macOS](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
 
-### Command-line on macOS
+### Command line {#command-line-on-macos}
 
-Shortcuts can be executed via the command-line, allowing you to set widget text programmatically.
+Shortcuts can be executed via the command line, allowing you to set widget text programmatically.
 
 For example, to set the text for widget 1, add the [“Set Widget 1 Text” shortcut](https://www.icloud.com/shortcuts/6873c23a3cbb4718b23135e367d6be1b), and then run this:
 
-```sh
+```console
 echo 'TEST' | shortcuts run 'Set Widget 1 Text'
 ```

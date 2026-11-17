@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Hold ++Fn++ (or the Globe key) and press a function key to use it the other way one time. To change all of them, macOS has the “Use F1, F2, etc. keys as standard function keys” setting, but no keyboard shortcut for it. In the “Shortcuts” settings of [Supercharge](../apps/supercharge/index.md), set a shortcut for “Function keys” to switch at any time.
+	Hold ++Fn++ (or the Globe key) and press a function key to use it the other way one time. To change all of them, macOS has the “Use F1, F2, etc. keys as standard function keys” setting, but no keyboard shortcut for it. In the “Shortcuts” settings of [Supercharge](/supercharge), set a shortcut for “Function keys” to switch at any time.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Shortcuts”.
+1. Open the settings of [Supercharge](/supercharge), and click “Shortcuts”.
 1. In the “Toggle feature” section, click the field next to “Function keys”, and press the keyboard shortcut that you want.
 1. Press the shortcut to switch between the two ways: standard function keys (F1, F2, and so on), or the keys for the brightness, the volume, and the media.
 }

@@ -2,20 +2,20 @@
 title: 'How to Clear the Clipboard on Mac'
 description: 'macOS has no command to clear the clipboard. Supercharge clears it from the menu bar, with a keyboard shortcut, or automatically after a minute.'
 publicationDate: 2026-11-10
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'supercharge'
 ]
 ---
 
 @QuickAnswer {
-	macOS has no “Clear Clipboard” command. Click [Supercharge](../apps/supercharge/index.md) in the menu bar, and choose “Clear Clipboard”. Supercharge can also clear the clipboard automatically, like after you copy a password.
+	macOS has no “Clear Clipboard” command. Click [Supercharge](/supercharge) in the menu bar, and choose “Clear Clipboard”. Supercharge can also clear the clipboard automatically, like after you copy a password.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md). Its icon is in the menu bar.
+1. Open [Supercharge](/supercharge). Its icon is in the menu bar.
 1. Click the icon, and choose “Clear Clipboard”. The clipboard is now empty.
 }
 
@@ -25,7 +25,13 @@ To clear it automatically, click “Tweaks” in the settings, and in the “Sys
 
 ## Without an app
 
-- **Terminal:** Run `pbcopy < /dev/null`. It replaces the clipboard with nothing.
 - **Copy something else:** Select a space or a word, and press ++Command+C++. The old content is no longer on the clipboard.
+- **Terminal:** Run this command. It replaces the clipboard with nothing:
+
+	```console
+	pbcopy < /dev/null
+	```
 
 These work when you remember to do it. Supercharge is for when you want it in one click, or done for you.
+
+On macOS 26 and later, Spotlight also keeps what you copy in its [clipboard history](guide:clipboard-history-mac). When you clear the clipboard, also with Supercharge, the item stays in the history. To erase the history, press ++Command+Space++ and then ++Command+4++, click the More button to the right of the search field, and choose “Clear History”. <source:https://support.apple.com/guide/mac-help/mchl40d5b86b/mac>

@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	In the settings of [Supercharge](../apps/supercharge/index.md), set a shortcut for “Mute microphone”. Then press it in any app to mute or unmute. macOS has no such shortcut, but you can turn the input volume down in “[System Settings › Sound](x-apple.systempreferences:com.apple.Sound-Settings.extension)”.
+	In the settings of [Supercharge](/supercharge), set a shortcut for “Mute microphone”. Then press it in any app to mute or unmute. [Without an app](#without-an-app), turn the input volume down in “[System Settings › Sound](x-apple.systempreferences:com.apple.Sound-Settings.extension)”, as macOS has no such shortcut.
 }
 
 Shush of Mizage is a menu bar app for a mute key and push to talk. It is still on the Mac App Store for $4.99, but its last update (1.2.1) is from October 2014.
@@ -17,7 +17,7 @@ Shush of Mizage is a menu bar app for a mute key and push to talk. It is still o
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, click “Shortcuts”, and set a shortcut for “Mute microphone”.
 1. Press the shortcut to mute the microphone, and press it again to unmute it.
 }
@@ -38,4 +38,4 @@ macOS has no keyboard shortcut to mute the microphone. To mute it:
 1. Drag the “Input volume” slider all the way to the left.
 }
 
-Drag it back to unmute. Most call apps also have a mute button and their own shortcut, but it works only in that app.
+Drag it back to unmute. For a keyboard shortcut, make a shortcut in the Shortcuts app with a “Run AppleScript” action with `set volume input volume 0`, and give it a keyboard shortcut in its details. To unmute, make a second one with a number like `75`. A script needs “Allow Running Scripts”: choose “Shortcuts › Settings”, click “Advanced”, and turn it on. Most call apps also have a mute button and their own shortcut, but it works only in that app.

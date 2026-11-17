@@ -25,7 +25,12 @@ struct AppsPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: "Apps", description: description, dataFile: Site.appsJSONPath)
+		PageMetadata(
+			title: "Apps",
+			description: description,
+			feeds: [SiteFeed.newApps.link],
+			dataFile: Site.appsJSONPath
+		)
 	}
 
 	var headerBackground: SiteHeader.Background {
@@ -90,12 +95,12 @@ struct AppsPage: Page {
 				}
 				.style(Styles.hero)
 
-				// `apps.js` shows it with the count when the URL has an `exclude` parameter, like from the “More apps” menu of an app.
+				// `apps.js` shows it with the number of apps that it shows when the URL has an `exclude` parameter, like from the “More apps” menu of an app.
 				p(.id(IDs.filterNotice), .hidden) {
 					span(.id(IDs.filterCount)) {}
 					" "
 					a(.href(.apps)) {
-						"Show All"
+						"Show All \(content.activeApps.count.formatted(.siteNumber))"
 					}
 				}
 				.style(Styles.filterNotice)
@@ -165,7 +170,8 @@ struct AppsPage: Page {
 
 					ul {
 						for link in group.links {
-							LinkRow(link: link)
+							// The only link that leaves the site, among links to pages of the site.
+							LinkRow(link: link, isExternal: link.destination.isOtherSite)
 						}
 					}
 				}
@@ -182,16 +188,24 @@ struct AppsPage: Page {
 	/**
 	The app categories and more pages about the apps, in the menu next to the title and at the end of the page.
 
-	- Parameter categories: The categories of the “Categories” group, as the menu leaves out the categories of the chips.
+	- Parameter categories: The categories of the “Categories” and “Platforms & Price” groups, as the menu leaves out the categories of the chips.
 	*/
 	private static func linkGroups(categories: [AppCategory]) -> [LinkGroup] {
-		[
+		let platformsAndPrices = categories.filter(\.isPlatformOrPrice)
+
+		// What the apps do first, so a visitor who wants a kind of app does not read past the platforms and the prices.
+		return [
 			LinkGroup(
 				title: "Categories",
-				links: categories.map(\.link) + [
+				links: categories.filter { !$0.isPlatformOrPrice }.map(\.link) + [
 					LabeledLink("Open Source", destination: .url(#URL("https://github.com/search?q=user%3Asindresorhus+language%3Aswift+topic%3Aapp+archived%3Afalse&type=repositories")), description: "Apps with the source code available"),
 					LabeledLink("Random", destination: .path(.randomApp), description: "Show a random app"),
 				]
+			),
+			// The platforms before the prices, like the title of the group.
+			LinkGroup(
+				title: "Platforms & Price",
+				links: (platformsAndPrices.filter { $0.platform != nil } + platformsAndPrices.filter { $0.platform == nil }).map(\.link)
 			),
 			LinkGroup(
 				title: "More",
@@ -243,11 +257,11 @@ struct AppsPage: Page {
 
 	private var stats: [String] {
 		[
-			// All the apps that were made, also the archived ones, like the years of craft.
-			content.listedApps.count.formatted(counting: "app"),
+			// The apps of the grid below, like the description of the page, `apps.md`, and `llms.txt`, so the page has one number of apps. The about page and the App Timeline count all the apps that were made, also the archived ones.
+			content.activeApps.count.formatted(counting: "app"),
 			content.yearsOfCraft.map { "\($0.formatted(counting: "year")) of craft" },
 			content.settings.appUserCount.approximateCount(counting: "user"),
-			"\(content.settings.supportEmailCount.approximateCount) answered support emails",
+			"\(content.settings.supportEmailCount.approximateCount) support emails answered",
 		]
 		.compactMap(\.self)
 	}
@@ -416,9 +430,17 @@ extension AppsPage {
 					// The padding of the container is the space below.
 					.margin(top: .rootEm(7.5), horizontal: .auto, bottom: .zero)
 					.grid(columns: 1)
-					.gap(.rootEm(2.5))
+					// The space between the columns of the cards (``LengthPercentage/cardSpacing``), so the second list starts at the second column of cards.
+					.gap(row: .rootEm(2.5), column: .cardSpacing)
+					// “More” is in the second column, next to the two groups of categories.
 					.from(.tablet) {
-						$0.gridColumns(2)
+						$0
+							.gridColumns(2)
+							.children(":last-child") {
+								$0
+									.gridColumnSpan(1, from: 2)
+									.gridRowSpan(2, from: 1)
+							}
 					}
 			case .filterNotice:
 				Style()

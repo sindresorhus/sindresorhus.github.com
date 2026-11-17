@@ -86,6 +86,13 @@ extension Style {
 	}
 
 	/**
+	Turns on features of the font that CSS has no property for (`font-feature-settings` in CSS), like a stylistic set. It replaces the features that a parent turns on with it, so use a typed property where one exists, like ``monospacedDigit()``.
+	*/
+	public func fontFeatures(_ features: FontFeature...) -> Self {
+		declaration(.fontFeatureSettings, CSSValue(features, separator: ", ", emptyValue: "normal"))
+	}
+
+	/**
 	Punctuation that hangs outside the box of the text, like an opening quote at the start of a paragraph, so the letters line up with the edge.
 	*/
 	public func hangingPunctuation(_ punctuation: HangingPunctuation) -> Self {
@@ -94,6 +101,13 @@ extension Style {
 
 	public func letterSpacing(_ length: Length) -> Self {
 		declaration(.letterSpacing, length)
+	}
+
+	/**
+	Extra space between words (`word-spacing` in CSS), like for a title with tight letter spacing, which also makes each space narrower.
+	*/
+	public func wordSpacing(_ length: Length) -> Self {
+		declaration(.wordSpacing, length)
 	}
 
 	public func textAlign(_ alignment: TextAlignment) -> Self {
@@ -165,10 +179,27 @@ extension Style {
 	}
 
 	/**
+	How text that wraps chooses its line breaks, like `.auto` for the normal line breaking inside text with `.textWrap(.pretty)`. Unlike ``textWrap(_:)``, it keeps whether the text wraps, like the `nowrap` of a parent.
+	*/
+	public func textWrapStyle(_ style: TextWrapStyle) -> Self {
+		declaration(.textWrapStyle, style)
+	}
+
+	/**
 	Where a long word, like a URL, can break, so it does not overflow.
 	*/
 	public func overflowWrap(_ wrap: OverflowWrap) -> Self {
 		declaration(.overflowWrap, wrap)
+	}
+
+	/**
+	Shows at most the number of lines, and ends the last line with an ellipsis, like a long description in a list of results. It sets the display of the element to the box that the clamp needs (`display: -webkit-box` with `-webkit-line-clamp`, which all browsers support, while some do not support the standard `line-clamp` yet).
+	*/
+	public func lineClamp(_ lines: Int) -> Self {
+		declaration(.display, "-webkit-box")
+			.declaration(.webkitBoxOrient, "vertical")
+			.declaration(.webkitLineClamp, CSSValue(lines))
+			.declaration(.overflow, Overflow.hidden)
 	}
 
 	/**
@@ -260,6 +291,13 @@ extension Style {
 
 	public func underlineOffset(_ offset: LengthPercentage) -> Self {
 		declaration(.textUnderlineOffset, offset)
+	}
+
+	/**
+	Where the underline is drawn, like `.under` for a link with code, so its underline is one straight line below the text and the code.
+	*/
+	public func underlinePosition(_ position: UnderlinePosition) -> Self {
+		declaration(.textUnderlinePosition, position)
 	}
 
 	/**

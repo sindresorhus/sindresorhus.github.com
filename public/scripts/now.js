@@ -1,8 +1,8 @@
-// The now page is complete without this script. It adds the latest commits, which are only loaded here, in the card that is waiting for them, and shows a newer Bluesky post than the one of the build.
-import {cloneTemplate, prerendered, scriptData} from '/scripts/dom.js';
+// The now page is complete without this script. It adds the latest commits, which are only loaded here, in the card that is waiting for them.
+import {cloneTemplate, parts, prerendered, scriptData} from '/scripts/dom.js';
 
-// The accounts and the request of the build, so the script asks for the same ones, and the number of placeholder rows of the commits.
-const {blueskyFeedURL, blueskyProfileURL, commitCount, gitHubAccount} = scriptData('now-data');
+// The account of the build, so the script asks for the same one, and the number of placeholder rows of the commits.
+const {commitCount, gitHubAccount} = scriptData('now-data');
 
 // The speculation rules of the site can prerender the page while the pointer is over a link to it. The script waits until the visitor opens the page, so a page that nobody opens spends none of the GitHub searches of the visitor, and the relative times are not old when the page shows.
 await prerendered;
@@ -75,7 +75,7 @@ const titleNodes = title => {
 const showLatestCommits = async () => {
 	const container = document.querySelector('#latest-commits');
 	const template = document.querySelector('#commit-template');
-	const list = container.querySelector('ul');
+	const {list} = parts(container, 'the latest commits');
 
 	// Without a token, GitHub allows 10 searches a minute for each visitor. When the request fails, an error replaces the placeholder rows, and the link to GitHub below them stays. The section is shown too, as it can be hidden until the commits load.
 	const showError = () => {
@@ -116,7 +116,7 @@ const showLatestCommits = async () => {
 
 	const rows = commits.map(({item, title}) => {
 		const row = cloneTemplate(template);
-		const link = row.querySelector('[data-commit-link]');
+		const {link, repository, time} = parts(row, 'a commit');
 		link.href = item.html_url;
 
 		// The number of a pull request at the end, like “(#3976)”, links to its discussion, like on GitHub. The link is next to the link of the commit, as a link cannot be in another link. GitHub sends the issue URL of a pull request to the pull request.
@@ -133,8 +133,7 @@ const showLatestCommits = async () => {
 		}
 
 		const repositoryPrefix = `${gitHubAccount}/`;
-		row.querySelector('[data-commit-repository]').textContent = item.repository.full_name.startsWith(repositoryPrefix) ? item.repository.full_name.slice(repositoryPrefix.length) : item.repository.full_name;
-		const time = row.querySelector('[data-commit-time]');
+		repository.textContent = item.repository.full_name.startsWith(repositoryPrefix) ? item.repository.full_name.slice(repositoryPrefix.length) : item.repository.full_name;
 		const date = new Date(item.commit.author.date);
 		time.textContent = relativeTime(date);
 		commitTimes.set(time, date);
@@ -146,113 +145,9 @@ const showLatestCommits = async () => {
 	container.closest('section').hidden = false;
 };
 
-const linkOfFeature = feature => {
-	switch (feature.$type) {
-		case 'app.bsky.richtext.facet#link': {
-			const url = URL.parse(feature.uri);
-			return ['http:', 'https:'].includes(url?.protocol) ? url.href : undefined;
-		}
-
-		case 'app.bsky.richtext.facet#mention': {
-			return `https://bsky.app/profile/${encodeURIComponent(feature.did)}`;
-		}
-
-		case 'app.bsky.richtext.facet#tag': {
-			return `https://bsky.app/hashtag/${encodeURIComponent(feature.tag)}`;
-		}
-
-		default: {
-			return undefined;
-		}
-	}
-};
-
-// The text with its links, like the build makes it. The facets mark the links by the byte range of their UTF-8 text.
-const textNodes = (text, facets = []) => {
-	const bytes = new TextEncoder().encode(text);
-	const decoder = new TextDecoder();
-	const nodes = [];
-	let position = 0;
-
-	for (const {index, features} of facets.toSorted((first, second) => first.index.byteStart - second.index.byteStart)) {
-		const link = (features ?? []).map(feature => linkOfFeature(feature)).find(Boolean);
-
-		if (
-			index.byteStart < position
-			|| index.byteStart >= index.byteEnd
-			|| index.byteEnd > bytes.length
-			|| !link
-		) {
-			continue;
-		}
-
-		if (index.byteStart > position) {
-			nodes.push(decoder.decode(bytes.subarray(position, index.byteStart)));
-		}
-
-		const anchor = document.createElement('a');
-		anchor.href = link;
-		anchor.textContent = decoder.decode(bytes.subarray(index.byteStart, index.byteEnd));
-		nodes.push(anchor);
-		position = index.byteEnd;
-	}
-
-	if (position < bytes.length) {
-		nodes.push(decoder.decode(bytes.subarray(position)));
-	}
-
-	return nodes;
-};
-
-const showLatestBlueskyPost = async () => {
-	const quote = document.querySelector('#bluesky-post');
-
-	// The build had no post, so there is no place for one.
-	if (!quote) {
-		return;
-	}
-
-	const response = await fetch(blueskyFeedURL, {
-		signal: AbortSignal.timeout(requestTimeout),
-	});
-
-	if (!response.ok) {
-		return;
-	}
-
-	const {feed} = await response.json();
-
-	// Reposts have a reason. The feed has no pinned post, as the request does not ask for it (`includePins`).
-	const post = feed?.find(item => !item.reason && item.post.record.text.trim())?.post;
-
-	if (!post) {
-		return;
-	}
-
-	const url = `${blueskyProfileURL}/post/${post.uri.split('/').at(-1)}`;
-	const link = document.querySelector('#bluesky-post-link');
-	const time = document.querySelector('#bluesky-post-time');
-	const date = new Date(post.record.createdAt);
-
-	// Only a post that is newer than the one of the build, so the page never goes back to an older post.
-	if (link.href === url || !(date > new Date(time.dateTime))) {
-		return;
-	}
-
-	document.querySelector('#bluesky-post-text').replaceChildren(...textNodes(post.record.text, post.record.facets));
-	link.href = url;
-	time.dateTime = date.toISOString();
-	time.textContent = date.toLocaleDateString('en-US', {
-		timeZone: 'UTC',
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric',
-	});
-};
-
 // Network errors leave the page as the build made it. The errors are logged, so a mistake in the script, like a selector that no longer matches, is not hidden.
-for (const result of await Promise.allSettled([showLatestCommits(), showLatestBlueskyPost()])) {
-	if (result.status === 'rejected') {
-		console.error(result.reason);
-	}
+try {
+	await showLatestCommits();
+} catch (error) {
+	console.error(error);
 }

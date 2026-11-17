@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	macOS has no setting to hide the pointer (the cursor). It hides the pointer by itself while you type in many apps, and in fullscreen video. [Supercharge](../apps/supercharge/index.md) hides it after a few seconds without movement, or with a keyboard shortcut.
+	macOS has no setting to hide the pointer (the cursor). It hides the pointer by itself while you type in many apps, and in fullscreen video. [Supercharge](/supercharge) hides it after a few seconds without movement, or with a keyboard shortcut.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “System” section, turn on “Hide mouse pointer when idle”, and set “Hide after” to the number of seconds, from 1 to 30.
 1. For a keyboard shortcut, click “Shortcuts”, and set a shortcut for “Toggle mouse pointer”.
 }

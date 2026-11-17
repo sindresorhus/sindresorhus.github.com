@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Select the image in Finder, press ++Command+I++, and look at “Dimensions” in the “More Info” section. To see the dimensions in the right-click menu, and copy them with a click, use [Supercharge](../apps/supercharge/index.md).
+	Select the image in Finder, press ++Command+I++, and look at “Dimensions” in the “More Info” section. To see the dimensions in the right-click menu, and copy them with a click, use [Supercharge](/supercharge).
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), click “Tweaks”, and click “Configure…” next to “Context menu items”.
+1. Open the settings of [Supercharge](/supercharge), click “Tweaks”, and click “Configure…” next to “Context menu items”.
 1. In the “Main Menu” tab, turn on “Image/Video Dimensions”.
 1. Right-click an image or a video in Finder. The menu shows its dimensions, like “1920×1080”. Click them to copy them.
 }

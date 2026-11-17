@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Finder has no “Invert Selection” command. Press ++Command+A++ to select all, and ++Command++-click the files that you want to leave out. With [Supercharge](../apps/supercharge/index.md), one keyboard shortcut selects all the files that are not selected.
+	Finder has no “Invert Selection” command. Press ++Command+A++ to select all, and ++Command++-click the files that you want to leave out. With [Supercharge](/supercharge), one keyboard shortcut selects all the files that are not selected.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “Finder” section, choose a shortcut in “Invert selection”: ++Control+I++, ++Option+I++, or ++Option+Shift+I++.
 1. Select some files in Finder, and press the shortcut. Now the other files are selected.
 }

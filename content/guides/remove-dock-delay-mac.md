@@ -3,20 +3,21 @@ title: 'How to Remove the Dock Delay on Mac'
 description: 'Make the hidden Dock show at once, without a delay, with Supercharge or with a Terminal command. Supercharge can also stop the Dock from showing.'
 publicationDate: 2026-11-10
 topic: 'windows-apps-and-dock'
+isForNewMacOwners: true
 apps: [
 	'supercharge'
 ]
 ---
 
 @QuickAnswer {
-	When the Dock is hidden, macOS waits a moment before it shows the Dock. To remove the delay, set the delay to “None” in [Supercharge](../apps/supercharge/index.md), or change the hidden setting of the Dock with a Terminal command.
+	When the Dock is hidden, macOS waits a moment before it shows the Dock. To remove the delay, set the delay to “None” in [Supercharge](/supercharge), or change the hidden setting of the Dock with a Terminal command.
 }
 
 ## With Supercharge
 
 @Steps {
 1. In “[System Settings › Desktop & Dock](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”, turn on “Automatically hide and show the Dock”.
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “Dock” section, set “Delay before showing the Dock when hidden” to “None”.
 1. Move the pointer to the edge of the screen. The Dock shows at once.
 }
@@ -32,6 +33,11 @@ defaults write com.apple.dock autohide-delay -float 0
 killall Dock
 ```
 
-To get the normal delay back, run `defaults delete com.apple.dock autohide-delay` and `killall Dock`.
+To get the normal delay back, run:
+
+```console
+defaults delete com.apple.dock autohide-delay
+killall Dock
+```
 
 The commands change the same setting as Supercharge, so they are enough if you are at ease with Terminal. Supercharge gives you a menu with the delays, and the setting to stop the Dock from showing.

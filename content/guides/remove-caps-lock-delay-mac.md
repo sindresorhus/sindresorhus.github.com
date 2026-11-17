@@ -3,13 +3,14 @@ title: 'How to Remove the Caps Lock Delay on Mac'
 description: 'Make Caps Lock turn on at once, without the short delay of macOS, with Supercharge or with the hidutil command in Terminal.'
 publicationDate: 2026-11-06
 topic: 'keyboard-and-trackpad'
+isForNewMacOwners: true
 apps: [
 	'supercharge'
 ]
 ---
 
 @QuickAnswer {
-	In the settings of [Supercharge](../apps/supercharge/index.md), turn on “Remove Caps Lock activation delay”. Without an app, run `hidutil property --set '{"CapsLockDelayOverride":0}'` in the Terminal app after each restart.
+	In the settings of [Supercharge](/supercharge), turn on “Remove Caps Lock activation delay”. [Without an app](#without-an-app), run `hidutil property --set '{"CapsLockDelayOverride":0}'` in the Terminal app after each restart.
 }
 
 On a Mac, a quick press of ++Caps Lock++ often does nothing. macOS waits a moment before it turns on Caps Lock, so that you do not turn it on by accident. If you type fast, the delay makes you miss capital letters.
@@ -17,7 +18,7 @@ On a Mac, a quick press of ++Caps Lock++ often does nothing. macOS waits a momen
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and open its settings.
+1. Open [Supercharge](/supercharge), and open its settings.
 1. Click “Tweaks”, and in the Keyboard section, turn on “Remove Caps Lock activation delay”. You can also search for “caps” in the settings.
 1. Press ++Caps Lock++. It turns on at once.
 }

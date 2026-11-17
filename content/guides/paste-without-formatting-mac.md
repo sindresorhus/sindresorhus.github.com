@@ -2,7 +2,8 @@
 title: 'How to Paste Without Formatting on Mac'
 description: 'Press Option+Shift+Command+V to paste as plain text, or use Pure Paste to make Command+V always paste without formatting, in every app.'
 publicationDate: 2026-10-29
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
+shortcut: 'Option+Shift+Command+V'
 apps: [
 	'pure-paste'
 ]
@@ -13,15 +14,15 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Press ++Option+Shift+Command+V++, or choose “Edit › Paste and Match Style”. The text then gets the font and style of the place you paste it in. To make ++Command+V++ always paste without formatting, use [Pure Paste](../apps/pure-paste/index.md).
+	Press ++Option+Shift+Command+V++, or choose “Edit › Paste and Match Style”. The text then gets the font and style of the place you paste it in. To make ++Command+V++ always paste without formatting, use [Pure Paste](/pure-paste).
 }
 
 ## With Pure Paste
 
-[Pure Paste](../apps/pure-paste/index.md) clears the formatting (fonts, colors, bold, links, and tables) when you copy text, so you paste plain text with the normal ++Command+V++ in every app.
+[Pure Paste](/pure-paste) clears the formatting (fonts, colors, bold, links, and tables) when you copy text, so you paste plain text with the normal ++Command+V++ in every app.
 
 @Steps {
-1. Open [Pure Paste](../apps/pure-paste/index.md). Its icon is in the menu bar, and “Automatically clear formatting” is on.
+1. Open [Pure Paste](/pure-paste). Its icon is in the menu bar, and “Automatically clear formatting” is on.
 1. Copy text with ++Command+C++, like from a web page or an email.
 1. Paste it with ++Command+V++. The text has no formatting.
 }
@@ -41,7 +42,7 @@ Pure Paste can also keep the links, remove tracking parameters from URLs, change
 
 ### Paste and Match Style
 
-Most Mac apps, like Mail, Notes, Pages, and Safari, have “Paste and Match Style” in the Edit menu, with the shortcut ++Option+Shift+Command+V++. Some apps use another name or shortcut:
+Most Mac apps, like Mail, Notes, Pages, and Safari, have “Paste and Match Style” in the Edit menu, with the shortcut ++Option+Shift+Command+V++. <source:https://support.apple.com/102650> Some apps use another name or shortcut:
 
 - **Google Docs:** Press ++Shift+Command+V++, or choose “Edit › Paste without formatting”.
 - **Microsoft Word:** Choose “Edit › Paste and Match Formatting”. It keeps bold and italic on parts of the text.
@@ -56,7 +57,7 @@ You can give “Paste and Match Style” the ++Command+V++ shortcut in all apps:
 1. Open “[System Settings › Keyboard](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”, and click “Keyboard Shortcuts…”.
 1. Choose “App Shortcuts”, and click the add button.
 1. Keep “All Applications”, and type `Paste and Match Style` in “Menu title”. Type it exactly like in the Edit menu.
-1. Click “Keyboard shortcut”, press ++Command+V++, and click “Done”.
+1. Click “Keyboard shortcut”, press ++Command+V++, and click “Done”. <source:https://support.apple.com/guide/mac-help/mchlp2271/mac>
 }
 
-This works only in the apps that have a command with exactly this name, so it does not work in Word, which uses another name. To paste with the formatting, choose “Edit › Paste”. [Why Pure Paste does more.](../apps/pure-paste/index.md#why-not-just-remap-the-paste-and-match-style-keyboard-shortcut-to-v)
+This works only in the apps that have a command with exactly this name, so it does not work in Word, which uses another name. To paste with the formatting, choose “Edit › Paste”. [Why Pure Paste does more.](/pure-paste#why-not-just-remap-the-paste-and-match-style-keyboard-shortcut-to-v)

@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Open the free [Pandan](../apps/pandan/index.md) app, and set “Show” to “Total duration today” in its settings. The menu bar then shows how long you used the Mac today. For a report of each app, turn on Screen Time in System Settings.
+	Open the free [Pandan](/pandan) app, and set “Show” to “Total duration today” in its settings. The menu bar then shows how long you used the Mac today. For a report of each app, turn on Screen Time in System Settings.
 }
 
 ## With Pandan
 
 @Steps {
-1. Open [Pandan](../apps/pandan/index.md). Its icon is in the menu bar.
+1. Open [Pandan](/pandan). Its icon is in the menu bar.
 1. Open its settings, and in “Show”, choose “Total duration today”, or “Icon and total duration today”.
 1. Click the menu bar item to see “Current Session” and “Total Today”.
 1. To see more, choose “History…” in the menu. It shows the total of yesterday, the average of the last 7 days and of the weekdays, and your sessions of the last 120 days.
@@ -25,8 +25,8 @@ Pandan ends a session when you do not use the keyboard or the mouse for some min
 
 @Tips {
 - The “Get Total Duration Today” action of the Shortcuts app gives the total, for example to log it each evening.
-- Pandan can also [remind you to take a break](break-reminder-mac.md).
-- To see how long the Mac has been on since it started, which is not the same as the time of use, see [the uptime guide](uptime-iphone-mac.md).
+- Pandan can also [remind you to take a break](guide:break-reminder-mac).
+- To see how long the Mac has been on since it started, which is not the same as the time of use, see [the uptime guide](guide:uptime-iphone-mac).
 }
 
 ## Without an app

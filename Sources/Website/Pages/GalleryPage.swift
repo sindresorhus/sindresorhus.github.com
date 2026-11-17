@@ -176,21 +176,21 @@ struct GalleryPage: Page {
 			Section("Reviews", id: ElementID("reviews")) {
 				AppReviews(
 					reviews: [
-						AppStoreReview(
+						StoreReview(
 							title: "Exactly what I needed",
 							text: "A review that is long enough to show how the text wraps across a few lines in the card.",
 							author: "A reviewer",
 							rating: .five,
 							date: content.buildDate
 						),
-						AppStoreReview(
+						StoreReview(
 							title: "Great",
 							text: "A shorter review, with\na line break.",
 							author: "Another reviewer",
 							rating: .five,
 							date: content.buildDate
 						),
-						AppStoreReview(
+						StoreReview(
 							title: Self.longWord,
 							text: "A title with a long word that cannot break must not overflow the card: \(Self.longWord)",
 							author: "A reviewer with a very long name",
@@ -290,6 +290,9 @@ struct GalleryPage: Page {
 	> [!NOTE]
 	> A note.
 
+	> [!NOTE] Update, October 2026
+	> A note with its own title, in place of “Note”.
+
 	> [!TIP]
 	> A tip.
 
@@ -347,6 +350,20 @@ struct GalleryPage: Page {
 	- Zoom
 	}
 
+	@Chips(label: "Sections") {
+	- [Prose](#prose)
+	- [Article prose](#article-prose)
+	}
+
+	@Photos {
+	- [![A photo](/assets/sindre-sorhus.jpg)](/assets/sindre-sorhus.jpg)
+		- A caption below the photo
+	- [![Another photo](/assets/sindre-sorhus.jpg)](/assets/sindre-sorhus.jpg)
+		- Another caption
+	- [![A third photo](/assets/sindre-sorhus.jpg)](/assets/sindre-sorhus.jpg)
+		- A third caption
+	}
+
 	@Tips {
 		- A tip.
 		- Another tip.
@@ -376,6 +393,7 @@ struct GalleryPage: Page {
 	- A card
 		- A point below its title.
 	- Another card
+	- [A card that is a link](https://example.com)
 	}
 
 	@Steps {

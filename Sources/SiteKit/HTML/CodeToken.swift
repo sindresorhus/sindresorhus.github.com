@@ -4,7 +4,7 @@ import SwiftParser
 import SwiftSyntax
 
 /**
-A kind of token that highlighted code colors, like a keyword. See ``Swift/String/swiftCodeParts`` and ``Swift/String/somlCodeParts``.
+A kind of token that highlighted code colors, like a keyword. See ``Swift/String/swiftCodeParts``, ``Swift/String/somlCodeParts``, ``Swift/String/javaScriptCodeParts``, and ``Swift/String/shellCodeParts``.
 */
 public enum CodeToken: String, CaseIterable, Sendable {
 	case keyword
@@ -208,5 +208,123 @@ extension String {
 	*/
 	public var somlCodeParts: [CodePart] {
 		SOML.Token.parts(in: self).map { CodePart(text: String($0.text), token: $0.kind.flatMap(CodeToken.init)) }
+	}
+
+	/**
+	A comment, a string, a number, or a word of JavaScript, for ``javaScriptCodeParts``. A string is in single, double, or back quotes, with escapes.
+	*/
+	nonisolated(unsafe) private static let javaScriptToken = #/(?<comment>//[^\n]*|/\*[\s\S]*?\*/)|(?<string>'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|`(?:[^`\\]|\\[\s\S])*`)|(?<number>\d+(?:\.\d+)?)|(?<word>[A-Za-z_$][\w$]*)/#
+
+	/**
+	The words of JavaScript that ``javaScriptCodeParts`` colors as keywords.
+	*/
+	private static let javaScriptKeywords: Set = [
+		"async",
+		"await",
+		"break",
+		"case",
+		"catch",
+		"class",
+		"const",
+		"continue",
+		"default",
+		"delete",
+		"do",
+		"else",
+		"export",
+		"extends",
+		"false",
+		"finally",
+		"for",
+		"from",
+		"function",
+		"if",
+		"import",
+		"in",
+		"instanceof",
+		"let",
+		"new",
+		"null",
+		"of",
+		"return",
+		"switch",
+		"this",
+		"throw",
+		"true",
+		"try",
+		"typeof",
+		"undefined",
+		"var",
+		"void",
+		"while",
+		"yield",
+	]
+
+	/**
+	The parts of JavaScript code for syntax highlighting, in order, with the kind of each part that is colored, like ``swiftCodeParts``. Together, the parts are the whole code, also the whitespace.
+
+	A small lexer colors comments, strings, numbers, and keywords, and the other code is plain. Limitations: a regex literal is plain, the interpolations of a template literal have the color of the string, and a keyword after a period, like `delete` in `map.delete(key)`, is colored as a keyword.
+	*/
+	public var javaScriptCodeParts: [CodePart] {
+		codeParts(colored: matches(of: Self.javaScriptToken).compactMap { match -> (range: Range<Index>, token: CodeToken)? in
+			let token: CodeToken? = if match.output.comment != nil {
+				.comment
+			} else if match.output.string != nil {
+				.string
+			} else if match.output.number != nil {
+				.number
+			} else if Self.javaScriptKeywords.contains(String(match.output.0)) {
+				.keyword
+			} else {
+				nil
+			}
+
+			// Other words stay in the plain text around them.
+			return token.map { (range: match.range, token: $0) }
+		})
+	}
+
+	/**
+	A comment or a string of shell code, for ``shellCodeParts``. A comment starts with `#` at the start of a line or after a space, so the `#` in a word, like a URL, is not a comment. A string is in single quotes, or in double quotes with escapes.
+	*/
+	nonisolated(unsafe) private static let shellToken = #/(?:^|[ \t])(?<comment>#[^\n]*)|(?<string>'[^'\n]*'|"(?:[^"\\\n]|\\.)*")/#.anchorsMatchLineEndings()
+
+	/**
+	The parts of shell code for syntax highlighting, like a command in Terminal, in order, with the kind of each part that is colored, like ``swiftCodeParts``. Together, the parts are the whole code, also the whitespace.
+
+	A small lexer colors comments, like `# Deactivate Lungo`, and strings, like the URL in `open 'lungo:toggle'`, and the other code is plain. Limitations: a variable, like `$file`, a heredoc, and an escaped quote outside a string, like `'it'\''s'`, are plain or split.
+	*/
+	public var shellCodeParts: [CodePart] {
+		codeParts(colored: matches(of: Self.shellToken).compactMap { match -> (range: Range<Index>, token: CodeToken)? in
+			// The space before a comment is plain.
+			if let comment = match.output.comment {
+				return (range: comment.startIndex..<comment.endIndex, token: .comment)
+			}
+
+			return match.output.string.map { (range: $0.startIndex..<$0.endIndex, token: .string) }
+		})
+	}
+
+	/**
+	The parts of the code, in order: each colored range with its kind, and the text between them as plain parts.
+	*/
+	private func codeParts(colored: [(range: Range<Index>, token: CodeToken)]) -> [CodePart] {
+		var parts = [CodePart]()
+		var plainStart = startIndex
+
+		for (range, token) in colored {
+			if plainStart < range.lowerBound {
+				parts.append(CodePart(text: String(self[plainStart..<range.lowerBound]), token: nil))
+			}
+
+			parts.append(CodePart(text: String(self[range]), token: token))
+			plainStart = range.upperBound
+		}
+
+		if plainStart < endIndex {
+			parts.append(CodePart(text: String(self[plainStart...]), token: nil))
+		}
+
+		return parts
 	}
 }

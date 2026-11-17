@@ -2,14 +2,14 @@
 title: 'How to Add a Contact to the iPhone Home Screen'
 description: 'Set up speed dial on iPhone: call or message a favorite person with one tap from a widget with Favorites Widget, or use the Contacts widget of iOS.'
 publicationDate: 2026-10-30
-topic: 'iphone'
+topic: 'lock-screen-and-home-screen'
 apps: [
 	'favorites-widget'
 ]
 ---
 
 @QuickAnswer {
-	Add the “Contact” widget of [Favorites Widget](../apps/favorites-widget/index.md) to the Home Screen, and choose the contact and what a tap does, like “Call” or “Message”. Without an app, add the “Contacts” widget of iOS, and turn on “Show Buttons” for the call and message buttons.
+	Add the “Contact” widget of [Favorites Widget](/favorites-widget) to the Home Screen, and choose the contact and what a tap does, like “Call” or “Message”. [Without an app](#without-an-app), add the “Contacts” widget of iOS, and turn on “Show Buttons” for the call and message buttons.
 }
 
 A contact widget is the speed dial of the iPhone: one tap calls the person.
@@ -17,7 +17,7 @@ A contact widget is the speed dial of the iPhone: one tap calls the person.
 ## With Favorites Widget
 
 @Steps {
-1. Open [Favorites Widget](../apps/favorites-widget/index.md), tap “Choose Contacts”, and give access to your contacts. You can share all contacts or only some of them.
+1. Open [Favorites Widget](/favorites-widget), tap “Choose Contacts”, and give access to your contacts. You can share all contacts or only some of them.
 1. Go to the Home Screen. Touch and hold the background until the apps jiggle, tap “Edit”, and tap “Add Widget”.
 1. Find Favorites Widget, tap it, swipe to the size you want, and tap “Add Widget”. The options of the widget open.
 1. Tap “Contact”, and choose the person. Then choose the “Action”, like “Call”, “Message”, “FaceTime Video”, or “Email”. Tap outside the options to close them.
@@ -28,8 +28,8 @@ Tap the widget to call or message the person. The widget shows the photo and the
 @Tips {
 - iOS asks before each call. To call with one tap, open the app, tap “Quick Call”, and follow the steps there.
 - Add one widget for each person. To put many people in a row, use the small size.
-- The widget also works on the Lock Screen. Touch and hold the Lock Screen, tap “Customize”, and tap “Add Widgets” (or the row of widgets, when it already has widgets) to add it.
-- A widget can also open WhatsApp or Telegram, open a URL, or run a shortcut.
+- The widget also works on the Lock Screen. [How to add a contact to the Lock Screen.](guide:add-contact-to-iphone-lock-screen)
+- A widget can also open a chat in WhatsApp or Telegram ([guide](guide:add-whatsapp-chat-to-iphone-home-screen)), open a URL, or run a shortcut.
 - If a contact is not in the list, make sure that it has a phone number or an email address. To find a contact that is not shown, search for it in the list.
 }
 

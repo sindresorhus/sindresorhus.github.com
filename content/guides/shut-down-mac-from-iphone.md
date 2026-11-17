@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	iPhone has no simple built-in way to shut down a Mac. With [Hyperduck](../apps/hyperduck/index.md) on both devices, a shortcut on your iPhone runs a shortcut on your Mac, and that shortcut shuts it down. It works from anywhere, as it uses iCloud.
+	iPhone has no simple built-in way to shut down a Mac. With [Hyperduck](/hyperduck) on both devices, a shortcut on your iPhone runs a shortcut on your Mac, and that shortcut shuts it down. It works from anywhere, as it uses iCloud.
 }
 
 ## With Hyperduck
 
 @Steps {
-1. Install [Hyperduck](../apps/hyperduck/index.md) on your iPhone and on your Mac. Both must use the same Apple Account. Open it on the Mac, and keep it running.
+1. Install [Hyperduck](/hyperduck) on your iPhone and on your Mac. Both must use the same Apple Account. Open it on the Mac, and keep it running.
 1. On the Mac, open the Shortcuts app, and make a shortcut with the “Shut Down” action. Name it “Shut Down Mac”.
 1. On the iPhone, open the Shortcuts app, make a new shortcut, and add the “Run Shortcut on Mac” action of Hyperduck.
 1. In the shortcut field of the action, type the name of the Mac shortcut: “Shut Down Mac”.
@@ -34,8 +34,12 @@ The Mac must be awake and online to get the command. Hyperduck cannot turn the M
 
 iPhone has no button for this, but there are other ways:
 
-- **Shut down at a time:** On the Mac, run `sudo pmset schedule shutdown "12/31/26 23:00:00"` in the Terminal app, with the date as month, day, and year. The Mac shuts down at that time.
-- **Sleep by itself:** In “System Settings › Lock Screen” on the Mac, set the time before the display turns off. The Mac then sleeps when nothing keeps it awake, and a Mac that sleeps uses very little power.
-- **SSH:** If you know the Terminal, turn on “Remote Login” in “System Settings › General › Sharing” on the Mac, and use the “Run Script Over SSH” action of Shortcuts on the iPhone to run a shutdown command. It works only when the iPhone can reach the Mac, like on the same network.
+- **Sleep by itself:** In “[System Settings › Lock Screen](x-apple.systempreferences:com.apple.Lock-Screen-Settings.extension)” on the Mac, set the time before the display turns off. The Mac then sleeps when nothing keeps it awake, and a Mac that sleeps uses very little power.
+- **SSH:** If you know the Terminal, turn on “Remote Login” in “[System Settings › General › Sharing](x-apple.systempreferences:com.apple.Sharing-Settings.extension)” on the Mac, and use the “Run Script Over SSH” action of Shortcuts on the iPhone to run a shutdown command. It works only when the iPhone can reach the Mac, like on the same network.
+- **Shut down at a time:** On the Mac, run this command in the Terminal app, with the date as month, day, and year. The Mac shuts down at that time:
+
+	```console
+	sudo pmset schedule shutdown "12/31/26 23:00:00"
+	```
 
 Hyperduck is the easy way to shut the Mac down now, from where you are, without a setup of the network.

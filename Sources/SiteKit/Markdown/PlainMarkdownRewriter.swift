@@ -8,6 +8,7 @@ Rewrites Markdown with the syntax of the site as plain CommonMark, for readers t
 - HTML comments, like heading directives (`<!-- @faq.keywords … -->`), are removed, also in text.
 - An inline note, like `^[Spotlight](note: "The search of macOS.")`, is its text with the note in parentheses.
 - The text of other inline attributes, like a platform badge, is in parentheses, as the page shows it apart from the text around it.
+- A `: ` line of a list item (``ListLineMarker``) joins the line before it with a colon, like `- Get Active Browser Tab: Gets the URL of the tab`, and a `:: ` line is a paragraph of its own in the item.
 - A block directive is the blocks that `blockDirective` gives for it, which are rewritten too, so a directive can contain another one.
 
 ```swift
@@ -21,6 +22,7 @@ let markdown = rewriter.visit(document)?.format()
 public struct PlainMarkdownRewriter: MarkupRewriter {
 	private let blockDirective: (BlockDirective) -> [any BlockMarkup]
 	private let linkDestination: ((String) -> String)?
+	private let linkTags: [String: MarkdownDocument.LinkTag]
 	private var changeCount = 0
 
 	/**
@@ -32,11 +34,17 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 
 	/**
 	- Parameter linkDestination: Resolves parsed link and image destinations, without interpreting text that only looks like a link.
+	- Parameter linkTags: The tag by the scheme of an autolink (``MarkdownDocument/Options/linkTags``), so a tag, like `<guide:find-screenshots-mac>`, is a link with the name of its tag, like `[Guide: Find Screenshots on Mac](guide:find-screenshots-mac)`.
 	- Parameter blockDirective: The blocks of a block directive, like a heading with the title and the content of the directive.
 	*/
-	public init(linkDestination: ((String) -> String)? = nil, blockDirective: @escaping (BlockDirective) -> [any BlockMarkup]) {
+	public init(
+		linkDestination: ((String) -> String)? = nil,
+		linkTags: [String: MarkdownDocument.LinkTag] = [:],
+		blockDirective: @escaping (BlockDirective) -> [any BlockMarkup]
+	) {
 		self.blockDirective = blockDirective
 		self.linkDestination = linkDestination
+		self.linkTags = linkTags
 	}
 
 	/**
@@ -99,8 +107,18 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 	Rewrites a parsed link destination and its children while preserving an unchanged node’s source.
 	*/
 	public mutating func visitLink(_ link: Markdown.Link) -> (any Markup)? {
-		guard var link = defaultVisit(link) as? Markdown.Link else {
-			return nil
+		var link = link
+
+		// A tag, like `<guide:find-screenshots-mac>`, is a link with the name of its tag, as its destination is not text for a reader.
+		if let tag = link.tag(in: linkTags) {
+			changeCount += 1
+			link = Markdown.Link(destination: link.destination, [Markdown.Text(tag.name)])
+		} else {
+			guard let visitedLink = defaultVisit(link) as? Markdown.Link else {
+				return nil
+			}
+
+			link = visitedLink
 		}
 
 		if
@@ -133,6 +151,105 @@ public struct PlainMarkdownRewriter: MarkupRewriter {
 		}
 
 		return image
+	}
+
+	public mutating func visitListItem(_ listItem: ListItem) -> (any Markup)? {
+		guard let listItem = defaultVisit(listItem) else {
+			return nil
+		}
+
+		var didSplit = false
+
+		let children = listItem.children.flatMap { child -> [any Markup] in
+			guard
+				let paragraph = child as? Paragraph,
+				let paragraphs = Self.paragraphsWithoutListLineMarkers(paragraph)
+			else {
+				return [child]
+			}
+
+			didSplit = true
+			return paragraphs
+		}
+
+		guard didSplit else {
+			return listItem
+		}
+
+		changeCount += 1
+		return listItem.withUncheckedChildren(children)
+	}
+
+	/**
+	The paragraph of a list item without the markers of its lines (``ListLineMarker``): a subtitle joins the line before it with a colon, and a description starts a new paragraph. `nil` for a paragraph without the markers.
+	*/
+	private static func paragraphsWithoutListLineMarkers(_ paragraph: Paragraph) -> [Paragraph]? {
+		var paragraphs: [[any InlineMarkup]] = [[]]
+		var lineBreak: (any InlineMarkup)?
+		var didChange = false
+
+		for child in paragraph.inlineChildren {
+			if child is SoftBreak || child is LineBreak {
+				lineBreak = child
+				continue
+			}
+
+			if
+				lineBreak != nil,
+				let text = child as? Markdown.Text,
+				let (marker, rest) = ListLineMarker.split(text.string)
+			{
+				didChange = true
+
+				switch marker {
+				case .subtitle:
+					paragraphs[paragraphs.count - 1].append(Markdown.Text(": \(rest)"))
+				case .description:
+					paragraphs.append([Markdown.Text(String(rest))])
+				}
+			} else {
+				if let lineBreak {
+					paragraphs[paragraphs.count - 1].append(lineBreak)
+				}
+
+				paragraphs[paragraphs.count - 1].append(child)
+			}
+
+			lineBreak = nil
+		}
+
+		return didChange ? paragraphs.map { Paragraph($0) } : nil
+	}
+
+	/**
+	An alert with a title, like `> [!NOTE] Update, October 2026`, with the title in bold in a paragraph of its own, as GitHub and CommonMark read the marker, the title, and the text below them as one paragraph.
+	*/
+	public mutating func visitBlockQuote(_ blockQuote: BlockQuote) -> (any Markup)? {
+		guard
+			let paragraph = blockQuote.child(at: 0) as? Paragraph,
+			paragraph.childCount == 1 || paragraph.child(at: 1) is SoftBreak || paragraph.child(at: 1) is LineBreak,
+			let text = paragraph.child(at: 0) as? Markdown.Text,
+			let match = text.string.wholeMatch(of: HTMLRenderer.titledAlertMarker)
+		else {
+			return defaultVisit(blockQuote)
+		}
+
+		changeCount += 1
+
+		// Without the marker and the line break after it.
+		let rest = Array(paragraph.inlineChildren.dropFirst(2))
+		var blocks: [any BlockMarkup] = [
+			Paragraph(Markdown.Text(String(match.marker))),
+			Paragraph(Strong(Markdown.Text(String(match.title))))
+		]
+
+		if !rest.isEmpty {
+			blocks.append(Paragraph(rest))
+		}
+
+		blocks += blockQuote.blockChildren.dropFirst()
+
+		return defaultVisit(BlockQuote(blocks))
 	}
 
 	public mutating func visitHTMLBlock(_ html: HTMLBlock) -> (any Markup)? {

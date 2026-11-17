@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	Add the “Get Audio Playback Destination” action of the free [Actions](../apps/actions/index.md) app, and check its result in an “If” action, like “contains” `AirPods`. The Shortcuts app has no action that gets the audio output, only an automation that runs when a Bluetooth device connects.
+	Add the “Get Audio Playback Destination” action of the free [Actions](/actions) app, and check its result in an “If” action, like “contains” `AirPods`. The Shortcuts app has no action that gets the audio output, only an automation that runs when a Bluetooth device connects.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In your shortcut, add the “Get Audio Playback Destination” action of Actions. Its full name is “Get Audio Playback Destination (Does not detect AirPlay devices)”, and it has no options.
+1. Install [Actions](/actions), and open it once.
+1. In your shortcut, add the [“Get Audio Playback Destination”](/actions#:~:text=Get%20Audio%20Playback%20Destination) action of Actions. Its full name is “Get Audio Playback Destination (Does not detect AirPlay devices)”, and it has no options.
 1. Add an “If” action below it, choose “contains”, and type `AirPods`.
 1. Put the actions for when the AirPods are connected in the “If” part, and the other actions in the “Otherwise” part.
 }

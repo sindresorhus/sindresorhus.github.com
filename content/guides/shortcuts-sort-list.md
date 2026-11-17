@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	Add the “Sort List” action of the free [Actions](../apps/actions/index.md) app after the action that makes the list. It sorts text and numbers, ascending or descending. Without an app, the “Find” and “Filter” actions of Shortcuts, like “Filter Files”, sort what they return.
+	Add the “Sort List” action of the free [Actions](/actions) app after the action that makes the list. It sorts text and numbers, ascending or descending. [Without an app](#without-an-app), the “Find” and “Filter” actions of Shortcuts, like “Filter Files”, sort what they return.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In your shortcut, add the “Sort List” action below the action that makes the list, and select the list in the action.
+1. Install [Actions](/actions), and open it once.
+1. In your shortcut, add the [“Sort List”](/actions#:~:text=Sort%20List) action below the action that makes the list, and select the list in the action.
 1. To sort from the end, change “Ascending” to “Descending”.
 1. Expand the action, and choose the sort type: “Natural”, “Localized”, “Localized Case Insensitive”, or “Number”.
 }
@@ -27,7 +27,7 @@ The result is “Sorted List”. “Natural”, the default, sorts text with num
 - For a list of dictionaries, use “Sort List of Dictionaries”, which sorts by a key.
 - “Reverse List” and “Shuffle List” change the order in other ways.
 - If Shortcuts says that it “couldn't convert from Text to NSString”, change the preview of the result to the list view. This is a bug in the Shortcuts app.
-- To remove items that are in the list two times, [use the “Remove Duplicates from List” action](shortcuts-remove-duplicates-from-list.md).
+- To remove items that are in the list two times, [use the “Remove Duplicates from List” action](guide:shortcuts-remove-duplicates-from-list).
 }
 
 ## Without an app

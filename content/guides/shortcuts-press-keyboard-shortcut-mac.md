@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	The Shortcuts app has no action that presses keys. [Shortcutie](../apps/shortcutie/index.md) adds the “Press Keyboard Shortcut” action, where you choose the key and the modifier keys, and optionally the app that gets the keys. Without an app, the “Run AppleScript” action can press keys with System Events.
+	The Shortcuts app has no action that presses keys. [Shortcutie](/shortcutie) adds the “Press Keyboard Shortcut” action, where you choose the key and the modifier keys, and optionally the app that gets the keys. [Without an app](#without-an-app), the “Run AppleScript” action can press keys with System Events.
 }
 
 ## With Shortcutie
 
 @Steps {
-1. Install [Shortcutie](../apps/shortcutie/index.md), and open it once. It asks for Accessibility access, which it needs to press keys.
+1. Install [Shortcutie](/shortcutie), and open it once. It asks for Accessibility access, which it needs to press keys.
 1. In your shortcut, add the “Press Keyboard Shortcut” action of Shortcutie.
 1. Type the key in the field after “Character”, like `n`.
 1. Turn on the modifier keys of the shortcut: “Command”, “Option”, “Control”, or “Shift”.

@@ -107,7 +107,7 @@ Jiffy lets you quickly search and discover GIFs from GIPHY. When you have found 
 	</tr>
 </table> -->
 
-## Keyboard shortcuts {#keyboard-shortcuts}
+## Keyboard Shortcuts {#keyboard-shortcuts}
 
 You can use the following keyboard shortcuts in the app:
 
@@ -141,7 +141,7 @@ I just enjoy making apps. Consider leaving a nice review on the App Store. -->
 
 ## Non-App Store Version
 
-A special version for users that cannot access the App Store. It won't receive automatic updates. I will update it here once a year.
+A special version for people who cannot use the App Store. It does not update automatically. I will update it here once a year.
 
 [Download](https://www.dropbox.com/scl/fi/26sudsm3koidwsztn5zl9/Jiffy-2.6.0-1705228001.zip?rlkey=f4psqpqvsnecfenlr55paybke&raw=1) *(2.6.0)*
 

@@ -9,7 +9,7 @@ Most of my apps are free. The paid ones cost a few dollars, once. You buy the ap
 
 People sometimes ask why I don’t do subscriptions like everyone else. This is the short answer.
 
-## Pay one time, own forever
+## Pay One Time, Own Forever
 
 When you pay for something, you should get to keep it. That is how buying things worked for a very long time, and I don’t see a good reason to change it for a menu bar app that shows the week number.
 
@@ -17,7 +17,7 @@ A subscription makes sense when there is a cost every month, like a server. Most
 
 A subscription also changes the relationship. I would have to convince you every month that the app is still worth it. That pushes an app to keep adding things, and bloat doesn’t arrive in one release. It arrives one reasonable feature at a time. I would rather make a small app that does one thing well, and then keep it working.
 
-## Whole dollars
+## Whole Dollars
 
 All my paid apps are priced at whole numbers. $2, not $1.99.
 
@@ -25,7 +25,7 @@ I really dislike “just-below pricing”. It exists for one reason: to make you
 
 It’s a tiny thing. Nobody will choose an app because the price ends in a zero. But small ethical choices compound, and your pricing choice reflects your values.
 
-## Why charge at all?
+## Why Charge at All?
 
 I mainly make the apps for fun and to solve my own problems. The fact that some earn some money is just a bonus.
 
@@ -37,13 +37,13 @@ Velja is the clearest example. It was free for three years, with nearly 130K dow
 
 The price is not there to make me rich. It is there so that I can keep making the app.
 
-## No in-app purchases
+## No In-App Purchases
 
 I’m not interested in in-app purchases. No “Pro” tier, no features unlocked one at a time, no coins. You see the price, you pay it, and you get the whole app. <!-- TODO: confirm: no current app has in-app purchases or a subscription -->
 
 All my apps on the App Store are Universal Purchase, so you buy the app once and get it on every Apple platform it supports. They also work with Family Sharing, so one purchase covers your family.
 
-## What I want from Apple
+## What I Want from Apple
 
 There are two things I have wanted from the App Store for years:
 
@@ -52,7 +52,7 @@ There are two things I have wanted from the App Store for years:
 
 I’m still hoping. No, the answer is not in-app purchases.
 
-## The other side of the deal
+## The Other Side of the Deal
 
 Pay once only works if I hold up my end. So I try to:
 
@@ -63,7 +63,7 @@ Pay once only works if I hold up my end. So I try to:
 
 And if a paid app is out of reach for you, check the [discounts](/apps/discounts). Students and open-source maintainers can get them.
 
-## Most of my apps are still free
+## Most of My Apps Are Still Free
 
 None of this means everything should cost money. Most of my apps are free, with no ads and no tracking. I love making apps, and I want them to be available to as many people as possible.
 

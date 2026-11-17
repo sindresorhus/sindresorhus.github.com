@@ -890,6 +890,25 @@ struct ContentLoadingTests {
 	}
 
 	@Test(.temporaryDirectory)
+	func `the first commit of a video survives a move and an edit`() async throws {
+		let root = try URL.temporaryDirectory(files: ["old/video1.MP4": "Original", "note.md": "Note"])
+		let date = "2026-01-01T00:00:00Z"
+		let file = root.appending(path: "content/video1.MP4").standardizedFileURL
+
+		try await git(in: root, "init", "--quiet")
+		try await git(in: root, "add", ".")
+		try await git(in: root, "commit", "--quiet", "-m", "Add", date: date)
+		try await git(in: root, "mv", "old", "content")
+		try await git(in: root, "commit", "--quiet", "-m", "Move", date: "2026-02-01T00:00:00Z")
+		try Data("Edited".utf8).write(to: file)
+		try await git(in: root, "commit", "--quiet", "-am", "Edit", date: "2026-03-01T00:00:00Z")
+
+		let dates = await Project(root: root).firstCommitDates(matching: [":(icase)*.mp4"])
+		let expected = try Date(date, strategy: .iso8601)
+		#expect(dates == [file: expected])
+	}
+
+	@Test(.temporaryDirectory)
 	func `last commit dates leave out the ignored commits`() async throws {
 		let root = try URL.temporaryDirectory(files: ["content/a.md": "A", "content/b.md": "B"])
 

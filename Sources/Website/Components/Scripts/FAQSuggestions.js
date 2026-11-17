@@ -1,4 +1,5 @@
-import {cloneTemplate, parts, scriptData} from '/scripts/dom.js';
+import {cloneTemplate, isMac, parts, scriptData} from '/scripts/dom.js';
+import {wordMatcher} from '/scripts/words.js';
 
 /*
 FAQ suggestions: while the visitor types, the message is split into words (three or more letters, without stopwords), and each question is scored by the words it shares with the message. Rare words count more (TF-IDF). The site generator prepares the words of each question, with synonyms. Pinned questions come first when they match as many words as the best other question, then questions with more matching words, then app questions, then higher scores. A question needs two matching words, or one for messages with only one known word. The tips of the app and the guides about it are questions of the app with a label, like “Guide”, so the same rules are for them.
@@ -17,20 +18,10 @@ const crashReportPattern = /^(?:Incident Identifier|Crashed Thread|Exception Typ
 // The name of a crash report file, like `Dato-2026-11-01-101530.ips`, or `.crash` of older macOS versions.
 const crashReportFilePattern = /\.(?:ips|crash)$/i;
 
-// The function that finds the questions a message is about, among the general questions and the questions of the app with the title.
-function questionMatcher(data, appTitle) {
-	const stopwords = new Set(data.stopwords);
-	// The patterns of the site generator, so the message is split like the questions.
-	const {apostrophe, menuBar, word} = data.wordPatterns;
-	const apostrophePattern = new RegExp(apostrophe, 'g');
-	const menuBarPattern = new RegExp(menuBar, 'g');
-	const wordPattern = new RegExp(word, 'g');
-	// The rules of the site generator for the forms of a word, so the check of the keywords and the page agree: the endings of the forms of a word (with no ending, for the same word), the endings that a word without its last “e” takes, like “freezing” for “freeze”, and the steps from a word to its stem.
-	const wordEndings = new Set(data.wordForms.endings);
-	const vowelEndings = new Set(data.wordForms.vowelEndings);
-	const stemSteps = data.wordForms.stemSteps.map(({pattern, replacement}) => [new RegExp(pattern), replacement]);
-	const app = data.apps.find(app => app.title === appTitle);
-
+// The function that finds the questions a message is about, among the general questions and the questions of the app, when the page has one.
+function questionMatcher(data, app) {
+	// The word rules of the site generator, so the message is split and matched like the questions.
+	const {wordsIn, wordsMatch} = wordMatcher(data);
 	let questions = data.generalQuestions;
 
 	if (app) {
@@ -44,40 +35,9 @@ function questionMatcher(data, appTitle) {
 
 	const allWords = new Set(questions.flatMap(question => question.words));
 
-	// Apostrophes are removed first, as in the site generator, so “doesn't” becomes “doesnt”, and “menu bar” is one word, “menubar”, like in the questions.
-	const wordsIn = text => (text.toLowerCase().replaceAll(apostrophePattern, '').replaceAll(menuBarPattern, 'menubar').match(wordPattern) ?? []).filter(word => !stopwords.has(word));
-
 	// The name of the app, which visitors often write, like “Velja is great”, is left out of the message, as many questions of the app have it, so it would match them all. Only the whole name, so “calendar” still counts for Menu Bar Calendar. A limitation: for an app whose name is a common word, like Actions, the word is left out too, so the other words of the message must match.
 	const appTitlePattern = app ? new RegExp(`\\b${RegExp.escape(app.title)}\\b`, 'gi') : undefined;
 	const withoutAppTitle = text => appTitlePattern ? text.replaceAll(appTitlePattern, ' ') : text;
-
-	// The stem of a word, without one ending, a doubled last letter, and a last “e”, so two forms of a word have the same stem, like “crashed” and “crashing”, “stops” and “stopped”, and “enabled” and “enabling”. A step that would leave fewer than 3 letters is skipped, so “ads” does not match “added”. Each word is compared with many words, so its stem is computed once.
-	const wordStems = new Map();
-	const stemOf = word => {
-		if (!wordStems.has(word)) {
-			let stem = word;
-
-			for (const [pattern, replacement] of stemSteps) {
-				const shorterStem = stem.replace(pattern, replacement);
-
-				if (shorterStem.length >= 3) {
-					stem = shorterStem;
-				}
-			}
-
-			wordStems.set(word, stem);
-		}
-
-		return wordStems.get(word);
-	};
-
-	// Another form of the same word matches: the word with an ending, like “syncs”, “synced”, and “syncing” for “sync”, also with a doubled last letter, like “quitting” for “quit”, or without a last “e”, like “freezing” for “freeze”. Not a longer word with the same start, like “freezing” for “free”.
-	const wordsMatch = (first, second) => {
-		const [shorter, longer] = first.length <= second.length ? [first, second] : [second, first];
-		// Without its last “e”, a word only takes an ending that starts with a vowel, so “one” does not match “only”.
-		const stems = [[shorter, wordEndings], [shorter + shorter.at(-1), wordEndings], ...(shorter.endsWith('e') ? [[shorter.slice(0, -1), vowelEndings]] : [])];
-		return stems.some(([stem, endings]) => longer.startsWith(stem) && endings.has(longer.slice(stem.length))) || stemOf(first) === stemOf(second);
-	};
 
 	// Jaccard similarity of all the words of two questions, to leave out a general question that repeats an app question.
 	const similarity = (first, second) => {
@@ -148,6 +108,10 @@ function questionMatcher(data, appTitle) {
 }
 
 class FAQSuggestions extends HTMLElement {
+	// The questions, which are read on the first input, as they are large, and the app of the page among them, which the page script has set before. Limitation: an app that the visitor picks after the first input does not change the suggestions or the crash report steps, as most visitors pick the app first.
+	#data;
+	#app;
+
 	// The function that finds the questions a message is about. It is made on the first input, after the page script has set the `app` attribute.
 	#matchingQuestions;
 
@@ -163,6 +127,7 @@ class FAQSuggestions extends HTMLElement {
 		// The attachments of the form, for the crash warning.
 		this.#message.form?.addEventListener('change', this.#suggest);
 		parts(this).dismiss.addEventListener('click', this.#dismiss);
+		parts(this).attachFiles.addEventListener('click', this.#attachFiles);
 		window.addEventListener('pageshow', this.#suggestForRestoredMessage);
 	}
 
@@ -184,6 +149,8 @@ class FAQSuggestions extends HTMLElement {
 			panel,
 			list,
 			crashWarning,
+			macCrashReportSteps,
+			appName,
 			count,
 			template,
 		} = parts(this);
@@ -192,15 +159,24 @@ class FAQSuggestions extends HTMLElement {
 
 		this.#timer = setTimeout(() => {
 			// A word that starts with “crash”, or the text of the crash dialog of macOS, like “Dato quit unexpectedly.”, which visitors often copy. Not when the message already has a crash report, which has “Crashed” in it, or a crash report is attached.
-			const hasCrashReportFile = [...this.#message.form?.elements ?? []].some(element => element.type === 'file' && [...element.files].some(file => crashReportFilePattern.test(file.name)));
+			const hasCrashReportFile = [...this.#fileInput?.files ?? []].some(file => crashReportFilePattern.test(file.name));
 			crashWarning.hidden = !/\bcrash|\bquits? unexpectedly/i.test(textarea.value) || crashReportPattern.test(textarea.value) || hasCrashReportFile;
+
+			if (!this.#data) {
+				this.#data = scriptData(this.getAttribute('questions'));
+				this.#app = this.#data.apps.find(candidate => candidate.title === this.getAttribute('app'));
+
+				// The steps to attach the crash reports from the file dialog, which is the open panel of macOS, only for an app on macOS in a browser on a Mac. Only once, as the app does not change, and screen readers would read the live region again for each change.
+				macCrashReportSteps.hidden = !(isMac && this.#app?.platforms.includes('macOS'));
+				appName.textContent = this.#app?.title ?? '';
+			}
 
 			// After a dismiss, only the crash warning still follows the text.
 			if (this.#isDismissed) {
 				return;
 			}
 
-			this.#matchingQuestions ??= questionMatcher(scriptData(this.getAttribute('questions')), this.getAttribute('app'));
+			this.#matchingQuestions ??= questionMatcher(this.#data, this.#app);
 
 			const matches = this.#matchingQuestions(textarea.value);
 			if (matches.length === 0) {
@@ -241,6 +217,16 @@ class FAQSuggestions extends HTMLElement {
 
 			panel.hidden = false;
 		}, 350);
+	};
+
+	// The file input of the form (`AttachmentPicker`).
+	get #fileInput() {
+		return [...this.#message.form?.elements ?? []].find(element => element.type === 'file');
+	}
+
+	// The button in the steps for a Mac opens the file dialog of the form, where the next steps are.
+	#attachFiles = () => {
+		this.#fileInput?.click();
 	};
 
 	#dismiss = () => {

@@ -1,6 +1,6 @@
 // The liquid glass behind the title of the apps page, drawn with WebGL: soft fields in the colors of the featured apps, seen through slowly moving frosted glass. It pauses while it is off screen or the tab is hidden. Without WebGL, and for visitors who prefer reduced motion, the canvas keeps its still gradient (`AppsPage`), which looks almost like a still frame of the glass, so the page does not start WebGL for nothing.
 import {finePointer, prefersReducedMotion} from '/scripts/dom.js';
-import {startShader} from '/scripts/webgl.js';
+import {shaderLoop, startShader} from '/scripts/webgl.js';
 
 const canvas = document.querySelector('#apps-glass');
 // Only with a hardware renderer, as a software renderer blocks the page for hundreds of milliseconds.
@@ -159,11 +159,7 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 	// A moment in the drift that looks good as the first frame.
 	const stillTime = 40;
 
-	// The time does not move while the glass is paused, so it continues where it stopped.
-	let time = stillTime;
-	let lastFrameTime = 0;
-
-	const draw = () => {
+	const draw = time => {
 		if (!uniforms) {
 			return;
 		}
@@ -176,60 +172,28 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	};
 
-	let frame;
-	let isOnScreen = false;
-
 	// At most 30 frames a second, as the glass moves slowly.
-	const animate = now => {
-		frame = requestAnimationFrame(animate);
+	const loop = shaderLoop(canvas, {
+		startTime: stillTime,
+		canRun: () => uniforms !== undefined,
+		frame(time) {
+			for (const key of ['x', 'y', 'strength']) {
+				pointer[key] += (targetPointer[key] - pointer[key]) * 0.06;
+			}
 
-		if (now - lastFrameTime < 1000 / 31) {
-			return;
-		}
-
-		// A long gap, like after a pause, does not jump ahead.
-		time += Math.min(now - lastFrameTime, 100) / 1000;
-		lastFrameTime = now;
-
-		for (const key of ['x', 'y', 'strength']) {
-			pointer[key] += (targetPointer[key] - pointer[key]) * 0.06;
-		}
-
-		draw();
-	};
-
-	const update = () => {
-		const shouldRun = isOnScreen && !document.hidden && uniforms !== undefined;
-
-		if (shouldRun === (frame !== undefined)) {
-			return;
-		}
-
-		if (shouldRun) {
-			lastFrameTime = performance.now();
-			frame = requestAnimationFrame(animate);
-		} else {
-			cancelAnimationFrame(frame);
-			frame = undefined;
-		}
-	};
-
-	new IntersectionObserver(([entry]) => {
-		isOnScreen = entry.isIntersecting;
-		update();
-	}).observe(canvas);
+			draw(time);
+		},
+	});
 
 	new ResizeObserver(() => {
 		resize();
-		draw();
+		draw(loop.time);
 	}).observe(canvas);
-
-	document.addEventListener('visibilitychange', update);
 
 	// The GPU can lose the canvas, like after the device sleeps. The glass stops, and the still gradient comes back, as the canvas is empty, until the browser gives the canvas back (`startShader`).
 	canvas.addEventListener('webglcontextlost', () => {
 		uniforms = undefined;
-		update();
+		loop.update();
 		delete canvas.dataset.state;
 	});
 
@@ -241,10 +205,12 @@ if (gl && startShader(gl, {fragment: fragmentShader, setUp})) {
 
 		canvas.dataset.state = 'drawing';
 		resize();
-		draw();
-		update();
+		draw(loop.time);
+		loop.update();
 	});
 
 	// A still frame in the new colors, or with the time where it is now.
-	darkQuery.addEventListener('change', draw);
+	darkQuery.addEventListener('change', () => {
+		draw(loop.time);
+	});
 }

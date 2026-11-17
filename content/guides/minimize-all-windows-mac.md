@@ -10,13 +10,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Press ++Option+Command+M++ to minimize all windows of the front app. macOS has no command to minimize the windows of all apps. [Supercharge](../apps/supercharge/index.md) does it from its menu or with a keyboard shortcut, and can also keep the front window open or hide all windows.
+	Press ++Option+Command+M++ to minimize all windows of the front app. macOS has no command to minimize the windows of all apps. [Supercharge](/supercharge) does it from its menu or with a keyboard shortcut, and can also keep the front window open or hide all windows.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Click its icon in the menu bar, and choose “Minimize All Windows”. All windows go to the Dock.
 1. For a keyboard shortcut, open the Supercharge settings, click “Shortcuts”, and set a shortcut for “Minimize all windows”.
 }

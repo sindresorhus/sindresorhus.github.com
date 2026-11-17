@@ -7,6 +7,9 @@ export const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)
 // Whether the visitor has a precise pointer that can hover, like a mouse or a trackpad, so an effect that follows the pointer, or a preview that shows on hover, is not for touch screens. A media query list, so `.matches` is read when it is needed.
 export const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
 
+// Whether the browser runs on a Mac, like for a link to System Settings or the steps of a file dialog of macOS. An iPad asks for desktop sites by default, so it says that it is a Mac too, but its main input is touch, even with a trackpad, while a Mac, also one with a touch screen, has a trackpad or a mouse as its main input. Read once, when the page loads.
+export const isMac = /Mac/.test(navigator.platform) && !(navigator.maxTouchPoints > 1 && matchMedia('(pointer: coarse)').matches);
+
 // A copy of the element of a template, like a row for a list. The template has one element, which is the whole copy.
 /**
 @param {HTMLTemplateElement} template
@@ -62,6 +65,14 @@ export function parts(root, description = `<${root.localName}>`) {
 		},
 	});
 }
+
+// All the elements of a part inside the root, in the order of the page, like `partList(this, 'row')` for the rows of a list, or `partList(this, 'share')[0]` for a part that can be missing. Like `parts()`, the parts of an element inside the root belong to that element.
+/**
+@param {Element} root
+@param {string} name
+@returns {Element[]}
+*/
+export const partList = (root, name) => [...root.querySelectorAll('[data-part]')].filter(element => element.getAttribute('data-part') === name && ownerOfPart(element, root) === root);
 
 // The speculation rules of the site can prerender the page. A script that must wait until the visitor opens the page, like to start a request or an animation, waits with `await prerendered;`. It is `undefined` when the page was not prerendered, so nothing waits.
 /** @type {Promise<Event> | undefined} */

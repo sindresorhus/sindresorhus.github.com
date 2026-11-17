@@ -552,6 +552,8 @@ struct StyleValueTests {
 			.gridColumns(.fixed(.rootEm(5.5)), .flexible(), .flexible(minimum: .percent(20), fraction: 3))
 
 		#expect(style.declarations.map(\.value.description) == ["linear-gradient(to right, #000, #fff), url(\"/image.png\")", "none", "20% 3px", "50% 50% 5px", "5.5rem minmax(0, 1fr) minmax(20%, 3fr)"])
+		#expect(Style().backgroundImage([image, image]).declarations.map(\.value.description) == ["linear-gradient(to right, #000, #fff), linear-gradient(to right, #000, #fff)"])
+		#expect(Style().backgroundImage([]).declarations.map(\.value.description) == ["none"])
 		#expect(CSSImage(raw: "image-set(url(a.png) 1x)").description == "image-set(url(a.png) 1x)")
 		#expect(Length(raw: "var(--width)").description == "var(--width)")
 	}
@@ -561,6 +563,7 @@ struct StyleValueTests {
 		let timing = AnimationTiming.easeOut(duration: .milliseconds(250))
 		let transition = Style().transition(.opacity, timing: timing)
 		#expect(transition.declarations.last?.value.description == "opacity .25s ease-out")
+		#expect(transition.transitionDelay(.milliseconds(150)).declarations.last?.value.description == ".15s")
 		let animation = Animation(timing: timing).repeatForever(autoreverses: false)
 		let css = Stylesheet {
 			Rule(".animated", Style().animation(FadeAnimations.fade, animation))

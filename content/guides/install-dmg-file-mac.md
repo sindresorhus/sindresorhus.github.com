@@ -10,13 +10,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Double-click the DMG file, drag the app in the window that opens to the Applications folder, eject the disk, and move the DMG file to the Trash. A Mac has no installer like Windows for most apps. [Supercharge](../apps/supercharge/index.md) asks to install the app when you open the DMG, and then does all the steps.
+	Double-click the DMG file, drag the app in the window that opens to the Applications folder, eject the disk, and move the DMG file to the Trash. A Mac has no installer like Windows for most apps. [Supercharge](/supercharge) asks to install the app when you open the DMG, and then does all the steps.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “File Automation” section, turn on “Offer to install apps from mounted DMG files”. Keep “Move DMG to Trash when done” and “Open app after installation” on.
 1. Double-click a DMG file. Supercharge asks if it should install and open the app.
 1. Click “Install”. Supercharge moves the app to the Applications folder, ejects the disk, moves the DMG file to the Trash, and opens the app.
@@ -33,9 +33,9 @@ If the Applications folder already has the app, the new app replaces it. For a l
 1. Move the DMG file to the Trash.
 }
 
-If the disk has an installer package (an open box), double-click it, and follow the steps on the screen. [Apple’s instructions.](https://support.apple.com/guide/mac-help/mh35835/mac)
+If the disk has an installer package (an open box), double-click it, and follow the steps on the screen. <source:https://support.apple.com/guide/mac-help/mh35835/mac>
 
-**Terminal:**
+**Terminal**
 
 ```console
 hdiutil attach ~/Downloads/App.dmg

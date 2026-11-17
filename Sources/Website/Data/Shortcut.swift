@@ -203,7 +203,24 @@ private struct ShortcutCardRewriter: MarkupRewriter {
 			return nil
 		}
 
-		return HTMLBlock(ShortcutCard(shortcut: shortcut, title: link.plainText).render())
+		// Read the original list before rewriting it. A tight plain-text item has no element for CSS to match, so CSS cannot reliably distinguish a mixed list from one of only cards.
+		let isInMixedList = (paragraph.parent?.parent as? any ListItemContainer)?.listItems.contains { item in
+			guard
+				item.childCount == 1,
+				let itemParagraph = item.child(at: 0) as? Paragraph,
+				let id = itemParagraph.shortcutCardLink?.shortcutID
+			else {
+				return true
+			}
+
+			return shortcuts[id] == nil
+		} ?? false
+
+		return HTMLBlock(
+			ShortcutCard(shortcut: shortcut, title: link.plainText)
+				.style(ShortcutCard.Styles.inMixedList, when: isInMixedList)
+				.render()
+		)
 	}
 
 	mutating func visitParagraph(_ paragraph: Paragraph) -> (any Markup)? {

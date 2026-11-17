@@ -8,6 +8,13 @@ platforms: [
 ]
 isMenuBarApp: true
 appStoreID: 1604176982
+categories: [
+	'notes'
+]
+relatedApps: [
+	'any-text'
+	'one-task'
+]
 nonAppStoreVersion: {
 	version: '2.0.2'
 	macOS: 26
@@ -78,10 +85,7 @@ However, what you use this space for is really up to you.
 
 > You can achieve almost anything in life — as long as you focus on achieving one thing at a time. It’s a time-tested strategy that’s been shared by many successful people.
 
-— [https://dariusforoux.com/one-thing/](https://dariusforoux.com/one-thing/)
-
-> [!TIP]
-> You may also like my [Any Text](/any-text) and [One Task](/one-task) apps.
+— [Darius Foroux](https://dariusforoux.com/one-thing/)
 
 ### Mentions
 
@@ -176,26 +180,26 @@ More integrations:
 - [Raycast commands](https://github.com/raycast/script-commands/tree/master/commands#one-thing)
 	- Note: Raycast commands are not the same as plugins. [How to install commands.](https://github.com/raycast/script-commands#install-script-commands-from-this-repository)
 
-### Shortcuts app
+### Shortcuts {#shortcuts-app}
 
 The “Set Text” and “Get Text” actions set and get the text, the prefix text, or the suffix text. The “Set Text Color” and “Get Text Color” actions set and get the color of the text as a hex color, like `#ff69b4`. For example, a shortcut can make the text red when a deadline is close.
 
 - [Example shortcut](https://www.icloud.com/shortcuts/381619f1c8404770ad020d439a48fd9c)
 - [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)
-- [How to run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
+- [How to run shortcuts from the command line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
 
 **Examples**
 
 - [Reminders app: Show latest due reminder](https://www.icloud.com/shortcuts/5d3e63030877471697dd0023fefc4819)
-- [Things app: Show the first todo in the “Today” list](#things)
+- Things app: Show the first todo in the “Today” list <section:things>
 
-### Custom URL scheme
+### URL scheme {#custom-url-scheme}
 
-The menu bar item text can be set from any tool that can open an URL. This includes a website, Bash, Node.js, Python, Swift, etc.
+The menu bar item text can be set from any tool that can open a URL. This includes a website, Bash, Node.js, Python, Swift, etc.
 
 For example, in your terminal:
 
-```sh
+```console
 open --background 'one-thing:?text=Exercise'
 ```
 
@@ -203,6 +207,6 @@ open --background 'one-thing:?text=Exercise'
 
 There is no way to get the text using the URL scheme, but if you are in the terminal, you can run this command:
 
-```sh
+```console
 defaults read com.sindresorhus.One-Thing text
 ```

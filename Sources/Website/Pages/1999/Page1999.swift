@@ -805,8 +805,8 @@ extension GeoCitiesPage {
 			self.content = content
 		}
 
-		var body: Content {
-			content()
+		var body: AnyHTML {
+			AnyHTML(content())
 		}
 	}
 

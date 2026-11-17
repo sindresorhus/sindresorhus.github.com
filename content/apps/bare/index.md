@@ -11,6 +11,9 @@ platforms: [
 minimumOSVersion: '27'
 isPaid: true
 appStoreID: 6825378510
+categories: [
+	'notes'
+]
 sharedQuestions: [
 	'widget-missing'
 	'lock-screen-widget-disappears'

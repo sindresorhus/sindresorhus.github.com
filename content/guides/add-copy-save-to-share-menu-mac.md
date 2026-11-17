@@ -9,21 +9,21 @@ apps: [
 ---
 
 @QuickAnswer {
-	Install the free [Shareful](../apps/shareful/index.md), and turn on its items in the share menu: click “Edit Extensions…” at the bottom of a share menu, and turn on “Copy”, “Save As…”, “Save to Downloads”, and “Open In…”. Without an app, you can only turn on the share items of the apps that you have.
+	Install the free [Shareful](/shareful), and turn on its items in the share menu: click “Edit Extensions…” at the bottom of a share menu, and turn on “Copy”, “Save As…”, “Save to Downloads”, and “Open In…”. [Without an app](#without-an-app), you can only turn on the share items of the apps that you have.
 }
 
 ## With Shareful
 
 @Steps {
-1. Install [Shareful](../apps/shareful/index.md), and open it one time.
+1. Install [Shareful](/shareful), and open it one time.
 1. In an app with a share button, like Safari or Photos, click the share button, and click “Edit Extensions…” at the bottom of the menu.
 1. Turn on the items of Shareful, which have its icon, and click “Done”.
 1. Click the share button again, and choose an item.
 }
 
-“Copy” puts the shared item on the clipboard, like a page from Safari or a photo from Photos. “Save As…” asks where to save it, and “Save to Downloads” saves it in the Downloads folder. “Open In…” opens it in an app that you choose, like the current page of Safari in another browser.
+“Copy” puts the shared item on the clipboard, like a page from Safari or a photo from Photos. “Save As…” asks where to save it, and “Save to Downloads” saves it in the Downloads folder. “Open In…” opens it in an app that you choose, like the current page of Safari in another browser. [How to open a Safari page in another browser.](guide:open-safari-page-in-another-browser-mac)
 
-If you cannot find the items, restart the Mac. [More help.](../apps/shareful/index.md#the-share-services-do-not-show-up-in-system-settings)
+If you cannot find the items, restart the Mac. [More help.](/shareful#the-share-services-do-not-show-up-in-system-settings)
 
 ## Without an app
 

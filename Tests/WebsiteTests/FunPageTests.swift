@@ -7,7 +7,7 @@ import Testing
 @testable import Website
 
 /**
-The fun pages: Appdle, the career quilt, and the 1999 page, from the real content, without the network.
+Tests for the career quilt and the 1999 page, with real content and no network requests.
 */
 struct FunPageTests {
 	@Test
@@ -316,40 +316,6 @@ struct FunPageTests {
 	}
 
 	/**
-	The name and the link of a puzzle are those of its app, which loading checks: the title is plain text that is not empty (`@PlainText`), and the link is the path of the page or an absolute URL.
-	*/
-	@Test
-	func `every Appdle puzzle has its own name and an icon`() async throws {
-		let page = AppdlePage(content: try await SiteContent.website)
-		let puzzles = page.puzzles
-
-		#expect(puzzles.count > 20)
-		#expect(Set(puzzles.map(\.title)).count == puzzles.count)
-
-		for puzzle in puzzles {
-			#expect(Project.website.publicFile(puzzle.icon).isFile, "\(puzzle.title) has no icon at \(puzzle.icon).")
-		}
-	}
-
-	/**
-	The script picks the puzzle at the day number modulo the count, so the order must be the same in every build of the same content.
-	*/
-	@Test
-	func `the Appdle order is the same in every build`() async throws {
-		let content = try await SiteContent.website
-		let first = AppdlePage(content: content).puzzles.map(\.title)
-
-		// Another build loads the content again.
-		let secondContent = try await SiteContent.load(from: .website, externalData: .none, buildDate: content.buildDate)
-		let second = AppdlePage(content: secondContent).puzzles.map(\.title)
-
-		#expect(first == second)
-
-		// Shuffled, not in the order of the apps.
-		#expect(first != content.activeAppsWithPages.filter { !$0.hasPlaceholderIcon }.map(\.title))
-	}
-
-	/**
 	The GIFs in `public/1999` and the cases of `GeoCitiesPage.GIF` are the same, so no file is left over and no case is missing. A GIF that moves has a still frame for reduced motion, and a GIF that does not move has none.
 	*/
 	@Test
@@ -395,7 +361,6 @@ struct FunPageTests {
 		let content = try await SiteContent.website
 		let paths = Site(content: content).routes().map(\.path)
 		#expect(!paths.contains(.careerQuilt))
-		#expect(paths.contains(.appdle))
 		#expect(paths.contains(.geoCities))
 	}
 
@@ -461,7 +426,7 @@ struct FunPageTests {
 	}
 
 	/**
-	The name of a month is above the first week that starts in it, and only when the next week starts in it too, so it has room, and not above the first and the last month, which can have one week.
+	The name of a month is above the first week that starts in it, and only when the next week starts in it too, so it has room, and not above the first and the last month, which can have one week. The first month needs three weeks, as the name of the next month comes right after it.
 	*/
 	@Test
 	func `the heatmap names each month above the first week that starts in it`() throws {
@@ -475,6 +440,15 @@ struct FunPageTests {
 		#expect(html.ranges(of: "Feb").count == 1)
 		#expect(!html.contains("Mar"))
 		#expect(!html.contains("Dec"))
+
+		for (firstMonthWeeks, hasFirstName) in [(["2025-11-23", "2025-11-30"], false), (["2025-11-16", "2025-11-23", "2025-11-30"], true)] {
+			let weeks = (firstMonthWeeks + ["2025-12-07", "2025-12-14"]).map { #"{"contributionDays": [{"date": "\#($0)", "contributionCount": 1}]}"# }.joined(separator: ", ")
+			let calendar = try ContributionCalendar(json: #"{"totalContributions": 4, "weeks": [\#(weeks)]}"#)
+			let html = ContributionHeatmap(calendar: calendar, scale: ContributionScale(days: calendar.days)).render()
+
+			#expect(html.contains("Nov") == hasFirstName)
+			#expect(html.ranges(of: "Dec").count == 1)
+		}
 	}
 
 	/**

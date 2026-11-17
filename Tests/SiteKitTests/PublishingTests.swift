@@ -82,6 +82,30 @@ struct PublishingTests {
 		#expect(asset.outputFile == PublishedFilePath("images/logo.png"))
 	}
 
+	@Test
+	func `an isolated sitemap page stays unlinked despite a redirect to it`() async throws {
+		let redirect = Route.redirect(#path("/old"), to: .path(#path("/alone")))
+		let routes = [
+			Route.page(.root) { "" },
+			Route.page(#path("/linked")) { "" },
+			Route.page(#path("/alone")) { "" },
+			Route.page(#path("/hidden"), sitemapEntry: nil) { "" },
+			redirect,
+		]
+		let published = PublishedSite(
+			routeFiles: [
+				"index.html": Data(#"<a href="/linked#top">Linked</a> <a href="/">Home</a> <a href="/old">Old</a>"#.utf8),
+				"linked.html": Data(#"<a href="/">Home</a> <img src="/alone">"#.utf8),
+				"alone.html": Data(#"<link rel="canonical" href="https://example.com/alone">"#.utf8),
+				"hidden.html": Data("".utf8),
+				redirect.outputFile: try await redirect.output.render(site: site),
+			],
+			publicFiles: []
+		)
+
+		#expect(await LinkValidator(site: site).unlinkedPages(in: routes, published: published) == [#path("/alone")])
+	}
+
 	/**
 	A rebuild of `website serve` reuses the pages that did not change since the previous check, so a page that changed must be read again.
 	*/
@@ -178,14 +202,14 @@ struct PublishingTests {
 	}
 
 	/**
-	A broken link says the closest published path, so the writer sees why it is broken: a trailing slash, another case, or another folder. The one path with the same last part wins over a path that is only near in letters, like `/gifski` over `/apps/guess` for `/apps/gifski`, but not a file name that many folders have, like `icon.png`.
+	A broken link says the closest published path, so the writer sees why it is broken: a trailing slash, another case, or another folder. The one path with the same last part wins over a path that is only near in letters, like `/gifski` over `/apps/gifts` for `/apps/gifski`, but not a file name that many folders have, like `icon.png`.
 	*/
 	@Test
 	func `a link to a missing file suggests the closest published path`() async {
 		let html = #"<a href="/dato/">A</a><a href="/apps/FAQ">B</a><a href="/apps/gifski">C</a><img src="/dato/Screenshot1.jpg"><img src="/datto/icon.png"><a href="/something-else-entirely">D</a>"#
 		let routes = [Route.page(.root) { html }]
 		let published = PublishedSite(
-			routeFiles: ["index.html": Data(html.utf8), "dato.html": Data(), "gifski.html": Data(), "apps/faq.html": Data(), "apps/guess.html": Data(), "apps/index.html": Data()],
+			routeFiles: ["index.html": Data(html.utf8), "dato.html": Data(), "gifski.html": Data(), "apps/faq.html": Data(), "apps/gifts.html": Data(), "apps/index.html": Data()],
 			publicFiles: [
 				PublishedAsset(path: #path("/dato/screenshot1.jpg"), source: URL(filePath: "/public/dato/screenshot1.jpg")),
 				PublishedAsset(path: #path("/aiko/icon.png"), source: URL(filePath: "/public/aiko/icon.png")),
@@ -861,17 +885,19 @@ struct PublishingTests {
 	}
 
 	@Test
-	func `straight quotes become typographic quotes`() {
-		#expect(#"She said "it's fine" ('really')."#.typographicQuotes == "She said “it’s fine” (‘really’).")
-		#expect(#""Great app""#.typographicQuotes == "“Great app”")
-		#expect(#""'Nested'" quotes"#.typographicQuotes == "“‘Nested’” quotes")
-		#expect("Typographic “quotes” stay".typographicQuotes == "Typographic “quotes” stay")
+	func `typewriter punctuation becomes typographic`() {
+		#expect(#"She said "it's fine" ('really')."#.typographicPunctuation == "She said “it’s fine” (‘really’).")
+		#expect(#""Great app""#.typographicPunctuation == "“Great app”")
+		#expect(#""'Nested'" quotes"#.typographicPunctuation == "“‘Nested’” quotes")
+		#expect("Typographic “quotes” stay".typographicPunctuation == "Typographic “quotes” stay")
 		// A dash opens a quote, like a space.
-		#expect(#"Simple—"really" simple"#.typographicQuotes == "Simple—“really” simple")
+		#expect(#"Simple—"really" simple"#.typographicPunctuation == "Simple—“really” simple")
+		// A hyphen with a space on both sides is a dash, but a hyphen in a word stays.
+		#expect("Simple to use - exactly as expected -- pre-select works...".typographicPunctuation == "Simple to use – exactly as expected – pre-select works…")
 	}
 
 	/**
-	The class names of element styles and seeded shuffles, like the puzzles of Appdle, come from the hash, so a different hash in another process would change the output of every build.
+	The class names of element styles and the order of seeded shuffles come from the hash, so a different hash in another process would change the output of every build.
 	*/
 	@Test
 	func `the stable hash is FNV-1a`() {

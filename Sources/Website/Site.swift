@@ -111,9 +111,10 @@ extension Site {
 		let routes = specialPageRoutes + contentRoutes + redirectRoutes + feedRoutes + textFileRoutes + assetRoutes
 		routes
 
-		// The 404 page suggests the closest page, so it is made from the other routes: the pages in the sitemap, and the privacy policies, which are not indexed, but visitors guess their paths from the links of the App Store, like `/dato/privacy`. Not the policy of an unlisted app, which the 404 page would announce.
+		// The 404 page suggests the closest page, so it is made from the other routes: the pages in the sitemap, and the privacy policies, which are not indexed, but visitors guess their paths from the links of the App Store, like `/dato/privacy`. Not the policy of an unlisted app, which the 404 page would announce. Not the topic pages of the guides, like `/guides/menu-bar`, as their last parts are the ones of the category pages, like `/apps/menu-bar`, and a last part of several pages finds none of them, so `/menu-bar` would find `/menu-bar-spacing`.
 		let privacyPolicyPaths = Set(content.apps.filter(\.isActive).map(\.privacyPolicyPath))
-		NotFoundPage(suggestedPages: routes.filter { $0.sitemapEntry != nil || privacyPolicyPaths.contains($0.path) }, content: content)
+		let guideTopicPaths = Set(Guide.Topic.allCases.map(\.path))
+		NotFoundPage(suggestedPages: routes.filter { ($0.sitemapEntry != nil || privacyPolicyPaths.contains($0.path)) && !guideTopicPaths.contains($0.path) }, content: content)
 
 		if includesGallery {
 			GalleryPage(content: content)
@@ -124,7 +125,7 @@ extension Site {
 	}
 
 	/**
-	The page of each draft, with a “Draft” label, and its files (``DraftPage``), for the preview of `website serve`. The lists, the feeds, the sitemap, and `llms.txt` are made from the other content, so they leave the drafts out. Limitation: a draft page is a plain page, also one with a special layout, like the about page, and a draft guide about a draft app has no page.
+	The page of each draft, with a “Draft” label, and its files (``DraftPage``), for the preview of `website serve`. The lists, the feeds, the sitemap, and `llms.txt` are made from the other content, so they leave the drafts out. Limitation: a draft guide about a draft app has no page.
 	*/
 	@RouteBuilder
 	var draftRoutes: [Route] {
@@ -134,6 +135,7 @@ extension Site {
 			}
 
 			DraftPage(AppPage(app: app, content: content))
+			OpenGraphCard(app: app, project: content.project, appearance: .dark)
 		}
 
 		for post in content.drafts.posts {
@@ -142,10 +144,6 @@ extension Site {
 
 		for guide in content.drafts.guides {
 			DraftPage(GuidePage(guide: guide, content: content))
-		}
-
-		for page in content.drafts.pages {
-			DraftPage(MarkdownContentPage(page: page, project: content.project))
 		}
 	}
 
@@ -159,7 +157,7 @@ extension Site {
 			FeedbackPage(
 				apps: content.maintainedApps,
 				faq: content.page(.faq),
-				guides: content.resolvedGuides.map(\.guide),
+				guides: content.guides.map(\.guide),
 				listing: content.listing(of:),
 				project: content.project
 			),
@@ -171,16 +169,20 @@ extension Site {
 			AppTimelinePage(content: content),
 			ReviewsPage(content: content),
 			RandomAppPage(content: content),
-			AppdlePage(content: content),
-			BlogIndexPage(posts: content.listedPosts),
+			BlogIndexPage(posts: content.listedPosts, project: content.project),
 			GuidesPage(content: content),
+			RandomGuidePage(content: content),
 		]
 
 		pages += AppCategory.allCases.map { AppCategoryPage(category: $0, content: content) }
 
-		// Without guides for it, like in a test, the page would be an empty list.
-		if !content.guidesForWindowsUsers.isEmpty {
-			pages.append(WindowsGuidesPage(content: content))
+		for audience in content.audiencesWithGuides {
+			pages.append(AudienceGuidesPage(audience: audience, content: content))
+		}
+
+		// A page for each topic that has guides, like a category page of the apps.
+		for topic in Guide.Topic.allCases where !content.guides(of: topic).isEmpty {
+			pages.append(GuideTopicPage(topic: topic, content: content))
 		}
 
 		// The quilt needs the contributions, which need a GitHub token.
@@ -198,19 +200,28 @@ extension Site {
 		}
 	}
 
-	@RouteBuilder
-	private var contentPageRoutes: [Route] {
-		for page in content.pages {
+	/**
+	The page of each content file in `content/pages`, by its kind, for its route and its Markdown copy.
+	*/
+	var contentPages: [any Page] {
+		content.pages.map { page -> any Page in
 			switch page.kind {
 			case .about:
 				AboutPage(page: page, content: content)
-			case .now:
-				NowPage(page: page, content: content)
+			case .now(let now):
+				NowPage(page: page, now: now, content: content)
 			case .faq:
 				FAQPage(page: page, content: content)
 			case .standard:
-				MarkdownContentPage(page: page, project: content.project)
+				MarkdownContentPage(page: page, content: content)
 			}
+		}
+	}
+
+	@RouteBuilder
+	private var contentPageRoutes: [Route] {
+		for page in contentPages {
+			page
 		}
 	}
 
@@ -240,6 +251,8 @@ extension Site {
 				Route.redirect(app.path, to: .url(redirectURL))
 			} else {
 				AppPage(app: app, content: content)
+				// The share dialog of the page shows it in dark mode (``AppHero``).
+				OpenGraphCard(app: app, project: content.project, appearance: .dark)
 			}
 
 			if !app.isArchived {
@@ -248,7 +261,12 @@ extension Site {
 
 			if let releaseNotes = app.releaseNotes {
 				let releases = content.listing(of: app).releases
-				ReleaseNotesPage(app: app, releaseNotes: releaseNotes, releases: releases)
+				ReleaseNotesPage(
+					app: app,
+					releaseNotes: releaseNotes,
+					releases: releases,
+					project: content.project
+				)
 				Route.feed(releaseNotes.feed, .releaseNotes(of: app, at: releaseNotes, releases: releases))
 			}
 		}
@@ -275,7 +293,7 @@ extension Site {
 	*/
 	@RouteBuilder
 	private var guideRoutes: [Route] {
-		for guide in content.resolvedGuides {
+		for guide in content.guides {
 			GuidePage(guide: guide, content: content)
 		}
 	}
@@ -345,11 +363,6 @@ extension RoutePath {
 	static let appTimeline = #path("/apps/timeline")
 
 	/**
-	The daily game where visitors guess an app from a part of its icon.
-	*/
-	static let appdle = #path("/apps/guess")
-
-	/**
 	The general FAQ for the apps.
 	*/
 	static let faq = #path("/apps/faq")
@@ -367,7 +380,7 @@ extension RoutePath {
 	static let discounts = #path("/apps/discounts")
 
 	/**
-	The wall of love: press quotes and App Store reviews of the apps.
+	The wall of love: press quotes and reviews of the apps.
 	*/
 	static let reviews = #path("/apps/reviews")
 
@@ -382,9 +395,10 @@ extension RoutePath {
 	static let guides = #path("/guides")
 
 	/**
-	The guides for people who come from Windows (``WindowsGuidesPage``).
+	Redirects to a random guide (``RandomGuidePage``), like the random app.
 	*/
-	static let guidesForWindowsUsers = #path("/guides/from-windows")
+	static let randomGuide = #path("/guides/random")
+
 	static let contact = #path("/contact")
 	static let feedback = #path("/feedback")
 	static let feeds = #path("/feeds")
@@ -409,6 +423,7 @@ extension LinkDestination {
 	static let crashReportQuestion = path(.faq, fragment: "crash-report")
 	static let refundQuestion = path(.faq, fragment: "refund")
 	static let familySharingQuestion = path(.faq, fragment: "family-sharing")
+	static let deviceLimitQuestion = path(.faq, fragment: "device-limit")
 	static let resetPermissionsQuestion = path(.faq, fragment: "mac-reset-permissions")
 	static let menuBarQuestion = path(.faq, fragment: App.Section.menuBarQuestion.id)
 }

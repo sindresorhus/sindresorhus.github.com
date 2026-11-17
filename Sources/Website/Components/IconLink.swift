@@ -15,16 +15,23 @@ struct IconLink: HTML {
 	let destination: LinkDestination
 	let iconSize: LengthPercentage
 
+	/**
+	Whether the fill goes beyond the icon, so the icon lines up with the edge of the text, like at the end of a row (``Style/iconButton(hoverFill:isOutset:)``).
+	*/
+	let isOutset: Bool
+
 	init(
 		_ label: String,
 		icon: Icon,
 		destination: LinkDestination,
-		iconSize: LengthPercentage = .rootEm(1.25)
+		iconSize: LengthPercentage = .rootEm(1.25),
+		isOutset: Bool = false
 	) {
 		self.label = label
 		self.icon = icon
 		self.destination = destination
 		self.iconSize = iconSize
+		self.isOutset = isOutset
 	}
 
 	var body: some HTML<HTMLTag.a> {
@@ -32,14 +39,20 @@ struct IconLink: HTML {
 			icon.size(iconSize)
 		}
 		.accessibilityLabel(label)
-		.style(Styles.root)
+		.style(isOutset ? Styles.outset : Styles.root)
 	}
 
 	enum Styles: String, StyleSet {
 		case root
+		case outset
 
 		var style: Style {
-			Style().iconButton()
+			switch self {
+			case .root:
+				Style().iconButton()
+			case .outset:
+				Style().iconButton(isOutset: true)
+			}
 		}
 	}
 }

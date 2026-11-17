@@ -43,7 +43,7 @@ pressQuotes: [
 ]
 ---
 
-The clock sits next to the system clock, so you always know the time for colleagues, family, or servers in another time zone.
+See a second time zone next to the system clock, so you always know the time for colleagues, family, or servers there.
 
 The app is simple by design.
 

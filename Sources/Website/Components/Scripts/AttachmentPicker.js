@@ -1,4 +1,4 @@
-import {cloneTemplate, parts} from '/scripts/dom.js';
+import {cloneTemplate, partList, parts} from '/scripts/dom.js';
 
 // Like “217 kB” or “1.5 MB”, in the language of the visitor. In decimal units, like Finder, so a file has the size that Finder shows, and the size limit means what the visitor expects. Files under 1 kB show as 1 kB, not 0 kB, but an empty file shows as “Empty”, like a log that failed to save, so the visitor does not think it has content.
 const kilobytes = new Intl.NumberFormat(undefined, {style: 'unit', unit: 'kilobyte', maximumFractionDigits: 0});
@@ -13,7 +13,7 @@ const formatSize = bytes => {
 		: megabytes.format(bytes / 1_000_000);
 };
 
-// The app, its version, and the OS of a crash report, like “Dato 5.8.1 · macOS 27.2”. The first line of an `.ips` file is JSON with them, like `{"app_name":"Dato","app_version":"5.8.1","os_version":"macOS 27.2 (26B118)",…}`. Nothing for another file, or a report without the name of the app.
+// The name of the app of a crash report, like “Dato”, and its details: the app, its version, and the OS, like “Dato 5.8.1 · macOS 27.2”. The first line of an `.ips` file is JSON with them, like `{"app_name":"Dato","app_version":"5.8.1","os_version":"macOS 27.2 (26B118)",…}`. Nothing for another file, or a report without the name of the app.
 async function readCrashReport(file) {
 	if (!file.name.toLowerCase().endsWith('.ips')) {
 		return;
@@ -28,8 +28,11 @@ async function readCrashReport(file) {
 			return;
 		}
 
-		// The OS without its build, like “macOS 27.2” for “macOS 27.2 (26B118)”.
-		return [[name, version].filter(Boolean).join(' '), osVersion?.replace(/\s*\(.*$/, '')].filter(Boolean).join(' · ');
+		return {
+			name,
+			// The OS without its build, like “macOS 27.2” for “macOS 27.2 (26B118)”.
+			details: [[name, version].filter(Boolean).join(' '), osVersion?.replace(/\s*\(.*$/, '')].filter(Boolean).join(' · '),
+		};
 	} catch {
 		// Not a crash report in the JSON format, or a file that cannot be read.
 	}
@@ -83,6 +86,11 @@ class AttachmentPicker extends HTMLElement {
 		this.#updateInput();
 	}
 
+	// The names of the selected app, which the page script sets in the `app-names` attribute, with the title first, like `["System Color Picker","system-color-picker","Color Picker"]`. Empty without a selected app.
+	get #appNames() {
+		return JSON.parse(this.getAttribute('app-names') ?? '[]');
+	}
+
 	// The largest file that the form can send, in bytes.
 	get #maximumFileSize() {
 		return Number(this.getAttribute('maximum-file-size'));
@@ -99,7 +107,7 @@ class AttachmentPicker extends HTMLElement {
 
 		this.#input.files = dataTransfer.files;
 
-		// The message of the browser has the notice of the chip, with the name of the file.
+		// The invalid state stops the send. The chip shows the notice, and the feedback page hides the bubble of the browser (`feedback.js`), so the text of the message is only a fallback.
 		const tooLargeFile = this.#files.find(file => file.size > this.#maximumFileSize);
 		this.#input.setCustomValidity(tooLargeFile ? `“${tooLargeFile.name}”: ${this.#tooLargeNotice}` : '');
 
@@ -122,6 +130,7 @@ class AttachmentPicker extends HTMLElement {
 			size,
 			removeButton,
 			crashReportDetails,
+			otherAppNotice,
 		} = parts(chip);
 
 		// The type that the browser gives the file from its extension, like `image/png`.
@@ -160,10 +169,19 @@ class AttachmentPicker extends HTMLElement {
 			chip.dataset.state = 'too-large';
 		} else {
 			// The file is read after the chip shows, so the chip does not wait for it.
-			readCrashReport(file).then(details => {
-				if (details) {
-					crashReportDetails.textContent = details;
-					chip.dataset.state = 'crash-report';
+			readCrashReport(file).then(report => {
+				if (!report) {
+					return;
+				}
+
+				crashReportDetails.textContent = report.details;
+				chip.dataset.state = 'crash-report';
+
+				// A report of another app, like Safari, as the folder of the reports has the reports of all apps. It is a note, not an error, so the form can still be sent. A name that starts with a name of the app counts, like the report of an extension of the app.
+				const [title] = this.#appNames;
+				if (title && !this.#appNames.some(appName => report.name.toLowerCase().startsWith(appName.toLowerCase()))) {
+					otherAppNotice.textContent = `This report is from ${report.name}, not ${title}. For a crash of ${title}, attach a report whose name starts with “${title}”.`;
+					otherAppNotice.hidden = false;
 				}
 			});
 		}
@@ -180,7 +198,7 @@ class AttachmentPicker extends HTMLElement {
 			this.dispatchEvent(new Event('change', {bubbles: true}));
 
 			// The removed chip had the focus, so it moves to the next remove button, the previous one for the last chip, or the file input.
-			const removeButtons = fileList.querySelectorAll('[data-part="removeButton"]');
+			const removeButtons = partList(fileList, 'removeButton');
 			(removeButtons[Math.min(index, removeButtons.length - 1)] ?? this.#input).focus();
 		});
 

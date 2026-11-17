@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open [Velja](../apps/velja/index.md), and choose “Prompt” below “Primary Browser” in its menu in the menu bar. Then each link that you click shows your browsers, and you choose one. macOS itself opens all links in one default browser.
+	Open [Velja](/velja), and choose “Prompt” below “Primary Browser” in its menu in the menu bar. Then each link that you click shows your browsers, and you choose one. macOS itself opens all links in one default browser.
 }
 
 ## With Velja
 
 @Steps {
-1. Open [Velja](../apps/velja/index.md), click “Continue”, and then “Get Started”. Velja works by being the default browser, so it asks to become it.
+1. Open [Velja](/velja), click “Continue”, and then “Get Started”. Velja works by being the default browser, so it asks to become it.
 1. Click the icon of Velja in the menu bar, and choose “Prompt” below “Primary Browser”.
 1. Click a link in any app, like Mail or Slack. Velja shows your browsers.
 1. Click a browser, or press its number key.
@@ -31,12 +31,12 @@ To get the prompt only for some links, keep your usual browser as the primary br
 
 @Tips {
 - Choose which browsers the prompt shows in “Shown browsers”, in the “Browsers” settings.
-- Control-click a browser in the prompt to open the link in a private window, or to always open the website in that browser.
-- A rule can use the prompt too, like only for the links from Slack. [How to make rules.](open-links-in-specific-browser-mac.md)
+- ++Control++-click a browser in the prompt to open the link in a private window, or to always open the website in that browser.
+- A rule can use the prompt too, like only for the links from Slack. [How to make rules.](guide:open-links-in-specific-browser-mac)
 }
 
 ## Without an app
 
 macOS has one default browser, which opens all links that you click outside a browser. Change it in “[System Settings › Desktop & Dock › Default web browser](x-apple.systempreferences:com.apple.Desktop-Settings.extension)”. macOS cannot ask which browser to use.
 
-To open one link in another browser, Control-click the link, choose “Copy Link”, and paste it in the address bar of the other browser. This is good for a link now and then. Velja is for when you change the browser often.
+To open one link in another browser, ++Control++-click the link, choose “Copy Link”, and paste it in the address bar of the other browser. This is good for a link now and then. Velja is for when you change the browser often.

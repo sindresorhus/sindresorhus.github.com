@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	Add the “Parse CSV” action of the free [Actions](../apps/actions/index.md) app, and give it the CSV file or text. The result is a list with a dictionary for each row, so “Get Dictionary Value” gets a value by the name of its column. The Shortcuts app itself has no action for CSV, only “Split Text”.
+	Add the “Parse CSV” action of the free [Actions](/actions) app, and give it the CSV file or text. The result is a list with a dictionary for each row, so “Get Dictionary Value” gets a value by the name of its column. The Shortcuts app itself has no action for CSV, only “Split Text”.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In your shortcut, add the “Parse CSV” action of Actions.
+1. Install [Actions](/actions), and open it once.
+1. In your shortcut, add the [“Parse CSV”](/actions#:~:text=Parse%20CSV,-Parse%20JSON5) action of Actions.
 1. In “CSV”, choose the file, or select the result of an earlier action, like “Select File” or the text of “Get Contents of URL”.
 1. Expand the action. If the first row of the file has no column names, turn off “First Row Is Header”. For a file with tabs between the values, change “Delimiter” to “Tab”. For another character, like a semicolon, choose “Custom”, and type the character.
 1. Add “Repeat with Each” below it, and in the repeat, add “Get Dictionary Value” with the name of a column as the key, like `Email`.

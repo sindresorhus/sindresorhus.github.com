@@ -1,4 +1,4 @@
-import {cloneTemplate, copy, elementForFragment, finePointer, parts, prefersReducedMotion} from '/scripts/dom.js';
+import {cloneTemplate, copy, elementForFragment, finePointer, isMac, parts, prefersReducedMotion} from '/scripts/dom.js';
 
 // A greeting for the curious ones who open the developer tools. The source link is in the footer.
 console.log(`%c
@@ -15,16 +15,18 @@ console.log(`%c
   \\ r=._\\        \`.
 `, 'color: #ec4899; font-family: ui-monospace, monospace;');
 
-// Opens the collapsible section that the URL fragment points to, and scrolls to it. Browsers open a section for find-in-page and for a fragment inside it, but not for a fragment that is the section itself.
-async function openTargetedSection() {
+// Opens the collapsible section that the URL fragment points to, and scrolls to it. Browsers open a section for find-in-page and for a fragment inside it, but not for a fragment that is the section itself. When the page loads again, like at a reload, or for a tab that the browser discarded in the background, it also opens the sections that were open, and scrolls back to where the visitor was, which the history entry has (below), not to the section of the fragment.
+async function openTargetedSection({openSections = [], scrollPosition} = {}) {
 	const {hash} = location;
-	const section = elementForFragment(hash);
+	const sections = [elementForFragment(hash), ...openSections.map(id => document.getElementById(id))].filter(section => section instanceof HTMLDetailsElement);
 
-	if (!(section instanceof HTMLDetailsElement)) {
+	if (sections.length === 0) {
 		return;
 	}
 
-	section.open = true;
+	for (const section of sections) {
+		section.open = true;
+	}
 
 	// The section animates its height while it opens, and scroll anchoring moves the page while it grows, so the visitor would see the end of the section or the next one. So the section is scrolled to again after the animation. Chrome does not list the height transition of `::details-content`, so this waits for the rotation of the chevrons, which has the same duration (`.disclosure` in `ProseStyles+CollapsibleSections.swift`).
 	await Promise.allSettled(document.getAnimations().filter(animation => animation instanceof CSSTransition).map(animation => animation.finished));
@@ -34,11 +36,45 @@ async function openTargetedSection() {
 		return;
 	}
 
-	section.scrollIntoView();
+	// A position from when no section was open is old, as only a scroll with an open section saves it.
+	if (openSections.length === 0 || scrollPosition === undefined) {
+		sections[0].scrollIntoView();
+	} else {
+		scrollTo({top: scrollPosition, behavior: 'instant'});
+	}
 }
 
-openTargetedSection();
-window.addEventListener('hashchange', openTargetedSection);
+openTargetedSection(history.state ?? {});
+window.addEventListener('hashchange', () => {
+	openTargetedSection();
+});
+
+// Keeps the open sections and the scroll position in the history entry, so they are there again when the page loads again (above). Chrome ignores a change of the entry while the page unloads, so this saves after each change: when a section opens or closes, and when a scroll ends while a section is open.
+function saveOpenSections() {
+	const openSections = [...document.querySelectorAll('details[open][id]')].map(section => section.id);
+	history.replaceState({...history.state, openSections, scrollPosition: scrollY}, '');
+}
+
+document.addEventListener('toggle', ({target}) => {
+	if (!(target instanceof HTMLDetailsElement)) {
+		return;
+	}
+
+	// The question of an open section stays at the top of the screen (`ProseStyles+CollapsibleSections.swift`), so the visitor can close it far below its start. Then the page scrolls back to the question, not to the text far below it.
+	if (!target.open && target.getBoundingClientRect().top < 0) {
+		target.scrollIntoView({block: 'start', behavior: 'instant'});
+	}
+
+	if (target.id) {
+		saveOpenSections();
+	}
+}, {capture: true});
+
+window.addEventListener('scrollend', () => {
+	if (document.querySelector('details[open][id]')) {
+		saveOpenSections();
+	}
+});
 
 // A click with the main button and no modifier key. With a modifier key, like to open a link in a new tab, a link only does what the browser does.
 const isPlainClick = event => event.button === 0 && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey);
@@ -46,7 +82,7 @@ const isPlainClick = event => event.button === 0 && !(event.metaKey || event.ctr
 // The pending timers that remove the copied state of section links, so a second click restarts the timer of its link.
 const copiedStateTimers = new WeakMap();
 
-// Copies the URL of a section when its link is clicked. With a pointer, the link still navigates, so the section becomes the `:target`. The styles show a checkmark for the copied state, and hide the link until the pointer leaves the section.
+// Copies the URL of a section when its link is clicked. The styles show a checkmark for the copied state, and hide the link until the pointer leaves the section.
 document.addEventListener('click', async event => {
 	const link = event.target.closest?.('[data-copy-link]');
 
@@ -55,19 +91,12 @@ document.addEventListener('click', async event => {
 		return;
 	}
 
-	// On touch screens, the link is at the end of the open section, so it does not navigate, which would scroll back to the start of the section.
-	const cannotHover = matchMedia('(hover: none)').matches;
-
-	if (cannotHover) {
-		event.preventDefault();
-	}
+	// The link does not navigate, so the page does not scroll, a closed section stays closed, and the checkmark stays where the visitor clicked. On touch screens, the link is at the end of the open section, and navigating would scroll back to the start of the section.
+	event.preventDefault();
 
 	// Without clipboard access, the link navigates, so the URL is in the address bar.
 	if (!await copy(link.href, link)) {
-		if (cannotHover) {
-			location.hash = link.hash;
-		}
-
+		location.hash = link.hash;
 		return;
 	}
 
@@ -304,4 +333,11 @@ if (finePointer.matches) {
 			hide();
 		}
 	});
+}
+
+// A link to a pane of System Settings, like “System Settings › Displays”, only opens the pane on a Mac, so on another device, like an iPhone or a PC, it is text, like a path without a pane (`LinkDestination.SystemSettingsPane`).
+if (!isMac) {
+	for (const link of document.querySelectorAll('a[href^="x-apple.systempreferences:"]')) {
+		link.replaceWith(...link.childNodes);
+	}
 }

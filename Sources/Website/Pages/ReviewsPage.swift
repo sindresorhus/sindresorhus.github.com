@@ -3,9 +3,9 @@ import Foundation
 import SiteKit
 
 /**
-The wall of love: the press quotes and the recent five-star App Store reviews of all active apps, each with a link to its app.
+The wall of love: the press quotes and the recent five-star reviews on the App Store and Gumroad of all active apps, each with a link to its app.
 
-The press quotes come first, in the order of the apps, and then the reviews in a random order on each visit. The order stays with the history entry, so the visitor who goes back to the page, or reloads it, returns to the same reviews. Without JavaScript, the reviews are newest first. `?app=velja` shows only the quotes and reviews of one app, like from the reviews on an app page. Then the introduction names the app with its icon and links to it, so the cards do not repeat its icon and name.
+The reviews are in a random order on each visit, and the press quotes are spread through them at even steps, in the order of the apps, so each column of the wall has some. A press quote is first. The order stays with the history entry, so the visitor who goes back to the page, or reloads it, returns to the same reviews. Without JavaScript, the press quotes come first, and then the reviews, newest first. `?app=velja` shows only the quotes and reviews of one app, like from the reviews on an app page. Then the introduction names the app with its icon and links to it, so the cards do not repeat its icon and name.
 */
 struct ReviewsPage: Page {
 	let content: SiteContent
@@ -14,12 +14,15 @@ struct ReviewsPage: Page {
 		.reviews
 	}
 
+	/**
+	The icons of the apps with the most quotes and reviews on the wall.
+	*/
 	var socialImage: SocialImage {
-		.card(OpenGraphCard(page: self, project: content.project))
+		.card(OpenGraphCard(page: self, artwork: .icons(ofMostCommon: (pressQuotes + reviews).map(\.app), project: content.project)))
 	}
 
 	var metadata: PageMetadata {
-		PageMetadata(title: "Wall of Love", description: "What the press and App Store reviewers say about the apps by Sindre Sorhus.")
+		PageMetadata(title: "Wall of Love", description: "What the press and users say about the apps by Sindre Sorhus.")
 	}
 
 	var body: some HTML {
@@ -28,22 +31,26 @@ struct ReviewsPage: Page {
 		section {
 			// The script names the one app in place of “my apps” when the page shows its quotes, with its icon and a link to it, and shows the link to all the apps.
 			PageHeader(title: "Wall of Love") {
-				"What the press and App Store reviewers say about "
+				"What the press and users say about "
 
 				span(.id(IDs.allApps)) {
 					"my apps"
 				}
 
 				a(.id(IDs.filterApp), .hidden) {}
-					// The script puts the icon of the app before its name. The icon is a little larger than the text, and is clipped like in ``AppIcon``, so the cut rim of the image does not show. A long app name can wrap, also with enlarged text.
+					// The script puts the icon of the app before its name. The icon is a little larger than the text, and is clipped like in ``AppIcon``, so the cut rim of the image does not show. The icon and the first word of the name are in a `span` that does not wrap, so the icon is not alone at the end of a line, like the icons of app links in prose. A long app name can wrap after its first word, also with enlarged text.
 					.style {
-						$0.children("img") {
+						$0.children("span") {
 							$0
-								.display(.inlineBlock)
-								.frame(size: .em(1.5))
-								.margin(.trailing, .em(0.3))
-								.verticalAlign(.em(-0.4))
-								.clipShape(inset: .percent(1.2), cornerRadius: .percent(22.5))
+								.textWrap(.nowrap)
+								.children("img") {
+									$0
+										.display(.inlineBlock)
+										.frame(size: .em(1.5))
+										.margin(.trailing, .em(0.3))
+										.verticalAlign(.em(-0.4))
+										.clipShape(inset: .percent(1.2), cornerRadius: .percent(22.5))
+								}
 						}
 					}
 
@@ -60,7 +67,7 @@ struct ReviewsPage: Page {
 
 			// Identify the selected reviews without repeating a rating on every testimonial.
 			p {
-				VisuallyHidden("Selected App Store reviews.")
+				VisuallyHidden("Selected reviews from the App Store and Gumroad.")
 			}
 
 			div(.id(IDs.wall)) {
@@ -74,12 +81,17 @@ struct ReviewsPage: Page {
 			}
 			.style(Styles.wall)
 
-			// The script is right after the wall, so it shuffles the reviews and hides the quotes of other apps before the page shows, and the cards do not move.
+			// The script is right after the wall, so it puts the reviews in a random order and hides the quotes of other apps before the page shows, and the cards do not move.
 			script {
 				HTMLRaw(#"""
 				{
 					const wall = document.querySelector('#\#(IDs.wall.id)');
-					const reviews = [...wall.children].slice(\#(pressQuotes.count));
+					const app = new URLSearchParams(location.search).get('\#(Parameters.app.rawValue)');
+					const isOneApp = [...wall.children].some(card => card.dataset.app === app);
+					// The cards of the one app, before they are spread, so its press quotes go at even steps through its reviews, and not all in one column.
+					const isShown = card => !isOneApp || card.dataset.app === app;
+					const pressQuotes = [...wall.children].slice(0, \#(pressQuotes.count)).filter(isShown);
+					const reviews = [...wall.children].slice(\#(pressQuotes.count)).filter(isShown);
 
 					// The seed of the order stays with the history entry, so Back and a reload show the same reviews at the scroll position that the browser restores. A new visit has no seed, so it gets a new order.
 					const seed = history.state?.reviewsSeed ?? Math.floor(Math.random() * (2 ** 32));
@@ -93,24 +105,35 @@ struct ReviewsPage: Page {
 						return ((value ^ (value >>> 14)) >>> 0) / (2 ** 32);
 					};
 
-					for (let index = reviews.length - 1; index > 0; index--) {
-						const other = Math.floor(random() * (index + 1));
-						[reviews[index], reviews[other]] = [reviews[other], reviews[index]];
+					// The reviews of each app go at even steps through the wall, from a random start for each app, so the cards of one app are not near each other: the k-th of the n reviews of an app goes at (k + start) / n.
+					const spread = [...Map.groupBy(reviews, card => card.dataset.app).values()].flatMap(group => {
+						const start = random();
+						return group.map((card, index) => ({card, position: (index + start) / group.length}));
+					});
+
+					spread.sort((first, second) => first.position - second.position);
+
+					// The columns of the wall fill in the order of the cards, so the press quotes go at even steps through the reviews, and not all in the first column.
+					const order = spread.map(({card}) => card);
+
+					for (const [index, quote] of pressQuotes.entries()) {
+						order.splice(Math.round(index * (pressQuotes.length + reviews.length) / pressQuotes.length), 0, quote);
 					}
 
-					wall.append(...reviews);
+					wall.append(...order);
 
-					const app = new URLSearchParams(location.search).get('\#(Parameters.app.rawValue)');
-					const cards = [...wall.children].filter(card => card.dataset.app === app);
-
-					if (cards.length > 0) {
+					if (isOneApp) {
 						for (const card of wall.children) {
-							card.hidden = !cards.includes(card);
+							card.hidden = !isShown(card);
 						}
 
 						const {title, url, icon, reviewURL} = \#(Self.appsJSON(quotes))[app];
 						const appLink = document.querySelector('#\#(IDs.filterApp.id)');
-						appLink.replaceChildren(Object.assign(new Image(), {src: icon, alt: ''}), title);
+						// The icon and the first word of the name stay on one line.
+						const [, firstWord, rest] = title.match(/^(\S*)(.*)$/s);
+						const start = document.createElement('span');
+						start.append(Object.assign(new Image(), {src: icon, alt: ''}), firstWord);
+						appLink.replaceChildren(start, rest);
 						appLink.href = url;
 						appLink.hidden = false;
 						document.querySelector('#\#(IDs.allApps.id)').hidden = true;

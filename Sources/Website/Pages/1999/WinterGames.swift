@@ -120,9 +120,10 @@ struct GeoCitiesWinterGames: ScriptedElement {
 			}
 			.style(GeoCitiesPage.Styles.titleBar)
 
+			// Made only when they render, as the parts of the game are deep (``GeoCitiesPage/Deferred``).
 			div {
-				console
-				panels
+				GeoCitiesPage.Deferred(console)
+				GeoCitiesPage.Deferred(panels)
 			}
 			.style(Styles.body)
 		}

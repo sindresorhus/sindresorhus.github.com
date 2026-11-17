@@ -29,7 +29,8 @@ struct HomePage: Page {
 
 			div {
 				div {
-					div {
+					// The photo links to the about page, as a visitor who wants to know who I am clicks the face first. The link has the name, so the photo has no text of its own.
+					a(.href(.about), .ariaLabel("About \(Site.author.name)")) {
 						// The small photo is sharp up to two pixels for each CSS pixel, so screens with three, like most phones, get the large one.
 						img(
 							.src(Site.author.smallPhotoPath),
@@ -37,7 +38,7 @@ struct HomePage: Page {
 								(.path(Site.author.smallPhotoPath), 2),
 								(.path(Site.author.photoPath), 3),
 							])),
-							.alt("\(Site.author.name) profile photo"),
+							.alt(""),
 							.width(144),
 							.height(144)
 						)
@@ -145,6 +146,8 @@ extension HomePage {
 						$0
 							.frame(height: .smallViewportHeight(100))
 							.margin(.top, .rootEm(-5))
+							// The 5 rem above are 1 rem more than the header, so 1 rem below puts the footer and its line below the first screen.
+							.margin(.bottom, .rootEm(1))
 					}
 			case .content:
 				// It can be narrower than its content, so with large text, the content wraps instead of going past the screen.
@@ -163,26 +166,28 @@ extension HomePage {
 					.display(.inlineFlex)
 					.margin(.rootEm(2))
 					.cornerRadius(.circle)
-					// A rotating ring in the galaxy colors.
+					// The photo grows a little under the pointer and with the focus of the keyboard, like a button.
+					.hoverOrFocusVisible {
+						$0.children(Styles.profilePhoto.selector) {
+							$0.scaleEffect(1.03)
+						}
+					}
+					// A thin ring in the colors of the name, with a faint glow, so the photo is not cut out of the page. It is still in light mode, like the ring of the about page. In light mode, the glow is only close to the ring, as a wide glow is a gray haze on the white page.
+					.filter(.dropShadow(Shadow(y: .zero, blur: .pixels(14), color: .primary(500).opacity(0.25))))
+					.before {
+						$0
+							.content("")
+							.position(.absolute)
+							.inset(.pixels(-3))
+							.cornerRadius(.circle)
+							.backgroundImage(.brandRing)
+					}
+					// In dark mode, the ring rotates in the galaxy colors, with a stronger glow.
 					.dark {
 						$0
 							.filter(.dropShadow(Shadow(y: .zero, blur: .pixels(14), color: .primary(500).opacity(0.5))), .dropShadow(Shadow(y: .zero, blur: .pixels(40), color: .violet(500).opacity(0.28))))
 							.before {
-								$0
-									.content("")
-									.position(.absolute)
-									.inset(.pixels(-3))
-									.cornerRadius(.circle)
-									.backgroundImage(
-										.conicGradient(
-											.primary(500),
-											.violet(500),
-											.secondary(500),
-											.violet(500),
-											.primary(500)
-										)
-									)
-									.animation(Animations.ringRotate, .linear(duration: .seconds(10)).repeatForever(autoreverses: false))
+								$0.animation(Animations.ringRotate, .linear(duration: .seconds(10)).repeatForever(autoreverses: false))
 							}
 					}
 			case .profilePhoto:
@@ -192,9 +197,6 @@ extension HomePage {
 					.cornerRadius(.circle)
 					.transition(.scaleEffect, timing: .default(duration: .milliseconds(350)))
 					.maskImage(.radialGradient(.circle, Color.black.at(.percent(80)), Color.transparent.at(.percent(100))))
-					.hover {
-						$0.scaleEffect(1.03)
-					}
 			case .name:
 				// The expanded width of SF Pro on Apple platforms.
 				Style()
@@ -251,7 +253,7 @@ extension HomePage {
 					}
 			case .actions:
 				Style()
-					.vstack(spacing: .rootEm(1.5))
+					.vstack(alignment: .center, spacing: .rootEm(1.5))
 					.margin(vertical: .rootEm(0.5), horizontal: .zero)
 					.padding(.horizontal, .rootEm(1.5))
 					.from(.smallTablet) {
@@ -262,13 +264,13 @@ extension HomePage {
 			case .button:
 				Style()
 					.hstack(alignment: .center, justification: .center, isInline: true)
-					// As wide as the column on phones.
-					.frame(width: .percent(100))
+					// As wide as the column on phones, but not wider than on a large phone, so in a wider window, they are not long pills.
+					.frame(width: .percent(100), maxWidth: .rootEm(21))
 					.from(.smallTablet) {
 						$0.frame(width: .auto)
 					}
 					.padding(vertical: .rootEm(1), horizontal: .rootEm(2))
-					.cornerRadius(.rootEm(1.5))
+					.cornerRadius(.capsule)
 					.fontWeight(.medium)
 					.lineHeight(1.375)
 					.textAlign(.center)

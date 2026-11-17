@@ -66,7 +66,7 @@ enum Palette: String, CaseIterable, Sendable {
 		case .violet:
 			[500: .oklch(lightness: .percent(60.6), chroma: 0.25, hue: .degrees(292.717))]
 		case .emerald:
-			[50: .oklch(lightness: .percent(97.9), chroma: 0.021, hue: .degrees(166.113)), 100: .oklch(lightness: .percent(95), chroma: 0.052, hue: .degrees(163.051)), 200: .oklch(lightness: .percent(90.5), chroma: 0.093, hue: .degrees(164.15)), 400: .oklch(lightness: .percent(76.5), chroma: 0.177, hue: .degrees(163.223)), 700: .oklch(lightness: .percent(50.8), chroma: 0.118, hue: .degrees(165.612)), 950: .oklch(lightness: .percent(26.2), chroma: 0.051, hue: .degrees(172.552))]
+			[50: .oklch(lightness: .percent(97.9), chroma: 0.021, hue: .degrees(166.113)), 100: .oklch(lightness: .percent(95), chroma: 0.052, hue: .degrees(163.051)), 200: .oklch(lightness: .percent(90.5), chroma: 0.093, hue: .degrees(164.15)), 400: .oklch(lightness: .percent(76.5), chroma: 0.177, hue: .degrees(163.223)), 500: .oklch(lightness: .percent(69.6), chroma: 0.17, hue: .degrees(162.48)), 700: .oklch(lightness: .percent(50.8), chroma: 0.118, hue: .degrees(165.612)), 950: .oklch(lightness: .percent(26.2), chroma: 0.051, hue: .degrees(172.552))]
 		case .purple:
 			[50: .oklch(lightness: .percent(97.7), chroma: 0.014, hue: .degrees(308.299)), 400: .oklch(lightness: .percent(71.4), chroma: 0.203, hue: .degrees(305.504)), 700: .oklch(lightness: .percent(49.6), chroma: 0.265, hue: .degrees(301.924)), 950: .oklch(lightness: .percent(29.1), chroma: 0.149, hue: .degrees(302.717))]
 		case .rose:
@@ -131,7 +131,7 @@ enum SemanticColor: String, CaseIterable {
 	case card
 
 	/**
-	The fill of a card while the pointer is over it, with a light tint of the accent of the page in light mode.
+	The fill of a card while the pointer is over it, with a light tint of the accent of the page.
 	*/
 	case cardHover
 
@@ -157,16 +157,16 @@ enum SemanticColor: String, CaseIterable {
 		// See-through, so a card takes a little of the color behind it.
 		case .card:
 			(.lightDark(.black.opacity(0.035), .white.opacity(0.065)), .lightDark(.black.opacity(0.07), .white.opacity(0.12)))
-		// In light mode, the accent of the page, like the underlines and the buttons, so an app page in purple does not get blue fills. An app page sets the accent on the root, where the custom property of the fill is, so the fill follows it, but a card with an accent of its own does not change it.
+		// A tint of the accent of the page, like the underlines and the buttons, so an app page in purple does not get blue or gray fills (in dark mode, the accent at the lightness of the selection, ``Color/darkModeHighlightAccent``), on a gray that is a little darker than the card, so the fill under the pointer is a darker step, also with more contrast. An app page sets the accent on the root, where the custom property of the fill is, so the fill follows it. A card with an accent of its own, like an app card, declares the property again (``customProperty``).
 		case .cardHover:
-			(.lightDark(Color.lightModeTintAccent.opacity(0.06), .white.opacity(0.095)), .lightDark(Color.lightModeTintAccent.opacity(0.12), .white.opacity(0.17)))
+			(.lightDark(Color.black.opacity(0.045).mix(with: Color.lightModeTintAccent, amount: .percent(6)), Color.white.opacity(0.095).mix(with: Color.darkModeHighlightAccent, amount: .percent(10))), .lightDark(Color.black.opacity(0.09).mix(with: Color.lightModeTintAccent, amount: .percent(12)), Color.white.opacity(0.17).mix(with: Color.darkModeHighlightAccent, amount: .percent(10))))
 		}
 	}
 
 	/**
-	The page background colors before composition, for browser theme-color metadata.
+	The page background colors before composition, for browser theme-color metadata. The dark color is `oklch(14% .012 264)` written as hex, as Discord reads only a hex `theme-color`.
 	*/
-	static let pageBackgroundColors = Color.LightDark(light: .white, dark: "oklch(14% .012 264)")
+	static let pageBackgroundColors = Color.LightDark(light: .white, dark: "#07090e")
 
 	/**
 	The colors when the visitor asks for more contrast, or `nil` when they are the same as the ordinary color.
@@ -184,20 +184,25 @@ enum SemanticColor: String, CaseIterable {
 	}
 
 	/**
+	The custom property of the color, with its color when the visitor asks for more contrast. A `var()` in a custom property gets its value where the property is declared, so an element with an accent of its own (``HTML/tint(_:fileID:)``), like an app card, declares the fill under the pointer again, so the fill has the accent of the element: `.combined(with: SemanticColor.cardHover.customProperty)`.
+	*/
+	var customProperty: Style {
+		let style = Style().setting(variable, to: definition.color)
+
+		guard let moreContrast else {
+			return style
+		}
+
+		return style.media(.moreContrast) {
+			$0.setting(variable, to: moreContrast)
+		}
+	}
+
+	/**
 	The custom properties of every semantic color, for `:root`, and the colors that change when the visitor asks for more contrast.
 	*/
 	static var customProperties: Style {
-		allCases
-			.reduce(Style()) { $0.setting($1.variable, to: $1.definition.color) }
-			.media(.moreContrast) { style in
-				allCases.reduce(style) { style, color in
-					guard let colors = color.moreContrast else {
-						return style
-					}
-
-					return style.setting(color.variable, to: colors)
-				}
-			}
+		allCases.reduce(Style()) { $0.combined(with: $1.customProperty) }
 	}
 }
 
@@ -211,15 +216,14 @@ extension Color {
 	The accent, or the fallback, with the lightness limited, so it works as a fill with white text or as a line on white.
 	*/
 	static func accent(fallback: Color, maximumLightness: Double) -> Self {
-		Self(raw: "oklch(from \(accent.value(default: fallback)) min(l, \(maximumLightness)) c h)")
+		accent.value(default: fallback).withMaximumLightness(maximumLightness)
 	}
 
 	/**
 	The accent, or the fallback, with at least the lightness, so a see-through tint of a dark accent shows on the dark page. With the chroma, it is a light tint with at most that chroma, so it works as text on a dark tint of the accent, like the text of a secondary button in dark mode.
 	*/
 	static func accent(fallback: Color, minimumLightness: Double, maximumChroma: Double? = nil) -> Self {
-		let chroma = maximumChroma.map { "min(c, \($0))" } ?? "c"
-		return Self(raw: "oklch(from \(accent.value(default: fallback)) max(l, \(minimumLightness)) \(chroma) h)")
+		accent.value(default: fallback).withMinimumLightness(minimumLightness, maximumChroma: maximumChroma)
 	}
 
 	/**
@@ -243,14 +247,19 @@ extension Color {
 	static let lightModeTintAccent = accent(fallback: .primary(500), maximumLightness: 0.65)
 
 	/**
-	The accent of a see-through highlight on the dark page, like the selection and the section that a link opens (``Style/targetHighlight()``). A dark accent, like the purple of Short Run, gets some lightness, so the highlight shows, but does not glare. The blue of the site and the light accents keep their color.
+	The accent of a see-through highlight on the dark page, like the selection and the section that a link opens (``Style/targetHighlight(_:)``). A dark accent, like the purple of Short Run, gets some lightness, so the highlight shows, but does not glare. The blue of the site and the light accents keep their color.
 	*/
 	static let darkModeHighlightAccent = accent(fallback: .primary(400), minimumLightness: 0.6)
 
 	/**
-	The see-through fill of the selection, in the accent of the page, so the text keeps its color. Also for text that the page marks, like the section that a link opens (``Style/targetHighlight()``) and the words of a filter.
+	The see-through fill of the selection, in the accent of the page, so the text keeps its color. Also for text that the page marks, like the section that a link opens (``Style/targetHighlight(_:)``) and the words of a filter.
 	*/
 	static let selectionFill = lightDark(pageAccent.opacity(0.22), darkModeHighlightAccent.opacity(0.35))
+
+	/**
+	The see-through fill of the section of an app page that the visitor is in, like “FAQ” in the navigation of the app (``AppSecondaryNavigation``) and in the menu of the site header on phones. In dark mode, a dark accent gets the lightness of the selection (``darkModeHighlightAccent``), so the fill shows on all app pages.
+	*/
+	static let currentSectionFill = lightDark(pageAccent.opacity(0.16), darkModeHighlightAccent.opacity(0.16))
 
 	/**
 	The accent, with the brand color as the fallback, for tints of the accent in both modes, like the light of a card and the fill of a secondary button.
@@ -286,6 +295,16 @@ extension Color {
 	static let pageBackground = SemanticColor.pageBackground.color
 	static let card = SemanticColor.card.color
 	static let cardHover = SemanticColor.cardHover.color
+
+	/**
+	The fill of a block of code in dark mode (``Style/codeSurface()``): the dark page (``SemanticColor/pageBackgroundColors``) with a little more lightness, in its blue hue. So the box is a little lighter than the page, like the other surfaces, and not a black hole, but much darker than a card, as the code is light on dark.
+	*/
+	static let darkCodeBackground: Self = "oklch(17.5% .012 264)"
+
+	/**
+	The fill of a popover in dark mode (``Style/popoverSurface()``): the dark page (``SemanticColor/pageBackgroundColors``) with more lightness, in its blue hue, so a popover looks like part of the page, not a neutral gray box.
+	*/
+	static let darkPopoverBackground: Self = "oklch(23.2% .012 264)"
 
 	static func gray(_ shade: Int) -> Self {
 		Palette.gray.color(shade)
@@ -343,22 +362,58 @@ extension CSSImage {
 		in: .oklch
 	)
 
-	static let brandGradientHover = linearGradient(
+	/**
+	The brand gradient, dark enough for white text, like the fill of a gradient button.
+	*/
+	static let strongBrandGradient = linearGradient(
 		.toRight,
 		.primary(600),
 		.secondary(600),
 		in: .oklch
+	)
+
+	/**
+	The strong brand gradient, darker, for a gradient button under the pointer.
+	*/
+	static let strongBrandGradientHover = linearGradient(
+		.toRight,
+		.primary(700),
+		.secondary(800),
+		in: .oklch
+	)
+
+	/**
+	The colors of the brand around a circle, through violet, like the ring around my photo on the home page and the about page.
+	*/
+	static let brandRing = conicGradient(
+		.primary(500),
+		.violet(500),
+		.secondary(500),
+		.violet(500),
+		.primary(500)
 	)
 }
 
 // MARK: Text
 
 /**
-The text sizes, each with its line height, from the Tailwind scale.
+The text sizes, each with its line height, from the Tailwind scale, and two steps between them that many components use: ``footnote`` (13 px) and ``callout`` (15 px). Use a step, not a new raw size.
 */
 enum TextSize {
 	case extraSmall
+
+	/**
+	Between ``extraSmall`` and ``small``, like the source of a press quote.
+	*/
+	case footnote
+
 	case small
+
+	/**
+	Between ``small`` and ``regular``, like the text of the announcement banner.
+	*/
+	case callout
+
 	case regular
 	case large
 	case extraLarge
@@ -377,8 +432,12 @@ enum TextSize {
 		switch self {
 		case .extraSmall:
 			(.rootEm(0.75), 1.3333)
+		case .footnote:
+			(.rootEm(0.8125), 1.5)
 		case .small:
 			(.rootEm(0.875), 1.4286)
+		case .callout:
+			(.rootEm(0.9375), 1.5)
 		case .regular:
 			(.rootEm(1), 1.5)
 		case .large:
@@ -431,6 +490,11 @@ enum TextStyle {
 	case sectionTitle
 
 	/**
+	The title of a small part of a page, like a year of the App Timeline or the newest app on the now page.
+	*/
+	case title3
+
+	/**
 	The title of a card.
 	*/
 	case headline
@@ -461,6 +525,8 @@ enum TextStyle {
 			(.clamp(.rootEm(1.875), .viewportWidth(4), .rootEm(2.5)), 1.08, .bold, .em(-0.026))
 		case .sectionTitle:
 			(.rootEm(1.875), 1.15, .bold, .em(-0.025))
+		case .title3:
+			(.rootEm(1.5), 1.3333, .bold, .em(-0.02))
 		case .headline:
 			(.rootEm(1.1875), 1.3, .semibold, .em(-0.01))
 		case .lead:
@@ -492,6 +558,18 @@ enum TextStyle {
 	*/
 	var letterSpacing: Length? {
 		definition.letterSpacing
+	}
+
+	/**
+	The extra space between the words of the titles with the tightest letter spacing, as the letter spacing also makes each space narrower, so the words of a large title, like “Goodbye, Node.js Buffer”, do not almost touch.
+	*/
+	var wordSpacing: Length? {
+		switch self {
+		case .largeTitle, .title, .sectionTitle:
+			.em(0.08)
+		case .title3, .headline, .lead, .body, .caption:
+			nil
+		}
 	}
 }
 
@@ -534,7 +612,33 @@ extension Style {
 			style = style.letterSpacing(letterSpacing)
 		}
 
+		if let wordSpacing = textStyle.wordSpacing {
+			style = style.wordSpacing(wordSpacing)
+		}
+
 		return style
+	}
+
+	/**
+	The edges of a card that is as wide as the screen, like a question of a FAQ or the Quick Answer of a guide on a phone: thin lines at its top and bottom, not at the edges of the screen, with the light at the top in dark mode, and the separator color with more contrast.
+	*/
+	func screenWideCardEdges() -> Self {
+		shadow([BoxShadow].horizontalEdges(.cardEdge) + [.cardTopLight])
+			.media(.moreContrast) {
+				$0.shadow(.horizontalEdges(.separator))
+			}
+	}
+
+	/**
+	Below tablets, a box in prose as wide as the screen, like the Quick Answer of a guide, an alert, or the trial card, so its text starts where the paragraphs start when its padding is the space of the page: no corners, and only the edges at its top and bottom (``screenWideCardEdges()``).
+	*/
+	func screenWideBelowTablet() -> Self {
+		below(.tablet) {
+			$0
+				.margin(.horizontal, .length(-.pageGutter))
+				.cornerRadius(.zero)
+				.screenWideCardEdges()
+		}
 	}
 
 	/**
@@ -559,6 +663,15 @@ extension Style {
 	func eyebrow() -> Self {
 		textStyle(.caption, weight: .semibold)
 			.color(.link)
+	}
+
+	/**
+	The small title of a group of cards in a section, like “Apps” above the numbers of the about page and “Latest Posts” on the now page: the size of the text, semibold, without the tighter letter spacing of headings in prose.
+	*/
+	func cardGroupTitle() -> Self {
+		textStyle(.body, weight: .semibold)
+			.letterSpacing(.zero)
+			.color(.primaryText)
 	}
 }
 
@@ -612,6 +725,11 @@ extension Breakpoint {
 	A tablet in landscape, or a small laptop (1024px).
 	*/
 	static let laptop = Self(minimumWidthInRem: 64)
+
+	/**
+	The width where prose (``Style/ColumnWidth/prose``, 48rem) has a column of 11rem at its start, and the space of the page (``LengthPercentage/pageGutter``) before that column, like the versions of the release notes (1120px).
+	*/
+	static let proseWithSideColumn = Self(minimumWidthInRem: 70)
 
 	/**
 	A desktop or a large laptop (1280px).
@@ -697,7 +815,7 @@ extension Style {
 	}
 
 	/**
-	Wider than the prose it is in by ``LengthPercentage/boxInset`` at each side, for boxes, like tables, code, the FAQ, and alerts. With the inset as the padding of the box, its text starts where the paragraphs start. Below ``Breakpoint/proseWithGutters``, the box is as wide as the text, as the space at the sides of the text is then the space of the page, and a box in it would touch the edges of the screen.
+	Wider than the prose it is in by ``LengthPercentage/boxInset`` at each side, for boxes, like tables, code, the FAQ, and alerts. With the inset as the padding of the box, its text starts where the paragraphs start. Below ``Breakpoint/proseWithGutters``, the box is as wide as the text, as the space at the sides of the text is then the space of the page, and a box in it would touch the edges of the screen. On phones, code, tables, alerts, and download cards directly in the text go to the edges of the screen instead, without corners, so they have more room (``CodeBlock``, ``ProseStyles/tableContainerStyle``, and ``screenWideBelowTablet()``).
 	*/
 	func widerThanProse() -> Self {
 		from(.proseWithGutters) {
@@ -778,16 +896,13 @@ extension Style {
 	}
 
 	/**
-	The column of the wide parts of an app page, like the press quotes and the reviews in more than two columns, and the box to get the app, so they all have one edge: from laptops as wide as grids (``ColumnWidth/wide``), and on large screens as wide as the content of the header (``ColumnWidth/page``), both less the space of the page at the sides (``LengthPercentage/pageGutter``). The edge is the edge of the box, so a part that has the space of the page as its padding (``contentColumn(_:)``) has no padding there.
+	The column of the wide parts of an app page, like the press quotes and the reviews in more than two columns, and the box to get the app, so they all have one edge: where there is space at the sides of the text (``Breakpoint/proseWithGutters``), as wide as the content of the header (``ColumnWidth/page``), less the space of the page at the sides (``LengthPercentage/pageGutter``), so they line up with the app cards and the footer below them, also on an iPad in portrait. In a window narrower than the header, the window is the width, so the parts keep the space of the page from its edges. It is the window and not the parent, as a part in a narrower column, like the box to get the app in a guide, keeps the width of its column. With scroll bars that always show, the parts are a few pixels wider than the cards from 816 to about 1170 px, as the width of the window includes the scroll bar. The edge is the edge of the box, so a part that has the space of the page as its padding (``contentColumn(_:)``) has no padding there.
 	*/
 	func wideAppPartColumn() -> Self {
-		from(.laptop) {
+		from(.proseWithGutters) {
 			$0
-				.frame(maxWidth: .length(ColumnWidth.wide.maximum - .pageGutter * 2))
+				.frame(maxWidth: .length(.min(ColumnWidth.page.maximum, .viewportWidth(100)) - .pageGutter * 2))
 				.margin(.horizontal, .auto)
-		}
-		.from(.largeDesktop) {
-			$0.frame(maxWidth: .length(ColumnWidth.page.maximum - .pageGutter * 2))
 		}
 	}
 
@@ -847,6 +962,11 @@ extension LengthPercentage {
 	The space between the edge of a card (``cardRadius``) and its content, like in a quote, a link card, and the cards of the now page, so cards of the same kind look the same (1.5rem). It is as large as the radius, so the corners of the content are in the curve of the card. Cards with much content, like app cards, and compact cards, like the apps of the feeds page, have their own.
 	*/
 	static let cardPadding = rootEm(1.5)
+
+	/**
+	The space between the cards of a grid, like the app cards and the cards of the feeds page, so every grid of cards has the same room (1.25rem). The lists in two columns near the cards, like the link lists of the apps page and the guides of an app page, have it between their columns too, so their second column starts where the second column of cards starts.
+	*/
+	static let cardSpacing = rootEm(1.25)
 
 	/**
 	Smaller boxes, like questions in a FAQ (1.25rem).
@@ -944,6 +1064,30 @@ extension BoxShadow {
 			isInset: true
 		)
 	}
+
+	/**
+	In dark mode, the top edge of a card catches a little light, like the glass of the primary button (``Style/cardSurface(isInteractive:)``).
+	*/
+	static let cardTopLight = Self(y: .pixels(1), color: .lightDark(.transparent, .white.opacity(0.08)), isInset: true)
+}
+
+extension [BoxShadow] {
+	/**
+	Thin lines inside the top and bottom edges of the element, like ``BoxShadow/edge(_:)`` without the sides, for a box that is as wide as the screen.
+	*/
+	static func horizontalEdges(_ color: Color) -> Self {
+		[
+			BoxShadow(y: .pixels(1), color: color, isInset: true),
+			BoxShadow(y: .pixels(-1), color: color, isInset: true),
+		]
+	}
+}
+
+extension Color {
+	/**
+	The faint edge of a card (``Style/cardSurface(isInteractive:)``).
+	*/
+	static let cardEdge = lightDark(.black.opacity(0.04), .white.opacity(0.06))
 }
 
 /**
@@ -1024,10 +1168,7 @@ extension Style {
 		let style = background(.card)
 			.cornerRadius(.cardRadius)
 			// In dark mode, the top edge catches a little light, like the glass of the primary button. It is in the same shadow, so a style that sets its own shadow replaces it too.
-			.shadow(
-				.edge(.lightDark(.black.opacity(0.04), .white.opacity(0.06))),
-				BoxShadow(y: .pixels(1), color: .lightDark(.transparent, .white.opacity(0.08)), isInset: true)
-			)
+			.shadow(.edge(.cardEdge), .cardTopLight)
 			.media(.moreContrast) {
 				$0.shadow(.edge(.separator))
 			}
@@ -1049,7 +1190,8 @@ extension Style {
 				.setting(cardLight, to: 1)
 				.background(.cardHover)
 				// The glow around the card, and a thin light edge, like the rim of glass.
-				.shadow(.extraLarge(color: .lightDark(accent.opacity(0.07), accent.opacity(0.12))) + [.edge(.lightDark(accent.opacity(0.12), .white.opacity(0.1)))])
+				// In dark mode, the edge has the accent at the lightness of the selection, so a dark accent still shows.
+				.shadow(.extraLarge(color: .lightDark(accent.opacity(0.07), accent.opacity(0.12))) + [.edge(.lightDark(accent.opacity(0.12), Color.darkModeHighlightAccent.opacity(0.3)))])
 		}
 
 		return style
@@ -1083,7 +1225,7 @@ extension Style {
 	*/
 	func popoverSurface() -> Self {
 		windowSurface()
-			.background(.white, dark: .gray(900))
+			.background(.white, dark: .darkPopoverBackground)
 	}
 
 	/**
@@ -1093,7 +1235,9 @@ extension Style {
 		padding(vertical: .em(1), horizontal: .boxInset)
 			.cornerRadius(.windowRadius)
 			.overflow(horizontal: .auto)
-			.font(size: ProseStyles.smallTextSize, lineHeight: 1.75)
+			// A horizontal swipe on a trackpad at the end does not go back in the history.
+			.overscrollBehavior(horizontal: .contain)
+			.font(size: ProseStyles.smallTextSize, lineHeight: 1.5)
 			.fontWeight(.regular)
 			// Code is often indented with tabs, which are 8 spaces wide by default.
 			.declaration(raw: .tabSize, 4)
@@ -1102,9 +1246,9 @@ extension Style {
 			// The code is light on dark in both modes, so the scroll bar is too. The dark background is not `light-dark()`, as that would follow this color scheme.
 			.colorScheme(.dark)
 			.dark {
-				// Darker than the page, with the faint edge of the cards, as the near black page and the box are almost the same.
+				// A little lighter than the page, like the other surfaces, but much darker than a card, with the faint edge of the cards, as the near black page and the box are almost the same.
 				$0
-					.background(.black.opacity(0.5))
+					.background(.darkCodeBackground)
 					.shadow(.edge(.white.opacity(0.06)))
 			}
 	}
@@ -1152,10 +1296,7 @@ extension Style {
 	*/
 	func hoverFill(_ fill: Color, color: Color? = nil) -> Self {
 		let style = transition(.backgroundColor, timing: .stateChange)
-			.hoverOrFocusVisible {
-				$0.background(fill)
-			}
-			.active {
+			.hoverOrFocusVisibleOrActive {
 				$0.background(fill)
 			}
 
@@ -1164,10 +1305,7 @@ extension Style {
 		}
 
 		return style.transition(.color, timing: .stateChange)
-			.hoverOrFocusVisible {
-				$0.color(color)
-			}
-			.active {
+			.hoverOrFocusVisibleOrActive {
 				$0.color(color)
 			}
 	}
@@ -1215,21 +1353,22 @@ extension Style {
 	}
 
 	/**
-	On touch screens, a tap area of at least 2.75rem around the center of a small element, like a footnote reference, without moving the layout. It uses `::before`.
+	On touch screens, a tap area of at least 2.75rem around the center of a small element, like a footnote reference, without moving the layout. It uses `::before`, or `::after` with `usesAfter`, for an element that shows content in `::before`, like the arrow of ``BackLink``.
 	*/
-	func minimumTapArea() -> Self {
-		media(.coarsePointer) {
+	func minimumTapArea(usesAfter: Bool = false) -> Self {
+		let area: (Self) -> Self = {
 			$0
-				.position(.relative)
-				.before {
-					$0
-						.content("")
-						.position(.absolute)
-						.top(.percent(50))
-						.leading(.percent(50))
-						.frame(width: .length(.max(.percent(100), .rootEm(2.75))), height: .length(.max(.percent(100), .rootEm(2.75))))
-						.offset(x: .percent(-50), y: .percent(-50))
-				}
+				.content("")
+				.position(.absolute)
+				.top(.percent(50))
+				.leading(.percent(50))
+				.frame(width: .length(.max(.percent(100), .rootEm(2.75))), height: .length(.max(.percent(100), .rootEm(2.75))))
+				.offset(x: .percent(-50), y: .percent(-50))
+		}
+
+		return media(.coarsePointer) {
+			let style = $0.position(.relative)
+			return usesAfter ? style.after(area) : style.before(area)
 		}
 	}
 }
@@ -1245,17 +1384,18 @@ extension Style {
 	}
 
 	/**
-	The look of a link in running text, like in prose or a notice. The underline is in the accent of the page, like the color of the icon on an app page, at half strength, so a list with many links stays calm. It gets the full accent while the pointer is over the link.
+	The look of a link in running text, like in prose or a notice. The underline is in the accent of the page, like the color of the icon on an app page, at half strength, so a list with many links stays calm. In dark mode, a dark accent gets the lightness of the selection (``Color/darkModeHighlightAccent``), so the underline shows on the dark page. It gets the full accent while the pointer is over the link. Its distance from the text is in `em`, so a small link, like a byline, has its underline as close to the text as a link in the prose (4 px at 18 px).
 	*/
 	func textLink() -> Self {
 		color(.primaryText)
 			.fontWeight(.medium)
 			.underline(thickness: .pixels(2))
-			.underlineColor(.lightDark(Color.lightModeTintAccent.opacity(0.5), Color.darkModeAccent.opacity(0.55)))
-			.underlineOffset(.pixels(4))
+			.underlineColor(.lightDark(Color.lightModeTintAccent.opacity(0.5), Color.darkModeHighlightAccent.opacity(0.55)))
+			.underlineOffset(.em(0.22))
 			.transition(.underlineColor, timing: .stateChange)
 			.hoverOrFocusVisible {
-				$0.underlineColor(.accentMark)
+				// In dark mode, the accent with the lightness floor of the underline at rest, so a dark accent does not make the underline darker under the pointer.
+				$0.underlineColor(.lightDark(.accent(fallback: .primary(600), maximumLightness: 0.6), Color.darkModeHighlightAccent))
 			}
 	}
 
@@ -1269,12 +1409,10 @@ extension Style {
 	}
 
 	/**
-	A button that looks like a link in the text, for a short choice in a message, like the corrected name in “Did you mean …?”.
+	A button that looks like a link in the text (``textLink()``), in the link color, for a short choice in a message, like the corrected name in “Did you mean …?”.
 	*/
 	func linkButton() -> Self {
-		color(.link)
-			.underline()
-			.hoverColor(.primaryText)
+		textLink().color(.link)
 	}
 
 	/**
@@ -1299,6 +1437,29 @@ extension Style {
 	}
 
 	/**
+	A card that is not a link, like a stat card or a review: the padding of a card and its look without the light under the pointer (``cardSurface(isInteractive:)``).
+	*/
+	func plainCard() -> Self {
+		padding(.cardPadding)
+			.cardSurface(isInteractive: false)
+	}
+
+	/**
+	The link of the name of a card, like the name of an app card (``AppCard``): it covers the card, so the whole card is the link, but its name is only its text. It has the color of the name, without an underline. The card is the positioned parent.
+	*/
+	func cardCoveringLink() -> Self {
+		inherits(.color)
+			.noUnderline()
+			.after {
+				$0
+					.content("")
+					.position(.absolute)
+					.inset(.zero)
+					.cornerRadius(.cardRadius)
+			}
+	}
+
+	/**
 	A card that is a link, like the newest app on the now page: its content in a row, without the look of a link in prose, as the whole card is the link, and its icons, like a chevron, in a quiet color.
 	*/
 	func linkCard() -> Self {
@@ -1311,6 +1472,8 @@ extension Style {
 				$0
 					.flexShrink(0)
 					.color(.secondaryText)
+					// The ink of the chevron is only the middle of its box, so the negative margin puts the end of the ink at the padding, like the start of the card on the other side. The same margin as the chevron of the FAQ rows.
+					.margin(.trailing, Icon.chevronTrailingMargin)
 			}
 	}
 
@@ -1337,14 +1500,14 @@ extension Style {
 
 extension Style {
 	/**
-	A link in a navigation bar as a pill, like the chips of the site: the card fill under the pointer, and a stronger fill for the current page or section (`aria-current`).
+	A link in a navigation bar as a pill, in the caption size, like the chips of the site: the card fill under the pointer, and a stronger fill for the current page or section (`aria-current`). The pill has its own size, so the links of the site navigation and of the navigation of an app, which replaces it, have the same size.
 
 	- Parameter currentFill: The fill of the current link, like a tint of the accent of an app page.
 	*/
 	func navigationPill(currentFill: Color = .cardHover) -> Self {
 		padding(vertical: .rootEm(0.375), horizontal: .rootEm(0.75))
 			.cornerRadius(.capsule)
-			.fontWeight(.medium)
+			.textStyle(.caption, weight: .medium)
 			.hoverFill(.card, color: .primaryText)
 			.currentFill(currentFill)
 	}
@@ -1379,7 +1542,7 @@ extension Style {
 	/**
 	A small, quiet capsule, like a link in a row of links, such as the categories on the apps page and the sections of an app page, so the main button of a page stays the only strong color.
 
-	- Parameter isInteractive: Whether it reacts to the pointer. A chip that is not a link, like a guess in Appdle, does not.
+	- Parameter isInteractive: Whether it reacts to the pointer. Use `false` for a static label.
 	- Parameter hasIcon: Whether it has an icon before its text, like the social links. The icon is in line with the text, and the chip has a little less padding at the sides, as the icon has some space of its own.
 	*/
 	func chip(isInteractive: Bool = true, hasIcon: Bool = false) -> Self {

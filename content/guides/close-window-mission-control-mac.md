@@ -9,19 +9,19 @@ apps: [
 ---
 
 @QuickAnswer {
-	Mission Control cannot close a window. Click the window to leave Mission Control, and press ++Command+W++. With [Supercharge](../apps/supercharge/index.md), you can right-click a window in Mission Control to close it, or point at it and press ++Command+W++.
+	Mission Control cannot close a window. Click the window to leave Mission Control, and press ++Command+W++. With [Supercharge](/supercharge), you can right-click a window in Mission Control to close it, or point at it and press ++Command+W++.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
 1. In the “Mission Control” section, turn on “Window actions & shortcuts”.
 1. Open Mission Control, and right-click a window. The window closes.
 }
 
-To do something else with a right-click or a middle-click, choose “Minimize Window”, “Quit App”, or “Hide App” in “Right-click action” and “Middle-click action”. You can also point at a window and press ++Command+W++, ++Command+Q++, ++Command+H++, or ++Command+M++, and move between the windows with the arrow keys. On macOS 27, the keyboard does not work yet in other spaces.
+To do something else with a right-click or a middle-click, choose “Minimize Window”, “Quit App”, or “Hide App” in “Right-click action” and “Middle-click action”. You can also point at a window and press ++Command+W++, ++Command+Q++, ++Command+H++, or ++Command+M++, and move between the windows with the arrow keys.
 
 ## Without an app
 

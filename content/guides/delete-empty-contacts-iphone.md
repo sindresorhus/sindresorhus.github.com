@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	The Contacts app cannot find the blank contacts for you. The “Delete Empty Contacts” action of the free [Actions](../apps/actions/index.md) app deletes all blank contacts at once: the contacts with no name, phone number, email, address, company, or other information. A note does not count.
+	The Contacts app cannot find the blank contacts for you. The “Delete Empty Contacts” action of the free [Actions](/actions) app deletes all blank contacts at once: the contacts with no name, phone number, email, address, company, or other information. A note does not count.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In the Shortcuts app, make a new shortcut, and add the “Delete Empty Contacts” action.
+1. Install [Actions](/actions), and open it once.
+1. In the Shortcuts app, make a new shortcut, and add the [“Delete Empty Contacts”](/actions#:~:text=Delete%20Empty%20Contacts) action.
 1. Add the “Show Content” action, and run the shortcut. The first time, allow access to your contacts. The result is the number of deleted contacts.
 }
 

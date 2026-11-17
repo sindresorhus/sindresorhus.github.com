@@ -11,6 +11,9 @@ platforms: [
 isPaid: true
 isMenuBarApp: true
 appStoreID: 6504040051
+categories: [
+	'notes'
+]
 trial: {
 	url: 'https://www.dropbox.com/scl/fi/rcpvozf3lznxawpxa82po/Scratchpad-1.5.1-trial-1793883418.zip?rlkey=krfofajhimebp89ytdzlmfl00&raw=1'
 }
@@ -51,6 +54,7 @@ pressQuotes: [
 feedbackNote:
 	'''
 	If you are having problems with the scroll jumping on macOS, update to version 1.5.0 or later (requires macOS 27).
+
 	If you are having problems with sync, [read this](/scratchpad#troubleshooting).
 	'''
 ---
@@ -74,8 +78,6 @@ On macOS, the app sits in your menu bar or Dock, ready whenever inspiration stri
 - Support for [Shortcuts](https://support.apple.com/guide/shortcuts/welcome/ios), [share service](https://support.apple.com/guide/mac-help/mh40614/mac), and [macOS Services](https://support.apple.com/guide/mac-help/mchlp1012/mac)
 
 Perfect for brain dumps, quick drafts, and fleeting ideas. Your thoughts are just a click away, without breaking your workflow.
-
-[Review by MacStories](https://www.macstories.net/reviews/scratchpad-the-cross-device-text-utility-that-pairs-perfectly-with-your-clipboard-manager/)
 
 #### Privacy
 
@@ -116,7 +118,7 @@ Scratchpad also makes a backup before “Clear Text”, and before the “Set Te
 
 ### Launch app from Lock Screen
 
-Quickly open the app using the built-in Lock Screen widget *([guide](../../guides/quick-notes-iphone.md))*. For more customization options, you can also use my [Quick Launch](/quick-launch) app.
+Quickly open the app using the built-in Lock Screen widget. <guide:quick-notes-iphone> For more customization options, you can also use my [Quick Launch](/quick-launch) app.
 
 ### Quickly add text to the scratchpad
 
@@ -193,6 +195,10 @@ No, it supports plain text only.
 ### Does the app support multiple notes? {#does-the-app-support-multiple-notes}
 
 No, it is designed for a single, persistent note. You could try out my [Plain Text Editor](/plain-text-editor) app for this, which can open multiple files. Also check out [Tot](https://tot.rocks) (not mine, but good).
+
+### Can you add pages that I can swipe between? {#pages}
+
+No. The app is intentionally a single note. See [multiple notes](#does-the-app-support-multiple-notes).
 
 ### How can I make the macOS app show up right below the menu bar icon? {#how-can-i-make-the-macos-app-show-up-right-below-the-menu-bar-icon}
 
@@ -278,34 +284,34 @@ The app can be automated using the Shortcuts app or with a custom URL scheme.
 - [Node.js API](https://github.com/sindresorhus/one-thing)
 -->
 
-### Shortcuts app
+### Shortcuts {#shortcuts-app}
 
 - [Shortcuts usage guide](https://www.xda-developers.com/guide-shortcuts-macos/)
-- [How to run shortcuts from the command-line on macOS](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
+- [How to run shortcuts from the command line on macOS](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac)
 
 **Examples**
 
 - [*Tell me if you have done anything cool with scripting*](/feedback?product=Scratchpad&referrer=Website-FAQ)
 
-### Custom URL scheme
+### URL scheme {#custom-url-scheme}
 
-You can add text to the scratchpad from any tool that can open an URL. This includes a website, Bash, Node.js, Python, Swift, etc.
+You can add text to the scratchpad from any tool that can open a URL. This includes a website, Bash, Node.js, Python, Swift, etc.
 
 For example, in your terminal:
 
-```sh
+```console
 open --background 'scratchpad:append?text=Hello'
 ```
 
 By default, the app window shows when this is run. On macOS, you can tell it to not show with the `hide` search parameter:
 
-```sh
+```console
 open --background 'scratchpad:append?text=Hello&hide'
 ```
 
 You can also prepend:
 
-```sh
+```console
 open --background 'scratchpad:prepend?text=Hello'
 ```
 
@@ -315,4 +321,4 @@ You can also use the custom URL scheme on iOS.
 
 There is no way to get the text using the URL scheme, but you can use Shortcuts for that.
 
-I have not included a way to overwrite the text because I don’t want anything to be able to overwrite the scratchpad. If you want this, [tell me your use-case](/feedback?product=Scratchpad&referrer=Website-FAQ). I may add this with an opt-in setting. For now, you can do it with Shortcuts.
+I have not included a way to overwrite the text because I don’t want anything to be able to overwrite the scratchpad. If you want this, [tell me your use case](/feedback?product=Scratchpad&referrer=Website-FAQ). I may add this with an opt-in setting. For now, you can do it with Shortcuts.

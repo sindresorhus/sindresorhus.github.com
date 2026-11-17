@@ -121,9 +121,7 @@ extension Site {
 
 		let published = try await steps.measure("Render and write \(routes.count) routes") {
 			try await Scripts.$published.withValue(scripts) {
-				try await Site.$pagesWithMarkdownCopies.withValue(site.markdownCopyPages) {
-					try await Publisher(site: origin, project: project, output: output).publish(routes)
-				}
+				try await Publisher(site: origin, project: project, output: output).publish(routes)
 			}
 		}
 

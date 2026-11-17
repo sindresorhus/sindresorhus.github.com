@@ -20,11 +20,14 @@ struct AboutPage: Page {
 	}
 
 	var metadata: PageMetadata {
-		page.metadata
+		var metadata = page.metadata
+		metadata.kind = .profile
+		return metadata
 	}
 
 	var body: some HTML {
-		ProsePage(title: "About \(Site.name)", photo: page.frontmatter.photo ?? .path(Site.author.smallPhotoPath)) {
+		// The name has a no-break space, so a phone shows “About” above the whole name, not the last name alone on the second line.
+		ProsePage(title: "About \(Site.name.replacing(" ", with: "\u{00A0}"))", photo: page.frontmatter.photo ?? .path(Site.author.smallPhotoPath)) {
 			// Close to the title, like the intro below the title of other pages, and set apart from the text below. The margin of the header above is 2.5rem. Not on phones, where it is several lines between the title and the text, and the same numbers are in the numbers section.
 			StatList(stats: stats)
 				.style {
@@ -61,7 +64,8 @@ struct AboutPage: Page {
 			}
 		}
 
-		JSONScript(schema: Schema.ProfilePage(mainEntity: .authorProfile))
+		// The day that the text last changed, like the sitemap. Google recommends it.
+		JSONScript(schema: Schema.ProfilePage(mainEntity: .authorProfile, dateModified: sitemapEntry.lastModified))
 	}
 
 	/**
@@ -94,7 +98,7 @@ struct AboutPage: Page {
 	*/
 	@HTMLBuilder
 	private var now: some HTML {
-		if let status = content.page(.now)?.status?.introduction {
+		if let status = content.now?.status?.introduction {
 			a(.href(.now)) {
 				span {
 					// The dot is like the status light of the now page.
@@ -131,38 +135,45 @@ struct AboutPage: Page {
 		}
 	}
 
+	private static let numbersTitle = "By the Numbers"
+
 	/**
-	The numbers of all the years. The apps, the open-source work, and npm are apart, so it is clear what the users are of.
+	The numbers of all the years.
 	*/
 	private var numbers: some HTML {
-		let npmStats = npmStats
-
-		return Section("By the Numbers", id: Self.numbersID) {
-			h3 {
-				"Apps"
-			}
-
-			StatCard(stats: appStats)
-
-			h3 {
-				"Open Source"
-			}
-
-			StatCard(stats: openSourceStats)
-
-			// Without the network, there are no npm numbers.
-			if !npmStats.isEmpty {
+		Section(Self.numbersTitle, id: Self.numbersID) {
+			for (index, group) in statGroups.enumerated() {
+				// The small titles of the cards of the now page, with the space between its groups. The first one has the space below the section title.
 				h3 {
-					"npm"
+					group.title
+				}
+				.style {
+					$0
+						.margin(top: index == 0 ? .zero : .rootEm(2.5), horizontal: .zero, bottom: .rootEm(0.75))
+						.cardGroupTitle()
 				}
 
-				StatCard(stats: npmStats)
+				StatCard(stats: group.stats)
 			}
 		}
 	}
 
 	/**
-	The numbers of the apps of all the years, like “64 apps”, the free apps, “6M+ users”, “12 years of craft”, the ratings on the App Store, and the support emails.
+	The numbers of all the years in groups, each with its title, for the page and its Markdown copy (``numbersMarkdown``). The apps, the open-source work, and npm are apart, so it is clear what the users are of.
+	*/
+	private var statGroups: [(title: String, stats: [Stat])] {
+		let groups: [(title: String, stats: [Stat])] = [
+			("Apps", appStats),
+			("Open Source", openSourceStats),
+			("npm", npmStats),
+		]
+
+		// Without the network, there are no npm numbers.
+		return groups.filter { !$0.stats.isEmpty }
+	}
+
+	/**
+	The numbers of the apps of all the years, like “64 apps”, the free apps, “6M+ users”, “12 years of craft”, the ratings on the App Store, the support emails, and the reports to Apple in public, which link to the reports. The reports are left out when the numbers of the GitHub account could not be got, like without the network.
 	*/
 	private var appStats: [Stat] {
 		// All the apps on the App Store, also the archived ones, as their ratings are part of all the years.
@@ -182,6 +193,7 @@ struct AboutPage: Page {
 				suffix: "answered",
 				isApproximate: true
 			),
+			content.gitHubAccount.map { Stat(count: $0.appleReportCount, label: "reports to Apple in public").linked(to: GitHub.appleReportsURL) },
 		]
 
 		return stats.compactMap(\.self)
@@ -226,7 +238,7 @@ struct AboutPage: Page {
 			),
 			Stat(count: years.total(\.reviewCount), noun: "code review", isApproximate: true),
 			content.recentActivity.profile.map { Stat(count: $0.commentCount, noun: "comment", isApproximate: true) },
-			Stat(count: years.longestStreak, noun: "day", suffix: "in a row with contributions"),
+			Stat(count: years.longestStreak, noun: "day", suffix: "in my longest streak"),
 			years.busiestDay.map { Stat(busiestDay: $0, format: .siteDay) },
 			// The short name, like “Fri”, as a long one, like “Wednesday”, does not fit a column on phones.
 			years.busiestWeekday.map { Stat(count: $0.count, value: Calendar.site.shortWeekdaySymbols[$0.weekday.index], label: "busiest weekday") },
@@ -244,7 +256,7 @@ struct AboutPage: Page {
 		let stats: [Stat?] = [
 			npm.packageCount.map { Stat(count: $0, noun: "package", isApproximate: true) },
 			npm.dependentCount.map { Stat(count: $0, noun: "dependent", isApproximate: true) },
-			npm.mostDownloadedCount(of: 10).map { Stat(count: $0, label: "of the 10 most-downloaded packages") },
+			npm.mostDownloadedCount(of: 10).map { Stat(count: $0, label: "of the top 10 packages") },
 			npm.weeklyDownloads.map { Stat(
 				count: $0,
 				noun: "download",
@@ -265,7 +277,7 @@ struct AboutPage: Page {
 	}
 
 	/**
-	The most popular repos as cards, which the build gets, so they do not go stale.
+	The most popular repos as cards, which the build gets, so they do not go stale. A repo of the open source page has its name and summary there (``OpenSourceCatalog``), so the two pages name a project the same way, like “XO”, and the others have the name and description on GitHub.
 	*/
 	@HTMLBuilder
 	private var popularProjects: some HTML {
@@ -273,14 +285,16 @@ struct AboutPage: Page {
 			Section("Popular Projects", id: ElementID("popular-projects")) {
 				ul {
 					for repository in content.popularRepositories {
+						let project = content.openSourceProjects.all.first { $0.repository == repository.nameWithOwner }
+
 						li {
 							a(.href(.url(repository.url))) {
 								span {
-									repository.name
+									project?.name ?? repository.name
 								}
 								.style(Styles.projectName)
 
-								if let description = repository.summary {
+								if let description = project?.summary ?? repository.summary {
 									span {
 										description
 									}
@@ -320,7 +334,7 @@ struct AboutPage: Page {
 					// Side by side from tablets.
 					$0
 						.display(.grid)
-						.gap(.rootEm(1))
+						.gap(.cardSpacing)
 						.from(.tablet) {
 							$0.gridColumns(2)
 						}
@@ -330,14 +344,28 @@ struct AboutPage: Page {
 	}
 
 	/**
-	The main numbers below the title, like “64 apps · 12 years of app craft · 1.1K+ repos · 15 years of open source”. The numbers section has them too, with the others.
+	The main numbers below the title, like “64 apps · 12 years of craft · 1.1K+ repos · 15 years of open source”. The numbers section has them too, with the others.
 	*/
 	private var stats: [String] {
-		let yearsOfCraft = content.yearsOfCraft.map { "\($0.formatted(counting: "year")) of app craft" }
+		let yearsOfCraft = content.yearsOfCraft.map { "\($0.formatted(counting: "year")) of craft" }
 		let repositoryCount = content.gitHubAccount.map { $0.repositoryCount.approximateCount(counting: "repo") }
 		let yearsOfOpenSource = "\(content.yearsOfOpenSource.formatted(counting: "year")) of open source"
 
 		return [content.listedApps.count.formatted(counting: "app"), yearsOfCraft, repositoryCount, yearsOfOpenSource].compactMap(\.self)
+	}
+}
+
+extension AboutPage {
+	/**
+	The numbers of all the years as Markdown, in the groups of the page, like “- 6M+ users”, for the Markdown copy of the page.
+	*/
+	var numbersMarkdown: String {
+		let groups = statGroups.map { group in
+			let stats = group.stats.compactMap(\.plainText).map { "- \($0)" }
+			return "### \(group.title)\n\n\(stats.joined(separator: "\n"))"
+		}
+
+		return "## \(Self.numbersTitle)\n\n\(groups.joined(separator: "\n\n"))"
 	}
 }
 
@@ -356,7 +384,7 @@ extension AboutPage {
 				Style()
 					.plainList()
 					.grid(minimumColumnWidth: .rootEm(16))
-					.gap(.rootEm(1))
+					.gap(.cardSpacing)
 					.margin(top: .rootEm(1.5), horizontal: .zero, bottom: .zero)
 			case .project:
 				Style()
@@ -381,6 +409,10 @@ extension AboutPage {
 					.textStyle(.caption, weight: .medium)
 					.monospacedDigit()
 					.color(.amber(700), dark: .amber(400))
+					// The star has its points and its weight at the top, so it is a little lower than the middle of its box, to be in the middle of the digits.
+					.descendants("svg") {
+						$0.offset(y: .em(0.09))
+					}
 			}
 		}
 	}

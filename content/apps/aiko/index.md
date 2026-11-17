@@ -52,8 +52,7 @@ pressQuotes: [
 ]
 feedbackNote:
 	'''
-	**Sharing from Voice Memos on iOS 26 does not work because of an iOS 26 bug outside of my control.** You may notice that many targets do work. This is because
-	  those apps use share extensions, while with Aiko, it opens directly in the app. [Workaround.](/aiko#voice-memos-ios26)
+	**Sharing from Voice Memos on iOS 26 does not work because of an iOS 26 bug outside of my control.** You may notice that many targets do work. This is because those apps use share extensions, while with Aiko, it opens directly in the app. [Workaround.](/aiko#voice-memos-ios26)
 
 	[How can I get back the old app icon?](/aiko#old-icon)
 
@@ -71,7 +70,7 @@ Turn recordings of meetings, lectures, and voice memos into text. The transcript
 
 The transcription is powered by OpenAI’s [Whisper model](https://openai.com/research/whisper) running locally on your device.
 
-The app also includes [support for Shortcuts](#tips).
+The app also includes [support for Shortcuts](#tips). <guide:transcribe-audio-shortcuts>
 
 @Details(summary: "Supports audio in 100 languages") {
 *Some languages have worse quality than others. Try the trial first.*
@@ -196,9 +195,7 @@ Aiko divides the transcription text by sentences. If you want the text divided i
 
 ### Fix missing punctuation
 
-A flaw of the Whisper model is that transcriptions can sometimes be missing punctuation. Try setting the “Prompt” setting to, for example:
-
-> Hello. I like cake.
+A flaw of the Whisper model is that transcriptions can sometimes be missing punctuation. Try a short text with punctuation in the “Prompt” setting, like `Hello. I like cake.`
 
 If that still doesn’t fix it, paste the text into an app like Notes, select it, and use Apple’s Writing Tools with this prompt: `Fix the missing punctuation. Don't change the text otherwise.` You can also use [ChatGPT](https://chatgpt.com), but then the text leaves your device.
 
@@ -206,7 +203,7 @@ If that still doesn’t fix it, paste the text into an app like Notes, select it
 
 Aiko does not have built-in batch transcription, but you can do it with shortcuts.
 
-Get [this (iOS)](https://www.icloud.com/shortcuts/f790a41e23ae4222920277b4fe9d1217) or [this (macOS)](https://www.icloud.com/shortcuts/0be44e478b9e472192cae2e0dfc327ed) shortcut and then share the audio files you want to transcribe (e.g. from Voice Memos or Files/Finder) and choose the shortcut in the share sheet. You can also run the shortcut directly from the Shortcuts app or even add the shortcut to the Home Screen.
+Get [this (iOS)](https://www.icloud.com/shortcuts/f790a41e23ae4222920277b4fe9d1217) or [this (macOS)](https://www.icloud.com/shortcuts/0be44e478b9e472192cae2e0dfc327ed) shortcut and then share the audio files you want to transcribe (like from Voice Memos or Files/Finder) and choose the shortcut in the share sheet. You can also run the shortcut directly from the Shortcuts app or even add the shortcut to the Home Screen.
 
 ### Transcribe files directly in Finder {#finder}
 
@@ -218,15 +215,15 @@ The [Record & Transcribe shortcut](https://www.icloud.com/shortcuts/62a62ef967b7
 
 If you want to record, transcribe, and then do something with the transcription in your shortcut workflow, check out the [“Record, Transcribe, Show” shortcut](https://www.icloud.com/shortcuts/00198bd63c094540ba25fe066245319d). You could, for example, pass the transcription to the ChatGPT shortcut action for further processing.
 
-### Quickly record and transcribe (iOS)
+### Quickly record and transcribe ^[iOS only](platform: "iOS")
 
 Do the same as the above, but instead add the shortcut to the Home Screen (can be done in the shortcut settings).
 
-### Quickly record, transcribe, and add transcription to the Notes app (iOS)
+### Quickly record, transcribe, and add transcription to the Notes app ^[iOS only](platform: "iOS")
 
 Use the [“Record and create note” shortcut](https://www.icloud.com/shortcuts/806ab945539d42acb79354805c50d9d5).
 
-### Quickly record and transcribe (macOS)
+### Quickly record and transcribe ^[macOS only](platform: "macOS")
 
 You can use the [“Record and Transcribe” shortcut](https://www.icloud.com/shortcuts/e43220d72f3343659e0fda36fee52d72) to be able to quickly record, transcribe, and have the result copied to the clipboard. The shortcut can be triggered from the menu bar or you can set a global keyboard shortcut for it.
 
@@ -380,9 +377,9 @@ The error comes from iOS and means that it could not read the audio file. Someti
 
 ### How can I transcribe audio from the Voice Memos app? {#how-can-i-transcribe-audio-from-the-voice-memos-app}
 
-**macOS:** Drag and drop the memo into the Aiko window. Note that because of a macOS bug, this can sometimes crash Aiko. If this happens, try sharing the memo from the Voice Memos app to Aiko instead.
+**macOS:** Drag and drop the memo into the Aiko window. Note that because of a macOS bug, this can sometimes crash Aiko. If this happens, try sharing the memo from the Voice Memos app to Aiko instead. <guide:transcribe-voice-memo-mac>
 
-**iOS:** In the Voice Memos app, tap the memo, tap the `…` button, tap `Share`, and choose Aiko in the app list. See the [guide to transcribe a voice memo on iPhone](../../guides/transcribe-voice-memo-iphone.md).
+**iOS:** In the Voice Memos app, tap the memo, tap the `…` button, tap `Share`, and choose Aiko in the app list. See the [guide to transcribe a voice memo on iPhone](guide:transcribe-voice-memo-iphone).
 
 **iOS 26:** Sharing from Voice Memos is broken due to an iOS bug. See [workaround](#voice-memos-ios26).
 
@@ -406,7 +403,7 @@ In the settings, make sure “Reduce resource usage” is off and “Use flash a
 
 ### Why does the app take up so much space on disk and memory? {#why-does-the-app-take-up-so-much-space-on-disk-and-memory}
 
-The app includes the Whisper AI models, which support 100 languages. The download is 2.8 GB on Mac and 1.8 GB on iPhone and iPad.
+The app includes the Whisper AI models, which support 100 languages, so the download is large: about 3 GB on Mac and about 2 GB on iPhone and iPad.
 
 On Mac, it uses the large model, which needs an Apple silicon Mac with at least 16 GB of RAM. On iPhone and iPad, it uses the medium model, or the small model when there is less free memory.
 
@@ -432,7 +429,9 @@ This is called [Diarization](https://en.wikipedia.org/wiki/Speaker_diarisation).
 
 ### How can I transcribe a Zoom meeting? {#zoom}
 
-The app does not support live transcription, but you could record the Zoom meeting, and after the meeting is finished, drop the recording into the Aiko window to transcribe. *([guide](../../guides/transcribe-zoom-recording-mac.md))*
+The app does not support live transcription, but you could record the Zoom meeting, and after the meeting is finished, drop the recording into the Aiko window to transcribe. <guide:transcribe-zoom-recording-mac>
+
+It works the same for a Google Meet recording, which you download from Google Drive. <guide:transcribe-google-meet-recording-mac>
 
 ### How can I transcribe a Messages voice note? {#messages}
 

@@ -2,20 +2,20 @@
 title: 'How to See the Word Count in TextEdit on Mac'
 description: 'TextEdit and Notes on Mac have no word count. Plain Text Editor shows the words and characters below the text, also for the selection.'
 publicationDate: 2026-11-12
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'plain-text-editor'
 ]
 ---
 
 @QuickAnswer {
-	TextEdit and Notes have no word count. Write or paste the text in [Plain Text Editor](../apps/plain-text-editor/index.md), and it shows the number of words and characters at the bottom of the window while you type. Or paste the text in Pages, the word processor of Apple, click “View” in the toolbar, and choose “Show Word Count”.
+	TextEdit and Notes have no word count. Write or paste the text in [Plain Text Editor](/plain-text-editor), and it shows the number of words and characters at the bottom of the window while you type. Or paste the text in Pages, the word processor of Apple, click “View” in the toolbar, and choose “Show Word Count”.
 }
 
 ## With Plain Text Editor
 
 @Steps {
-1. Open [Plain Text Editor](../apps/plain-text-editor/index.md), and choose “File › New”.
+1. Open [Plain Text Editor](/plain-text-editor), and choose “File › New”.
 1. Write the text, or paste it from TextEdit or Notes.
 1. Look at the bar at the bottom of the window, like “120 words • 640 characters”.
 }
@@ -25,6 +25,7 @@ The numbers change while you type. When you select a part of the text, they coun
 @Tips {
 - To also count the lines, or to show only one of the numbers, open the settings, and choose the counts in “Stats”.
 - Plain Text Editor opens plain text files in UTF-8, like `.txt` and `.md` files. For a rich text file of TextEdit (`.rtf`), copy the text from TextEdit, as Plain Text Editor shows only plain text.
+- Plain Text Editor shows the count on iPhone and iPad too. [How to see the word count on iPhone and iPad.](guide:word-count-iphone)
 }
 
 ## Without an app

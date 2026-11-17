@@ -2,7 +2,7 @@
 title: 'How to Pick a Color from the Screen on Mac'
 description: 'Use System Color Picker to pick a color from anywhere with a keyboard shortcut and copy it as Hex, or use the built-in Digital Color Meter app.'
 publicationDate: 2026-10-29
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'system-color-picker'
 ]
@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	In [System Color Picker](../apps/system-color-picker/index.md), press ++Command+P++, click the color, and press ++Shift+Command+H++ to copy it as Hex. Without an app, open Digital Color Meter, choose “View › Display Values › as Hexadecimal”, move the pointer to the color, and press ++Shift+Command+C++.
+	In [System Color Picker](/system-color-picker), press ++Command+P++, click the color, and press ++Shift+Command+H++ to copy it as Hex. [Without an app](#without-an-app), open Digital Color Meter, choose “View › Display Values › as Hexadecimal”, move the pointer to the color, and press ++Shift+Command+C++.
 }
 
 ## With System Color Picker
 
 @Steps {
-1. Open [System Color Picker](../apps/system-color-picker/index.md).
+1. Open [System Color Picker](/system-color-picker).
 1. Click the eyedropper button, or press ++Command+P++. The color sampler opens.
 1. Move the sampler to the color, and click.
 1. Press ++Shift+Command+H++ to copy the color as Hex. Or click the copy button next to the format that you want, like HSL, RGB, or OKLCH.
@@ -30,6 +30,7 @@ To pick a color without opening the window first, set a keyboard shortcut for �
 @Tips {
 - Press ++Space++ while you use the color sampler to show the RGB values.
 - Hold ++Shift++ when you click a color to keep the color sampler open, so you can pick more colors.
+- To see the name of the color, like “very dark blue”, turn on “Show accessibility color name” in the “Advanced” settings. [How to find the name of a color.](guide:find-color-name-mac)
 - Press ++Option++ when you copy the Hex color to add or remove the `#`. To always add it, turn on “Prefix Hex color with #” in the “Color” settings.
 }
 

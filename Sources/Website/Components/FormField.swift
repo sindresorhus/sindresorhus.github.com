@@ -95,14 +95,15 @@ struct FormField<Control: HTML, Accessory: HTML>: HTML where Control.Tag: FormFi
 				.attributes(.id(controlID))
 				.attributes(optional: .ariaDescribedBy(descriptionIDs))
 
-			accessory
-
+			// Directly below the control, before the accessory, like the related help of the message field, so the reason for the red border is next to it.
 			if let errorMessage {
 				p(.id(errorID)) {
 					errorMessage
 				}
 				.style(FormFieldStyles.errorMessage)
 			}
+
+			accessory
 		}
 		.style(FormFieldStyles.root)
 	}
@@ -209,5 +210,17 @@ enum FormFieldStyles: String, StyleSet {
 				.textStyle(.caption)
 				.color(.red(600), dark: .red(400))
 		}
+	}
+}
+
+extension Style {
+	/**
+	The box around the filter field of a long list, like the apps of the feedback page and the npm packages of the open source page, which stays below the header of the site while the list scrolls (``stickyBelowSiteHeader()``), so a visitor far down the list can change the words without scrolling back. The space above and below the field is in the box, so the rows scroll under it, and not next to the field. A line below it keeps it apart from the rows that scroll under it, like the sticky titles of the sections of the guides (``stickySectionTitle()``). It keeps the field where it would be without it, with the space of 1rem below.
+	*/
+	func stickyFilterField() -> Self {
+		stickyBelowSiteHeader()
+			.padding(.vertical, .rootEm(0.5))
+			.margin(top: .rootEm(-0.5), bottom: .rootEm(0.5))
+			.border(.bottom, .separator)
 	}
 }

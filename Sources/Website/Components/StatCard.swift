@@ -9,6 +9,11 @@ struct Stat {
 	let value: Value
 	let label: String
 
+	/**
+	The page that the label links to, like the reports that the number counts (``linked(to:)``).
+	*/
+	private(set) var url: URL?
+
 	enum Value {
 		/**
 		A number or text that does not change, like “3467”, “22B+”, or “Fri”.
@@ -47,6 +52,26 @@ struct Stat {
 	}
 
 	/**
+	The number and its label as text, like “6M+ users”, like the card shows them, for the Markdown copy of a page. A linked label is a Markdown link. `nil` for a running count, which only the browser shows.
+	*/
+	var plainText: String? {
+		guard case .text(let text, _) = value else {
+			return nil
+		}
+
+		return "\(text) \(url?.markdownLink(label) ?? label)"
+	}
+
+	/**
+	The statistic with its label as a link to the page, like the reports that the number counts.
+	*/
+	func linked(to url: URL) -> Self {
+		var stat = self
+		stat.url = url
+		return stat
+	}
+
+	/**
 	- Parameters:
 		- noun: What one of them is, like “pull request”. The label adds an “s” when the count is not 1.
 		- pluralNoun: The plural of the noun, for a noun that does not add an “s”, like “repositories”.
@@ -64,7 +89,7 @@ struct Stat {
 	}
 
 	/**
-	A count with its own label, like “5” and “of the 10 most-downloaded packages”.
+	A count with its own label, like “5” and “of the top 10 packages”.
 	*/
 	init(count: Int, label: String, isApproximate: Bool = false) {
 		// A thousands separator only from five digits, like “3467” and “51,254”, like the other numbers of the site.
@@ -79,10 +104,10 @@ struct Stat {
 	}
 
 	/**
-	The busiest day of contributions, like “383” and “busiest day, September 19”.
+	The busiest day of contributions, like “383” and “contributions on the busiest day, September 19”, so the label says what the number counts.
 	*/
 	init(busiestDay day: ContributionCalendar.Day, format: Date.FormatStyle) {
-		self.init(count: day.count, label: "busiest day, \(day.date.foundationDate.formatted(format))")
+		self.init(count: day.count, label: "contributions on the busiest day, \(day.date.foundationDate.formatted(format))")
 	}
 
 	/**
@@ -127,7 +152,20 @@ struct StatCard: HTML {
 					" "
 
 					span {
-						stat.label
+						// The underline of a link in text, but the gray of the other labels, so the label does not stand out from them.
+						if let url = stat.url {
+							a(.href(.url(url))) {
+								stat.label
+							}
+							.style {
+								$0
+									.textLink()
+									.color(.secondaryText)
+									.fontWeight(.regular)
+							}
+						} else {
+							stat.label
+						}
 					}
 					.style(Styles.label)
 				}
@@ -163,10 +201,9 @@ struct StatCard: HTML {
 				// Two columns on phones, and three from tablets, so the numbers of all the cards line up. Three numbers are in three columns on phones too, a little smaller, as the numbers are short, so none is alone in a row, unless the third is a running count, which gets long and has its own row.
 				Style()
 					.grid(columns: 2)
-					.gap(row: .rootEm(1.25), column: .rootEm(1))
+					.gap(row: .rootEm(1.25), column: .rootEm(0.75))
 					.margin(.zero)
-					.padding(.cardPadding)
-					.cardSurface(isInteractive: false)
+					.plainCard()
 					.textStyle(.body)
 					.below(.tablet) {
 						$0.nested(Self.threeShortStats) {
@@ -194,14 +231,10 @@ struct StatCard: HTML {
 					.frame(minWidth: .rootEm(4))
 					.margin(.zero)
 					.padding(.zero)
+			// A running count has a sentence as its label, so it has a row of its own.
 			case .runningStat:
-				Style()
-					.below(.tablet) {
-						$0.gridColumnSpan(2)
-					}
-					.below(Self.oneColumnBreakpoint) {
-						$0.gridColumnSpan(1)
-					}
+				Style().gridColumnSpanAll()
+			// The digits keep the widths of the font, so a “1” at the start does not leave a space before it. A running count has digits of the same width (``RunningCount``), as it changes in each frame.
 			case .value:
 				Style()
 					.fontFamily(.rounded)
@@ -209,11 +242,12 @@ struct StatCard: HTML {
 					// On one line, so the “+” of a rounded number stays with it.
 					.textWrap(.nowrap)
 					.letterSpacing(.em(-0.02))
-					.monospacedDigit()
 					.color(.primaryText)
 			case .label:
+				// A short label reads best with lines of the same length, like “days in my / longest streak”.
 				Style()
 					.secondaryText()
+					.textWrap(.balance)
 			}
 		}
 	}

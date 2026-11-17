@@ -96,9 +96,18 @@ enum MediaAsset: Hashable {
 	}
 
 	/**
-	The videos (`video1.mp4`) and then the screenshots (`screenshot1.png/jpg`) in the directory, each in natural order. A video without its poster, two screenshots with the same name in other formats, like `screenshot6.png` and `screenshot6.jpg`, another name, like `screenshot1 copy.jpg` from a copy in Finder or `Screenshot7.jpg` with a capital letter, and another format, like `screenshot7.heic` or `video1.mov`, are content errors, as the page would silently show one item less.
+	The first publication dates of videos, from the commits that added them. Match MP4 files across directories so their dates survive moves.
 	*/
-	static func discover(in directory: RoutePath, project: Project) async throws -> [Self] {
+	static func videoPublicationDates(in project: Project) async -> [URL: Date] {
+		await project.firstCommitDates(matching: [":(icase)*.mp4"])
+	}
+
+	/**
+	The videos (`video1.mp4`) and then the screenshots (`screenshot1.png/jpg`) in the directory, each in natural order. A video without its poster, two screenshots with the same name in other formats, like `screenshot6.png` and `screenshot6.jpg`, another name, like `screenshot1 copy.jpg` from a copy in Finder or `Screenshot7.jpg` with a capital letter, and another format, like `screenshot7.heic` or `video1.mov`, are content errors, as the page would silently show one item less.
+
+	- Parameter videoPublicationDates: The dates the site loaded for every video in one pass. When `nil`, read them only if this app has a video.
+	*/
+	static func discover(in directory: RoutePath, project: Project, videoPublicationDates: [URL: Date]?) async throws -> [Self] {
 		let directoryFiles = project.publicFile(directory).files
 
 		// The name is the prefix and a number, like `screenshot7`, or only the prefix, like the one screenshot of an old app. Another name with the prefix would be one more item, like a copy in Finder, and it would move the numbers that the guides use.
@@ -134,6 +143,15 @@ enum MediaAsset: Hashable {
 			"The page shows only MP4 videos. Encode \(name) as MP4, like the other videos (`~/dev/project-extras/Website`)."
 		}
 
+		// Only an app with a video runs git, as few apps have one.
+		let uploadDates: [URL: Date] = if let videoPublicationDates {
+			videoPublicationDates
+		} else if videos.isEmpty {
+			[:]
+		} else {
+			await Self.videoPublicationDates(in: project)
+		}
+
 		for file in videos {
 			let posterName = "\(file.nameWithoutExtension)-poster.jpg"
 
@@ -144,7 +162,8 @@ enum MediaAsset: Hashable {
 			assets.append(.video(VideoAsset(
 				path: directory.appending(file.lastPathComponent),
 				size: try checkedSize(await file.cachedValue(using: .videoSize), of: file),
-				poster: directory.appending(posterName)
+				poster: directory.appending(posterName),
+				uploadDate: uploadDates[file.standardizedFileURL]
 			)))
 		}
 
@@ -219,6 +238,11 @@ struct VideoAsset: Hashable {
 	let path: RoutePath
 	let size: PixelSize
 	let poster: RoutePath
+
+	/**
+	When the video was added in git, for its structured data (``Schema/VideoObject``), which needs the first publication date. `nil` when the date is unavailable, like in a test without git.
+	*/
+	let uploadDate: Date?
 }
 
 /**

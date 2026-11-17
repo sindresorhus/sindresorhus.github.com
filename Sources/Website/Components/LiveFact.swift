@@ -46,6 +46,10 @@ struct LiveFact: ScriptedElement {
 			}
 			.hiddenFromSearchSnippets()
 			.style(StatCard.Styles.value)
+			// The colon of a time is centered on the digits, like on a clock (stylistic set 3 of SF Pro and SF Pro Rounded). The other values have no colon.
+			.style {
+				$0.fontFeatures(.stylisticSet(3))
+			}
 
 			" "
 
@@ -62,8 +66,7 @@ struct LiveFact: ScriptedElement {
 		.style {
 			$0
 				.vstack(spacing: .rootEm(0.125))
-				.padding(.cardPadding)
-				.cardSurface(isInteractive: false)
+				.plainCard()
 				.monospacedDigit()
 				.hiddenWithoutScripting()
 				// From tablets, only as wide as its text, with more space at the end, so it reads as one fact, not as a wide box around a short line. On phones, it is as wide as the text.
@@ -142,7 +145,7 @@ extension LiveFactArguments: BlockDirectiveDefinition {
 	static let name = BlockDirectiveName.liveFact.rawValue
 	static let content = MarkdownDocument.Options.BlockDirectiveRenderer.Content.empty
 
-	static func render(arguments: Self, contentHTML: String, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) -> String {
-		LiveFact(kind: arguments.kind).render()
+	static func render(arguments: Self, content: HTMLFragment, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) -> HTMLFragment {
+		LiveFact(kind: arguments.kind).renderFragment()
 	}
 }

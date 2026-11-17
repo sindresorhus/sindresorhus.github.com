@@ -7,6 +7,7 @@ struct ReleaseNotesPage: Page {
 	let app: App
 	let releaseNotes: App.ReleaseNotes
 	let releases: [GitHubRelease]
+	let project: Project
 
 	var path: RoutePath {
 		releaseNotes.path
@@ -16,8 +17,23 @@ struct ReleaseNotesPage: Page {
 		.appSubpage(app)
 	}
 
+	var breadcrumbTitle: String {
+		"Release Notes"
+	}
+
+	/**
+	A card of its own, with the latest version in the subtitle, so a link to the release notes does not look like a link to the app page, and each release gives the card a new URL. The title is only “Release Notes”, as the title of the page would break into two lines, and the subtitle and the icon name the app.
+	*/
 	var socialImage: SocialImage {
-		.cardOf(app)
+		.card(
+			OpenGraphCard(
+				path: OpenGraphCard.path(ofPage: path),
+				title: "Release Notes",
+				subtitle: description,
+				artwork: .icon(of: app, project: project),
+				description: metadata.title
+			)
+		)
 	}
 
 	/**
@@ -36,6 +52,10 @@ struct ReleaseNotesPage: Page {
 			favicon: app.iconPath,
 			feeds: [releaseNotes.feed]
 		)
+	}
+
+	var searchKeywords: [String] {
+		["changelog", "what’s new", "version history"]
 	}
 
 	/**
@@ -67,9 +87,9 @@ struct ReleaseNotesPage: Page {
 					}
 					.style(Styles.releaseHeader)
 
-					if !release.notesHTML.isEmpty {
+					if !release.notes.rawValue.isEmpty {
 						div {
-							HTMLRaw(release.notesHTML)
+							release.notes
 						}
 						.style(Styles.releaseNotes)
 					}
@@ -81,7 +101,9 @@ struct ReleaseNotesPage: Page {
 				"\(app.title) Release Notes RSS Feed",
 				icon: .rss,
 				destination: .path(releaseNotes.feed.path),
-				iconSize: .rootEm(1)
+				iconSize: .rootEm(1),
+				// The icon ends at the edge of the text, like the back link at the start of the row.
+				isOutset: true
 			)
 				.help("RSS feed for release notes")
 		}
@@ -95,7 +117,7 @@ struct ReleaseNotesPage: Page {
 		case releaseNotes
 
 		/**
-		The width of the column of the versions on wide screens, and the space between it and the notes.
+		The width of the column of the versions on wide screens, and the space between it and the notes. Together, they are the 11rem of the column of ``Breakpoint/proseWithSideColumn``.
 		*/
 		private static let versionColumnWidth = LengthPercentage.rootEm(9)
 		private static let versionColumnSpacing = LengthPercentage.rootEm(2)
@@ -107,7 +129,7 @@ struct ReleaseNotesPage: Page {
 				// The padding is the only space between releases, as the notes have no margins at their ends, so each release has the same space, whichever column is taller.
 				Style()
 					.padding(.vertical, .rootEm(1.5))
-					.from(.desktop) {
+					.from(.proseWithSideColumn) {
 						$0
 							.grid(columns: .fixed(Self.versionColumnWidth), .fraction(1))
 							.gap(Self.versionColumnSpacing)
@@ -119,7 +141,7 @@ struct ReleaseNotesPage: Page {
 				// In the column, it stays in view while its notes scroll, below the header of the site.
 				Style()
 					.hstack(alignment: .baseline, spacing: .rootEm(1))
-					.from(.desktop) {
+					.from(.proseWithSideColumn) {
 						$0
 							.vstack(alignment: .end, spacing: .rootEm(0.25))
 							.position(.sticky)
@@ -138,7 +160,7 @@ struct ReleaseNotesPage: Page {
 					// Digits of one width, so the dates after versions of the same length line up.
 					.monospacedDigit()
 					// Smaller in the column, so the notes, not the versions, draw the eye.
-					.from(.desktop) {
+					.from(.proseWithSideColumn) {
 						$0.font(size: .em(1.5), lineHeight: 1.2)
 					}
 			case .releaseNotes:
@@ -147,7 +169,7 @@ struct ReleaseNotesPage: Page {
 					.descendants(":last-child") {
 						$0.margin(.bottom, .zero)
 					}
-					.from(.desktop) {
+					.from(.proseWithSideColumn) {
 						$0.children(":first-child") {
 							$0.margin(.top, .zero)
 						}

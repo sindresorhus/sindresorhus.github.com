@@ -14,20 +14,20 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open the free [Today](../apps/today/index.md) app, and click its icon in the menu bar to see the events of today. macOS shows events only in the Calendar app and in its widgets, not in the menu bar.
+	Open the free [Today](/today) app, and click its icon in the menu bar to see the events of today. macOS shows events only in the Calendar app and in its widgets, not in the menu bar.
 }
 
 ## With Today
 
 @Steps {
-1. Open [Today](../apps/today/index.md). Its icon is in the menu bar.
+1. Open [Today](/today). Its icon is in the menu bar.
 1. Click the icon to see the events of today.
 1. Click an event to show it in the Calendar app, or join an upcoming video call from the menu.
 }
 
-Today shows the events of the calendars in the Calendar app, so to show Google Calendar or Outlook events, add the account to the Calendar app, and turn on its calendars in the Today settings. You can also show the end times, the past events of today, and the first event after today (“Next up”).
+Today shows the events of the calendars in the Calendar app, so to show Google Calendar or Outlook events, add the account to the Calendar app, and turn on its calendars in the Today settings. [More about Outlook in the menu bar.](guide:outlook-calendar-menu-bar-mac) You can also show the end times, the past events of today, and the first event after today (“Next up”).
 
-To also show the next event, a calendar of the month, and world clocks in the menu bar, use [Dato](../apps/dato/index.md). [How to show a calendar in the menu bar.](calendar-menu-bar-mac.md)
+To also show the next event, a calendar of the month, and world clocks in the menu bar, use [Dato](/dato). [How to show your next meeting in the menu bar.](guide:show-next-meeting-menu-bar-mac) [How to show a calendar in the menu bar.](guide:calendar-menu-bar-mac)
 
 ## Without an app
 

@@ -21,6 +21,11 @@ struct AppCard: HTML {
 	*/
 	var headingLevel = ItemHeadingLevel.h3
 
+	/**
+	Whether the card shows “Paid” or “Free”. Not on the pages of the paid and the free apps, where each card would repeat the title of the page, and not on the page of the Setapp apps, which are all paid, so “Paid” does not read as a price on top of Setapp.
+	*/
+	var showsPrice = true
+
 	var body: some HTML {
 		// `apps.js` filters the cards by `data-slug`.
 		// The accent of the card is the color of the icon, for the light while the pointer is over it.
@@ -34,7 +39,7 @@ struct AppCard: HTML {
 				}
 
 				div {
-					app.subtitle
+					app.displaySubtitle
 				}
 				.style(Styles.subtitle)
 
@@ -44,7 +49,7 @@ struct AppCard: HTML {
 					}
 
 					// The price is on the page of the app, so visitors see the app before the price. An archived app has no App Store or Setapp download, so it has no price, like its page shows.
-					if !app.isArchived {
+					if showsPrice, !app.isArchived {
 						Badge(app.isPaid ? "Paid" : "Free")
 					}
 
@@ -87,11 +92,6 @@ struct AppCard: HTML {
 		case slug
 	}
 
-	/**
-	The soft shadow below the icon of an app on a card, like the cards of tiny apps.
-	*/
-	static let iconShadow = Filter.dropShadow(Shadow(y: .pixels(2), blur: .pixels(2), color: .black.opacity(0.1)))
-
 	enum Styles: String, StyleSet {
 		case root
 		case icon
@@ -105,12 +105,14 @@ struct AppCard: HTML {
 		var style: Style {
 			switch self {
 			case .root:
-				// The fill and a soft glow change while the pointer is over the card, but nothing moves. The card is compact until laptops, as the grid has two columns from small tablets.
+				// The fill and a soft glow change while the pointer is over the card, but nothing moves. The card is compact from small tablets to tablets, where the grid has two narrow columns, and large from desktops.
 				Style()
 					.position(.relative)
 					.hstack(alignment: .center, spacing: .rootEm(1))
 					.padding(.rootEm(1.25))
 					.cardSurface()
+					// The fill under the pointer in the accent of the card (``tint(_:fileID:)``), like its light and its glow, not in the accent of the page.
+					.combined(with: SemanticColor.cardHover.customProperty)
 					// On phones, the apps are rows without a fill, with a thin line between them, like a list, so more apps fit on the screen. The fill still shows under the pointer and with the focus of the keyboard. The rows reach into the space at the sides of the page (``AppGrid``), so the icon and the line start where the text of the page starts.
 					.below(.smallTablet) {
 						$0
@@ -132,7 +134,14 @@ struct AppCard: HTML {
 								}
 							}
 					}
-					.from(.laptop) {
+					// In two columns before tablets, like in a window that fills half of a laptop screen, the card is smaller, so the subtitle has more room.
+					.media(.from(.smallTablet) && .below(.tablet)) {
+						$0
+							.gap(.rootEm(0.75))
+							.padding(.rootEm(1))
+					}
+					// From desktops, not laptops, so on an iPad in landscape, the subtitles of the smaller card wrap less.
+					.from(.desktop) {
 						$0
 							.gap(.rootEm(1.5))
 							.padding(.rootEm(1.75))
@@ -142,12 +151,14 @@ struct AppCard: HTML {
 				Style()
 					.frame(size: .pixels(80))
 					.margin(.pixels(-4))
-					.filter(AppCard.iconShadow)
 					// On phones, the rows have no fill, so the icon starts where the text of the page starts, like the line above it.
 					.below(.smallTablet) {
 						$0.margin(.leading, .zero)
 					}
-					.from(.laptop) {
+					.media(.from(.smallTablet) && .below(.tablet)) {
+						$0.frame(size: .pixels(64))
+					}
+					.from(.desktop) {
 						$0.frame(size: .pixels(104))
 					}
 			case .text:
@@ -166,16 +177,7 @@ struct AppCard: HTML {
 					}
 			case .link:
 				// It covers the card, so the whole card is the link, like before, but its name is only the name of the app.
-				Style()
-					.inherits(.color)
-					.noUnderline()
-					.after {
-						$0
-							.content("")
-							.position(.absolute)
-							.inset(.zero)
-							.cornerRadius(.cardRadius)
-					}
+				Style().cardCoveringLink()
 			case .subtitle:
 				Style()
 					.font(size: .rootEm(1), lineHeight: 1.35)
@@ -218,6 +220,11 @@ struct AppGrid: HTML {
 	*/
 	var headingLevel = ItemHeadingLevel.h3
 
+	/**
+	Whether the cards show the price (``AppCard/showsPrice``).
+	*/
+	var showsPrice = true
+
 	var body: some HTML {
 		div {
 			// The first cards fill the screen on most devices.
@@ -226,7 +233,8 @@ struct AppGrid: HTML {
 					app: app,
 					isNew: app.isNew(at: buildDate),
 					isAboveFold: isAtTop && index < 6,
-					headingLevel: headingLevel
+					headingLevel: headingLevel,
+					showsPrice: showsPrice
 				)
 			}
 		}
@@ -245,7 +253,7 @@ struct AppGrid: HTML {
 			// At most two columns, so the cards have room. On phones, the apps are rows (``AppCard``) that reach halfway into the space at the sides of the page, so the fill under the pointer has room around the icon. One column that is not wider than the page, also when a card has a long word, like on a phone with large text.
 			Style()
 				.grid(columns: 1)
-				.gap(.rootEm(1.25))
+				.gap(.cardSpacing)
 				.below(.smallTablet) {
 					$0
 						.gap(.zero)

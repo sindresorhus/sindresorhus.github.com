@@ -10,13 +10,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	On Mac, the red close button closes a window, but most apps keep running, with a dot below their icon in the Dock. Press ++Command+Q++ to quit the app. To make the close button quit the app when you close its last window, like on Windows, use [Supercharge](../apps/supercharge/index.md).
+	On Mac, the red close button closes a window, but most apps keep running, with a dot below their icon in the Dock. Press ++Command+Q++ to quit the app. To make the close button quit the app when you close its last window, like on Windows, use [Supercharge](/supercharge).
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
 1. In the “Experimental” section, turn on “Quit an app when closing its last window”.
 1. Optional: click the button below the switch to choose apps that it must not quit, like your mail app. By default, it quits all apps.

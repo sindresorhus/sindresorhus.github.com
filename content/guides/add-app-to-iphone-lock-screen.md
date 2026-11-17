@@ -2,20 +2,20 @@
 title: 'How to Add an App to the iPhone Lock Screen'
 description: 'Open an app from the Lock Screen of your iPhone: replace the flashlight or camera button with a control, or add up to four app buttons with Quick Launch.'
 publicationDate: 2026-11-11
-topic: 'iphone'
+topic: 'lock-screen-and-home-screen'
 apps: [
 	'quick-launch'
 ]
 ---
 
 @QuickAnswer {
-	For one or two apps, replace the flashlight or the camera button at the bottom of the Lock Screen with a control that opens an app. For more apps, or to keep the flashlight and the camera, [Quick Launch](../apps/quick-launch/index.md) adds up to four app buttons below the clock.
+	For one or two apps, replace the flashlight or the camera button at the bottom of the Lock Screen with a control that opens an app. For more apps, or to keep the flashlight and the camera, [Quick Launch](/quick-launch) adds up to four app buttons below the clock.
 }
 
 ## With Quick Launch
 
 @Steps {
-1. Open [Quick Launch](../apps/quick-launch/index.md), and tap the add button.
+1. Open [Quick Launch](/quick-launch), and tap the add button.
 1. Choose “App” as the action. Below “App”, write the name of the app exactly as it shows on the Home Screen.
 1. In “Icon”, tap “Choose”, and choose the icon of the button, like “App Icon”, “Symbol”, or “Emoji”.
 1. Tap “Add Shortcut”, which adds the shortcut that Quick Launch needs to open apps to the Shortcuts app. You only do this once.
@@ -24,7 +24,7 @@ apps: [
 1. Tap the widget area below the clock, choose “Quick Launch”, and add the “Open Stuff” widget. Tap the widget, and choose the widget that you made.
 }
 
-Tap the button on the Lock Screen to open the app. The same widget can also [open a website](add-website-to-iphone-lock-screen.md) or run a shortcut.
+Tap the button on the Lock Screen to open the app. The same widget can also [open a website](guide:add-website-to-iphone-lock-screen) or run a shortcut.
 
 ## Without an app
 

@@ -87,8 +87,11 @@ struct FeedbackPage: Page {
 				a(.id(IDs.changeAppLink), .href(.feedback), .hidden) {
 					"Change App"
 				}
+				// The accent of the selected app, like the button and the links of the form.
 				.style {
-					$0.moreLink()
+					$0
+						.moreLink()
+						.color(.accentText)
 				}
 			}
 			// The space below the title of the other pages.
@@ -114,7 +117,7 @@ struct FeedbackPage: Page {
 			// Without JavaScript, the picker shows, but not the form, so the note is above the picker, where it is seen. It also shows when `feedback.js` does not load, so its title is correct for the two causes. Not in the prose, so it lines up with the picker, and the address does not break with a hyphen.
 			// A warning alert with a title that says what is wrong, not only “Warning”. The text only has a link, so it uses no styles or scripts of the Markdown that the page would need to add. It is not Markdown, so its link has the ID for the script in the head.
 			div {
-				HTMLRaw(MarkdownTheme.site.alert(.warning, title: "The form did not load", contentHTML: scriptingNoticeText.render()))
+				MarkdownTheme.site.alert(.warning, title: "The form did not load", content: scriptingNoticeText.renderFragment())
 			}
 			.style(Styles.scriptingNotice)
 
@@ -129,15 +132,18 @@ struct FeedbackPage: Page {
 					}
 					.style(Styles.notesTitle)
 
-					// `feedback.js` adds the help for the selected app.
-					div(.id(IDs.additionalInformation)) {}
-
-					ul {
+					// `feedback.js` adds the notes of the selected app at the start of the list, so all the notes have one look.
+					ul(.id(IDs.notes)) {
+						// `feedback.js` writes the platforms of the selected app, like “watchOS 27” for an Apple Watch app, and hides the notes about macOS for an app without a Mac version.
 						li {
-							"Make sure you are on the latest version of the app, and try restarting your device first, especially on macOS 27 and iOS 27."
+							"Make sure you are on the latest version of the app, and try restarting your device first, especially on "
+							span(.id(IDs.newestOSVersions)) {
+								[Platform.macOS, .iOS].newestVersions
+							}
+							"."
 						}
 
-						li {
+						li(.hook(Hooks.macOSNote)) {
 							"If you get a permission issue on macOS, try "
 							a(.href(.resetPermissionsQuestion)) {
 								"resetting permissions"
@@ -145,7 +151,7 @@ struct FeedbackPage: Page {
 							" for the app."
 						}
 
-						li {
+						li(.hook(Hooks.macOSNote)) {
 							"Focus Filters are broken on macOS 26.5 and later. This is out of my control."
 						}
 					}
@@ -167,6 +173,7 @@ struct FeedbackPage: Page {
 				messageField
 				emailField
 				AttachmentPicker()
+					.attributes(.id(IDs.attachmentPicker))
 				input(.type(.hidden), .name("g-recaptcha-response"))
 
 				div {
@@ -240,21 +247,22 @@ struct FeedbackPage: Page {
 			}
 			.style(Styles.appNotice)
 
-			// `feedback.js` hides the apps whose name and subtitle do not have the text, and Enter opens the first app. Without JavaScript, there is no filter.
-			input(
-				.id(IDs.appFilter),
-				.type(.search),
-				.placeholder("Filter apps"),
-				.autocomplete("off"),
-				.enterKeyHint(.go)
-			)
-			.autocorrectionDisabled()
-			.accessibilityLabel("Filter apps")
-			.style(FormFieldStyles.control)
-			// On the element, so it wins over the display of the field.
+			// `feedback.js` hides the apps whose name and subtitle do not have the text, and Enter opens the first app. Without JavaScript, there is no filter. The field stays below the site header while the apps scroll, as they are many rows on a phone.
+			div {
+				input(
+					.id(IDs.appFilter),
+					.type(.search),
+					.placeholder("Filter apps"),
+					.autocomplete("off"),
+					.enterKeyHint(.go)
+				)
+				.autocorrectionDisabled()
+				.accessibilityLabel("Filter apps")
+				.style(FormFieldStyles.control)
+			}
 			.style {
 				$0
-					.margin(.bottom, .rootEm(1))
+					.stickyFilterField()
 					.hiddenWithoutScripting()
 			}
 
@@ -342,7 +350,7 @@ struct FeedbackPage: Page {
 	}
 
 	/**
-	The markup that `feedback.js` clones. The script fills in the elements marked with `data-` attributes.
+	The markup that `feedback.js` clones. The script fills in the parts (``Parts``).
 	*/
 	@ContentBuilder
 	private var templates: some HTML {
@@ -350,18 +358,21 @@ struct FeedbackPage: Page {
 		template(.id(IDs.emailSuggestionTemplate)) {
 			span {
 				"Did you mean "
-				button(.type(.button), .hook(Hooks.suggestedEmail)) {}
+				button(.type(.button), .part(Parts.suggestedEmail)) {}
+					// The accent of the selected app, like “Change App”, so the form has one link color.
 					.style {
-						$0.linkButton()
+						$0
+							.linkButton()
+							.color(.accentText)
 					}
 				"?"
 			}
 		}
 
 		template(.id(IDs.repositoryTemplate)) {
-			p {
+			li {
 				"If you have a GitHub account, "
-				a(.hook(Hooks.repositoryLink), .target(.blank), .rel("noopener noreferrer")) {
+				a(.part(Parts.repositoryLink), .target(.blank), .rel("noopener noreferrer")) {
 					"open an issue on the repo"
 					VisuallyHidden(" (opens in a new tab)")
 				}
@@ -371,17 +382,17 @@ struct FeedbackPage: Page {
 
 		// For a visitor on a macOS version that the app no longer runs on, from the details that the app sent: the last version for it (`olderVersions`). `feedback.js` fills the text and the link.
 		template(.id(IDs.olderVersionTemplate)) {
-			p {
-				strong(.hook(Hooks.olderVersionText)) {}
+			li {
+				strong(.part(Parts.olderVersionText)) {}
 				" It gets no more fixes. "
-				a(.hook(Hooks.olderVersionLink)) {}
+				a(.part(Parts.olderVersionLink)) {}
 			}
 		}
 
 		template(.id(IDs.appFAQTemplate)) {
-			p {
+			li {
 				"See the "
-				a(.hook(Hooks.appFAQLink)) {
+				a(.part(Parts.appFAQLink)) {
 					"app’s frequently asked questions (FAQs)"
 				}
 				" and the "
@@ -396,13 +407,13 @@ struct FeedbackPage: Page {
 			}
 		}
 
-		// The note of each app that has one (`feedbackNote`), by the title of the app. In the HTML, not in the data, so the page has the styles of the note, like of a platform badge, and the check of the links finds its links. In a `div`, as a note can have more than one paragraph, and the script clones one element.
+		// The note of each app that has one (`feedbackNote`), by the title of the app. In the HTML, not in the data, so the page has the styles of the note, like of a platform badge, and the check of the links finds its links. One item of the list of notes, also for a note with more than one paragraph, as the script clones one element.
 		for app in apps {
 			if let note = app.feedbackNote {
 				template(.hook(Hooks.feedbackNote, value: app.title)) {
 					// The links of the note show a preview of what they go to, like the links of prose (``LinkPreview``).
-					div(.hook(LinkPreview.Hooks.linkPreviews)) {
-						note.content
+					li(.hook(LinkPreview.Hooks.linkPreviews)) {
+						note.inlineContent
 					}
 				}
 			}
@@ -427,14 +438,24 @@ extension FeedbackPage {
 	static let sentStorageKey = "feedback-sent"
 
 	/**
+	The session storage key that `feedback.js` sets to the title of the app when the form sends, so the message after the send shows the app (``FeedbackSuccess``).
+	*/
+	static let sentAppStorageKey = "feedback-sent-app"
+
+	/**
 	The IDs that the scripts of the page find elements by.
 	*/
 	enum IDs: String, ScriptIDSet {
-		case additionalInformation = "additional-information"
 		case appFAQTemplate = "app-faq-template"
 		case appFilter = "app-filter"
 		case appFilterStatus = "app-filter-status"
 		case appPicker = "app-picker"
+
+		/**
+		The file picker of the form, which gets the names of the selected app, for the note on a crash report of another app.
+		*/
+		case attachmentPicker = "attachment-picker"
+
 		case changeAppLink = "change-app-link"
 		/**
 		The email address in the note for a form that did not load. With a selected app, the script in the head adds the subject and the details that the app sent.
@@ -446,6 +467,17 @@ extension FeedbackPage {
 		case faqSuggestions = "faq-suggestions"
 		case data = "feedback-data"
 		case form = "feedback-form"
+
+		/**
+		The newest versions of the platforms of the selected app, in the note about restarting the device.
+		*/
+		case newestOSVersions = "newest-os-versions"
+
+		/**
+		The list of the notes above the form, which starts with the notes of the selected app.
+		*/
+		case notes = "feedback-notes"
+
 		case olderVersionTemplate = "older-version-template"
 		case repositoryTemplate = "repository-template"
 		case submitButton = "submit-button"
@@ -455,7 +487,6 @@ extension FeedbackPage {
 	The data attributes that the scripts of the page find elements by.
 	*/
 	enum Hooks: String, ScriptDataAttributeSet {
-		case appFAQLink = "app-faq-link"
 		case appFilterText = "app-filter-text"
 
 		/**
@@ -466,15 +497,9 @@ extension FeedbackPage {
 		case hasProduct = "has-product"
 
 		/**
-		The download of the last version of the app for the macOS version of the visitor.
+		A note about macOS, which `feedback.js` hides for an app without a Mac version.
 		*/
-		case olderVersionLink = "older-version-link"
-
-		/**
-		The sentence that names the macOS version of the visitor and the last version of the app for it.
-		*/
-		case olderVersionText = "older-version-text"
-		case repositoryLink = "repository-link"
+		case macOSNote = "macos-note"
 
 		/**
 		On the root element after a send (`?success`), so the page shows the message and nothing else.
@@ -485,8 +510,26 @@ extension FeedbackPage {
 		On the root element when `feedback.js` has added the selected app and its notes, so the notes and the form show only then, and the message field does not move down when the notes come in on a slow network.
 		*/
 		case productShown = "product-shown"
+	}
 
-		case suggestedEmail = "suggested-email"
+	/**
+	The elements in the templates that `feedback.js` fills.
+	*/
+	enum Parts: String, ElementPartSet {
+		case appFAQLink
+
+		/**
+		The download of the last version of the app for the macOS version of the visitor.
+		*/
+		case olderVersionLink
+
+		/**
+		The sentence that names the macOS version of the visitor and the last version of the app for it.
+		*/
+		case olderVersionText
+
+		case repositoryLink
+		case suggestedEmail
 	}
 
 	/**
@@ -581,10 +624,17 @@ extension FeedbackPage {
 					.margin(.bottom, .rootEm(1))
 					.textStyle(.headline)
 			case .appPickerList:
-				// Up to three columns, and fewer when a name does not fit, like with large text: two on phones, and three from small tablets.
+				// Two columns until small tablets, and three from there, and fewer when a name does not fit, like with large text. Not three columns from where three of the minimum width fit, as long names, like “Simple Color Palette”, then break over lines.
 				Style()
-					.grid(minimumColumnWidth: .rootEm(9), maximumColumns: 3, spacing: .rootEm(0.5))
+					.grid(minimumColumnWidth: .rootEm(9), maximumColumns: 2, spacing: .rootEm(0.5))
+					.from(.smallTablet) {
+						$0.grid(minimumColumnWidth: .rootEm(9), maximumColumns: 3, spacing: .rootEm(0.5))
+					}
 					.margin(.bottom, .rootEm(1.5))
+					// No space while the filter hides all the apps, so the text that no app matches is directly below the filter.
+					.allChildrenHidden {
+						$0.margin(.bottom, .zero)
+					}
 					// A grid item, so the link fills the row, and the two tiles of a row have the same height when one name wraps.
 					.children("li") {
 						$0.display(.grid)
@@ -600,17 +650,17 @@ extension FeedbackPage {
 			case .appNotice:
 				Style()
 					.margin(.bottom, .rootEm(1))
-					.padding(.rootEm(1))
+					// The side padding of the field and the app tiles below, so the text of all three starts at the same edge.
+					.padding(vertical: .rootEm(1), horizontal: .rootEm(0.625))
 					.fieldBox()
 					.color(.secondaryText)
 					.textLinks()
 			case .notes:
-				// The prose inside has the space at the sides.
+				// A quiet card, not an outline, so the notes do not look like one more empty field above the message field. The prose inside has the space at the sides.
 				Style()
 					.margin(.bottom, .rootEm(1))
 					.padding(.vertical, .rootEm(1.25))
-					.border(.separator)
-					.cornerRadius(.fieldRadius)
+					.cardSurface(isInteractive: false)
 			case .shownWithSelectedApp:
 				// The notes and the form show when `feedback.js` has added the app and its notes above the form. Before, on a slow network, the form would show first and then move down by the height of the notes while the visitor types. Without JavaScript, they stay hidden, and the notice shows instead.
 				Style()
@@ -645,12 +695,18 @@ extension FeedbackPage {
 				// Grows with the text. The minimum height keeps four lines, as the empty field would otherwise shrink to one line. Not more, so on a phone, the related help below it shows above the keyboard.
 				Style()
 					.fieldSizing(.content)
+					// It grows with the text, so it has no grabber, which would set a fixed size and stop the growth.
+					.resize(.disabled)
 					.frame(minHeight: .length(.lineHeight(4) + .rootEm(1.25) + .pixels(2)))
 			case .emailWarning:
 				Style()
 					.margin(.top, .rootEm(0.375))
 					.empty {
 						$0.margin(.zero)
+					}
+					// The red error of the field says the same while the browser rejects the address, so the warning hides, but a suggestion stays, as its button fixes the address.
+					.nested(":user-invalid ~ &:not(:has(button))") {
+						$0.hidden()
 					}
 					.textStyle(.caption)
 					// Dark enough to read on white, like the stars on the about page.

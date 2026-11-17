@@ -10,12 +10,12 @@ struct MarkdownContentTests {
 	*/
 	private static let options = MarkdownDocument.Options(
 		blockDirectives: [
-			"Box": .init { html in
+			"Box": .init { content in
 				div {
-					HTMLRaw(html)
+					content
 				}
 				.style(BoxStyles.box)
-				.render()
+				.renderFragment()
 			},
 		]
 	)
@@ -144,8 +144,8 @@ extension MarkdownContentTests {
 				return Document(Array(document.blockChildren) + Array(shared.blockChildren))
 			},
 			blockDirectives: [
-				"Box": .init { html in
-					"<section>\(html)</section>"
+				"Box": .init { content in
+					HTMLFragment(rawValue: "<section>\(content)</section>")
 				},
 			],
 			resolveLink: {
@@ -157,7 +157,7 @@ extension MarkdownContentTests {
 
 		#expect(parsed.document.blockDirectives.count == 1)
 		#expect(document.introduction == "A \"quoted\" introduction...")
-		#expect(document.html.contains("<section><p>See <a href=\"/resolved/page\">page</a>.</p>"))
+		#expect(document.html.rawValue.contains("<section><p>See <a href=\"/resolved/page\">page</a>.</p>"))
 		#expect(document.links.map(\.destination) == ["/resolved/page", "/resolved/shared"])
 		#expect(document.links.last?.otherFile == sharedFile)
 		#expect(document.links.last?.line == 1)
@@ -180,8 +180,8 @@ extension MarkdownContentTests {
 		})
 		let document = MarkdownDocument(parsing: "Original.", options: options)
 
-		#expect(document.html.contains("user-content-note-0-1"))
-		#expect(document.html.contains(#"<a href="/page">page</a>"#))
+		#expect(document.html.rawValue.contains("user-content-note-0-1"))
+		#expect(document.html.rawValue.contains(#"<a href="/page">page</a>"#))
 		#expect(document.links.map(\.destination) == ["/page", "image.png"])
 		#expect(document.links.map(\.line) == [nil, nil])
 		#expect(document.problems.map(\.line) == [nil])

@@ -2,21 +2,21 @@
 title: 'How to Put a Shopping List Widget on the iPhone Home Screen'
 description: 'Check off items from the Home Screen of your iPhone with the Shopping List widget of Bare, or with the Reminders widget and a Groceries list.'
 publicationDate: 2026-11-13
-topic: 'iphone'
+topic: 'lock-screen-and-home-screen'
 apps: [
 	'bare'
 ]
 ---
 
 @QuickAnswer {
-	Add the “Shopping List” widget of [Bare](../apps/bare/index.md) to the Home Screen, and tap an item in the widget to check it off, without opening the app. Without an app, make a list of the “Groceries” type in the Reminders app, and add the Reminders widget, where you can also tap an item to check it off.
+	Add the “Shopping List” widget of [Bare](/bare) to the Home Screen, and tap an item in the widget to check it off, without opening the app. [Without an app](#without-an-app), make a list of the “Groceries” type in the Reminders app, and add the Reminders widget, where you can also tap an item to check it off.
 }
 
 ## With Bare
 
 @Steps {
 1. Touch and hold the Home Screen until the apps jiggle, tap “Edit”, and tap “Add Widget”.
-1. Choose [Bare](../apps/bare/index.md), swipe to the size you want, and tap “Add Widget”. Tap “Done”.
+1. Choose [Bare](/bare), swipe to the size you want, and tap “Add Widget”. Tap “Done”.
 1. If you have more than one list, touch and hold the widget, tap “Edit Widget”, and choose the list in “List”.
 }
 
@@ -24,8 +24,8 @@ Tap an item to check it off. To add an item, tap the add button in the corner, o
 
 @Tips {
 - Put the same widget on the Lock Screen to see how many items are left. Tap it to open the list.
-- The “Add Item” control opens the list, ready to type, from Control Center or the Action button. [How to set it up.](../apps/bare/index.md#action-button)
-- If the widget does not show your latest changes, [see this answer](../apps/bare/index.md#widget-not-updating).
+- The “Add Item” control opens the list, ready to type, from Control Center or the Action button. [How to set it up.](/bare#action-button)
+- If the widget does not show your latest changes, [see this answer](/bare#widget-not-updating).
 }
 
 ## Without an app

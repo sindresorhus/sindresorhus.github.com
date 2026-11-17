@@ -10,12 +10,12 @@ I’m a full-time open-sourcerer and my work is funded by the community. [Read m
 
 If you or your company are using any of my projects, consider supporting me so I can continue [my open source work](/open-source).
 
-## Monthly donations
+## Monthly Donations
 
 - [GitHub Sponsors](https://github.com/sponsors/sindresorhus)
 - [Open Collective](https://opencollective.com/sindresorhus)
 
-## One-time donations
+## One-Time Donations
 
 - [BuyMeACoffee.com](https://www.buymeacoffee.com/sindresorhus)
 - [PayPal](https://www.paypal.me/sindresorhus)
@@ -28,6 +28,6 @@ If you or your company are using any of my projects, consider supporting me so I
 
 Thank you to [everyone who supports my work](/supporters).
 
-## Buy my apps
+## Buy My Apps
 
 You can also support me by [buying my apps](/apps/paid). A nice review on the App Store is also a good way to support my work.

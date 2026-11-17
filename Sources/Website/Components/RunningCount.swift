@@ -42,8 +42,10 @@ struct RunningCount: ScriptedElement {
 		var style: Style {
 			switch self {
 			case .root:
-				// The text is laid out as if the element were not there, like the other numbers.
-				Style().display(.contents)
+				// The text is laid out as if the element were not there, like the other numbers. The digits have the same width, so the number does not move while it changes.
+				Style()
+					.display(.contents)
+					.monospacedDigit()
 			}
 		}
 	}

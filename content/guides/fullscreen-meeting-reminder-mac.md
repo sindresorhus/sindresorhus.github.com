@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	A Calendar notification is small and easy to miss. To make it stay until you close it, set the notifications of Calendar to “Persistent”. For a reminder that covers the screen, with a button to join the video call, use [Dato](../apps/dato/index.md).
+	A Calendar notification is small and easy to miss. To make it stay until you close it, set the notifications of Calendar to “Persistent”. For a reminder that covers the screen, with a button to join the video call, use [Dato](/dato).
 }
 
 ## With Dato
 
 @Steps {
-1. Open the settings of [Dato](../apps/dato/index.md), and click “Events”.
+1. Open the settings of [Dato](/dato), and click “Events”.
 1. In the “Notifications” section, turn on “Fullscreen notification for events & reminders”. The first time, its settings open. Later, click “Customize…” to open them.
 1. Choose the calendars, and when the notification shows, like 1 minute before the event. Turn on “Show for video call events only” if you only want it for calls.
 1. Click “Example Notification” to see what it looks like.
@@ -27,7 +27,7 @@ For a video call, press ++Return++ to join the call. Press ++Esc++ to dismiss th
 
 @Steps {
 1. In Calendar, give the event an alert, like 5 minutes before.
-1. Open “System Settings › Notifications”, and click “Calendar”.
+1. Open “[System Settings › Notifications](x-apple.systempreferences:com.apple.Notifications-Settings.extension)”, and click “Calendar”.
 1. Set the alert style to “Persistent”. The notification then stays until you close it, instead of going away after a while.
 }
 

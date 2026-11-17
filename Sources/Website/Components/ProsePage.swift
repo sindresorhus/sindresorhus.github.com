@@ -12,7 +12,7 @@ ProsePage(app: app, title: "Privacy Policy") {
 }
 ```
 */
-struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
+struct ProsePage<Accessory: HTML>: HTML {
 	/**
 	Only this component can pair an app heading with its back link.
 	*/
@@ -24,7 +24,11 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 	private let title: Header?
 	private let photo: ImageSource?
 	private let app: App?
-	private let content: Content
+
+	/**
+	The content renders on its own (``SiteKit/AnyHTML``), as it is most of the page.
+	*/
+	private let content: AnyHTML
 	private let accessory: Accessory
 
 	/**
@@ -36,12 +40,12 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 		title: ProsePageTitle? = nil,
 		photo: ImageSource? = nil,
 		backTo app: App? = nil,
-		@ContentBuilder content: () -> Content, @ContentBuilder accessory: () -> Accessory
+		@ContentBuilder content: () -> some HTML, @ContentBuilder accessory: () -> Accessory
 	) {
 		self.title = title.map(Header.plain)
 		self.photo = photo
 		self.app = app
-		self.content = content()
+		self.content = AnyHTML(content())
 		self.accessory = accessory()
 	}
 
@@ -52,12 +56,12 @@ struct ProsePage<Content: HTML, Accessory: HTML>: HTML {
 		app: App,
 		title: String,
 		linksBack: Bool = true,
-		@ContentBuilder content: () -> Content, @ContentBuilder accessory: () -> Accessory
+		@ContentBuilder content: () -> some HTML, @ContentBuilder accessory: () -> Accessory
 	) {
 		self.title = .app(app, title)
 		self.photo = nil
 		self.app = linksBack ? app : nil
-		self.content = content()
+		self.content = AnyHTML(content())
 		self.accessory = accessory()
 	}
 
@@ -112,7 +116,7 @@ extension ProsePage where Accessory == EmptyHTML {
 		app: App,
 		title: String,
 		linksBack: Bool = true,
-		@ContentBuilder content: () -> Content
+		@ContentBuilder content: () -> some HTML
 	) {
 		self.init(
 			app: app,
@@ -128,7 +132,7 @@ extension ProsePage where Accessory == EmptyHTML {
 		title: ProsePageTitle? = nil,
 		photo: ImageSource? = nil,
 		backTo app: App? = nil,
-		@ContentBuilder content: () -> Content
+		@ContentBuilder content: () -> some HTML
 	) {
 		self.init(
 			title: title,
@@ -214,6 +218,9 @@ private enum ProsePageStyles: String, StyleSet {
 				.margin(.top, .pixels(4))
 				.margin(.leading, .pixels(30))
 				.cornerRadius(.circle)
+				// A thin, still ring in the colors of the brand, like the photo on the home page, so the two photos look the same. The padding shows the background around the photo.
+				.padding(.pixels(3))
+				.backgroundImage(.brandRing)
 				// Smaller on phones, where the column is narrow, so the text next to it still has room.
 				.below(.smallTablet) {
 					$0

@@ -13,7 +13,7 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open the free [One Thing](../apps/one-thing/index.md) app, click it in the menu bar, and type your own text, like the main task of the day. macOS cannot show your own text in the menu bar without an app.
+	Open the free [One Thing](/one-thing) app, click it in the menu bar, and type your own text, like the main task of the day. macOS cannot show your own text in the menu bar without an app.
 }
 
 TextBar of Rich Somerfield showed text in the menu bar, often the output of a script. It needs Rosetta on Apple silicon, and Homebrew disabled it in September 2026 because it fails the security check of macOS. One Thing shows the text that you type or set, like from the clipboard or with a shortcut in the Shortcuts app, but it does not run a script on a timer.
@@ -21,7 +21,7 @@ TextBar of Rich Somerfield showed text in the menu bar, often the output of a sc
 ## With One Thing
 
 @Steps {
-1. Open [One Thing](../apps/one-thing/index.md). Without text, its icon in the menu bar is a 1 in a circle.
+1. Open [One Thing](/one-thing). Without text, its icon in the menu bar is a 1 in a circle.
 1. Click the icon. A small edit window opens.
 1. Type your text. The menu bar shows it as you type. Press ++Return++ to close the window.
 }

@@ -43,6 +43,7 @@ olderVersions: [
 		url: 'https://github.com/sindresorhus/meta/files/7454156/Black.Out.1.8.2.-.macOS.10.15.zip'
 	}
 ]
+appStoreStory: 'https://apps.apple.com/story/id1490021771'
 ---
 
 Put black boxes over the private parts of a screenshot or photo before you share it. The app also removes the metadata, like when and where it was captured.
@@ -53,7 +54,7 @@ For example, hide the names in a Slack conversation you want to post on X (Twitt
 
 ### Can you support blurring and pixelation? {#can-you-support-blurring-and-pixelation}
 
-Blurring and pixelation are intentionally not supported as they can sometimes [be reversed](https://dheera.net/projects/blur). The only reliable way to redact something is to put a black box over it.
+Blurring and pixelation are intentionally not supported as they can sometimes [be reversed](https://web.archive.org/web/20201112031723/https://dheera.net/projects/blur). The only reliable way to redact something is to put a black box over it.
 
 ### I can already do this in the Preview app! {#i-can-already-do-this-in-the-preview-app}
 

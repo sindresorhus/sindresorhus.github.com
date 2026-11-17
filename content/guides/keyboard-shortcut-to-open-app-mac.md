@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	macOS has no setting to open an app with a keyboard shortcut. In [Supercharge](../apps/supercharge/index.md), add the app in the “Shortcuts” settings, and press the shortcut that you want. Without an app, make a shortcut with the “Open App” action in the Shortcuts app, and give it a keyboard shortcut.
+	macOS has no setting to open an app with a keyboard shortcut. In [Supercharge](/supercharge), add the app in the “Shortcuts” settings, and press the shortcut that you want. [Without an app](#without-an-app), make a shortcut with the “Open App” action in the Shortcuts app, and give it a keyboard shortcut.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Shortcuts”.
+1. Open the settings of [Supercharge](/supercharge), and click “Shortcuts”.
 1. Scroll to “Launch app”, near the bottom, and click the add button.
 1. Choose the app, like Safari.
 1. Click the field next to the app, and press the keyboard shortcut that you want, like ++Control+Option+S++.
@@ -23,7 +23,7 @@ apps: [
 
 Press the shortcut from anywhere to open the app, or to bring it to the front when it is already open. Press it again to hide the app and go back to the app that you used before, so one shortcut shows and hides the app.
 
-To use shortcuts with only one extra key, like ++Caps Lock+S++, [make Caps Lock a Hyper key](hyper-key-mac.md).
+To use shortcuts with only one extra key, like ++Caps Lock+S++, [make Caps Lock a Hyper key](guide:hyper-key-mac).
 
 ## Without an app
 

@@ -45,8 +45,8 @@ public struct MarkdownDocument: Sendable {
 			@NonEmpty var summary: String
 		}
 
-		let details = BlockDirectiveRenderer { (arguments: DetailsArguments, contentHTML) in
-			theme.collapsibleSection(titleHTML: arguments.summary, contentHTML: contentHTML)
+		let details = BlockDirectiveRenderer { (arguments: DetailsArguments, content) in
+			theme.collapsibleSection(title: HTMLFragment(text: arguments.summary), content: content)
 		}
 		```
 		*/
@@ -85,10 +85,16 @@ public struct MarkdownDocument: Sendable {
 				*/
 				let inlineOptions: Options
 
-				init(documentOptions: Options) {
+				/**
+				The ID of the heading that the directive is below, like `with-dato`, for IDs of the parts of the directive, like `with-dato-step-2`. `nil` without a heading above it, and for a directive after another directive with the same name below the same heading, so the IDs that the directives make from it are unique on the page.
+				*/
+				public let headingID: ElementID?
+
+				init(documentOptions: Options, headingID: ElementID? = nil) {
 					var options = documentOptions.forNestedMarkdown
 					options.blockDirectives = [:]
 					self.inlineOptions = options
+					self.headingID = headingID
 				}
 
 				/**
@@ -115,7 +121,7 @@ public struct MarkdownDocument: Sendable {
 			let content: Content
 			let rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws(ContentError) -> [any BlockMarkup])?
 			// Decoding can report several ContentErrors; the public rendering callbacks throw a single ContentError.
-			let render: @Sendable (_ arguments: [DirectiveArgument], _ contentHTML: String, _ context: Context) throws -> String
+			let render: @Sendable (_ arguments: [DirectiveArgument], _ content: HTMLFragment, _ context: Context) throws -> HTMLFragment
 			private let plain: @Sendable (_ arguments: [DirectiveArgument], _ content: [any BlockMarkup]) throws -> [any BlockMarkup]
 
 			/**
@@ -127,14 +133,14 @@ public struct MarkdownDocument: Sendable {
 			public init<Arguments: Frontmatter>(
 				content: Content = .blocks,
 				rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws(ContentError) -> [any BlockMarkup])? = nil,
-				render: @escaping @Sendable (_ arguments: Arguments, _ contentHTML: String) throws(ContentError) -> String,
+				render: @escaping @Sendable (_ arguments: Arguments, _ content: HTMLFragment) throws(ContentError) -> HTMLFragment,
 				plain: @escaping @Sendable (_ arguments: Arguments, _ content: [any BlockMarkup]) -> [any BlockMarkup] = { $1 }
 			) {
 				self.init(
 					content: content,
 					rewriteContent: rewriteContent,
-					render: { (arguments: Arguments, contentHTML: String, _: Context) throws(ContentError) in
-						try render(arguments, contentHTML)
+					render: { (arguments: Arguments, content: HTMLFragment, _: Context) throws(ContentError) in
+						try render(arguments, content)
 					},
 					plain: plain
 				)
@@ -151,13 +157,13 @@ public struct MarkdownDocument: Sendable {
 			public init<Arguments: Frontmatter>(
 				content: Content = .blocks,
 				rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws(ContentError) -> [any BlockMarkup])? = nil,
-				render: @escaping @Sendable (_ arguments: Arguments, _ contentHTML: String, _ context: Context) throws(ContentError) -> String,
+				render: @escaping @Sendable (_ arguments: Arguments, _ content: HTMLFragment, _ context: Context) throws(ContentError) -> HTMLFragment,
 				plain: @escaping @Sendable (_ arguments: Arguments, _ content: [any BlockMarkup]) -> [any BlockMarkup] = { $1 }
 			) {
 				self.content = content
 				self.rewriteContent = rewriteContent
-				self.render = { arguments, contentHTML, context in
-					try render(Arguments.decode(directiveArguments: arguments), contentHTML, context)
+				self.render = { arguments, content, context in
+					try render(Arguments.decode(directiveArguments: arguments), content, context)
 				}
 				self.plain = { arguments, content in
 					try plain(Arguments.decode(directiveArguments: arguments), content)
@@ -175,20 +181,44 @@ public struct MarkdownDocument: Sendable {
 			public init(
 				content: Content = .blocks,
 				rewriteContent: (@Sendable (_ content: [any BlockMarkup]) throws(ContentError) -> [any BlockMarkup])? = nil,
-				render: @escaping @Sendable (_ contentHTML: String) throws(ContentError) -> String,
+				render: @escaping @Sendable (_ content: HTMLFragment) throws(ContentError) -> HTMLFragment,
 				plain: @escaping @Sendable (_ content: [any BlockMarkup]) -> [any BlockMarkup] = { $0 }
 			) {
 				self.content = content
 				self.rewriteContent = rewriteContent
-				self.render = { arguments, contentHTML, _ in
+				self.render = { arguments, content, _ in
 					guard arguments.isEmpty else {
 						throw ContentError(reason: "It takes no arguments.")
 					}
 
-					return try render(contentHTML)
+					return try render(content)
 				}
 				self.plain = { _, content in
 					plain(content)
+				}
+			}
+
+			/**
+			A directive without arguments whose renderer needs the document, like for the ID of the heading above it (``Context/headingID``).
+
+			- Parameter content: What the content of the directive must be.
+			- Parameter render: Throw a ``ContentError`` to report a problem with the directive.
+			*/
+			public init(
+				content: Content = .blocks,
+				render: @escaping @Sendable (_ content: HTMLFragment, _ context: Context) throws(ContentError) -> HTMLFragment
+			) {
+				self.content = content
+				self.rewriteContent = nil
+				self.render = { arguments, content, context in
+					guard arguments.isEmpty else {
+						throw ContentError(reason: "It takes no arguments.")
+					}
+
+					return try render(content, context)
+				}
+				self.plain = { _, content in
+					content
 				}
 			}
 
@@ -208,7 +238,7 @@ public struct MarkdownDocument: Sendable {
 		*/
 		public struct InlineAttributesRenderer: Sendable {
 			// Decoding can report several ContentErrors; the public rendering callback throws a single ContentError.
-			let render: @Sendable (_ attributes: SOML.Value, _ contentHTML: String) throws -> String
+			let render: @Sendable (_ attributes: SOML.Value, _ content: HTMLFragment) throws -> HTMLFragment
 
 			/**
 			The keys of the attributes, so an unknown key is reported before a missing one, as a misspelled key, like `notes`, is often the cause.
@@ -218,10 +248,10 @@ public struct MarkdownDocument: Sendable {
 			/**
 			- Parameter render: Throw a ``ContentError`` to report a problem with the attributes.
 			*/
-			public init<Attributes: Frontmatter>(render: @escaping @Sendable (_ attributes: Attributes, _ contentHTML: String) throws(ContentError) -> String) {
+			public init<Attributes: Frontmatter>(render: @escaping @Sendable (_ attributes: Attributes, _ content: HTMLFragment) throws(ContentError) -> HTMLFragment) {
 				self.keys = Attributes.CodingKeys.allCases.map(\.stringValue)
-				self.render = { value, contentHTML in
-					try render(Attributes.decode(from: value, root: "attributes"), contentHTML)
+				self.render = { value, content in
+					try render(Attributes.decode(from: value, root: "attributes"), content)
 				}
 			}
 		}
@@ -267,14 +297,34 @@ public struct MarkdownDocument: Sendable {
 		public var imageSize: (@Sendable (String) -> PixelSize?)?
 
 		/**
-		Renders a fenced code block, like a component with syntax highlighting and a copy button. It gets the code and the language, which is the first word of the info string, like `swift`. Throw to report a problem, like an unknown language, and the block is plain. Without it, a code block is `<pre><code class="language-swift">` with the code as text.
+		The HTML of an icon before the text of a link, by its resolved destination, like the icon of an app before a link to its page, or `nil` for a link without an icon. Only the first link with each icon gets it, so a text that names an app many times shows its icon once, except a link that starts a list item with a `:: ` line, like `- [One Thing](/one-thing)` with `:: Control the menu bar` below it, which is the subject of its item, so the icons of such a list make a column. The icon stays on one line with the first word of the link (``MarkdownElement/linkIcon``). A link in a footnote or a note gets none (``forNestedMarkdown``). A link in the content of a block directive that the directive does not show, like a block that shows its content only on some days, is not the first, so the next link gets the icon.
 		*/
-		public var codeBlock: (@Sendable (_ code: String, _ language: String?) throws(ContentError) -> String)?
+		public var linkIcon: (@Sendable (String) -> HTMLFragment?)?
+
+		/**
+		The HTML of an icon before the text of a heading, by the text of the heading, like the icon of an app before “With Dato” in a guide, or `nil` for a heading without an icon. The icon is decoration, so the name of the heading stays its text. A collapsible section and a heading in a footnote or a note get none (``forNestedMarkdown``).
+		*/
+		public var headingIcon: (@Sendable (String) -> HTMLFragment?)?
+
+		/**
+		The custom IDs of the top-level headings that start a group, like the groups of a long list of features that links at its top go to. Each such heading and the blocks below it, up to the next heading with its level or a lower one, are one block in a `<section>` (``MarkdownElement/headingGroup``), so its title can stay at the top of the screen while the blocks of its group scroll.
+		*/
+		public var groupedHeadingIDs: (@Sendable (Document) -> Set<ElementID>)?
+
+		/**
+		The tag by the scheme of an autolink, like a “Guide” tag for `guide` in `<guide:find-screenshots-mac>`. Such an autolink is a small link with the text of its tag (``MarkdownElement/linkTag``), like after a feature that has a guide, named with the title of what it goes to when the tag has one, and the plain Markdown gives it that name as its text (``LinkTag/label``). Its destination goes through ``resolveLink``, like the destination of any link, so a link with its own text, like `[the guide](guide:find-screenshots-mac)`, is a normal link to the same page.
+		*/
+		public var linkTags: [String: LinkTag]
+
+		/**
+		Renders a fenced code block, like a component with syntax highlighting and a copy button. It gets the code, the language, which is the first word of the info string, like `swift`, and the name of the file of the code, which is the rest of the info string, like `Badge.swift` of `swift Badge.swift`. Throw to report a problem, like an unknown language, and the block is plain. Without it, a code block is `<pre><code class="language-swift">` with the code as text, without the name of the file.
+		*/
+		public var codeBlock: (@Sendable (_ code: String, _ language: String?, _ fileName: String?) throws(ContentError) -> HTMLFragment)?
 
 		/**
 		Renders the text of an inline note, like `^[Spotlight](note: "The search of macOS.")`. It gets the HTML of the text and the ID of the popover that the text opens, for a component with a script, so the text can wrap across lines. Without it, the text is a button with `popovertarget`, which needs no script, but does not wrap across lines, so the text of a note must be short.
 		*/
-		public var inlineNote: (@Sendable (_ textHTML: String, _ noteID: ElementID) -> String)?
+		public var inlineNote: (@Sendable (_ text: HTMLFragment, _ noteID: ElementID) -> HTMLFragment)?
 
 		public init(
 			theme: MarkdownTheme = .default,
@@ -286,8 +336,9 @@ public struct MarkdownDocument: Sendable {
 			blockDirectives: [String: BlockDirectiveRenderer] = [:],
 			resolveLink: (@Sendable (String) throws(ContentError) -> String)? = nil,
 			imageSize: (@Sendable (String) -> PixelSize?)? = nil,
-			codeBlock: (@Sendable (_ code: String, _ language: String?) throws(ContentError) -> String)? = nil,
-			inlineNote: (@Sendable (_ textHTML: String, _ noteID: ElementID) -> String)? = nil
+			linkTags: [String: LinkTag] = [:],
+			codeBlock: (@Sendable (_ code: String, _ language: String?, _ fileName: String?) throws(ContentError) -> HTMLFragment)? = nil,
+			inlineNote: (@Sendable (_ text: HTMLFragment, _ noteID: ElementID) -> HTMLFragment)? = nil
 		) {
 			self.theme = theme
 			self.collapsibleSections = collapsibleSections
@@ -298,6 +349,7 @@ public struct MarkdownDocument: Sendable {
 			self.blockDirectives = blockDirectives
 			self.resolveLink = resolveLink
 			self.imageSize = imageSize
+			self.linkTags = linkTags
 			self.codeBlock = codeBlock
 			self.inlineNote = inlineNote
 		}
@@ -387,6 +439,35 @@ public struct MarkdownDocument: Sendable {
 	}
 
 	/**
+	A small link after a text, like “Guide” for `<guide:find-screenshots-mac>` after a feature (``Options/linkTags``).
+	*/
+	public struct LinkTag: Sendable {
+		/**
+		The text that the page shows and the name of a link with the tag, by the part of its destination after the scheme, like “Guide” and “Guide: Find Screenshots on Mac” for `find-screenshots-mac#steps`. Screen readers and the readers of the Markdown list the links by their names.
+		*/
+		let label: @Sendable (_ target: String) -> (text: String, name: String)
+
+		/**
+		A tag whose text depends on what a link goes to, like “Apple” and the name “Apple’s instructions” for a link to the support site of Apple.
+		*/
+		public init(label: @escaping @Sendable (_ target: String) -> (text: String, name: String)) {
+			self.label = label
+		}
+
+		/**
+		A tag with one text, named with the title of what a link goes to when it has one, like “Guide: Find Screenshots on Mac”, or else with the text.
+
+		- Parameter text: The text that the page shows, like “Guide”.
+		- Parameter title: The title of what a link goes to, by the part of its destination after the scheme, like the title of a guide for `find-screenshots-mac#steps`, or `nil` when it has none.
+		*/
+		public init(_ text: String, title: (@Sendable (_ target: String) -> String?)? = nil) {
+			self.label = { target in
+				(text, title?(target).map { "\(text): \($0)" } ?? text)
+			}
+		}
+	}
+
+	/**
 	Headings of one level that become collapsible sections (`<details>`), with the content up to the next such heading, like the questions of a FAQ.
 	*/
 	public struct CollapsibleSections: Sendable {
@@ -423,24 +504,27 @@ public struct MarkdownDocument: Sendable {
 		/**
 		HTML after the sections and the ``moreLink``, like a line that says where to ask what the sections do not answer. The content after the last heading is the content of its section, so the Markdown cannot add it. It renders with the document, so the document collects the styles of its components, like a style on an element.
 		*/
-		public let footerHTML: (@Sendable () -> String)?
+		public let footer: (@Sendable () -> HTMLFragment)?
 
 		public init(
 			level: HeadingLevel,
 			startHeadingID: ElementID? = nil,
 			name: String? = nil,
 			moreLink: MoreLink? = nil,
-			footerHTML: (@Sendable () -> String)? = nil
+			footer: (@Sendable () -> HTMLFragment)? = nil
 		) {
 			self.level = level
 			self.startHeadingID = startHeadingID
 			self.name = name
 			self.moreLink = moreLink
-			self.footerHTML = footerHTML
+			self.footer = footer
 		}
 	}
 
-	public let html: String
+	/**
+	The HTML of the document. A page shows ``content``, which also adds the styles and scripts that the Markdown uses.
+	*/
+	public let html: HTMLFragment
 
 	/**
 	The styles and scripts that the Markdown uses, like those of its block directives, which render with the document, before the page.
@@ -477,7 +561,7 @@ public struct MarkdownDocument: Sendable {
 	/**
 	The popovers of the footnotes and the notes, which are at the end of the HTML, after the blocks.
 	*/
-	private let popoversHTML: String
+	private let popovers: HTMLFragment
 
 	/**
 	A top-level block of the document, with its HTML.
@@ -487,7 +571,7 @@ public struct MarkdownDocument: Sendable {
 			/**
 			A paragraph, with its HTML without the `<p>` tags, and whether it is a bold label (``MarkdownElement/boldLabel``), which has a class.
 			*/
-			case paragraph(inlineHTML: String, isBoldLabel: Bool)
+			case paragraph(inlineHTML: HTMLFragment, isBoldLabel: Bool)
 
 			/**
 			A heading, with its ID, like `faq`.
@@ -512,7 +596,7 @@ public struct MarkdownDocument: Sendable {
 		/**
 		The rendered block.
 		*/
-		public let html: String
+		public let html: HTMLFragment
 
 		/**
 		The level of the heading, or `nil` for another block.
@@ -540,7 +624,7 @@ public struct MarkdownDocument: Sendable {
 		Whether the block shows nothing, like an HTML comment, which is a note for the author.
 		*/
 		public var isEmpty: Bool {
-			html.allSatisfy(\.isWhitespace)
+			html.rawValue.allSatisfy(\.isWhitespace)
 		}
 	}
 
@@ -618,8 +702,8 @@ public struct MarkdownDocument: Sendable {
 
 		self.resources = resources
 		// The popovers of the footnotes and the notes are at the end, as they can have paragraphs, which a paragraph cannot contain. Limitation: like on GitHub, a footnote definition without a reference is not shown, and the parser leaves it out, so it is not reported.
-		self.popoversHTML = renderer.popovers.joined()
-		self.html = renderer.html + popoversHTML
+		self.popovers = HTMLFragment(rawValue: renderer.popovers.joined())
+		self.html = HTMLFragment(rawValue: renderer.html + popovers.rawValue)
 		self.blocks = renderer.blocks
 		self.headings = renderer.headings
 		self.problems = renderer.problems
@@ -713,13 +797,15 @@ public struct ParsedMarkdown {
 
 extension MarkdownDocument.Options {
 	/**
-	The options for Markdown inside the document, like a footnote definition or an inline note: without the options for the whole document, which are the collapsible sections, the heading anchors, and the rewrite.
+	The options for Markdown inside the document, like a footnote definition or an inline note: without the options for the whole document, which are the collapsible sections, the heading anchors, the rewrite, the heading icons, and the link icons, which are only on the first link of the document to each page.
 	*/
 	var forNestedMarkdown: Self {
 		var options = self
 		options.collapsibleSections = nil
 		options.addsHeadingAnchors = false
 		options.rewrite = nil
+		options.linkIcon = nil
+		options.headingIcon = nil
 		return options
 	}
 }
@@ -730,19 +816,19 @@ extension MarkdownDocument {
 
 	Limitation: a short text with footnotes or inline notes is not one paragraph, as their popovers are after it, so they are not supported.
 	*/
-	public var inlineHTML: String {
-		singleInlineParagraph ?? html.trimmingCharacters(in: .newlines)
+	public var inlineHTML: HTMLFragment {
+		singleInlineParagraph ?? HTMLFragment(rawValue: html.rawValue.trimmingCharacters(in: .newlines))
 	}
 
 	/**
 	The inline HTML of exactly one visible paragraph without trailing popovers.
 	*/
-	private var singleInlineParagraph: String? {
+	private var singleInlineParagraph: HTMLFragment? {
 		// Comments render as nothing, so they are not blocks of the text.
 		let visibleBlocks = blocks.filter { !$0.isEmpty }
 		guard
 			visibleBlocks.count == 1,
-			popoversHTML.isEmpty
+			popovers.rawValue.isEmpty
 		else {
 			return nil
 		}
@@ -755,7 +841,7 @@ extension MarkdownDocument.Block {
 	/**
 	The inline content of a paragraph, including a bold label whose class belongs to the paragraph rather than its text.
 	*/
-	fileprivate var inlineParagraphContentHTML: String? {
+	fileprivate var inlineParagraphContentHTML: HTMLFragment? {
 		guard case .paragraph(let inlineHTML, _) = kind else {
 			return nil
 		}
@@ -766,7 +852,7 @@ extension MarkdownDocument.Block {
 	/**
 	The HTML of a paragraph without its `<p>` tags. `nil` for another block, and for a paragraph with a class, like a bold label, which is not plain text.
 	*/
-	fileprivate var paragraphContentHTML: String? {
+	fileprivate var paragraphContentHTML: HTMLFragment? {
 		guard case .paragraph(let inlineHTML, isBoldLabel: false) = kind else {
 			return nil
 		}
@@ -909,6 +995,9 @@ extension Document {
 		return definitions(in: self).keyed(by: \.footnoteID)
 	}
 
+	/**
+	The plain text of the first paragraph. Limitation: a tag link (``MarkdownDocument/Options/linkTags``), like `<guide:check-ping-mac>`, is its destination, as the text of a document has no options. The pages that start with a tag have their own description.
+	*/
 	fileprivate var introduction: String? {
 		let firstBlock = blockChildren.first { !$0.isCommentOnly }
 
@@ -941,7 +1030,7 @@ public protocol BlockDirectiveDefinition: SendableMetatype {
 	/**
 	Renders decoded arguments and the HTML of the directive's content.
 	*/
-	static func render(arguments: Arguments, contentHTML: String, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(ContentError) -> String
+	static func render(arguments: Arguments, content: HTMLFragment, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(ContentError) -> HTMLFragment
 
 	/**
 	The directive as ordinary Markdown, for readers without its HTML presentation.
@@ -962,8 +1051,8 @@ extension BlockDirectiveDefinition {
 	Erases a definition only after binding its renderer to its own argument model.
 	*/
 	public static var renderer: MarkdownDocument.Options.BlockDirectiveRenderer {
-		.init(content: content, render: { (arguments: Arguments, contentHTML: String, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(ContentError) in
-			try render(arguments: arguments, contentHTML: contentHTML, context: context)
+		.init(content: content, render: { (arguments: Arguments, content: HTMLFragment, context: MarkdownDocument.Options.BlockDirectiveRenderer.Context) throws(ContentError) in
+			try render(arguments: arguments, content: content, context: context)
 		}, plain: { arguments, content in
 			plainBlocks(arguments: arguments, content: content)
 		})
@@ -1089,6 +1178,25 @@ extension DirectiveArgumentText.ParseError {
 	}
 }
 
+extension Markdown.Link {
+	/**
+	The text and the name of the tag of the link (``MarkdownDocument/Options/linkTags``) when it is an autolink with the scheme of a tag, like `Guide` and `Guide: Find Screenshots on Mac` for `<guide:find-screenshots-mac>`. A link with its own text, like `[the guide](guide:find-screenshots-mac)`, is not a tag.
+	*/
+	func tag(in linkTags: [String: MarkdownDocument.LinkTag]) -> (text: String, name: String)? {
+		guard
+			let destination,
+			let scheme = destination.split(separator: ":", maxSplits: 1).first,
+			let tag = linkTags[String(scheme)],
+			childCount == 1,
+			(child(at: 0) as? Markdown.Text)?.string == destination
+		else {
+			return nil
+		}
+
+		return tag.label(String(destination.dropFirst(scheme.count + 1)))
+	}
+}
+
 extension InlineAttributes {
 	/**
 	What the attributes of `^[text](attributes)` are.
@@ -1170,8 +1278,8 @@ extension Substring {
 	*/
 	private static let closingShortcutPunctuation: Set<Character> = [",", ".", ";", ":", "!", "?", ")", "”", "’"]
 
-	// The rest of the keys is lazy too, so a shortcut of one key, like `++Q++`, ends at its own plus signs, not at the ones of the next shortcut on the line.
-	nonisolated(unsafe) private static let keyboardShortcut = /\+\+(\S(?:[^\n]*?\S)??)\+\+/
+	// The rest of the keys is lazy too, so a shortcut of one key, like `++Q++`, ends at its own plus signs, not at the ones of the next shortcut on the line. Public, so the checks of the content find the same shortcuts.
+	nonisolated(unsafe) public static let keyboardShortcut = /\+\+(\S(?:[^\n]*?\S)??)\+\+/
 
 	/**
 	The text in parts: plain text, and the keys of each keyboard shortcut written as `++Command+K++`. The `++` must not touch a letter, a digit, or another `+`, so `C++` stays text.
@@ -1288,7 +1396,7 @@ extension MarkdownDocument {
 	The HTML as content of a page, which adds the styles and scripts that the Markdown uses to the page.
 	*/
 	public var content: MarkdownContent {
-		MarkdownContent(blocks: blocks[...], trailingHTML: popoversHTML, resources: resources)
+		MarkdownContent(blocks: blocks[...], trailingHTML: popovers, resources: resources)
 	}
 
 	/**
@@ -1335,11 +1443,11 @@ public struct MarkdownContent: HTML, Sendable {
 	/**
 	The HTML after the blocks, like the popovers of the footnotes, which stays with the last part when the content is split.
 	*/
-	let trailingHTML: String
+	let trailingHTML: HTMLFragment
 
 	let resources: PageResources
 
-	init(blocks: ArraySlice<MarkdownDocument.Block>, trailingHTML: String, resources: PageResources) {
+	init(blocks: ArraySlice<MarkdownDocument.Block>, trailingHTML: HTMLFragment, resources: PageResources) {
 		self.blocks = blocks
 		self.trailingHTML = trailingHTML
 		self.resources = resources
@@ -1348,17 +1456,17 @@ public struct MarkdownContent: HTML, Sendable {
 	/**
 	Content that is not split, like a short inline text.
 	*/
-	init(html: String, resources: PageResources) {
-		self.init(blocks: [MarkdownDocument.Block(kind: .other, html: html)], trailingHTML: "", resources: resources)
+	init(html: HTMLFragment, resources: PageResources) {
+		self.init(blocks: [MarkdownDocument.Block(kind: .other, html: html)], trailingHTML: .empty, resources: resources)
 	}
 
-	public var html: String {
-		blocks.map(\.html).joined() + trailingHTML
+	public var html: HTMLFragment {
+		HTMLFragment(rawValue: blocks.map(\.html.rawValue).joined() + trailingHTML.rawValue)
 	}
 
 	public var body: HTMLRaw {
 		PageResources.current?.include(resources)
-		return HTMLRaw(html)
+		return HTMLRaw(html.rawValue)
 	}
 
 	/**
@@ -1421,7 +1529,7 @@ public struct MarkdownContent: HTML, Sendable {
 	Splits without losing collected styles or duplicating trailing popovers, which belong only to the last part of a document.
 	*/
 	private func split(at index: ArraySlice<MarkdownDocument.Block>.Index) -> (before: Self, after: Self) {
-		(Self(blocks: blocks[..<index], trailingHTML: "", resources: resources), Self(blocks: blocks[index...], trailingHTML: trailingHTML, resources: resources))
+		(Self(blocks: blocks[..<index], trailingHTML: .empty, resources: resources), Self(blocks: blocks[index...], trailingHTML: trailingHTML, resources: resources))
 	}
 }
 

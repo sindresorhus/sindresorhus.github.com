@@ -9,19 +9,19 @@ apps: [
 ---
 
 @QuickAnswer {
-	Install [Bare](../apps/bare/index.md) on your iPhone and Apple Watch. The watch app shows the same lists, sorted by store section, and you tap an item to check it off. Without an app, the Reminders app on Apple Watch shows your grocery list.
+	Install [Bare](/bare) on your iPhone and Apple Watch. The watch app shows the same lists, sorted by store section, and you tap an item to check it off. [Without an app](#without-an-app), the Reminders app on Apple Watch shows your grocery list.
 }
 
 ## With Bare
 
 @Steps {
-1. Add the items in [Bare](../apps/bare/index.md) on your iPhone. The lists sync with iCloud.
+1. Add the items in [Bare](/bare) on your iPhone. The lists sync with iCloud.
 1. Open Bare on Apple Watch, and choose a list.
 1. In the store, tap an item to check it off. It goes to “Done” at the end of the list.
 1. To add an item, tap the add button at the bottom, and dictate, type, or scribble it.
 }
 
-The watch app syncs directly with iCloud, so it works also when your iPhone is at home. When the watch is offline, the items that you add get their section later. [More about the watch app.](../apps/bare/index.md#watch)
+The watch app syncs directly with iCloud, so it works also when your iPhone is at home. When the watch is offline, the items that you add get their section later. [More about the watch app.](/bare#watch)
 
 @Tips {
 - Tap “Done” to see the items that you checked off. “Uncheck All” puts them back on the list for the next time, and “Clear Done Items” removes them.
@@ -39,4 +39,4 @@ The Reminders app on Apple Watch shows your lists, also a grocery list ([Apple�
 1. To add an item, scroll to the bottom of the list, and tap “Add Reminder”.
 }
 
-It is free, and it is good if your family already uses a list in Reminders. [How to share a grocery list in Reminders.](share-grocery-list-iphone.md#without-an-app)
+It is free, and it is good if your family already uses a list in Reminders. [How to share a grocery list in Reminders.](guide:share-grocery-list-iphone#without-an-app)

@@ -20,21 +20,43 @@ struct Section<Content: HTML>: HTML {
 	*/
 	let id: ElementID?
 
+	/**
+	The page of the section, which the title links to, like the page of a topic of the guides, or `nil` for a title that is only text.
+	*/
+	let link: RoutePath?
+
 	let content: Content
 
-	init(_ title: String, id: ElementID? = nil, @ContentBuilder content: () -> Content) {
+	init(_ title: String, id: ElementID? = nil, link: RoutePath? = nil, @ContentBuilder content: () -> Content) {
 		self.title = title
 		self.id = id
+		self.link = link
 		self.content = content()
 	}
 
 	var body: some HTML<HTMLTag.section> {
 		section {
+			// With the spans of the headings of prose, so a title with a hyphen, like “Command-Line”, does not break at the hyphen.
+			// With an ID, it has the link that copies the URL of the section, like the headings of prose (``SiteKit/MarkdownDocument/Options/addsHeadingAnchors``), so a reply to a question can link to a section, like “macOS 12” of the older versions page. The link is inside the heading, so the heading is named by its text, not also by the name of the link.
 			h2 {
-				title
+				// A link to the page of the section has the look of the title of a guide in a list (``ArticleRow``): the color of the title, with a thick underline under the pointer. It is only around the text, next to the link that copies the URL, as links cannot be nested.
+				if let link {
+					a(.href(link)) {
+						MarkdownTheme.site.headingTextHTML(title)
+					}
+					.style(ArticleRow.Styles.link)
+				} else {
+					MarkdownTheme.site.headingTextHTML(title)
+				}
+
+				if let id {
+					a(.href(.fragment(id)), .hook(ProseStyles.Hooks.copyLink), .ariaLabel("Copy link to section: \(title)")) {}
+						.style(ProseStyles.headingAnchor)
+				}
 			}
-			.attributes(optional: id.map { .id($0) })
+			.attributes(contentsOf: id.map { [.id($0), .custom(name: "aria-label", value: title)] } ?? [])
 			.style(SectionStyles.title)
+			.style(ProseStyles.anchoredHeading, when: id != nil)
 
 			content
 		}

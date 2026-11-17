@@ -9,23 +9,23 @@ apps: [
 ---
 
 @QuickAnswer {
-	The Photos app cannot combine videos. Make a shortcut with the “Combine Videos” action of [Actions](../apps/actions/index.md), a free app, and it joins the videos that you pick into one video in your library. The videos must have the same size and orientation.
+	The Photos app cannot combine videos. Make a shortcut with the “Combine Videos” action of [Actions](/actions), a free app, and it joins the videos that you pick into one video in your library. The videos must have the same size and orientation.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
+1. Install [Actions](/actions), and open it once.
 1. In the Shortcuts app, tap the add button to make a new shortcut.
 1. Add the “Select Photos” action. Tap the arrow in the action, and turn on “Select Multiple”.
-1. Add the “Combine Videos” action of Actions. It gets the selected videos.
-1. Add the “Save to Photo Album” action.
+1. Add the [“Combine Videos”](/actions#:~:text=Combine%20Videos) action of Actions. It gets the selected videos.
+1. Add the “Save to Photos” action.
 1. Run the shortcut, and pick the videos. The combined video is saved in Photos.
 }
 
 The videos must have the same size and orientation, like videos that you recorded in the same way with your iPhone. Actions does not change the video when it can, so the quality stays the same. iOS gives a shortcut action 30 seconds, so very long videos may not finish. If the actions do not show in Shortcuts, restart your iPhone.
 
-The “Combine Audio Files” action of Actions joins audio files the same way.
+The “Combine Audio Files” action of Actions joins audio files the same way. [How to combine audio files.](guide:combine-audio-files-iphone)
 
 ## Without an app
 

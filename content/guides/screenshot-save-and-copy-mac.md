@@ -2,20 +2,20 @@
 title: 'How to Save a Screenshot and Copy It at the Same Time on Mac'
 description: 'macOS saves a screenshot to a file or copies it to the clipboard, but not both. Supercharge also copies each saved screenshot.'
 publicationDate: 2026-11-10
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'supercharge'
 ]
 ---
 
 @QuickAnswer {
-	macOS saves a screenshot to a file, or, when you add ++Control++ to the shortcut, like ++Control+Shift+Command+4++, copies it to the clipboard. It cannot do both. [Supercharge](../apps/supercharge/index.md) copies each saved screenshot to the clipboard, so you can also paste it.
+	macOS saves a screenshot to a file, or, when you add ++Control++ to the shortcut, like ++Control+Shift+Command+4++, copies it to the clipboard. It cannot do both. [Supercharge](/supercharge) copies each saved screenshot to the clipboard, so you can also paste it.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “Screenshots” section, turn on “Copy screenshots to clipboard”.
 1. Take a screenshot as usual, like with ++Shift+Command+4++. It is saved, and you can paste it.
 }

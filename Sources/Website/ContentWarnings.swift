@@ -53,11 +53,13 @@ extension SiteContent {
 			("Check guide steps", sameGuideStepsWarnings),
 			("Check free apps in guides", freePaidAppWarnings),
 			("Check hidden reviews", hiddenReviewWarnings),
+			("Check dates of drafts", oldDraftDateWarnings),
 		]
 
 		// The checks of the text and of the published sitemap run at the same time as the other checks, and their warnings are last.
 		async let text = textWarnings(of: checkedTextFiles)
 		async let removedPages = removedPageWarnings(routes: routes, externalData: externalData)
+		async let unlinkedPages = unlinkedPageWarnings(published: published, routes: routes)
 
 		let results = await withTaskGroup { group in
 			for (index, check) in checks.enumerated() {
@@ -76,7 +78,7 @@ extension SiteContent {
 		let draftURLs = Set(drafts.files.map(\.url))
 		let textResult = await text
 		let textWarnings = textResult.warnings.filter { $0.kind != .todo || $0.location?.file.map(draftURLs.contains) != true }
-		return (self.warnings + results.flatMap(\.warnings) + (await removedPages) + textWarnings, StepTimes(results.flatMap(\.steps.steps) + textResult.steps.steps))
+		return (self.warnings + results.flatMap(\.warnings) + (await removedPages) + (await unlinkedPages) + textWarnings, StepTimes(results.flatMap(\.steps.steps) + textResult.steps.steps))
 	}
 
 	/**
@@ -107,6 +109,14 @@ extension SiteContent {
 		return publishedPaths
 			.filter { !routePaths.contains($0) }
 			.map { Warning(.removedPage, at: .page($0), "The page is published, but the build has no page or redirect for it, so it would be a 404 after the deploy. Add it to `redirectFrom` of the page that replaces it.") }
+	}
+
+	/**
+	The pages of the sitemap that no other page links to (``SiteKit/LinkValidator/unlinkedPages(in:published:)``), like after the last link to a page was removed or commented out, so a visitor never finds the page, and a search engine only from the sitemap.
+	*/
+	private func unlinkedPageWarnings(published: PublishedSite, routes: [Route]) async -> [Warning] {
+		await LinkValidator(site: Site.origin).unlinkedPages(in: routes, published: published)
+			.map { Warning(.unlinkedPage, at: .page($0), "No other page links to the page, so a visitor does not find it. Link to it, or remove it.") }
 	}
 
 	/**
@@ -155,7 +165,7 @@ extension SiteContent {
 
 		// The feedback notes of the apps are Markdown in the frontmatter. The lines of a block string are the lines of the file, so their problems are at their lines.
 		let feedbackNotes = apps.compactMap { app in
-			app.frontmatter.feedbackNote.map { CheckedText(file: app.file, parsing: $0, ofKey: App.Frontmatter.CodingKeys.feedbackNote) }
+			app.frontmatter.feedbackNote.map { CheckedText(file: app.file, parsing: $0, at: [App.Frontmatter.CodingKeys.feedbackNote]) }
 		}
 
 		// Only the texts of the checked files.
@@ -163,31 +173,12 @@ extension SiteContent {
 		let isChecked = { (text: CheckedText) in checkedURLs.contains(text.file.url) }
 		let files = bodies + feedbackNotes.filter(isChecked)
 
-		// The titles and descriptions are the text of search results and social cards, so their spelling is checked too, at the line of their key. They are plain text, so only the spelling checks read them.
-		let appTexts = apps.flatMap { app in
-			[
-				CheckedText(file: app.file, parsing: app.frontmatter.subtitle, ofKey: App.Frontmatter.CodingKeys.subtitle),
-				app.frontmatter.description.map { CheckedText(file: app.file, parsing: $0, ofKey: App.Frontmatter.CodingKeys.description) },
-			]
-			.compactMap(\.self)
+		// The titles and descriptions are the text of search results and social cards, and the other prose of the frontmatter is on the pages too (``DocumentFrontmatter/proseTexts``), so their spelling is checked too, at the line of their key. They are plain text, so only the spelling checks read them.
+		let frontmatterTexts = documents.flatMap { document in
+			document.frontmatter.proseTexts.compactMap { prose in
+				prose.text.map { CheckedText(file: document.file, parsing: $0, at: prose.path) }
+			}
 		}
-		let guideTexts = guides.flatMap { guide in
-			[
-				CheckedText(file: guide.file, parsing: guide.frontmatter.title, ofKey: Guide.Frontmatter.CodingKeys.title),
-				CheckedText(file: guide.file, parsing: guide.frontmatter.description, ofKey: Guide.Frontmatter.CodingKeys.description),
-			]
-		}
-		let postTexts = posts.compactMap { post in
-			post.frontmatter.description.map { CheckedText(file: post.file, parsing: $0, ofKey: BlogPost.Frontmatter.CodingKeys.description) }
-		}
-		let pageTexts = pages.flatMap { page in
-			[
-				CheckedText(file: page.file, parsing: page.frontmatter.title, ofKey: MarkdownPage.Frontmatter.CodingKeys.title),
-				page.frontmatter.description.map { CheckedText(file: page.file, parsing: $0, ofKey: MarkdownPage.Frontmatter.CodingKeys.description) },
-			]
-			.compactMap(\.self)
-		}
-		let frontmatterTexts = appTexts + guideTexts + postTexts + pageTexts
 
 		var warnings = [Warning]()
 		warnings += steps.measure("Check Markdown") { markdownWarnings(in: files) }
@@ -195,9 +186,12 @@ extension SiteContent {
 		warnings += steps.measure("Check plain-text shortcuts") { plainTextShortcutWarnings(in: files) }
 		warnings += steps.measure("Check raw links") { rawLinkWarnings(in: files) }
 		warnings += steps.measure("Check scheduled blocks") { pastScheduledBlockWarnings(in: files) + scheduledDayWarnings(in: files) }
-		warnings += steps.measure("Check raw Markdown") { rawMarkdownWarnings(in: files) }
+		warnings += steps.measure("Check raw Markdown") { rawMarkdownWarnings(in: files) + joinedLineWarnings(in: files) }
 		warnings += steps.measure("Check invisible characters") { invisibleCharacterWarnings(in: contentFiles) }
 		warnings += steps.measure("Check feature labels") { featureLabelWarnings(in: files) }
+		warnings += steps.measure("Check System Settings paths") { systemSettingsPathWarnings(in: files) }
+		warnings += steps.measure("Check dates in the text") { pastDateWarnings(in: files) }
+		warnings += steps.measure("Check mentions") { pressQuoteMentionWarnings(in: files) }
 		let spelling = steps.measure("Check repeated words") { spellingTexts(in: files + frontmatterTexts.filter(isChecked)) }
 		let unknownWords = await steps.measure("Check spelling") {
 			await unknownWordWarnings(in: spelling.map(\.texts))
@@ -247,9 +241,9 @@ extension SiteContent {
 				warnings.append(app.file.warning(.appStoreMismatch, "`platforms` has iOS, but the App Store version is a Mac app."))
 			}
 
-			// The lowest version is for macOS for Mac apps, for visionOS for apps only for Apple Vision, and for iOS for the others.
+			// The lowest version is for macOS for Mac apps and for apps with a Mac version (the Mac record wins, ``AppStoreInfo/adding(macRecord:)``), for visionOS for apps only for Apple Vision, and for iOS for the others.
 			if let minimumVersion = info.minimumOSVersion {
-				let system = info.isMacApp ? Platform.macOS : info.listedPlatforms == [.visionOS] ? .visionOS : .iOS
+				let system = info.listedPlatforms.contains(.macOS) ? Platform.macOS : info.listedPlatforms == [.visionOS] ? .visionOS : .iOS
 				warnings += olderVersionMentions(in: app, system: system, minimumVersion: minimumVersion)
 			}
 		}
@@ -293,7 +287,7 @@ extension SiteContent {
 	}
 
 	/**
-	Projects of the open source page that GitHub does not agree with: a repo that GitHub does not have, like after it was renamed or moved, an archived repo, and another main language. The projects are a list in the code, so nothing else checks them, and the page shows no data of the repos. The repos are the ones of the account and its organizations that the build got (``GitHub/Account/repositories``), so the check asks GitHub nothing more, and it checks nothing when the build could not get them.
+	Projects of the open source page that GitHub does not agree with: a repo that GitHub does not have, like after it was renamed or moved, an archived repo, and another main language. The projects are a list in `content/open-source.soml`, so nothing else checks them, and the page shows no data of the repos. Each warning is at the line of its project. The repos are the ones of the account and its organizations that the build got (``GitHub/Account/repositories``), so the check asks GitHub nothing more, and it checks nothing when the build could not get them.
 	*/
 	private func openSourceProjectWarnings() -> [Warning] {
 		guard let repositories = gitHubAccount?.repositories else {
@@ -303,26 +297,33 @@ extension SiteContent {
 		// The names ignore case, like GitHub.
 		let repositoriesByName = repositories.keyed(by: \.nameWithOwner)
 
-		return OpenSourceProject.all.flatMap { project -> [Warning] in
-			func warning(_ message: String) -> Warning {
-				Warning(.openSourceProject, at: .page(.openSource), "\(project.name) (`\(project.repository)`) \(message)")
+		return OpenSourceProject.Group.allCases.flatMap { group -> [Warning] in
+			openSourceProjects.projects(of: group).enumerated().flatMap { index, project -> [Warning] in
+				func warning(_ message: String) -> Warning {
+					openSourceFile.warning(
+						.openSourceProject,
+						at: OpenSourceCatalog.key(of: group),
+						index: index,
+						"\(project.name) (`\(project.repository)`) \(message)"
+					)
+				}
+
+				guard let repository = repositoriesByName[project.repository] else {
+					return [warning("is not a repo on GitHub. Maybe it was renamed or moved. Fix its `repository`.")]
+				}
+
+				var warnings = [Warning]()
+
+				if repository.isArchived {
+					warnings.append(warning("is archived on GitHub. Remove it from the page, or unarchive the repo."))
+				}
+
+				if repository.language != project.language?.rawValue {
+					warnings.append(warning("has the language \(repository.language.map { "`\($0)`" } ?? "none") on GitHub, but \(project.language.map { "`\($0.rawValue)`" } ?? "none") on the page. Fix its `language`."))
+				}
+
+				return warnings
 			}
-
-			guard let repository = repositoriesByName[project.repository] else {
-				return [warning("is not a repo on GitHub. Maybe it was renamed or moved. Fix its `repository` in `OpenSourcePage.swift`.")]
-			}
-
-			var warnings = [Warning]()
-
-			if repository.isArchived {
-				warnings.append(warning("is archived on GitHub. Remove it from the page, or unarchive the repo."))
-			}
-
-			if repository.language != project.language?.rawValue {
-				warnings.append(warning("has the language \(repository.language.map { "`\($0)`" } ?? "none") on GitHub, but \(project.language.map { "`\($0.rawValue)`" } ?? "none") on the page. Fix its `language` in `OpenSourcePage.swift`."))
-			}
-
-			return warnings
 		}
 	}
 
@@ -330,6 +331,11 @@ extension SiteContent {
 	The end of a sentence: its punctuation and the space after it, so a version like “15.3” is not an end.
 	*/
 	nonisolated(unsafe) private static let sentenceEnd = /[.!?]\s+/
+
+	/**
+	A text in typographic quotes, like an example of a date or what a reader types, which some checks leave out.
+	*/
+	nonisolated(unsafe) private static let quotedText = /“[^”]*”/
 
 	/**
 	Mentions of OS versions below the App Store minimum, like “Requires macOS 15 or later” for an app that needs macOS 26, in the text and the feedback note. Only the major versions of the mentions are compared, so “macOS 26” is fine for an app that needs 26.2. Text about the older versions is left out: lists of older versions to download and the requirement below them, like `*Requires macOS 15 or later*`, and sentences that link to the “Older Versions” section. A line is a whole paragraph, so only the sentence with the link is left out, not the other sentences of the paragraph.
@@ -360,7 +366,7 @@ extension SiteContent {
 
 			if
 				!isDownload,
-				!(isAfterDownloadList && line.hasPrefix("*\(OSVersion.requirementPrefix)"))
+				!(isAfterDownloadList && line.hasPrefix("*\(OSRequirement.sentencePrefix)"))
 			{
 				// A sentence ends with a period, a question mark, or an exclamation mark, and a space, so a version like `15.3` stays in its sentence.
 				let text = line.contains(olderVersionsLink) ? Substring(line.split(separator: Self.sentenceEnd).filter { !$0.contains(olderVersionsLink) }.joined(separator: " ")) : line
@@ -384,17 +390,14 @@ extension SiteContent {
 	}
 
 	/**
-	Introductions that are too long for the hero of the app page, where they are shown under the name.
+	Introductions that are too long for the hero of the app page, where they are shown under the name, and introductions that end with a colon, as they continue in a list that the hero, the description of the page, and search results do not show.
 	*/
 	private func introductionWarnings() -> [Warning] {
 		apps
 			.filter { !$0.isRedirect }
-			.compactMap { app in
-				guard
-					let introduction = app.markdown.introduction,
-					introduction.count > App.maximumIntroductionLength
-				else {
-					return nil
+			.flatMap { app -> [Warning] in
+				guard let introduction = app.markdown.introduction else {
+					return []
 				}
 
 				// The first line with text, after blank lines and comments.
@@ -403,7 +406,18 @@ extension SiteContent {
 					return !text.isEmpty && !text.hasPrefix("<!--")
 				} ?? 0
 
-				return app.file.warning(.longIntroduction, line: app.file.bodyStartLine.offset(by: lineIndex), "The introduction is \(introduction.count) characters. The app page shows it under the name, so keep it at most \(App.maximumIntroductionLength) characters, which is two lines.")
+				let line = app.file.bodyStartLine.offset(by: lineIndex)
+				var warnings = [Warning]()
+
+				if introduction.count > App.maximumIntroductionLength {
+					warnings.append(app.file.warning(.longIntroduction, line: line, "The introduction is \(introduction.count) characters. The app page shows it under the name, so keep it at most \(App.maximumIntroductionLength) characters, which is two lines."))
+				}
+
+				if introduction.hasSuffix(":") {
+					warnings.append(app.file.warning(.introductionEndingWithColon, line: line, "The introduction ends with a colon. The hero of the app page and search results show only the introduction, not the list after it, so end it with a full sentence."))
+				}
+
+				return warnings
 			}
 	}
 
@@ -877,7 +891,7 @@ extension SiteContent {
 				let folders = sequence(first: file.deletingLastPathComponent()) { $0.deletingLastPathComponent() }.prefix { $0.isInside(directory) && !$0.isSameFile(as: directory) }
 
 				// By its exact name, as a case-insensitive check would treat `index.MD` as the `index.md` of a bundle, which the build does not read.
-				guard !folders.contains(where: { $0.files.contains { $0.lastPathComponent == "index.md" } }) else {
+				guard !folders.contains(where: { $0.files.contains(where: \.isPageBundleIndex) }) else {
 					continue
 				}
 
@@ -914,11 +928,11 @@ extension SiteContent {
 			/**
 			Where the Markdown of a frontmatter value is in the file: the lines after the `'''` of a block string, whose lines are the lines of the file, or else the line of its key.
 			*/
-			init(ofValueOf key: some CodingKey, in file: MarkdownFile) {
+			init(ofValueAt path: [any CodingKey], in file: MarkdownFile) {
 				// The frontmatter starts on the line after the opening `---`.
 				let lines = file.frontmatter.split(separator: "\n", omittingEmptySubsequences: false)
 
-				guard let keyLine = file.line(of: key) else {
+				guard let keyLine = file.line(ofValueAt: path) else {
 					self = .line(1)
 					return
 				}
@@ -960,10 +974,10 @@ extension SiteContent {
 		}
 
 		/**
-		The Markdown of a frontmatter value of the file, at its place in the file (``Place/init(ofValueOf:in:)``).
+		The Markdown of a frontmatter value of the file at the coding path, like `[App.Frontmatter.CodingKeys.feedbackNote]`, at its place in the file (``Place/init(ofValueAt:in:)``).
 		*/
-		init(file: MarkdownFile, parsing value: String, ofKey key: some CodingKey) {
-			self.init(file: file, parsing: value, place: Place(ofValueOf: key, in: file))
+		init(file: MarkdownFile, parsing value: String, at path: [any CodingKey]) {
+			self.init(file: file, parsing: value, place: Place(ofValueAt: path, in: file))
 		}
 
 		/**
@@ -1091,13 +1105,42 @@ extension SiteContent {
 	}
 
 	/**
+	Draft apps and posts whose `publicationDate` is before the newest published one, as setting only `isDraft` off would show them below newer items in the lists and the feeds, where a feed reader can miss them. Guides are left out, as their order in a topic does not hide them.
+	*/
+	private func oldDraftDateWarnings() -> [Warning] {
+		draftDateWarnings(drafts: datedDrafts.apps, published: apps, noun: "app")
+			+ draftDateWarnings(drafts: datedDrafts.posts, published: posts, noun: "post")
+	}
+
+	/**
+	The drafts of one kind whose `publicationDate` is before the newest published document of the kind. The noun names the kind in the warning, like “post”.
+	*/
+	private func draftDateWarnings<Document: ContentDocument>(
+		drafts: [Document],
+		published: [Document],
+		noun: String
+	) -> [Warning] where Document.Frontmatter: PublishedFrontmatter {
+		guard let newestDate = published.map(\.frontmatter.publicationDate).max() else {
+			return []
+		}
+
+		return drafts
+			.filter { $0.frontmatter.publicationDate < newestDate }
+			.map { draft in
+				draft.warning(.oldDraftDate, at: Document.Frontmatter.publicationDateKey, "The draft is dated \(draft.frontmatter.publicationDate), before the newest \(noun) (\(newestDate)). Set the date of the day you publish it, or the \(noun) shows below newer \(noun)s in the lists and the feeds.")
+			}
+	}
+
+	/**
 	Guides whose first steps (`@Steps`) are the same as the steps of an older guide, like a guide for a second search that copies a guide, which search engines see as a copy of the page. Only the same steps are found, not similar ones, as the short steps of one app share most of their words.
 	*/
 	private func sameGuideStepsWarnings() -> [Warning] {
 		var olderGuides = [String: Guide]()
 		var warnings = [Warning]()
+		// Before the loop, as Swift parses a regex literal each time the code runs.
+		let tag = /<[^>]*>/
 
-		for guide in guides.sorted(using: KeyPathComparator(\.frontmatter.publicationDate)) {
+		for guide in guides.map(\.guide).sorted(using: KeyPathComparator(\.frontmatter.publicationDate)) {
 			guard
 				let steps = guide.markdown.blocks.first(where: { $0.siteDirectiveName == .steps }),
 				case .directive(_, let lines) = steps.kind
@@ -1105,8 +1148,11 @@ extension SiteContent {
 				continue
 			}
 
-			guard let olderGuide = olderGuides[steps.html] else {
-				olderGuides[steps.html] = guide
+			// The text without the tags, as the HTML of the same steps changes with the page, like the icon of the first link to an app and the IDs of the notes.
+			let text = steps.html.rawValue.replacing(tag, with: "")
+
+			guard let olderGuide = olderGuides[text] else {
+				olderGuides[text] = guide
 				continue
 			}
 
@@ -1138,7 +1184,7 @@ extension SiteContent {
 
 		var warnings = [Warning]()
 
-		for resolved in resolvedGuides {
+		for resolved in guides {
 			let guide = resolved.guide
 			// Parse once before the apps of the guide, so every app checks the same visible text.
 			let text = CheckedText(body: guide.file)
@@ -1196,33 +1242,33 @@ extension SiteContent {
 	}
 
 	/**
-	Titles of `hiddenReviews` in `content/site.soml` that match no App Store review, like after a typo, as the match is exact, so the review shows again. Nothing is checked when the build got no reviews, as Apple sometimes sends empty feeds.
+	Titles of `hiddenReviews` in `content/site.soml` that match no review (``StoreReview/hidingKey``), like after a typo, as the match is exact, so the review shows again. Nothing is checked when the build got no App Store reviews, as Apple sometimes sends empty feeds.
 
 	Limitation: the titles are not of one app, so when only the feed of the app of a title is empty, the title gets a warning.
 	*/
 	private func hiddenReviewWarnings() -> [Warning] {
-		let titles = appStoreReviewTitles
-
-		guard
-			!titles.isEmpty,
-			let file = try? SOMLFile<SiteSettings>(url: project.root.appending(path: SiteSettings.path))
-		else {
+		guard let titles = reviewHidingKeys else {
 			return []
 		}
 
 		return settings.hiddenReviews.enumerated().compactMap { index, title in
-			titles.contains(title) ? nil : file.warning(.unknownHiddenReview, at: .hiddenReviews, index: index, "No App Store review has the title “\(title)”. Check the title, or remove it when the review is gone.")
+			titles.contains(title) ? nil : settingsFile.warning(
+				.unknownHiddenReview,
+				at: .hiddenReviews,
+				index: index,
+				"No review has the title (or the text, for a review without a title) “\(title)”. Check the text, or remove it when the review is gone."
+			)
 		}
 	}
 
 	/**
-	Keyboard shortcuts written as plain text, like “Command+N” or “Option-Command-V”, which a page shows as keys when they are written as `++Command+N++`. Only a modifier, then `+` or `-`, then a key is found, so “Shift-click” and “Control-click” are text. Shortcuts that are already written as keys, headings, and link texts are left out, as a shortcut is not shown as keys in a heading or a link, and the text of a raw `<kbd>` has its own warning.
+	Keyboard shortcuts written as plain text, like “Command+N” or “Option-Command-V”, which a page shows as keys when they are written as `++Command+N++`, and clicks with a modifier written as plain text, like “Control-click” or “Option-right-click”, which the site writes with the key as a key cap, like `++Control++-click`. Only a modifier, then `+` or `-`, then a key is a shortcut, so “Shift-click” is a click, not a shortcut. Shortcuts that are already written as keys, headings, and link texts are left out, as a shortcut is not shown as keys in a heading or a link, and the text of a raw `<kbd>` has its own warning.
 	*/
 	private func plainTextShortcutWarnings(in files: [CheckedText]) -> [Warning] {
 		// Before the loop, as Swift parses a regex literal each time the code runs.
-		let shortcut = /\b(?:(?:Control|Option|Shift|Command)[+-])+(?:F\d{1,2}|Return|Enter|Space|Tab|Esc|Delete|Plus|Home|End|[A-Z0-9])\b/
-		// A shortcut that is already written as keys, like `++Command+N++`, is text of the parsed Markdown too.
-		let keyboardShortcut = /\+\+\S(?:[^\n]*?\S)??\+\+/
+		let modifiers = KeyboardKey.Modifier.allCases.map(\.rawValue).joined(separator: "|")
+		let shortcut = try! Regex(#"\b(?:(?:\#(modifiers))[+-])+(?:F\d{1,2}|Return|Enter|Space|Tab|Esc|Delete|Plus|Home|End|[A-Z0-9])\b"#, as: Substring.self)
+		let modifierClick = try! Regex(#"\b(\#(modifiers))-((?:[a-z]+-)?click[a-z]*)"#, as: (Substring, Substring, Substring).self)
 		var warnings = [Warning]()
 
 		for text in files {
@@ -1236,9 +1282,16 @@ extension SiteContent {
 					continue
 				}
 
-				for match in textNode.string.replacing(keyboardShortcut, with: " ").matches(of: shortcut) {
+				// A shortcut that is already written as keys, like `++Command+N++`, is text of the parsed Markdown too.
+				let string = textNode.string.replacing(Substring.keyboardShortcut, with: " ")
+
+				for match in string.matches(of: shortcut) {
 					let corrected = KeyboardKey.correctedShortcut(String(match.output).replacing("-", with: "+"))
 					warnings.append(text.file.warning(.plainTextShortcut, line: text.line(of: textNode), "Write the keyboard shortcut “\(match.output)” as `++\(corrected)++`, so the page shows its keys."))
+				}
+
+				for match in string.matches(of: modifierClick) {
+					warnings.append(text.file.warning(.plainTextModifierClick, line: text.line(of: textNode), "Write “\(match.output.0)” as `++\(match.output.1)++-\(match.output.2)`, like the other clicks with a modifier, so the page shows the key."))
 				}
 			}
 		}
@@ -1247,7 +1300,7 @@ extension SiteContent {
 	}
 
 	/**
-	Markdown that a mistake leaves as text, so the page shows its characters: a link with a space in its destination, like `[Velja](/velja page)`, a reference link without its definition, like `[Velja][velja-link]`, a space between the text and the destination of a link, like `[Dato] (/dato)`, an unclosed `**` or backtick, a heading ID after text that is not a heading, like `Text {#text}`, a heading without a space after its `#`, like `##Section`, and a URL that is not a link, like `https://brew.sh` in a sentence, which the page shows as text that cannot be clicked. Only the text of the parsed Markdown is read, so code is left out. Limitation: an escaped character that is meant as text, like `\*\*`, is reported too. Write it as code instead.
+	Markdown that a mistake leaves as text, so the page shows its characters: a link with a space in its destination, like `[Velja](/velja page)`, a reference link without its definition, like `[Velja][velja-link]`, a space between the text and the destination of a link, like `[Dato] (/dato)`, an unclosed `**` or backtick, a heading ID after text that is not a heading, like `Text {#text}`, a heading without a space after its `#`, like `##Section`, an asterisk right next to italic or bold text, like after `**text*`, which closes the emphasis with fewer asterisks than it opens it with, a URL that is not a link, like `https://brew.sh` in a sentence, which the page shows as text that cannot be clicked, and a menu path that is not in one pair of typographic quotes (``MarkdownTheme/quotedMenuPath``), like `“Remind Me” › “Tomorrow Morning”` or `Settings › Events`, which the page does not show as a menu path. It also finds a range of two numbers with a hyphen, like “0-255”, which the page does not keep on one line, as only a range with an en dash stays on one line. Only the text of the parsed Markdown is read, so code is left out. Limitation: an escaped character that is meant as text, like `\*\*`, is reported too. Write it as code instead.
 	*/
 	private func rawMarkdownWarnings(in files: [CheckedText]) -> [Warning] {
 		// Before the loop, as Swift parses a regex literal each time the code runs.
@@ -1263,6 +1316,11 @@ extension SiteContent {
 		let headingWithoutSpace = /^#{2,6}[^#\s]/
 		// Without the punctuation after it, like the period at the end of a sentence.
 		let bareURL = /https?:\/\/[^\s\)\]]*[^\s\)\].,;:!?]/
+		// A capital letter or a quote after the arrow, so an arrow in a sentence, like “click ‹ or › to see”, is text.
+		let unquotedMenuPath = /\S › [“A-Z]/
+		// A range of two numbers with a hyphen, like “0-255” or “14:00-15:30”, after a space or a parenthesis, but not a date, like “2026-11-22”, or a word, like “20-20-20”.
+		let hyphenRange = /(?:^|[\s(])(\d+(?:[.:]\d+)?%?)-(\d+(?:[.:]\d+)?%?)(?![\w-]|[.:\/]\d)/
+		let isEmphasis = { (markup: (any Markup)?) in markup is Markdown.Emphasis || markup is Markdown.Strong }
 		var warnings = [Warning]()
 
 		for text in files {
@@ -1286,19 +1344,244 @@ extension SiteContent {
 					messages.append("The text starts with `#`, but a heading needs a space after its `#`, like `## Section`.")
 				}
 
+				// An emphasis that is closed with fewer asterisks than it is opened with, like `**text*`, leaves the extra asterisk as text right next to it.
+				let hasAsteriskNextToEmphasis = (string.hasSuffix("*") && isEmphasis(textNode.nextSibling)) || (string.hasPrefix("*") && isEmphasis(textNode.previousSibling))
+				if hasAsteriskNextToEmphasis {
+					messages.append("The text has a `*` right next to italic or bold text, like from `**text*`, so the page shows the asterisk. Close the emphasis with the same number of asterisks that open it.")
+				}
+
 				warnings += messages.map { text.file.warning(.rawMarkdown, line: text.line(of: textNode), $0) }
+
+				let ancestors = sequence(first: textNode as any Markup, next: \.parent)
 
 				// swift-markdown makes no link of a URL in the text, so the page shows it as text that cannot be clicked. The text of a link or an image is left out.
 				if
 					let url = string.firstMatch(of: bareURL),
-					!sequence(first: textNode as any Markup, next: \.parent).contains(where: { $0 is Markdown.Link || $0 is Markdown.Image })
+					!ancestors.contains(where: { $0 is Markdown.Link || $0 is Markdown.Image })
 				{
 					warnings.append(text.file.warning(.bareURL, line: text.line(of: textNode), "The text has the URL \(url.output), which is not a link. Write it as a link, like `[Homebrew](https://brew.sh)`."))
+				}
+
+				// The page shows a menu path in a link, an image, or a note as plain text, also in quotes.
+				if
+					string.contains(" › "),
+					!ancestors.contains(where: { $0 is Markdown.Link || $0 is Markdown.Image || $0 is InlineAttributes }),
+					string.replacing(MarkdownTheme.quotedMenuPath, with: "").contains(unquotedMenuPath)
+				{
+					warnings.append(text.file.warning(.unquotedMenuPath, line: text.line(of: textNode), "Write the menu path in one pair of typographic quotes, like “Settings › Events”, so the page keeps each item on one line."))
+				}
+
+				// The page keeps a range with an en dash on one line (``SiteKit/MarkdownTheme/textHTML(_:)``).
+				for match in string.matches(of: hyphenRange) {
+					warnings.append(text.file.warning(.hyphenRange, line: text.line(of: textNode), "Write the range “\(match.output.1)-\(match.output.2)” with an en dash, like “\(match.output.1)–\(match.output.2)”, so the page keeps it on one line."))
 				}
 			}
 		}
 
 		return warnings
+	}
+
+	/**
+	The System Settings paths of the text, like “System Settings › Keyboard › Keyboard Shortcuts…”, in a link or in typographic quotes:
+
+	- A path that links to two places, like with the anchor of its item (`?Privacy_AllFiles`) and without it, as only one of them opens the item. The link with an anchor, or else the first link, is the one to use.
+	- A path in quotes that is not a link although its pane is known (``SiteKit/LinkDestination/SystemSettingsPane``), as a guide is read on the Mac that it is about. A pane without a case, like “Energy”, stays plain text.
+	- An item that the content writes with and without “…”, like “Keyboard Shortcuts…”, the name of the button in System Settings. The form with “…” is the one to use.
+
+	The paths of all the checked files are compared, so a check of some files, like `website check content/apps/dato`, only compares their paths.
+	*/
+	private func systemSettingsPathWarnings(in files: [CheckedText]) -> [Warning] {
+		struct SettingsPath {
+			let items: [String]
+
+			/**
+			The destination of the link, or `nil` for a path in quotes that is not a link.
+			*/
+			let destination: String?
+
+			let text: CheckedText
+			let markup: any Markup
+
+			var name: String {
+				items.joined(separator: " › ")
+			}
+
+			var line: SiteKit.SourceLocation.Line {
+				text.line(of: markup)
+			}
+
+			func warning(_ kind: Warning.Kind, _ message: String) -> Warning {
+				text.file.warning(kind, line: line, message)
+			}
+		}
+
+		let root = "System Settings"
+		let linkPrefix = "\(LinkDestination.SystemSettingsPane.scheme):"
+		var paths = [SettingsPath]()
+
+		for text in files {
+			for link in text.descendants(Markdown.Link.self) {
+				let items = link.plainText.split(separator: " › ").map(String.init)
+
+				guard
+					items.first == root,
+					let destination = link.destination,
+					destination.hasPrefix(linkPrefix)
+				else {
+					continue
+				}
+
+				paths.append(SettingsPath(items: items, destination: destination, text: text, markup: link))
+			}
+
+			// The text of a link is its path.
+			for textNode in text.descendants(Markdown.Text.self) where !textNode.isInside(Markdown.Link.self) {
+				for match in textNode.string.matches(of: MarkdownTheme.quotedMenuPath) {
+					let items = match.output.items.split(separator: " › ").map(String.init)
+
+					if items.first == root {
+						paths.append(SettingsPath(items: items, destination: nil, text: text, markup: textNode))
+					}
+				}
+			}
+		}
+
+		var warnings = [Warning]()
+		let links = paths.filter { $0.destination != nil }
+
+		for name in links.map(\.name).uniqued(by: \.self) {
+			let pathLinks = links.filter { $0.name == name }
+
+			guard let preferred = pathLinks.first(where: { $0.destination?.contains("?") == true }) ?? pathLinks.first else {
+				continue
+			}
+
+			let location = SiteKit.SourceLocation.file(preferred.text.file.url, line: preferred.line).description(relativeTo: project.root)
+
+			for link in pathLinks where link.destination != preferred.destination {
+				warnings.append(link.warning(.systemSettingsLinkMismatch, "“\(name)” links to `\(link.destination ?? "")` here, but to `\(preferred.destination ?? "")` in \(location). Use one link."))
+			}
+		}
+
+		for path in paths where path.destination == nil {
+			let pathItems = path.items.dropFirst()
+
+			if let pane = LinkDestination.SystemSettingsPane.allCases.first(where: { pathItems.starts(with: $0.pathItems) }) {
+				warnings.append(path.warning(.unlinkedSystemSettingsPath, "Link “\(path.name)” to `\(pane.link)`, like the other System Settings paths, so it opens System Settings on a Mac."))
+			}
+		}
+
+		let itemsWithEllipsis = Set(paths.flatMap(\.items).filter { $0.hasSuffix("…") })
+
+		for path in paths {
+			for item in path.items where itemsWithEllipsis.contains(item + "…") {
+				warnings.append(path.warning(.menuPathEllipsis, "Write “\(item)…”, the name in System Settings, like the other places of the content."))
+			}
+		}
+
+		return warnings
+	}
+
+	/**
+	Sentences that say that something happens on a day that is over, like “Arc stops working on 22 December 2026”, so the owner changes them to the past tense, or removes them. A sentence has a word of the future, like “stops”, “will”, or “until”, and a full date, like “22 December 2026” or “December 22, 2026”. The text in typographic quotes is left out, like an example of a date. `--date` of `website check` shows the warnings before the day, like for `@Scheduled` blocks. Limitation: a sentence that is split by a link or by bold text is checked in parts.
+	*/
+	private func pastDateWarnings(in files: [CheckedText]) -> [Warning] {
+		// Before the loop, as Swift parses a regex literal each time the code runs.
+		let dayFirstDate = /\b(\d{1,2}) ([A-Z][a-z]+) (\d{4})\b/
+		let monthFirstDate = /\b([A-Z][a-z]+) (\d{1,2}), (\d{4})\b/
+		let futureWord = /\b(?:will|stops|ends|starts|until|expires)\b/
+		let months = Calendar.site.monthSymbols
+		var warnings = [Warning]()
+
+		for text in files {
+			for textNode in text.descendants(Markdown.Text.self) {
+				for sentence in textNode.string.replacing(Self.quotedText, with: "").split(separator: ". ") where sentence.contains(futureWord) {
+					var dates = [(day: Substring, month: Substring, year: Substring)]()
+
+					for match in sentence.matches(of: dayFirstDate) {
+						dates.append((day: match.output.1, month: match.output.2, year: match.output.3))
+					}
+
+					for match in sentence.matches(of: monthFirstDate) {
+						dates.append((day: match.output.2, month: match.output.1, year: match.output.3))
+					}
+
+					for date in dates {
+						guard
+							let monthIndex = months.firstIndex(of: String(date.month)),
+							let year = Int(date.year),
+							let day = Int(date.day),
+							let calendarDate = SOML.Date(year: year, month: monthIndex + 1, day: day),
+							calendarDate < today
+						else {
+							continue
+						}
+
+						let sentenceText = sentence.trimmingCharacters(in: CharacterSet.whitespaces.union(CharacterSet(charactersIn: ".")))
+						warnings.append(text.file.warning(.pastDate, line: text.line(of: textNode), "The text says “\(sentenceText)”, but \(date.day) \(date.month) \(date.year) is over. Update the text."))
+					}
+				}
+			}
+		}
+
+		return warnings
+	}
+
+	/**
+	Links in a list item that go to an article that a press quote of the same app page already links to, like in a “Mentions” list, as the list then reads as more press than there is. The fragments are left out, like `#best-mac-app-runner-up`. Limitation: a link in a sentence, like a source for more details, is left out.
+	*/
+	private func pressQuoteMentionWarnings(in files: [CheckedText]) -> [Warning] {
+		func withoutFragment(_ link: String) -> String {
+			String(link.prefix { $0 != "#" })
+		}
+
+		let pressQuoteLinks = Dictionary(
+			apps.map { app in
+				(app.file.url, Set(app.frontmatter.pressQuotes.compactMap { $0.url.map { withoutFragment($0.value.absoluteString) } }))
+			},
+			uniquingKeysWith: { first, _ in first }
+		)
+
+		return files.flatMap { text -> [Warning] in
+			guard
+				let links = pressQuoteLinks[text.file.url],
+				!links.isEmpty
+			else {
+				return []
+			}
+
+			return text.descendants(Markdown.Link.self).compactMap { link in
+				guard
+					let destination = link.destination,
+					links.contains(withoutFragment(destination)),
+					link.isInside(Markdown.ListItem.self)
+				else {
+					return nil
+				}
+
+				return text.file.warning(.mentionRepeatsPressQuote, line: text.line(of: link), "The link goes to the article of a press quote of the page, which already links to it. Remove the link.")
+			}
+		}
+	}
+
+	/**
+	Lines that continue the paragraph above them, so the page shows both lines as one paragraph, like two notes without a blank line between them. The content is not hard-wrapped, so such a line is a mistake. Only the paragraphs of the document and of block directives are checked, as the next line of a list item or a block quote can continue it on purpose, like the text below the marker of an alert. A line after a line break (a line that ends with `\`) is on purpose too.
+	*/
+	private func joinedLineWarnings(in files: [CheckedText]) -> [Warning] {
+		files.flatMap { text in
+			text.descendants(SoftBreak.self).compactMap { softBreak in
+				// The soft break has no range, so the warning is at the line of the markup after it.
+				guard
+					softBreak.parent is Paragraph,
+					softBreak.parent?.parent is Markdown.Document || softBreak.parent?.parent is BlockDirective,
+					let nextLine = softBreak.nextSibling
+				else {
+					return nil
+				}
+
+				return text.file.warning(.joinedLines, line: text.line(of: nextLine), "The line continues the paragraph above it, so the page shows both lines as one paragraph. Add a blank line between them, or join them.")
+			}
+		}
 	}
 
 	/**
@@ -1343,7 +1626,7 @@ extension SiteContent {
 	}
 
 	/**
-	Link texts that do not say where the link goes, links to the site that are not site paths, links to a heading whose ID comes from its text, feedback links with a product that is not an app of the feedback page, like `/feedback?product=Datto`, remote images without a size and raw images with only one of `width` and `height`, which make the page shift while loading, as an image needs both for its aspect ratio, raw HTML for what Markdown has a syntax for: `<kbd>` for keyboard shortcuts and `<sup>` for platforms, modifier glyphs, like `⌘`, in the text and in code, which a keyboard shortcut writes with the names of its keys, footnotes, which are notes in the content of the site, phrases in straight double quotes, like `"Settings"`, which the site writes with typographic quotes, raw scripts, styles, and Astro attributes, which belong to components, links to Apple with a locale or storefront, a raw block element inside a paragraph, which the HTML parser moves out of it, links to a file of the own page bundle with its site path, which break when its folder is renamed, a line break alone as a spacer, and a TODO note in a comment, which a draft can have, as the content leaves the drafts out.
+	Link texts that do not say where the link goes, links to the site that are not site paths, links to a heading whose ID comes from its text, feedback links with a product that is not an app of the feedback page, like `/feedback?product=Datto`, remote images without a size and raw images with only one of `width` and `height`, which make the page shift while loading, as an image needs both for its aspect ratio, raw HTML for what Markdown has a syntax for: `<kbd>` for keyboard shortcuts and `<sup>` for platforms, modifier glyphs, like `⌘`, in the text and in code, which a keyboard shortcut writes with the names of its keys, footnotes, which are notes in the content of the site, phrases in straight double quotes, like `"Settings"`, which the site writes with typographic quotes, a straight apostrophe in a word outside typographic quotes, like “folder's”, “e.g.”, and three periods, which the site writes as ’, “like”, and “…”, a bold label alone that ends with a colon, like `**Notes:**`, raw scripts, styles, and Astro attributes, which belong to components, links to Apple with a locale or storefront, a raw block element inside a paragraph, which the HTML parser moves out of it, links to a file of the own page bundle with its site path, which break when its folder is renamed, a line break alone as a spacer, a list item that starts with a bold name and a line break, like `- **Name**\`, which `::` replaces, and a TODO note in a comment, which a draft can have, as the content leaves the drafts out.
 
 	Only the `<kbd>` and `<sup>` in the text, and the block elements inside a paragraph, are checked, not the ones in HTML blocks, like a table, where Markdown is not parsed. Raw images, scripts, styles, and links are checked in both. Code blocks are not checked, as they show code. Limitation: the links of the frontmatter are not checked for a locale, which `ContentGuardTests` does.
 	*/
@@ -1356,14 +1639,24 @@ extension SiteContent {
 		let remoteSource = /\bsrc="https?:\/\//
 		let widthAttribute = /\swidth=/
 		let heightAttribute = /\sheight=/
-		let platformText = /\(?(macOS|iOS|watchOS|tvOS|visionOS)(?:[- ]only)?\)?/
-		// A run of modifier glyphs (``KeyboardKey/Modifier/glyph``) with its key, like “⌘K”, “⌥⇧⌘V”, or “⌘+⌫”, or without one, like in “hold ⌥”.
-		let glyphShortcut = /[⌃⌥⇧⌘](?:\+?[⌃⌥⇧⌘])*(?:\+?(?:F\d{1,2}\b|(?:Space|Return|Enter|Tab|Esc|Escape|Delete)\b|[A-Za-z0-9]\b|[◀▶▲▼⌫⌦↩⇥⎋]))?/
+		let platforms = Platform.allCases.map(\.rawValue).joined(separator: "|")
+		let platformText = try! Regex(#"\(?(\#(platforms))(?:[- ]only)?\)?"#, as: (Substring, Substring).self)
+		// A run of modifier glyphs (``KeyboardKey/Modifier/glyph``) with its key, like “⌘K”, “⌥⇧⌘V”, or “⌘+⌫” (``KeyboardKey/Glyph``), or without one, like in “hold ⌥”.
+		let modifierGlyphs = String(KeyboardKey.Modifier.allCases.map(\.glyph))
+		let keyGlyphs = String(KeyboardKey.Glyph.allCases.map(\.rawValue))
+		let glyphShortcut = try! Regex(#"[\#(modifierGlyphs)](?:\+?[\#(modifierGlyphs)])*(?:\+?(?:F\d{1,2}\b|(?:Space|Return|Enter|Tab|Esc|Escape|Delete)\b|[A-Za-z0-9]\b|[\#(keyGlyphs)]))?"#, as: Substring.self)
 		// A phrase in straight double quotes, like `"Settings"`. The first quote starts a word, so the inch marks of `13" and 15"` or `13", 15"` are not a phrase.
 		let straightQuotes = /(?:^|[\s(\[])("\S(?:[^"]*\S)?")/
+		// A word with a straight apostrophe, like “folder's”, but not in typographic quotes, which can be what a reader types, like “kim's” in a search field.
+		let straightApostrophe = /\p{L}+'\p{L}+/
+		let exampleAbbreviation = /(?i)\be\.g\./
 		let todoComment = /(?s)<!--\s*(TODO\b.*?)\s*-->/
 		let lineBreak = /(?i)^\s*<br\s*\/?>\s*$/
 		let rawLinkDestination = /\s(?:href|src)="([^"]*)"/
+		// A link to a guide by its path or its file, like `/guides/find-screenshots-mac` or `../../guides/find-screenshots-mac.md#steps`, which the slug (`guide:`) replaces.
+		let guidePathLink = /^(?:\/guides\/([a-z0-9-]+)|(?:\.\.\/)*(?:guides\/)?([a-z0-9-]+)\.md)(#.*)?$/
+		let guideSlugs = Set(guides.map(\.guide.file.slug.value))
+		let appPaths = Set(apps.map(\.path))
 		let rawHTMLMistakes = [
 			(/(?i)<script\b/, "The content has a raw `<script>`. Move the script into a component."),
 			(/(?i)<style\b/, "The content has a raw `<style>`. Move the look into a style of a component."),
@@ -1381,7 +1674,7 @@ extension SiteContent {
 			let file = text.file
 
 			// The site paths of the files of the page bundle, like `/blog/issue-bumping/issue-bumping.jpg`.
-			let bundleFilePaths = file.url.lastPathComponent == "index.md" ? Set(file.url.deletingLastPathComponent().files.compactMap { project.publicPath(ofContentFile: $0) }) : []
+			let bundleFilePaths = file.url.isPageBundleIndex ? Set(file.url.deletingLastPathComponent().files.compactMap { project.publicPath(ofContentFile: $0) }) : []
 
 			// A site path breaks when the folder of the page is renamed, while a relative link moves with it.
 			func bundleFileLinkWarning(_ destination: String?, at markup: any Markup) -> Warning? {
@@ -1502,6 +1795,26 @@ extension SiteContent {
 						warnings.append(warning)
 					}
 
+					if
+						let match = link.destination?.wholeMatch(of: guidePathLink),
+						let slug = match.output.1 ?? match.output.2,
+						guideSlugs.contains(String(slug))
+					{
+						let destination = "\(LinkTagScheme.guide.rawValue):\(slug)\(match.output.3 ?? "")"
+						warnings.append(file.warning(.guidePathLink, line: text.line(of: link), "Link to the guide by its slug, like `[…](\(destination))`, or `<\(destination)>` for a “Guide” tag after a feature, so the build reports the link when the guide gets another slug."))
+					}
+
+					// A link to an app page by its content file, like `../apps/supercharge/index.md#faq`, which its site path replaces, like the other links to app pages.
+					if
+						let destination = link.destination,
+						destination.prefix(while: { $0 != "#" }).hasSuffix("/index.md"),
+						let path = file.linkedPagePath(destination, project: project),
+						appPaths.contains(path)
+					{
+						let sitePath = path.description + destination.drop { $0 != "#" }
+						warnings.append(file.warning(.appFileLink, line: text.line(of: link), "Link to the app page by its site path, like `[…](\(sitePath))`, not by its file `\(destination)`, like the other links to app pages."))
+					}
+
 					// The build checks the site paths, but not the links to the site.
 					if
 						let destination = link.destination.flatMap(URL.init(string:)),
@@ -1598,6 +1911,17 @@ extension SiteContent {
 					{
 						warnings.append(file.warning(.commentSplitsList, line: text.line(of: html), "Two lists have only a comment between them. If they should be one list, use the same list marker and indent each line of the comment like the text of the items, so it stays in the item above."))
 					}
+				// A list item like `- **Name**\` with its description on the next line, which then has the size and color of the name.
+				case let hardBreak as LineBreak:
+					if
+						hardBreak.indexInParent == 1,
+						let paragraph = hardBreak.parent as? Paragraph,
+						paragraph.parent is Markdown.ListItem,
+						paragraph.indexInParent == 0,
+						paragraph.child(at: 0) is Markdown.Strong
+					{
+						warnings.append(file.warning(.boldNameWithLineBreak, line: text.line(of: hardBreak), "Write the name without bold, and the description on the next line, indented with a tab, after `::`, so the description has the smaller, gray text of the other lists."))
+					}
 				case let footnote as FootnoteReference:
 					warnings.append(file.warning(.footnote, line: text.line(of: footnote), "Write the footnote `[^\(footnote.footnoteID)]` as a note, like `^[text](note: \"The note.\")`, which needs no definition in another place."))
 				// The text of a raw `<kbd>` has its own warning, which corrects the glyphs.
@@ -1609,6 +1933,27 @@ extension SiteContent {
 					// Only the text of the parsed Markdown, so code, the attributes of raw HTML, and the arguments of directives and notes are left out.
 					warnings += textNode.string.matches(of: straightQuotes).map { match in
 						file.warning(.straightQuotes, line: text.line(of: textNode), "Write the quotes of \(match.1) as “ and ”, like the other text of the site.")
+					}
+
+					warnings += textNode.string.replacing(Self.quotedText, with: "").matches(of: straightApostrophe).map { match in
+						file.warning(.straightApostrophe, line: text.line(of: textNode), "Write the apostrophe of “\(match.output)” as ’, like the other text of the site.")
+					}
+
+					if textNode.string.contains(exampleAbbreviation) {
+						warnings.append(file.warning(.exampleAbbreviation, line: text.line(of: textNode), "Write “like” or “for example” in place of “e.g.”, like the other text of the site."))
+					}
+
+					if textNode.string.contains("...") {
+						warnings.append(file.warning(.threePeriods, line: text.line(of: textNode), "Write “…” in place of three periods, like the other text of the site."))
+					}
+				// A bold label already starts the block below it (``SiteKit/Paragraph/isBoldLabel``), and the other labels have no colon. In a list item, the colon goes in the bold name, like `**Copy:** Copies the text.`, which is not a label.
+				case let paragraph as Paragraph:
+					if
+						!(paragraph.parent is Markdown.ListItem),
+						paragraph.isBoldLabel,
+						paragraph.plainText.hasSuffix(":")
+					{
+						warnings.append(file.warning(.boldLabelColon, line: text.line(of: paragraph), "Remove the colon of the label “\(paragraph.plainText)”. A bold label already starts the block below it."))
 					}
 				case let code as InlineCode:
 					warnings += modifierGlyphWarnings(in: code.code, at: code)
@@ -1930,11 +2275,13 @@ The kinds of the warnings of `website check`, for its summary.
 */
 extension Warning.Kind {
 	static let appStoreMismatch = Self("Fact that the App Store does not agree with")
+	static let unlinkedPage = Self("Page that no other page links to")
 	static let gumroadPrice = Self("Price that Gumroad does not agree with")
 	static let gumroadRequirement = Self("Requirement that Gumroad does not agree with")
 	static let openSourceProject = Self("Open source project that GitHub does not agree with")
 	static let oldOSVersionMention = Self("Mention of an OS version below the requirement")
 	static let longIntroduction = Self("Long introduction")
+	static let introductionEndingWithColon = Self("Introduction that ends with a colon")
 	static let missingIcon = Self("Missing icon")
 	static let missingMedia = Self("Missing screenshots")
 	static let heavyIcon = Self("Heavy icon")
@@ -1956,6 +2303,8 @@ extension Warning.Kind {
 	static let requirement = Self("Requirement")
 	static let vagueLinkText = Self("Vague link text")
 	static let absoluteSiteLink = Self("Link to the site that is not a site path")
+	static let guidePathLink = Self("Link to a guide by its path")
+	static let appFileLink = Self("Link to an app page by its file")
 	static let headingLinkWithoutID = Self("Link to a heading without a custom ID")
 	static let unknownFeedbackProduct = Self("Feedback link with an unknown app")
 	static let unknownFeedbackParameter = Self("Feedback link with an unknown parameter or referrer")
@@ -1985,6 +2334,7 @@ extension Warning.Kind {
 	static let todo = Self("TODO in a published page")
 	static let absoluteBundleLink = Self("Link to a file of the page bundle that is not relative")
 	static let lineBreakSpacer = Self("Line break as a spacer")
+	static let boldNameWithLineBreak = Self("List item with a bold name and a line break")
 	static let pastScheduledBlock = Self("`@Scheduled` block whose last day is over")
 	static let scheduledDayOutsideDates = Self("`@Scheduled` text with a day outside its dates")
 	static let featureLabelInTitle = Self("`@Feature` title that has its label")
@@ -1994,6 +2344,20 @@ extension Warning.Kind {
 	static let freePaidApp = Self("Paid app that a guide calls free")
 	static let unknownHiddenReview = Self("Hidden review title that matches no review")
 	static let commentSplitsList = Self("Comment that splits a list")
+	static let unquotedMenuPath = Self("Menu path outside typographic quotes")
+	static let hyphenRange = Self("Number range with a hyphen")
+	static let joinedLines = Self("Line that joins the paragraph above it")
+	static let oldDraftDate = Self("Draft with a date before the newest published page")
+	static let plainTextModifierClick = Self("Click with a modifier as plain text")
+	static let straightApostrophe = Self("Straight apostrophe")
+	static let exampleAbbreviation = Self("“e.g.” in the text")
+	static let threePeriods = Self("Three periods in place of “…”")
+	static let boldLabelColon = Self("Bold label that ends with a colon")
+	static let systemSettingsLinkMismatch = Self("System Settings path with two links")
+	static let unlinkedSystemSettingsPath = Self("System Settings path that is not a link")
+	static let menuPathEllipsis = Self("System Settings item with and without “…”")
+	static let pastDate = Self("Date in the text that is over")
+	static let mentionRepeatsPressQuote = Self("Link in a list that repeats a press quote")
 }
 
 extension MarkdownFile {

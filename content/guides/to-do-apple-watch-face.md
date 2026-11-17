@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Add your tasks to [One Task](../apps/one-task/index.md), and add its complication to the watch face. The face shows the next task. In the Smart Stack, tap the task to complete it, and the next task shows. Without an app, use the Reminders app on the watch, or its complication.
+	Add your tasks to [One Task](/one-task), and add its complication to the watch face. The face shows the next task. In the Smart Stack, tap the task to complete it, and the next task shows. [Without an app](#without-an-app), use the Reminders app on the watch, or its complication.
 }
 
 ## With One Task
 
 @Steps {
-1. Add the tasks in [One Task](../apps/one-task/index.md) on your iPhone. They sync to the watch with iCloud. On the watch, you can also tap “New Task” in One Task.
+1. Add the tasks in [One Task](/one-task) on your iPhone. They sync to the watch with iCloud. On the watch, you can also tap “New Task” in One Task.
 1. On the watch, touch and hold the watch face, and tap “Edit”.
 1. Swipe left to the last screen, which shows the complications of the face.
 1. Tap a rectangular complication, or the line of text at the top, and turn the Digital Crown to One Task.
@@ -27,7 +27,7 @@ The face shows the next task. Tap it to open One Task. To complete tasks without
 @Tips {
 - A face with a large rectangular place, like Modular, shows the most text.
 - When you choose One Task, choose “Show task from bottom of the list” or “Show random task” to see another task than the first one.
-- One Task works best with only the tasks for today. [Put the same task on the iPhone Lock Screen.](to-do-lock-screen-iphone.md)
+- One Task works best with only the tasks for today. [Put the same task on the iPhone Lock Screen.](guide:to-do-lock-screen-iphone)
 }
 
 ## Without an app

@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	The Shortcuts app has no action that makes a UUID, a unique ID like `E621E1F8-C36C-495A-93FC-0C247A3E6E5F`. The free [Actions](../apps/actions/index.md) app adds the “Generate UUID” action, which works on iPhone, iPad, and Mac. On Mac, the “Run Shell Script” action with `uuidgen` also makes one.
+	The Shortcuts app has no action that makes a UUID, a unique ID like `E621E1F8-C36C-495A-93FC-0C247A3E6E5F`. The free [Actions](/actions) app adds the “Generate UUID” action, which works on iPhone, iPad, and Mac. [Without an app](#without-an-app), the “Run Shell Script” action with `uuidgen` makes one, but only on Mac.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it once.
-1. In your shortcut, add the “Generate UUID” action of Actions. It has no options.
+1. Install [Actions](/actions), and open it once.
+1. In your shortcut, add the [“Generate UUID”](/actions#:~:text=Generate%20UUID) action of Actions. It has no options.
 1. Use its result, “UUID”, in the next action, like in the name of a file, or as the ID of a new row in a table.
 }
 

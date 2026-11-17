@@ -322,6 +322,11 @@ private struct SearchResult: Decodable {
 	*/
 	let packages: [NPMStatistics.Package]
 
+	/**
+	A straight apostrophe between two letters, like in “Node's”.
+	*/
+	nonisolated(unsafe) private static let apostropheInWord = /(\p{L})'(\p{L})/
+
 	init(from decoder: any Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		self.total = try container.decode(Int.self, forKey: .total)
@@ -336,13 +341,19 @@ private struct SearchResult: Decodable {
 
 			let repository = object.package.links?.repository.flatMap(GitHubRepositoryName.init(npmRepositoryLink:))
 
-			// Without the backticks of code, which some descriptions have, as the description is shown as text.
-			let description = object.package.description?.replacing("`", with: "").trimmingCharacters(in: .whitespaces)
+			// The escapes of HTML that some descriptions have, like `&#39;` in “My cat&#39;s pajamas module”, are decoded once, as the page escapes the text. Without the backticks of code, which some descriptions have, as the description is shown as text. An apostrophe in a word is typographic, like “Node’s”, and a hyphen between spaces is an en dash, like the other text of the site. Only in a word, not ``Swift/String/typographicPunctuation``, as some descriptions show straight quotes on purpose, like “I 'love' unicorns”.
+			let description = object.package.description?
+				.decodingHTMLEscapes
+				.replacing("`", with: "")
+				.replacing(Self.apostropheInWord) { "\($0.1)’\($0.2)" }
+				.typographicDashesAndEllipses
+				.trimmingCharacters(in: .whitespaces)
 
 			return NPMStatistics.Package(
 				name: object.package.name,
 				version: object.package.version,
-				description: description?.nilIfEmpty,
+				// A description that starts with a badge, like `[![NPM version][npm-image]][npm-url]`, is the start of the readme, which npm uses when the package has no description, so the row has none.
+				description: description?.hasPrefix("[![") == true ? nil : description?.nilIfEmpty,
 				date: date,
 				weeklyDownloads: object.downloads?.weekly,
 				dependentCount: object.dependents?.count,

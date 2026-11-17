@@ -43,6 +43,13 @@ public struct MarkdownFile: SOMLValueFile, Sendable {
 	public let body: String
 
 	/**
+	The ``body`` parsed as Markdown, with the block directives, like `@Tips`. It is parsed again each time.
+	*/
+	public var parsedBody: Markdown.Document {
+		Markdown.Document(parsing: body, options: .parseBlockDirectives)
+	}
+
+	/**
 	Whether the frontmatter has `isDraft: true`, the key of the drafts of every content type (``ContentEntry/isDraft``), without decoding the rest, like for a path that `website check` gets, which loads no drafts. A frontmatter that is not valid SOML is not a draft, as decoding reports it.
 	*/
 	public var isDraft: Bool {

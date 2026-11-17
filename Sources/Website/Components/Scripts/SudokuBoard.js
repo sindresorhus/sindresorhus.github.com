@@ -1,5 +1,10 @@
 import {cloneTemplate, parts} from '/scripts/dom.js';
 
+/**
+The configuration encoded by SudokuBoard.Config in Swift. ScriptTypeTests checks the encoded values against this type.
+@typedef {Readonly<{queryName: string}>} SudokuBoardConfig
+*/
+
 const maskByteCount = 11;
 
 // The CRC-8 with the polynomial `0x07` and the initial value `0`.
@@ -66,7 +71,8 @@ class SudokuBoard extends HTMLElement {
 			return;
 		}
 
-		const cells = decode(new URLSearchParams(location.search).get(JSON.parse(this.dataset.config).queryName) ?? '');
+		const {queryName} = /** @type {SudokuBoardConfig} */ (JSON.parse(this.dataset.config));
+		const cells = decode(new URLSearchParams(location.search).get(queryName) ?? '');
 
 		if (!cells) {
 			invalid.hidden = false;

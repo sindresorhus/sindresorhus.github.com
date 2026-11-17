@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	macOS does not delete old downloads by itself. [Supercharge](../apps/supercharge/index.md) moves the items that have been in Downloads for more than 30 days, or the number of days you choose, to another folder. Then you can look through them, or delete the files in that folder.
+	macOS does not delete old downloads by itself. [Supercharge](/supercharge) moves the items that have been in Downloads for more than 30 days, or the number of days you choose, to another folder. Then you can look through them, or delete the files in that folder.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “File Automation” section, find “Move items in Downloads added more than 30 days ago to”.
 1. Click “Choose…”, and choose a folder, like a new folder named “Old” in Downloads.
 1. To change the number of days, click the arrows next to “30 days”.

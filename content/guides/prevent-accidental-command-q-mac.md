@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	In the settings of [Supercharge](../apps/supercharge/index.md), choose to quit apps only when you hold ++Command+Q++, press ++Q++ twice, or press ++Shift+Command+Q++. Without an app, give the Quit command of an app another shortcut in “[System Settings › Keyboard › Keyboard Shortcuts… › App Shortcuts](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”.
+	In the settings of [Supercharge](/supercharge), choose to quit apps only when you hold ++Command+Q++, press ++Q++ twice, or press ++Shift+Command+Q++. [Without an app](#without-an-app), give the Quit command of an app another shortcut in “[System Settings › Keyboard › Keyboard Shortcuts… › App Shortcuts](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”.
 }
 
 QBlocker made you hold ++Command+Q++ to quit an app. Its last version is from May 2016, it needs Rosetta on Apple silicon, and Homebrew disabled it in April 2026 because it is not maintained. SlowQuitApps, an open-source app that did the same, had its last release in December 2020.
@@ -17,7 +17,7 @@ QBlocker made you hold ++Command+Q++ to quit an app. Its last version is from Ma
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
 1. In the “Apps & Windows” section, choose one of these in “Prevent accidental quits by quitting apps with”:
 	- Press and hold ++Command+Q++.
@@ -34,7 +34,7 @@ macOS has no setting for this, but you can give the Quit command of one app anot
 @Steps {
 1. Open “[System Settings › Keyboard](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”, and click “Keyboard Shortcuts…”.
 1. Click “App Shortcuts”, and click the add button.
-1. Choose the app, and type the name of its Quit command exactly like in its menu, like “Quit Safari”.
+1. Choose the app, and type the name of its Quit command exactly like in its menu, like “Quit Safari”. <source:https://support.apple.com/guide/mac-help/mchlp2271/mac>
 1. Click “Keyboard shortcut”, press the new shortcut, and click “Done”.
 }
 

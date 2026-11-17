@@ -831,14 +831,14 @@ extension String {
 	}
 
 	/**
-	The text with typographic quotes and apostrophes instead of straight ones, like “it’s” for "it's", for text from others that is not Markdown, like an App Store review. A quote at the start or after a space or an opening bracket opens, and any other closes, so an apostrophe in a word is ’.
+	The text with typographic punctuation instead of the typewriter one, for text from others that is not Markdown, like an App Store review: typographic quotes and apostrophes instead of straight ones, like “it’s” for "it's", an en dash for a hyphen or two with a space on both sides, like “Simple – fast” for "Simple - fast", and an ellipsis for three periods. A quote at the start or after a space or an opening bracket opens, and any other closes, so an apostrophe in a word is ’. A hyphen in a word, like “pre-select”, stays.
 
 	```swift
-	#"She said "it's fine""#.typographicQuotes
-	//=> "She said “it’s fine”"
+	#"She said "it's fine" - really..."#.typographicPunctuation
+	//=> "She said “it’s fine” – really…"
 	```
 	*/
-	public var typographicQuotes: String {
+	public var typographicPunctuation: String {
 		var result = ""
 
 		for character in self {
@@ -855,7 +855,21 @@ extension String {
 			}
 		}
 
-		return result
+		return result.typographicDashesAndEllipses
+	}
+
+	/**
+	The text with an en dash for a hyphen or two with a space on both sides, like “Simple – fast” for "Simple - fast", and an ellipsis for three periods, but with its quotes as they are, for text from others that shows straight quotes on purpose, like the descriptions of npm packages. A hyphen in a word, like “pre-select”, stays. ``typographicPunctuation`` also does this.
+
+	```swift
+	"Simple - fast...".typographicDashesAndEllipses
+	//=> "Simple – fast…"
+	```
+	*/
+	public var typographicDashesAndEllipses: String {
+		replacing(" -- ", with: " – ")
+			.replacing(" - ", with: " – ")
+			.replacing("...", with: "…")
 	}
 
 	/**
@@ -899,11 +913,12 @@ public macro path(_ string: StaticString) -> RoutePath = #externalMacro(module: 
 
 extension JSONEncoder {
 	/**
-	The value as JSON for a page, with sorted keys, so the output is the same in every build, and with slashes as they are. Encoding plain values only fails for a mistake, like a `Double.nan`, which stops the build, so a page never has a script without its data.
+	The value as JSON for a page, with sorted keys, so the output is the same in every build, and with slashes as they are. The keys are sorted after the key encoding strategy changes them. Encoding plain values only fails for a mistake, like a `Double.nan`, which stops the build, so a page never has a script without its data.
 	*/
-	public static func pageJSON(_ value: some Encodable) -> String {
+	public static func pageJSON(_ value: some Encodable, keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys) -> String {
 		let encoder = JSONEncoder()
 		encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+		encoder.keyEncodingStrategy = keyEncodingStrategy
 
 		do {
 			return String(decoding: try encoder.encode(value), as: UTF8.self)

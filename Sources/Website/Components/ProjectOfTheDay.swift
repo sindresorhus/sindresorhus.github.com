@@ -45,6 +45,18 @@ struct ProjectOfTheDay: ScriptedElement {
 		}
 
 		/**
+		The icon before the number of a project, like the star of the stars of a repo, like the popular projects of the about page. The downloads of a package have none.
+		*/
+		var detailIcon: Icon? {
+			switch self {
+			case .packages:
+				nil
+			case .repositories:
+				.star
+			}
+		}
+
+		/**
 		The projects published at the source's route and used for its initial daily selection.
 		*/
 		func projects(in content: SiteContent) -> [Project] {
@@ -61,7 +73,14 @@ struct ProjectOfTheDay: ScriptedElement {
 	The daily card of one production collection, sharing the identity of its published JSON file.
 	*/
 	init?(source: Source, content: SiteContent) {
-		self.init(title: source.title, randomTitle: source.randomTitle, listPath: source.path, projects: source.projects(in: content), date: content.buildDate)
+		self.init(
+			title: source.title,
+			randomTitle: source.randomTitle,
+			listPath: source.path,
+			projects: source.projects(in: content),
+			date: content.buildDate,
+			detailIcon: source.detailIcon
+		)
 	}
 
 	/**
@@ -97,6 +116,11 @@ struct ProjectOfTheDay: ScriptedElement {
 	let project: Project
 
 	/**
+	The icon before the number of the project, like a star (``Source/detailIcon``).
+	*/
+	let detailIcon: Icon?
+
+	/**
 	The project of the day of the projects, which changes each day of the build, like the related apps. `nil` when there are no projects.
 	*/
 	init?(
@@ -104,7 +128,8 @@ struct ProjectOfTheDay: ScriptedElement {
 		randomTitle: String,
 		listPath: RoutePath,
 		projects: [Project],
-		date: Date
+		date: Date,
+		detailIcon: Icon? = nil
 	) {
 		var generator = SeededRandomNumberGenerator.daily(listPath.description, on: date)
 
@@ -116,6 +141,7 @@ struct ProjectOfTheDay: ScriptedElement {
 		self.randomTitle = randomTitle
 		self.listPath = listPath
 		self.project = project
+		self.detailIcon = detailIcon
 	}
 
 	/**
@@ -183,16 +209,37 @@ struct ProjectOfTheDay: ScriptedElement {
 					.color(.bodyText)
 			}
 
-			p(.part(Parts.detail)) {
-				project.detail
-			}
-			.style {
-				$0
-					.margin(top: .rootEm(0.25), horizontal: .zero, bottom: .zero)
-					.secondaryText()
+			// At the bottom of the card, like the stars of the popular projects, so the details of two cards next to each other are level when one description is longer. Stars have the star and the look of the stars of the popular projects, so the stars of the page look the same. The icon is outside the part, so the script only changes the text.
+			if let detailIcon {
+				p {
+					detailIcon.size(.rootEm(0.875))
+
+					span(.part(Parts.detail)) {
+						project.detail
+					}
+				}
+				.style(AboutPage.Styles.projectStars)
+				// Without the space of a paragraph of the prose around the card.
+				.style {
+					$0.margin(top: .auto, horizontal: .zero, bottom: .zero)
+				}
+			} else {
+				p(.part(Parts.detail)) {
+					project.detail
+				}
+				.style {
+					$0
+						.margin(top: .auto, horizontal: .zero, bottom: .zero)
+						.padding(.top, .rootEm(0.25))
+						.secondaryText()
+				}
 			}
 		}
 		.vstack(alignment: .start, spacing: .rootEm(0.375))
+		// It fills the card, so the details can be at the bottom.
+		.style {
+			$0.flexGrow(1)
+		}
 	}
 
 	struct Config: Encodable {
@@ -217,8 +264,7 @@ struct ProjectOfTheDay: ScriptedElement {
 				// A card, with the title and the button above the project. The padding is like the cards of the popular projects.
 				Style()
 					.vstack(alignment: .start, spacing: .rootEm(1))
-					.padding(.cardPadding)
-					.cardSurface(isInteractive: false)
+					.plainCard()
 			}
 		}
 	}

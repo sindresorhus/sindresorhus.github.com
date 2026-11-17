@@ -10,6 +10,12 @@ isPaid: true
 isMenuBarApp: true
 appStoreID: 6448461551
 hasSentry: true
+categories: [
+	'files'
+]
+relatedApps: [
+	'supercharge'
+]
 sharedQuestions: [
 	'randomly-quits'
 	'why-cut-and-paste'
@@ -47,9 +53,9 @@ pressQuotes: [
 ]
 feedbackNote:
 	'''
-	**If you get a “Failed to listen to system events” error or getting continuously re-prompted about permissions after updating to macOS 27, try [resetting privacy permissions](/apps/faq#mac-reset-permissions) and then restart your system. macOS sometimes corrupts these when updating...**
+	**If you get a “Failed to listen to system events” error or getting continuously re-prompted about permissions after updating to macOS 27, try [resetting privacy permissions](/apps/faq#mac-reset-permissions) and then restart your system. macOS sometimes corrupts these when updating…**
 
-	[The app randomly disappears/quits](/command-x#randomly-quits)
+	If the app randomly disappears or quits, see [what to do](/command-x#randomly-quits).
 	'''
 ---
 
@@ -61,11 +67,9 @@ Known limitation: ++Command+X++ does not cut text while you edit a filename in F
 
 ### Mentions
 
-- [Review by Softpedia](https://mac.softpedia.com/get/System-Utilities/Command-X.shtml)
 - [10 Mac Apps That Will Change How You Use macOS in 2026](https://www.youtube.com/watch?v=LtuUwACZdsQ&t=426s)
 
-> [!TIP]
-> You may also like my [Supercharge](/supercharge) app which has an [improved implementation](#textfield-limitation) of this.
+My [Supercharge](/supercharge) app has an [improved implementation](#textfield-limitation) of this.
 
 ## Frequently Asked Questions {#faq}
 
@@ -79,7 +83,7 @@ To make sure you used the app correctly, try this: Select a file in Finder, pres
 
 **Note:** You cannot cut, highlight a folder, and then paste. You have to actually go into the folder to paste to it. That’s just how Finder works. Same with copy-pasting.
 
-**It could also be that certain apps (password managers and browsers) are [interfering with the app](/apps/faq#secure-input-problem).**
+It could also be that certain apps (password managers and browsers) are [interfering with the app](/apps/faq#secure-input-problem).
 
 If still not working, try closing down all apps and menu bar items, just to rule out some other app interfering.
 
@@ -101,7 +105,7 @@ If it’s still not working, try re-granting access:
 
 The last thing you could try is to reset the permissions. Either use [App Buddy](/app-buddy), or quit the app, and run this in the Terminal app:
 
-```sh
+```console
 tccutil reset All com.sindresorhus.Command-X
 ```
 

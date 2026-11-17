@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Finder has no command to reopen a closed tab. Choose “Go › Recent Folders”, and choose the folder. With [Supercharge](../apps/supercharge/index.md), ++Shift+Command+T++ reopens the last closed tab, like in a browser.
+	Finder has no command to reopen a closed tab. Choose “Go › Recent Folders”, and choose the folder. With [Supercharge](/supercharge), ++Shift+Command+T++ reopens the last closed tab, like in a browser.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
 1. In the “Finder” section, turn on “Reopen closed tab with ++Shift+Command+T++”.
 1. Close a tab in Finder with ++Command+W++, and press ++Shift+Command+T++. The tab comes back.

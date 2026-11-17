@@ -55,12 +55,12 @@ pressQuotes: [
 		year: 2025
 	}
 ]
-feedbackNote: '[The app randomly disappears/quits](/pandan#randomly-quits)'
+feedbackNote: 'If the app randomly disappears or quits, see [what to do](/pandan#randomly-quits).'
 ---
 
 Pandan shows in the menu bar how long you have been actively using your computer, so you know when it is time to take a break.
 
-It notices when you step away: by default, a session ends after 10 minutes without the keyboard or the mouse. The menu bar shows the time of the current session or the total of today, with or without an icon *([guide](../../guides/mac-usage-time-today.md))*.
+It notices when you step away: by default, a session ends after 10 minutes without the keyboard or the mouse. The menu bar shows the time of the current session or the total of today, with or without an icon. <guide:mac-usage-time-today>
 
 It can also give you a gentle reminder at an interval you choose: a popover, a notification, a HUD, or only a change of the menu bar icon, with an optional sound, haptic feedback, or a shortcut that runs.
 
@@ -83,13 +83,13 @@ This is unfortunately not possible as iOS does not let an app continuously check
 
 ### How can I play a custom sound as a notification? {#custom-notification-sound}
 
-Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the [`Play Sound` action](https://www.icloud.com/shortcuts/9cfae8edd2dd48f3bf318a3d825b1212) and then select that shortcut in the Pandan settings.
+Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the [“Play Sound” action](https://www.icloud.com/shortcuts/9cfae8edd2dd48f3bf318a3d825b1212) and then select that shortcut in the Pandan settings.
 
-If you have my [Dato app](/dato) installed (even the free trial), you could use one of the sounds it provides. Find the `Get Sound` action. [Example](https://www.icloud.com/shortcuts/2bf58f1c90134803a4765745f54794f6)
+If you have my [Dato app](/dato) installed (even the free trial), you could use one of the sounds it provides. Find the “Get Sound” action. [Example](https://www.icloud.com/shortcuts/2bf58f1c90134803a4765745f54794f6)
 
 ### How can I show an alert as a notification? {#alert-as-notification}
 
-Same as the above, but use the `Show Alert` action instead.
+Same as the above, but use the “Show Alert” action instead.
 
 You could also use the “Flash Screen” action from the [Actions app](/actions) to momentarily flash the screen.
 
@@ -99,7 +99,7 @@ Pandan lets you run a single shortcut as a notification, but a shortcut can run 
 
 ### How can I use this as an eye-break reminder? {#eye-break-reminder}
 
-Set Pandan to [remind you to take a break](../../guides/break-reminder-mac.md). Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan settings.
+Set Pandan to [remind you to take a break](guide:break-reminder-mac). Make a shortcut in the Shortcuts app that uses the “Wait” action and set it to the wanted duration of the break. After this action, you can either add a “Play Sound” or “Show Alert” action to notify you when the break is done. Then select this shortcut in the Pandan settings. <guide:20-20-20-rule-mac>
 
 ### How can I disable Pandan while using certain apps? {#disable-for-certain-apps}
 
@@ -111,9 +111,9 @@ You can use the Shortcuts app for this. Make a shortcut that uses the “Set Ena
 
 Get the [“Pandan countdown” shortcut](https://www.icloud.com/shortcuts/fdf0cd45fedb4290bfe14d84a394b601) (requires the [Actions](/actions) and [One Thing](/one-thing) apps) and select it in the Pandan settings. The countdown will update every time Pandan shows a notification. If you want the countdown to update more often, use the [Shortery](https://apps.apple.com/app/id1594183810) app to run the shortcut at an interval.
 
-### How can I start a new session from the command-line? {#how-can-i-start-a-new-session-from-the-command-line}
+### How can I start a new session from the command line? {#how-can-i-start-a-new-session-from-the-command-line}
 
-Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the `New Session` action and [run that shortcut from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcuts-apdf22b0444c/mac) that uses the “New Session” action and [run that shortcut from the command line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
 > [!TIP]
 > Shortcuts can be a bit slow sometimes. You can use this command to have it not wait for the shortcut to finish running: `(&>/dev/null shortcuts run ShortcutName &)`
@@ -123,18 +123,18 @@ Make a [shortcut](https://support.apple.com/guide/shortcuts-mac/intro-to-shortcu
 Pandan comes bundled with actions for the built-in Shortcuts app which you can use to automate Pandan.
 
 > [!TIP]
-> You can [run shortcuts from the command-line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
+> You can [run shortcuts from the command line](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac).
 
-### Use-cases {#shortcuts-use-cases}
+### Use cases {#shortcuts-use-cases}
 
-- [Play custom notification sound](#custom-notification-sound)
-- [Use Pandan as an eye break reminder](#eye-break-reminder)
-- [Show an alert as a notification](#alert-as-notification)
+- Play custom notification sound <section:custom-notification-sound>
+- Use Pandan as an eye break reminder <section:eye-break-reminder>
+- Show an alert as a notification <section:alert-as-notification>
 - Flash the screen as a notification by using the “Flash Screen” action from the [Actions app](/actions)
 - [Show a web page as a notification](https://www.icloud.com/shortcuts/0e3914da016b446dbf2fef7aa0341567)
 - [Lock the screen as a notification](https://www.icloud.com/shortcuts/a3aa4ba2640d4f1b97c85f498e9dd945)
 - [Invert the screen for 20 seconds](https://www.icloud.com/shortcuts/0710b22b12b74ec1bad0f28b327412fd)
 - [Make the screen gray for 20 seconds](https://www.icloud.com/shortcuts/dbdeea0a9a8b41749fa27f15cf3eb6c2)
-- [Show the total active duration today as a countdown](#countdown)
+- Show the total active duration today as a countdown <section:countdown>
 
 *And you can combine these too.*

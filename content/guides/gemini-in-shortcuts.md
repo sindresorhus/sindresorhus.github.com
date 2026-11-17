@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	In [AI Actions](../apps/ai-actions/index.md), enter your Gemini API key and the Gemini base URL. Then add the “Ask AI” action to a shortcut, choose the “Custom” model, and type the name of a Gemini model. Shortcuts has no built-in action for Gemini.
+	In [AI Actions](/ai-actions), enter your Gemini API key and the Gemini base URL. Then add the “Ask AI” action to a shortcut, choose the “Custom” model, and type the name of a Gemini model. Shortcuts has no built-in action for Gemini.
 }
 
 ## With AI Actions
 
 @Steps {
 1. Get a Gemini API key in [Google AI Studio](https://aistudio.google.com/apikey).
-1. Open [AI Actions](../apps/ai-actions/index.md), and open its settings (the first time, tap or click “Set API key (required)”). Paste the key in “OpenAI API Key”.
+1. Open [AI Actions](/ai-actions), and open its settings (the first time, tap or click “Set API key (required)”). Paste the key in “OpenAI API Key”.
 1. In “Ask AI Base URL”, enter `https://generativelanguage.googleapis.com/v1beta/openai/`.
 1. In the Shortcuts app, make a new shortcut, and add the “Ask AI” action.
 1. Type your prompt, or insert a variable. Expand the action, set “Model” to “Custom”, and type the name of a [Gemini model](https://ai.google.dev/gemini-api/docs/models), like `gemini-3.8-flash`, in the field for the model name.
@@ -29,8 +29,9 @@ The base URL is for all “Ask AI” actions. While it is the Gemini URL, “Ask
 
 @Tips {
 - AI Actions stores your API key in the keychain, not in the shortcut, so you can share your shortcuts.
-- To use models on your own Mac, see [how to use Ollama in Shortcuts](ollama-in-shortcuts.md).
-- For ChatGPT, see [how to use ChatGPT in Shortcuts](chatgpt-in-shortcuts.md).
+- To keep the key of another API out of a shortcut, use the keychain actions of Actions. <guide:shortcuts-store-api-key>
+- To use models on your own Mac, see [how to use Ollama in Shortcuts](guide:ollama-in-shortcuts).
+- For ChatGPT, see [how to use ChatGPT in Shortcuts](guide:chatgpt-in-shortcuts).
 }
 
 ## Without an app

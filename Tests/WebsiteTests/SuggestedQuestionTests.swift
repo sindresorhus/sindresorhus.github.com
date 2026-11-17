@@ -86,21 +86,25 @@ struct SuggestedQuestionTests {
 	@Test
 	func `the script of the feedback page suggests the right answers for real messages`() async throws {
 		let content = try await SiteContent.website
-		let questions = FAQSuggestions.Questions(apps: content.maintainedApps, faq: content.page(.faq), guides: content.resolvedGuides.map(\.guide))
+		let questions = FAQSuggestions.Questions(apps: content.maintainedApps, faq: content.page(.faq), guides: content.guides.map(\.guide))
 		let source = try FAQSuggestions.script.source
 		// Only the matching, without the custom element, which needs a page, and without the imports, which a script that is not a module cannot have.
 		let matcherSource = source[..<(try #require(source.range(of: "class FAQSuggestions")).lowerBound)]
 			.split(separator: "\n", omittingEmptySubsequences: false)
 			.filter { !$0.hasPrefix("import ") }
 			.joined(separator: "\n")
+		// The word rules that the script imports, as a function of the context, as a script that is not a module cannot export.
+		let wordsSource = try String(contentsOf: Project.website.publicFile(#path("/scripts/words.js")), encoding: .utf8)
+			.replacing("export function", with: "function")
 		let context = try #require(JSContext())
+		context.evaluateScript(wordsSource)
 		context.evaluateScript(matcherSource)
 		context.setObject(String(decoding: try JSONEncoder().encode(questions), as: UTF8.self), forKeyedSubscript: "data" as NSString)
 
 		func suggestions(for message: String, app: String) -> [String] {
 			context.setObject(message, forKeyedSubscript: "message" as NSString)
 			context.setObject(app, forKeyedSubscript: "app" as NSString)
-			return context.evaluateScript("questionMatcher(JSON.parse(data), app)(message).map(question => question.url)")?.toArray() as? [String] ?? []
+			return context.evaluateScript("(questions => questionMatcher(questions, questions.apps.find(candidate => candidate.title === app)))(JSON.parse(data))(message).map(question => question.url)")?.toArray() as? [String] ?? []
 		}
 
 		let cases = [
@@ -133,6 +137,118 @@ struct SuggestedQuestionTests {
 		// A word that only has the same start is not another form of it, like “freezing” and “free”.
 		let freezingURLs = suggestions(for: "The app keeps freezing.", app: "Dato")
 		#expect(!freezingURLs.contains { $0.contains("#free-trial") }, "\(freezingURLs)")
+
+		#expect(context.exception == nil, "\(context.exception?.toString() ?? "")")
+	}
+
+	/**
+	The search of the site has the apps, the pages, the guides, the sections, the questions, the tips, and the open-source projects with their paths, and the real script of `SiteSearch` finds them with the word rules of the related help, run with JavaScriptCore, the engine of Safari.
+	*/
+	@Test
+	func `the search finds the apps, the guides, and the questions`() async throws {
+		let content = try await SiteContent.website
+		let site = Site(content: content)
+		let index = SiteSearch.Index(site: site)
+		let entries = Dictionary(uniqueKeysWithValues: index.groups.map { group in (group.title, group.entries.map(\.url.description)) })
+
+		#expect(entries["Guides"]?.contains("/guides/open-files-with-enter-finder-mac") == true)
+		#expect(entries["Questions"]?.contains("/dato#missing-calendars") == true)
+		#expect(entries["Questions"]?.contains("/apps/faq#refund") == true)
+		// A question with the own answer of an app is there for each app, not only for the first app with the same question.
+		#expect(entries["Questions"]?.contains("/dato#can-you-localize-the-app-into-my-language") == true)
+		#expect(entries["Pages"]?.contains("/apps/discounts") == true)
+		#expect(entries["Sections"]?.contains("/actions#url-scheme") == true)
+		#expect(entries["Tips"]?.contains("/aiko#batch") == true)
+		#expect(entries["Open Source"]?.contains("https://github.com/chalk/chalk") == true)
+		// The questions and the tips are in their own groups, not in the sections.
+		#expect(entries["Sections"]?.contains("/dato#missing-calendars") == false)
+		#expect(entries["Sections"]?.contains("/aiko#batch") == false)
+
+		let source = try SiteSearch.script.source
+		// Only the matching, without the custom element, which needs a page, and without the imports, which a script that is not a module cannot have.
+		let matcherSource = source[..<(try #require(source.range(of: "class SiteSearch")).lowerBound)]
+			.split(separator: "\n", omittingEmptySubsequences: false)
+			.filter { !$0.hasPrefix("import ") }
+			.joined(separator: "\n")
+		// The modules without `export`, as a script that is not a module cannot have it.
+		let moduleSources = try [#path("/scripts/words.js"), #path("/scripts/edit-distance.js")].map { path in
+			try String(contentsOf: Project.website.publicFile(path), encoding: .utf8)
+				.replacing("export function", with: "function")
+				.replacing("export const", with: "const")
+		}
+		let context = try #require(JSContext())
+
+		for moduleSource in moduleSources {
+			context.evaluateScript(moduleSource)
+		}
+
+		context.evaluateScript(matcherSource)
+		context.setObject(String(decoding: SiteSearch.index(for: site), as: UTF8.self), forKeyedSubscript: "data" as NSString)
+		context.evaluateScript("const index = JSON.parse(data); const search = searchMatcher(index, {...wordMatcher(index), closest, searchKey});")
+
+		func results(for query: String, in group: String, on page: String = "/") -> [String] {
+			context.setObject(query, forKeyedSubscript: "query" as NSString)
+			context.setObject(group, forKeyedSubscript: "group" as NSString)
+			context.setObject(page, forKeyedSubscript: "page" as NSString)
+			return context.evaluateScript("search(query, page).find(candidate => candidate.title === group)?.entries.map(entry => entry.url) ?? []")?.toArray() as? [String] ?? []
+		}
+
+		// A title that starts with the query comes first, also for a word that is too short to be a word of the index.
+		#expect(results(for: "ai", in: "Apps").first == "/ai-actions", "\(results(for: "ai", in: "Apps"))")
+		// The name of the app and another form of a word of the question, and the start of a word that the visitor is still typing.
+		#expect(results(for: "dato missing calend", in: "Questions").contains("/dato#missing-calendars"))
+		#expect(results(for: "open files enter", in: "Guides").contains("/guides/open-files-with-enter-finder-mac"))
+		#expect(results(for: "zzzqqq", in: "Apps").isEmpty)
+		for query in ["-", "+", "/", "..."] {
+			context.setObject(query, forKeyedSubscript: "query" as NSString)
+			#expect(context.evaluateScript("search(query, '/').length")?.toInt32() == 0, "\(query)")
+		}
+		// A whole match in the title of a later group is the top hit, before the app that only matches by its subtitle.
+		#expect(results(for: "convert a video to a gif", in: "Top Hit") == ["/guides/convert-video-to-gif-mac"])
+		// On an app page, its own questions come first in their group.
+		#expect(results(for: "missing", in: "Questions", on: "/dato").first?.hasPrefix("/dato#") == true)
+		// Without a match, the app with the closest name, for a word too short to correct.
+		#expect(results(for: "daot", in: "App with the Closest Name") == ["/dato"])
+		// A typo in a word of 5 or more letters is corrected to the closest word of the index, but not a word that the visitor is still typing.
+		#expect(results(for: "calender", in: "Apps").contains("/menu-bar-calendar"))
+		#expect(results(for: "gifksi", in: "Apps").first == "/gifski")
+		// A name with a hyphen or a short part in any spelling.
+		#expect(results(for: "p limit", in: "Top Hit") == ["https://github.com/sindresorhus/p-limit"])
+		#expect(results(for: "ds store", in: "Apps").first == "/ds-store-inspector")
+		#expect(results(for: "browser_default", in: "Guides").contains("/guides/change-default-browser-mac"))
+		// A word with a short part is the joined word of the index, not its long part, so “e-mail” finds a title with only “email”.
+		#expect(results(for: "e-mail", in: "Pages").contains("/guides/browsers-links-and-email"))
+		// A word that the query does not have as it is, like a word without its apostrophe, is not corrected, as the text of the correction would not show it.
+		context.setObject("calender's", forKeyedSubscript: "query" as NSString)
+		#expect(context.evaluateScript("search(query, '/').some(group => group.correctedQuery !== undefined)")?.toBool() == false)
+		// A correction is kept only when the corrected query matches, so “water” is not “later” in results of some of the words.
+		context.setObject("remind me to drink water", forKeyedSubscript: "query" as NSString)
+		#expect(context.evaluateScript("search(query, '/').some(group => group.correctedQuery !== undefined)")?.toBool() == false)
+		// A joined name in a title is a title match, like a plain word, so “wifi” finds the guides with “Wi-Fi” in their titles first.
+		#expect(results(for: "wifi", in: "Guides").first?.contains("wi-fi") == true, "\(results(for: "wifi", in: "Guides"))")
+		// The marks in the titles allow a hyphen between the letters, like the joined words.
+		#expect(context.evaluateScript("highlightPattern('wifi', ['wifi']).test('Wi-Fi') && highlightPattern('e-mail', ['email']).test('Email')")?.toBool() == true)
+		// A question of the general FAQ also matches a query that names an app.
+		#expect(results(for: "supercharge refund", in: "Questions").first == "/apps/faq#refund")
+		#expect(results(for: "DS_Store Inspector refund", in: "Questions").contains("/apps/faq#refund"))
+		// Search can open the FAQ section itself by its acronym or its full name, in either word order and with a typo.
+		for query in ["velja faq", "faq for velja", "velja frequently asked questions", "vleja faq"] {
+			context.setObject(query, forKeyedSubscript: "query" as NSString)
+			#expect(context.evaluateScript("search(query, '/')[0]?.entries[0]?.url")?.toString() == "/velja#faq", "\(query)")
+		}
+
+		#expect(results(for: "faq for ai actions", in: "Sections", on: "/actions").first == "/ai-actions#faq")
+		context.setObject("faq", forKeyedSubscript: "query" as NSString)
+		#expect(context.evaluateScript("search(query, '/')[0]?.entries[0]?.url")?.toString() == "/apps/faq")
+		// “Key” matches “Keys” more closely than “Keyboard”.
+		#expect(results(for: "mac key keyboard", in: "Guides").first == "/guides/toggle-function-keys-shortcut-mac")
+		// A guide by the name of its Terminal command, and the older versions by the number of a macOS version.
+		#expect(results(for: "sips", in: "Guides").contains("/guides/convert-heic-to-jpg"))
+		#expect(results(for: "macos 15", in: "Sections").first == "/apps/older-versions#macos-15")
+		// All the words of a query in the title of a guide make it the top hit, before an app and a question that only have the words elsewhere or in a longer title.
+		#expect(results(for: "change default browser", in: "Top Hit") == ["/guides/change-default-browser-mac"])
+		// When no entry has all the words, the entries with the most of them.
+		#expect(results(for: "screenshot location", in: "Guides").contains("/guides/change-screenshot-location-mac"))
 
 		#expect(context.exception == nil, "\(context.exception?.toString() ?? "")")
 	}

@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	The clock of macOS is in the menu bar, and the Clock widget is on the desktop, behind your windows. [Dato](../apps/dato/index.md) has a floating clock that stays above all windows, also in fullscreen apps, with the font, the size, and the color that you choose.
+	The clock of macOS is in the menu bar, and the Clock widget is on the desktop, behind your windows. [Dato](/dato) has a floating clock that stays above all windows, also in fullscreen apps, with the font, the size, and the color that you choose.
 }
 
 ## With Dato
 
 @Steps {
-1. Open the settings of [Dato](../apps/dato/index.md), and click “Extras”.
+1. Open the settings of [Dato](/dato), and click “Extras”.
 1. Turn on “Floating clock”. The clock shows on the screen, and the first time, its settings open. Later, click “Customize…” to open them.
 1. Keep “above all windows and in fullscreen” in “Show”. To hide the clock in fullscreen apps, choose “above all windows”.
 1. Drag the clock to where you want it, and close the settings.
@@ -34,7 +34,7 @@ To move the clock later, hold ++Shift++, and drag it. Without ++Shift++, clicks 
 macOS can show a clock on the desktop:
 
 @Steps {
-1. Control-click the desktop, and choose “Edit Widgets…”.
+1. ++Control++-click the desktop, and choose “Edit Widgets…”.
 1. Search for “Clock”, and drag a Clock widget to the desktop.
 }
 

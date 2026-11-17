@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	Click [Supercharge](../apps/supercharge/index.md) in the menu bar, and choose “Quit All Apps”. Without an app, make a shortcut in the Shortcuts app with the “Quit App” action, and set it to “All Apps”.
+	Click [Supercharge](/supercharge) in the menu bar, and choose “Quit All Apps”. [Without an app](#without-an-app), make a shortcut in the Shortcuts app with the “Quit App” action, and set it to “All Apps”.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Click its icon in the menu bar, and choose “Quit All Apps”.
 }
 
@@ -34,4 +34,4 @@ macOS has no command to quit all apps. Make a shortcut:
 1. Click the run button. Or choose a keyboard shortcut for it in the details of the shortcut.
 }
 
-You can also quit each app from the Dock: right-click its icon, and choose “Quit”. The Shortcuts way is good when you already use Shortcuts. Supercharge is faster to set up, and has the action in the menu bar.
+You can also quit each app from the Dock: right-click its icon, and choose “Quit”. The Shortcuts way is good when you already use Shortcuts. Supercharge is faster to set up, and has the action in the menu bar. To quit apps when you stop using them, see [how to quit apps automatically](guide:quit-apps-automatically-mac).

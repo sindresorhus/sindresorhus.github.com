@@ -14,6 +14,7 @@ struct OpenGraphCardTests {
 
 	@Test(arguments: [
 		OpenGraphCard.Artwork.image(Project.website.publicFile(#path("/assets/sindre-sorhus.jpg"))),
+		.appScreenshot(icon: Project.website.publicFile(#path("/assets/sindre-sorhus.jpg")), screenshot: Project.website.publicFile(#path("/assets/sindre-sorhus.jpg"))),
 		.icons(Array(repeating: Project.website.publicFile(#path("/assets/sindre-sorhus.jpg")), count: 8)),
 		OpenGraphCardTests.calendarArtwork,
 	])
@@ -55,6 +56,7 @@ struct OpenGraphCardTests {
 
 	@Test(arguments: [
 		OpenGraphCard.Artwork.image(URL(filePath: "/missing/icon.png")),
+		.appScreenshot(icon: URL(filePath: "/missing/icon.png"), screenshot: URL(filePath: "/missing/screenshot1.png")),
 		.icons([URL(filePath: "/missing/icon.png")]),
 	])
 	func `renders without the image when it is missing`(artwork: OpenGraphCard.Artwork) throws {
@@ -66,6 +68,34 @@ struct OpenGraphCardTests {
 			description: "Test"
 		)
 		_ = try card.renderJPEG()
+	}
+
+	/**
+	The dark card, for the share dialog of an app page in dark mode, has the dark background of the site, at its own path.
+	*/
+	@Test(arguments: [
+		OpenGraphCard.Artwork.image(URL(filePath: "/missing/icon.png")),
+		.icons([]),
+	])
+	func `a dark card has a dark background`(artwork: OpenGraphCard.Artwork) throws {
+		func firstPixel(of appearance: OpenGraphCard.Appearance) throws -> UInt8 {
+			let card = OpenGraphCard(
+				path: OpenGraphCard.path(ofPage: #path("/test"), appearance: appearance),
+				title: "Title",
+				subtitle: "Subtitle",
+				artwork: artwork,
+				description: "Test",
+				appearance: appearance
+			)
+			let source = try #require(CGImageSourceCreateWithData(try card.renderJPEG() as CFData, nil))
+			let image = try #require(CGImageSourceCreateImageAtIndex(source, 0, nil))
+			let pixels = try #require(image.dataProvider?.data as Data?)
+			return pixels[0]
+		}
+
+		#expect(try firstPixel(of: .light) > 200)
+		#expect(try firstPixel(of: .dark) < 60)
+		#expect(OpenGraphCard.path(ofPage: #path("/dato"), appearance: .dark) == #path("/og/dato-dark.jpg"))
 	}
 
 	/**
@@ -89,6 +119,29 @@ struct OpenGraphCardTests {
 
 		let cut = card(subtitle: String(repeating: "A sentence that is much too long for the card. ", count: 6))
 		#expect(try cut.cutTexts() == (title: false, subtitle: true))
+	}
+
+	/**
+	Discord shows no preview for a component embed that is larger than 3,000 bytes, or that has another component than one container at the top, so the embed of each app page is smaller, and starts with the container.
+	*/
+	@Test
+	func `the Discord preview of each app page is a container within the size that Discord reads`() async throws {
+		var checkedCount = 0
+
+		for page in try await RenderedPage.website {
+			guard let script = page.html.scriptTags.first(where: { $0.id == DiscordEmbed.id.rawValue }) else {
+				continue
+			}
+
+			checkedCount += 1
+			#expect(script.type == "application/vnd.discord.component-embed+json")
+			#expect(script.body.utf8.count <= DiscordEmbed.maximumSize, "\(page.route.path): \(script.body.utf8.count) bytes")
+			let json = try #require(try JSONSerialization.jsonObject(with: Data(script.body.utf8)) as? [String: Any])
+			#expect(json.keys.sorted() == ["component"])
+			#expect((json["component"] as? [String: Any])?["type"] as? Int == 17)
+		}
+
+		#expect(checkedCount >= 50)
 	}
 
 	/**

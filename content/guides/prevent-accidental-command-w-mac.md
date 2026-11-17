@@ -9,7 +9,7 @@ apps: [
 ---
 
 @QuickAnswer {
-	In the settings of [Supercharge](../apps/supercharge/index.md), choose to close windows only when you hold ++Command+W++, press ++W++ twice, or press ++Shift+Command+W++, in the apps that you choose. Without an app, give the Close command of an app another shortcut in “[System Settings › Keyboard › Keyboard Shortcuts… › App Shortcuts](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”.
+	In the settings of [Supercharge](/supercharge), choose to close windows only when you hold ++Command+W++, press ++W++ twice, or press ++Shift+Command+W++, in the apps that you choose. [Without an app](#without-an-app), give the Close command of an app another shortcut in “[System Settings › Keyboard › Keyboard Shortcuts… › App Shortcuts](x-apple.systempreferences:com.apple.Keyboard-Settings.extension)”.
 }
 
 A wrong ++Command+W++ is worst in an app where the window is the work, like a web app that you added to the Dock from Safari.
@@ -17,7 +17,7 @@ A wrong ++Command+W++ is worst in an app where the window is the work, like a we
 ## With Supercharge
 
 @Steps {
-1. Open [Supercharge](../apps/supercharge/index.md), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
+1. Open [Supercharge](/supercharge), and give it the access that it asks for in [“Device Control and Data Access”](/apps/faq#device-control-access).
 1. Open the Supercharge settings, and click “Tweaks”.
 1. In the “Apps & Windows” section, choose one of these in “Prevent accidental ++Command+W++ window closing by instead using”:
 	- Press and hold ++Command+W++.
@@ -26,7 +26,7 @@ A wrong ++Command+W++ is worst in an app where the window is the work, like a we
 1. Click “No apps” below the menu, and choose the apps that it applies to. It does nothing until you choose an app.
 }
 
-Then a single press of ++Command+W++ does nothing in these apps, and the way you chose closes the window. In all other apps, ++Command+W++ works as before. To also stop ++Command+Q++, see [how to stop Command+Q from quitting apps by accident](prevent-accidental-command-q-mac.md).
+Then a single press of ++Command+W++ does nothing in these apps, and the way you chose closes the window. In all other apps, ++Command+W++ works as before. To also stop ++Command+Q++, see [how to stop Command+Q from quitting apps by accident](guide:prevent-accidental-command-q-mac).
 
 ## Without an app
 

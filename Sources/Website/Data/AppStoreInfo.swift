@@ -64,17 +64,20 @@ extension AppStoreID: ValidatedValue {
 /**
 The App Store info of an app, like the price and rating, from the US App Store.
 
-Mac App Store apps always have a rating count of 0.
+The App Store has a record for each platform of an app. The plain lookup gives the iPhone record of an app that is also a native Mac app (a universal app), and the record of a Mac app without its ratings. The lookup of Mac apps (`entity=desktopSoftware`) gives the Mac records with their ratings. ``lookup(ids:cache:)`` combines them (``adding(macRecord:)``).
 */
 struct AppStoreInfo: Decodable {
 	let id: AppStoreID
 
-	let version: String?
+	/**
+	The current version, of the Mac version for a universal app.
+	*/
+	private(set) var version: String?
 
 	/**
-	When the current version was released.
+	When the current version was released, of the Mac version for a universal app.
 	*/
-	let currentVersionReleaseDate: Date?
+	private(set) var currentVersionReleaseDate: Date?
 
 	/**
 	The price to download the app, with its currency.
@@ -82,9 +85,9 @@ struct AppStoreInfo: Decodable {
 	let price: Price?
 
 	/**
-	The rating, when the app has ratings. Mac App Store apps have none.
+	The rating, when the app has ratings. For a universal app, the ratings of the iPhone and the Mac version together.
 	*/
-	let rating: StoreRating?
+	private(set) var rating: StoreRating?
 
 	/**
 	The kind of app of the result. The IDs of apps, songs, and books are one number space, so the lookup of an ID with a typo can find a song, like `La patience de Winnie` for an ID of Dato with two digits swapped. `nil` for a result that is not an app.
@@ -111,19 +114,24 @@ struct AppStoreInfo: Decodable {
 	}
 
 	/**
-	The lowest version of macOS for Mac apps, of visionOS for Apple Vision apps, or else of iOS, like `26.0`.
+	The lowest version of macOS for Mac apps and universal apps, of visionOS for Apple Vision apps, or else of iOS, like `26.0`.
 	*/
-	let minimumOSVersion: OSVersion?
+	private(set) var minimumOSVersion: OSVersion?
 
 	/**
-	The platforms that the App Store lists for the app, decoded from device strings like `iPhone5s-iPhone5s` and `MacDesktop-MacDesktop`. It does not list where iPad apps also run, like on Apple Vision and Macs with Apple silicon.
+	The platforms that the App Store lists for the app, decoded from device strings like `iPhone5s-iPhone5s` and `MacDesktop-MacDesktop`. It does not list where iPad apps also run, like on Apple Vision and Macs with Apple silicon. An app with a Mac record also has macOS (``adding(macRecord:)``).
 	*/
-	let listedPlatforms: Set<Platform>
+	private(set) var listedPlatforms: Set<Platform>
 
 	/**
-	The download size in bytes, decoded from the text of `fileSizeBytes`, like `"19244046"`.
+	The download size in bytes, decoded from the text of `fileSizeBytes`, like `"19244046"`, of the Mac version for a universal app.
 	*/
-	let fileSize: Int64?
+	private(set) var fileSize: Int64?
+
+	/**
+	The download size in bytes of the iPhone and iPad version of a universal app, which is often another size than the Mac version (``fileSize``), like 1.84 GB and 2.87 GB for Aiko. `nil` for an app with one version.
+	*/
+	private(set) var iOSFileSize: Int64?
 
 	/**
 	The main category of the app on the App Store, like `Developer Tools`.
@@ -241,7 +249,26 @@ struct AppStoreInfo: Decodable {
 	}
 
 	/**
-	Looks up the apps with one request. A result that is not an app, like a song for an ID with a typo, is left out, so the build fails with an error at the `appStoreID` of the app.
+	The info of a universal app with its Mac record, or the Mac record of a native Mac app, which has the ratings that the plain record does not have. The rating of a universal app is of both records: the counts are summed, and the averages are weighted by the counts (``combinedRating``). The version, its date, the requirement, and the size are of the Mac version, as most visitors use a Mac, and the size of the iPhone version is ``iOSFileSize``.
+	*/
+	func adding(macRecord: Self) -> Self {
+		guard !isMacApp else {
+			return macRecord
+		}
+
+		var info = self
+		info.rating = [self, macRecord].combinedRating
+		info.version = macRecord.version
+		info.currentVersionReleaseDate = macRecord.currentVersionReleaseDate
+		info.minimumOSVersion = macRecord.minimumOSVersion
+		info.fileSize = macRecord.fileSize
+		info.iOSFileSize = fileSize
+		info.listedPlatforms.formUnion(macRecord.listedPlatforms)
+		return info
+	}
+
+	/**
+	Looks up the apps with two requests: the plain lookup and the lookup of the Mac records (``adding(macRecord:)``). A result that is not an app, like a song for an ID with a typo, is left out, so the build fails with an error at the `appStoreID` of the app.
 
 	An empty response is a failed lookup, so a temporary error of Apple keeps the cached response with a warning, or warns when no cached response is available.
 	*/
@@ -285,14 +312,20 @@ struct AppStoreInfo: Decodable {
 
 		let url = #URL("https://itunes.apple.com/lookup").appending(queryItems: [URLQueryItem(name: "id", value: ids.uniqued(by: \.self).map(\.description).joined(separator: ","))])
 
-		let response = try await cache.decoded(Response.self, from: url)
-		return response.results.keyed(by: \.id)
+		// Each request uses its cached response with a warning when it fails, like the other data. An app with only an iPhone version has no Mac record. The Mac records only add to the plain lookup, so when their request fails without a cached response, the apps keep the plain records (a Mac app then has no rating), and the other App Store info stays.
+		async let records = cache.decoded(Response.self, from: url)
+		async let macRecords = cache.decoded(Response.self, from: url.appending(queryItems: [URLQueryItem(name: "entity", value: "desktopSoftware")]))
+		let macRecordsByID = (try? await macRecords.results.keyed(by: \.id)) ?? [:]
+
+		return try await records.results.keyed(by: \.id).mapValues { record in
+			macRecordsByID[record.id].map(record.adding(macRecord:)) ?? record
+		}
 	}
 }
 
 extension Sequence<AppStoreInfo> {
 	/**
-	The ratings of all the apps together: the averages weighted by their number of ratings, and the total number of ratings. Like all the info, they are of the US App Store, and Mac App Store apps have none. `nil` when no app has ratings, like when all are Mac apps.
+	The ratings of all the apps together: the averages weighted by their number of ratings, and the total number of ratings. Like all the info, they are of the US App Store. `nil` when no app has ratings.
 	*/
 	var combinedRating: StoreRating? {
 		let ratings = compactMap(\.rating)
@@ -317,12 +350,19 @@ struct StoreRating {
 		case gumroad
 
 		/**
-		The name of the store in a sentence, like “the App Store”.
+		The name of the store in a sentence, like “the App Store” (``title``).
 		*/
 		var name: String {
+			self == .appStore ? "the \(title)" : title
+		}
+
+		/**
+		The name of the store alone, like “App Store”, like in the source of a review.
+		*/
+		var title: String {
 			switch self {
 			case .appStore:
-				"the App Store"
+				"App Store"
 			case .gumroad:
 				"Gumroad"
 			}

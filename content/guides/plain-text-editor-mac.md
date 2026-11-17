@@ -2,7 +2,7 @@
 title: 'How to Use a Plain Text Editor on Mac'
 description: 'Write plain text without formatting in Plain Text Editor, a simple notepad for Mac, or set TextEdit to plain text.'
 publicationDate: 2026-10-31
-topic: 'text-images-and-sound'
+topic: 'text-and-images'
 apps: [
 	'plain-text-editor'
 ]
@@ -13,13 +13,13 @@ screenshot: {
 ---
 
 @QuickAnswer {
-	Open [Plain Text Editor](../apps/plain-text-editor/index.md), and type. It only writes plain text, so there is no formatting to remove. Without an app, choose “Format › Make Plain Text” in TextEdit.
+	Open [Plain Text Editor](/plain-text-editor), and type. It only writes plain text, so there is no formatting to remove. [Without an app](#without-an-app), choose “Format › Make Plain Text” in TextEdit.
 }
 
 ## With Plain Text Editor
 
 @Steps {
-1. Open [Plain Text Editor](../apps/plain-text-editor/index.md). A new document opens.
+1. Open [Plain Text Editor](/plain-text-editor). A new document opens.
 1. Type your text.
 1. Press ++Command+S++ to save it as a text file.
 }
@@ -35,6 +35,6 @@ TextEdit, which comes with macOS, writes rich text by default. To use it for pla
 1. Choose “Format › Make Plain Text”.
 }
 
-To make all new documents plain text, open the TextEdit settings, and choose “Plain text” in “New Document”. A plain text document is saved as a `.txt` file. [Apple’s instructions.](https://support.apple.com/guide/textedit/txtee6663a0e/mac)
+To make all new documents plain text, open the TextEdit settings, and choose “Plain text” in “New Document”. A plain text document is saved as a `.txt` file. <source:https://support.apple.com/guide/textedit/txtee6663a0e/mac>
 
 TextEdit is enough for a short note. Plain Text Editor is nicer to write in for a long time, as it has space around the text and a word count.

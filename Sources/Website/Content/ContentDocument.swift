@@ -57,6 +57,16 @@ protocol DocumentFrontmatter: SiteKit.Frontmatter {
 	Makes the document link to a page elsewhere, like a GitHub repo, instead of having a page. The default is `nil`, for the types without the key.
 	*/
 	var redirectURL: AbsoluteURL? { get }
+
+	/**
+	A plain text of the frontmatter, with the coding path of its value, like `[App.Frontmatter.CodingKeys.subtitle]`. `nil` for a missing optional value.
+	*/
+	typealias ProseText = (text: String?, path: [any CodingKey])
+
+	/**
+	The plain texts of the frontmatter that visitors read, like the title and the description of a search result, with the coding path of each, so `website check` checks their spelling at their line. A missing optional value has no text. Names and the words of other people, like the title of an app and its press quotes, are not in it.
+	*/
+	var proseTexts: [ProseText] { get }
 }
 
 extension DocumentFrontmatter {
@@ -252,7 +262,7 @@ extension Project {
 		let files: [URL]
 
 		do {
-			files = try contentDirectory.filesRecursively().filter { $0.pathExtension == "md" }
+			files = try contentDirectory.filesRecursively().filter(\.isMarkdownFile)
 		} catch {
 			throw ContentErrors(converting: error, file: contentDirectory)
 		}
@@ -324,6 +334,116 @@ extension RoutePath {
 	}
 }
 
+extension [String: MarkdownDocument.LinkTag] {
+	/**
+	The tags of links of the site (``SiteKit/MarkdownDocument/Options/linkTags``), which work the same in every content file: a link to a guide by its slug, like `<guide:find-screenshots-mac>`, is a “Guide” tag, a link to a section of the same page by its ID, like `<section:dock-folder-click>`, is a “Details” tag, like after a feature that a section further down explains, and a link to the instructions of a company, like `<source:https://support.apple.com/102430>`, is a tag with the name of the company, like “Apple” (``SourceSite``). The schemes are the cases of ``LinkTagScheme``.
+
+	- Parameter project: Names a “Guide” tag with the task of its guide (``Guide/task(slug:project:)``), like “Guide: Find Screenshots on Mac”, for screen readers and the Markdown copies. Without it, like in the link previews, the name is the text of the tag.
+	*/
+	static func site(project: Project?) -> Self {
+		Self(uniqueKeysWithValues: LinkTagScheme.allCases.map { ($0.rawValue, $0.tag(project: project)) })
+	}
+}
+
+/**
+The scheme of a tag of a link of the site (``Swift/Dictionary/site(project:)``), like `guide` in `<guide:find-screenshots-mac>`. A new tag is a case, with its tag (``tag(project:)``) and how its link resolves (``MarkdownFile/resolvingLink(_:project:)``), which switch over the cases, so the compiler finds a missing one.
+*/
+enum LinkTagScheme: String, CaseIterable {
+	/**
+	A link to a guide by its slug, like `<guide:find-screenshots-mac>`, which is a “Guide” tag after a feature or an answer, or `[the guide](guide:find-screenshots-mac)` in a sentence. It works the same in every content file, and a slug that is not a guide is a content error.
+	*/
+	case guide
+
+	/**
+	A link to a section of the same page by its ID, like `<section:dock-folder-click>` for `#dock-folder-click`, which is a “Details” tag after a feature that a section further down explains, so the feature is plain text, not a long underlined link.
+	*/
+	case section
+
+	/**
+	A link to the instructions of a company, like `<source:https://support.apple.com/102430>`, which is a tag with the name of the company, like “Apple” (``SourceSite``).
+	*/
+	case source
+
+	/**
+	The scheme of a link and the part after it, like `.guide` and `find-screenshots-mac#steps` for `guide:find-screenshots-mac#steps`, or `nil` for a link without one of the schemes.
+	*/
+	static func split(_ destination: String) -> (scheme: Self, target: Substring)? {
+		guard
+			let colon = destination.firstIndex(of: ":"),
+			let scheme = Self(rawValue: String(destination[..<colon]))
+		else {
+			return nil
+		}
+
+		return (scheme, destination[destination.index(after: colon)...])
+	}
+
+	/**
+	The tag of a link with the scheme.
+
+	- Parameter project: Names a “Guide” tag with the task of its guide (``Guide/task(slug:project:)``). Without it, the name is the text of the tag.
+	*/
+	func tag(project: Project?) -> MarkdownDocument.LinkTag {
+		switch self {
+		case .guide:
+			.init("Guide") { target in
+				project.flatMap { Guide.task(slug: String(target.prefix { $0 != "#" }), project: $0) }
+			}
+		case .section:
+			.init("Details")
+		case .source:
+			// A link to another site is an error of the link (``MarkdownFile/resolvingLink(_:project:)``).
+			.init { target in
+				let name = SourceSite(link: target)?.name ?? "Source"
+				return (name, "\(name)’s instructions")
+			}
+		}
+	}
+}
+
+/**
+A site with the instructions of a company, like the support site of Apple, that a text links to with a small tag after the sentence that the instructions are the source of, like `<source:https://support.apple.com/102430>`, which shows the name of the company, like “Apple”, and is named “Apple’s instructions” for screen readers and in the Markdown copies (``Swift/Dictionary/site(project:)``). A tag that links to another site is a content error. Add the site here when the content needs it.
+*/
+enum SourceSite: String, CaseIterable {
+	case anthropic = "support.claude.com"
+	case apple = "support.apple.com"
+	case figma = "help.figma.com"
+	case google = "support.google.com"
+	case microsoft = "support.microsoft.com"
+	case zoom = "support.zoom.com"
+
+	/**
+	The site of a link, like `https://support.apple.com/102430`, or `nil` for a link to another site.
+	*/
+	init?(link: String) {
+		guard let host = URL(string: link)?.host() else {
+			return nil
+		}
+
+		self.init(rawValue: host)
+	}
+
+	/**
+	The name of the company that the page shows, like “Apple”.
+	*/
+	var name: String {
+		switch self {
+		case .anthropic:
+			"Anthropic"
+		case .apple:
+			"Apple"
+		case .figma:
+			"Figma"
+		case .google:
+			"Google"
+		case .microsoft:
+			"Microsoft"
+		case .zoom:
+			"Zoom"
+		}
+	}
+}
+
 extension MarkdownFile {
 	/**
 	The page that a link of the file goes to, like `/dato` for `../apps/dato/index.md#faq`, or `nil` for a link to another site, and for a link that is not valid, which the build already reported.
@@ -333,11 +453,28 @@ extension MarkdownFile {
 	}
 
 	/**
-	A link in the file, with a link to another content file, like `dato.md` or `../pages/about.md`, as the path of its page, and a link to a file of its page bundle, like `screenshot.png`, as the path of the published file. Other links stay as they are, and every link is checked as a ``LinkDestination``, except a relative link without an extension, like `donate`, which the browser resolves, as ``LinkDestination`` has no relative case. So a malformed URL or a path with `.` or `..` is an error, and so is a relative link with a file extension to a file that does not exist, like a typo in a file name.
+	A link in the file, with a link to another content file, like `dato.md` or `../pages/about.md`, or to a guide by its slug, like `guide:find-screenshots-mac`, as the path of its page, a link to a section by its ID, like `section:dock-folder-click`, as the fragment, like `#dock-folder-click`, a source tag, like `source:https://support.apple.com/102430`, as its link, and a link to a file of its page bundle, like `screenshot.png`, as the path of the published file. Other links stay as they are, and every link is checked as a ``LinkDestination``, except a relative link without an extension, like `donate`, which the browser resolves, as ``LinkDestination`` has no relative case. So a malformed URL or a path with `.` or `..` is an error, and so is a relative link with a file extension to a file that does not exist, like a typo in a file name.
 	*/
 	func resolvingLink(_ destination: String, project: Project) throws(ContentError) -> String {
 		let path = String(destination.prefix { $0 != "#" })
 		let fragment = destination.dropFirst(path.count)
+
+		if let tag = LinkTagScheme.split(destination) {
+			switch tag.scheme {
+			case .guide:
+				return try resolvingGuideLink(slug: String(tag.target.prefix { $0 != "#" }), fragment: fragment, project: project)
+			case .section:
+				return try "#\(tag.target)".checkedAsLink
+			case .source:
+				let link = String(tag.target)
+
+				guard SourceSite(link: link) != nil else {
+					throw ContentError(reason: "The source tag `<\(destination)>` goes to a site that has no name for the tag. Link to the instructions on \(SourceSite.allCases.map { "`\($0.rawValue)`" }.formattedList(.or)), or add the site to `SourceSite`.")
+				}
+
+				return try link.checkedAsLink
+			}
+		}
 
 		guard
 			!path.isEmpty,
@@ -379,6 +516,24 @@ extension MarkdownFile {
 	}
 
 	/**
+	The page of a guide by its slug (``LinkTagScheme/guide``), like `/guides/find-screenshots-mac` for `guide:find-screenshots-mac`. A slug without a guide is an error with the closest slug, like after the rename of a guide, so no link goes to an old slug.
+	*/
+	private func resolvingGuideLink(slug: String, fragment: Substring, project: Project) throws(ContentError) -> String {
+		guard
+			let validSlug = try? ContentSlug(validating: slug),
+			Guide.sourceFile(for: validSlug, in: project) != nil
+		else {
+			let directory = Guide.directory.fileURL(in: project.root)
+			let files = directory.files.filter(\.isMarkdownFile) + directory.directories.map(\.pageBundleIndex).filter(\.isFile)
+			let slugs = files.map { MarkdownFile.slug(of: $0, relativeTo: directory) }
+			let suggestion = slug.closest(in: slugs).map { " Did you mean `\(LinkTagScheme.guide.rawValue):\($0)`?" } ?? ""
+			throw ContentError(reason: "The link `\(LinkTagScheme.guide.rawValue):\(slug)` goes to a guide that does not exist.\(suggestion)")
+		}
+
+		return try "\(Guide.path(slug: validSlug).description)\(fragment)".checkedAsLink
+	}
+
+	/**
 	The link to the content file that is the closest to the target of a link that does not exist, for a “Did you mean …?” of a typo in a long slug, like `transcribe-audio-to-text-mac.md` for `transcribe-audio-to-text.md`: a Markdown file next to the target, or for a link to the `index.md` of a page bundle, a page bundle next to its folder, like `../apps/dato/index.md` for `../apps/datto/index.md`. `nil` when the target exists or no name is close.
 	*/
 	private func closestContentLink(to path: String, target: URL) -> String? {
@@ -386,13 +541,13 @@ extension MarkdownFile {
 			return nil
 		}
 
-		let isBundle = target.lastPathComponent == "index.md"
+		let isBundle = target.isPageBundleIndex
 		let misspelled = isBundle ? target.deletingLastPathComponent() : target
 		let ending = isBundle ? "/index.md" : ""
 		let names = if isBundle {
-			misspelled.deletingLastPathComponent().directories.filter { $0.appending(path: "index.md").isFile }.map(\.lastPathComponent)
+			misspelled.deletingLastPathComponent().directories.filter(\.pageBundleIndex.isFile).map(\.lastPathComponent)
 		} else {
-			misspelled.deletingLastPathComponent().files.filter { $0.pathExtension == "md" }.map(\.lastPathComponent)
+			misspelled.deletingLastPathComponent().files.filter(\.isMarkdownFile).map(\.lastPathComponent)
 		}
 
 		guard

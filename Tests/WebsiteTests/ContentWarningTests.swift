@@ -26,6 +26,20 @@ struct ContentWarningTests {
 	}
 
 	@Test(arguments: [
+		("- **Time Travel**\\\n\tSlide to see the time later.", 1),
+		("- Time Travel\n\t:: Slide to see the time later.", 0),
+		("- **Time Travel:** Slide to see the time later.", 0),
+		("- See **Time Travel**\\\n\tfor the time later.", 0),
+		("**Time Travel**\\\nSlide to see the time later.", 0),
+	])
+	func `a list item with a bold name and a line break is a warning`(body: String, expectedCount: Int) async throws {
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .boldNameWithLineBreak)
+
+		#expect(warnings.count == expectedCount)
+	}
+
+	@Test(arguments: [
 		("The free [Test](/test) app.", true),
 		("### The free [Test](/test) app", true),
 		("Test is free.", true),
@@ -41,7 +55,7 @@ struct ContentWarningTests {
 		let app = try await App(frontmatter: "gumroad: {id: 'test', price: 6}")
 		let guide = try await Guide(markdown: Guide.testMarkdown(body: "\(Guide.testBody)\n\n\(text)"))
 		let resolved = try #require(Guide.Resolved(guide: guide, apps: [app]))
-		let content = SiteContent.test(apps: [app], guides: [guide], resolvedGuides: [resolved])
+		let content = SiteContent.test(apps: [app], guides: [resolved])
 
 		#expect(await content.warningTexts(of: .freePaidApp).count == (expectsWarning ? 1 : 0))
 	}
@@ -52,7 +66,7 @@ struct ContentWarningTests {
 		let markdown = Guide.testMarkdown().replacing("description: 'Use Test.'", with: "description: '\(description)'")
 		let guide = try await Guide(markdown: markdown)
 		let resolved = try #require(Guide.Resolved(guide: guide, apps: [app]))
-		let content = SiteContent.test(apps: [app], guides: [guide], resolvedGuides: [resolved])
+		let content = SiteContent.test(apps: [app], guides: [resolved])
 
 		#expect(await content.warningTexts(of: .freePaidApp).count == (expectsWarning ? 1 : 0))
 	}
@@ -172,6 +186,17 @@ struct ContentWarningTests {
 			"content/apps/test.md:8: The image has `width` but no `height`, so it has no aspect ratio before it loads, and the page shifts. Add `height`.",
 			"content/apps/test.md:10: The image has `height` but no `width`, so it has no aspect ratio before it loads, and the page shifts. Add `width`.",
 			"content/apps/test.md:12: The remote image has no `width` and `height`, so the page shifts while it loads.",
+		])
+	}
+
+	@Test
+	func `a range of numbers with a hyphen is a warning, but not a date, a word, or code`() async throws {
+		let source = App.testMarkdown(body: "Values 0-255 and (0-1). On 2026-11-22, the 20-20-20 rule, 0–9, and `1-2`.\n")
+		let content = SiteContent.test(apps: [try await App(markdown: source)])
+
+		#expect(await content.warningTexts(of: .hyphenRange) == [
+			"content/apps/test.md:8: Write the range “0-255” with an en dash, like “0–255”, so the page keeps it on one line.",
+			"content/apps/test.md:8: Write the range “0-1” with an en dash, like “0–1”, so the page keeps it on one line.",
 		])
 	}
 
@@ -366,6 +391,41 @@ struct ContentWarningTests {
 		])
 	}
 
+	@Test
+	func `nested frontmatter prose is checked at the line of each value`() async throws {
+		let app = try await App(markdown: """
+		---
+		title: 'Test'
+		subtitle: 'A test app'
+		publicationDate: 2026-01-01
+		platforms: ['macOS']
+		isPaid: true
+		privacyNote: 'The the text stays here.'
+		trial: {
+			url: 'https://example.com/Test.zip'
+			limitations: 'The the inspector works four times.'
+		}
+		announcement: {
+			text: 'The the app is ready'
+			link: {
+				url: '/apps'
+				text: 'Get the the app'
+			}
+		}
+		---
+
+		Text.
+		""")
+		let content = SiteContent.test(apps: [app])
+
+		#expect(await content.warningTexts(of: .repeatedWord) == [
+			"content/apps/test.md:7: Repeated word: “The the”.",
+			"content/apps/test.md:10: Repeated word: “The the”.",
+			"content/apps/test.md:13: Repeated word: “The the”.",
+			"content/apps/test.md:16: Repeated word: “the the”.",
+		])
+	}
+
 	/**
 	The rules of the content that `ContentGuardTests` and `PageTests` check are warnings at their lines too, so `website check` shows them.
 	*/
@@ -402,6 +462,124 @@ struct ContentWarningTests {
 			"content/apps/test.md:20: The published page has the note “TODO: Check the price.”. Resolve it, or make the page a draft (`isDraft: true`) until it is resolved.",
 			"content/apps/test.md:22: A line break (`<br>`) alone is a spacer, but the styles set the space between the blocks of the page. Remove it.",
 		])
+	}
+
+	@Test
+	func `an asterisk next to italic or bold text is a warning`() async throws {
+		let body = "The **bold text*.\n\nThe *italic text**.\n\nThe **bold** and *italic* text, and an escaped \\* *note*.\n"
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .rawMarkdown)
+
+		#expect(warnings == [
+			"content/apps/test.md:8: The text has a `*` right next to italic or bold text, like from `**text*`, so the page shows the asterisk. Close the emphasis with the same number of asterisks that open it.",
+			"content/apps/test.md:10: The text has a `*` right next to italic or bold text, like from `**text*`, so the page shows the asterisk. Close the emphasis with the same number of asterisks that open it.",
+		])
+	}
+
+	@Test
+	func `a menu path outside one pair of typographic quotes is a warning`() async throws {
+		let body = "Choose “Remind Me” › “Tomorrow Morning”.\n\nOpen Settings › Events.\n\nOpen “Settings › Events”, click ‹ or › to see, and read [Settings › Events](https://example.com).\n"
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .unquotedMenuPath)
+
+		#expect(warnings == [
+			"content/apps/test.md:8: Write the menu path in one pair of typographic quotes, like “Settings › Events”, so the page keeps each item on one line.",
+			"content/apps/test.md:10: Write the menu path in one pair of typographic quotes, like “Settings › Events”, so the page keeps each item on one line.",
+		])
+	}
+
+	@Test
+	func `a line that continues the paragraph above it is a warning`() async throws {
+		let body = "First note.\nSecond note.\n\nA line break.\\\nThe next line.\n\n- An item\n  that continues.\n\n> [!NOTE]\n> The note.\n"
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .joinedLines)
+
+		#expect(warnings == [
+			"content/apps/test.md:9: The line continues the paragraph above it, so the page shows both lines as one paragraph. Add a blank line between them, or join them.",
+		])
+	}
+
+	@Test(arguments: [
+		("Control-click the file.", 1),
+		("Option-right-click the icon, or Shift-clicking it.", 2),
+		("++Control++-click the file.", 0),
+		("A Command-line tool.", 0),
+		("[Control-click](/apps) the file.", 0),
+		("`Control-click` the file.", 0),
+	])
+	func `a click with a modifier as plain text is a warning`(body: String, expectedCount: Int) async throws {
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .plainTextModifierClick)
+
+		#expect(warnings.count == expectedCount)
+	}
+
+	@Test
+	func `a straight apostrophe, “e.g.”, and three periods are warnings, but not in typographic quotes or code`() async throws {
+		let body = "A folder's submenu, “kim's” in a search, and `don't`.\n\nApps (e.g. Dato) and more...\n\nApps (like Dato) and more…\n"
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .straightApostrophe, .exampleAbbreviation, .threePeriods)
+
+		#expect(warnings == [
+			"content/apps/test.md:8: Write the apostrophe of “folder's” as ’, like the other text of the site.",
+			"content/apps/test.md:10: Write “like” or “for example” in place of “e.g.”, like the other text of the site.",
+			"content/apps/test.md:10: Write “…” in place of three periods, like the other text of the site.",
+		])
+	}
+
+	@Test(arguments: [
+		("**Notes:**\n\n- First", 1),
+		("**Notes**\n\n- First", 0),
+		("**Note:** Read this.", 0),
+		("- **Copy:**\n\n  Copies the text.", 0),
+	])
+	func `a bold label that ends with a colon is a warning`(body: String, expectedCount: Int) async throws {
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .boldLabelColon)
+
+		#expect(warnings.count == expectedCount)
+	}
+
+	@Test
+	func `System Settings paths with two links, without a link to a known pane, or with an item with and without an ellipsis are warnings`() async throws {
+		let privacy = "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension"
+		let keyboard = "x-apple.systempreferences:com.apple.Keyboard-Settings.extension"
+		let body = "Open “[System Settings › Privacy & Security › Full Disk Access](\(privacy))”.\n\nOpen “[System Settings › Privacy & Security › Full Disk Access](\(privacy)?Privacy_AllFiles)”.\n\nOpen “System Settings › Focus” and “System Settings › Energy”.\n\nOpen “[System Settings › Keyboard › Keyboard Shortcuts…](\(keyboard))” and “[System Settings › Keyboard › Keyboard Shortcuts › Services](\(keyboard))”.\n"
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .systemSettingsLinkMismatch, .unlinkedSystemSettingsPath, .menuPathEllipsis)
+
+		#expect(warnings == [
+			"content/apps/test.md:8: “System Settings › Privacy & Security › Full Disk Access” links to `\(privacy)` here, but to `\(privacy)?Privacy_AllFiles` in content/apps/test.md:10. Use one link.",
+			"content/apps/test.md:12: Link “System Settings › Focus” to `x-apple.systempreferences:com.apple.Focus-Settings.extension`, like the other System Settings paths, so it opens System Settings on a Mac.",
+			"content/apps/test.md:14: Write “Keyboard Shortcuts…”, the name in System Settings, like the other places of the content.",
+		])
+	}
+
+	@Test(arguments: [
+		("The offer ends on 1 January 2020.", 1),
+		("Arc stops working on January 1, 2020.", 1),
+		("The offer ended on 1 January 2020. It starts again soon.", 0),
+		("It was released on 1 January 2020.", 0),
+		("Write “ends on 1 January 2020” in the field.", 0),
+		("The offer ends on 1 January 9999.", 0),
+	])
+	func `a sentence about the future with a date that is over is a warning`(body: String, expectedCount: Int) async throws {
+		let app = try await App(body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .pastDate)
+
+		#expect(warnings.count == expectedCount)
+	}
+
+	@Test(arguments: [
+		("- [Review](https://example.com/review#award)", 1),
+		("Learn more in the [review](https://example.com/review).", 0),
+		("- [Other review](https://example.com/other)", 0),
+	])
+	func `a link in a list that repeats a press quote of the page is a warning`(body: String, expectedCount: Int) async throws {
+		let app = try await App(frontmatter: "pressQuotes: [{quote: 'Great', source: 'Example', url: 'https://example.com/review', year: 2026}]", body: body)
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .mentionRepeatsPressQuote)
+
+		#expect(warnings.count == expectedCount)
 	}
 
 	@Test
@@ -556,8 +734,16 @@ struct ContentWarningTests {
 		#expect(try await warnings(introduction: "Open each link in the right browser.").isEmpty)
 	}
 
+	@Test(arguments: [("Useful features:", true), ("Useful features.", false)])
+	func `introductions ending with a colon warn at their first text line`(introduction: String, expectsWarning: Bool) async throws {
+		let app = try await App(body: "<!-- A note -->\n\n\(introduction)\n\n- A feature.")
+		let warnings = await SiteContent.test(apps: [app]).warningTexts(of: .introductionEndingWithColon)
+
+		#expect(warnings == (expectsWarning ? ["content/apps/test.md:10: The introduction ends with a colon. The hero of the app page and search results show only the introduction, not the list after it, so end it with a full sentence."] : []))
+	}
+
 	/**
-	The projects of the open source page are a list in the code, so a repo that was archived, renamed, or moved, or a wrong language, is only found by comparing with the repos of GitHub.
+	The projects of the open source page are a list in `content/open-source.soml`, so a repo that was archived, renamed, or moved, or a wrong language, is only found by comparing with the repos of GitHub. Each warning is at the line of its project.
 	*/
 	@Test
 	func `open source projects that GitHub does not agree with are warnings`() async throws {
@@ -568,16 +754,27 @@ struct ContentWarningTests {
 				followerCount: 1,
 				starCount: 1,
 				maintenance: GitHub.Maintenance(closedIssueCount: 1, mergedPullRequestCount: 1),
+				appleReportCount: 1,
 				repositories: [got]
-			)
+			),
+			project: .website
 		)
 
+		// The line of a project is the line of its `{`, which is above its name and its repository, so the test does not depend on the lines above the project in the real file.
+		let lines = try String(contentsOf: Project.website.root.appending(path: "content/open-source.soml"), encoding: .utf8)
+			.split(separator: "\n", omittingEmptySubsequences: false)
+		func line(of repository: String) throws -> Int {
+			try #require(lines.firstIndex { $0.contains("repository: '\(repository)'") }) - 1
+		}
+
+		let gotLine = try line(of: "sindresorhus/got")
+		let kyLine = try line(of: "sindresorhus/ky")
 		let warnings = await content.warningTexts(of: .openSourceProject)
 		#expect(warnings.filter { $0.contains("(`sindresorhus/got`)") } == [
-			"/open-source: Got (`sindresorhus/got`) is archived on GitHub. Remove it from the page, or unarchive the repo.",
-			"/open-source: Got (`sindresorhus/got`) has the language `JavaScript` on GitHub, but `TypeScript` on the page. Fix its `language` in `OpenSourcePage.swift`.",
+			"content/open-source.soml:\(gotLine): Got (`sindresorhus/got`) is archived on GitHub. Remove it from the page, or unarchive the repo.",
+			"content/open-source.soml:\(gotLine): Got (`sindresorhus/got`) has the language `JavaScript` on GitHub, but `TypeScript` on the page. Fix its `language`.",
 		])
-		#expect(warnings.contains("/open-source: Ky (`sindresorhus/ky`) is not a repo on GitHub. Maybe it was renamed or moved. Fix its `repository` in `OpenSourcePage.swift`."))
+		#expect(warnings.contains("content/open-source.soml:\(kyLine): Ky (`sindresorhus/ky`) is not a repo on GitHub. Maybe it was renamed or moved. Fix its `repository`."))
 
 		// Without the repos, like when the request failed, nothing is checked.
 		#expect(await SiteContent.test().warningTexts(of: .openSourceProject).isEmpty)

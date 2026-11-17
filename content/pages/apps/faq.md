@@ -5,7 +5,7 @@ description: 'Common questions about apps by Sindre Sorhus: bug reports, privacy
 
 # Frequently Asked Questions
 
-Questions about one app are on its page.
+Questions about one app are on its page:
 
 ## Purchases {#purchases}
 
@@ -206,7 +206,7 @@ Make sure the app is in the “Applications” folder. Open it, then click “Op
 
 If there is no button, or macOS still refuses, remove the quarantine flag that macOS adds to downloads. Open Terminal and run:
 
-```sh
+```console
 xattr -d com.apple.quarantine -r /Applications/AppName.app
 ```
 
@@ -276,7 +276,7 @@ For a more accurate assessment, look at the “CPU Time” column in Activity Mo
 - Try restarting all devices.
 - Force a manual sync by making a small edit to the synced data on one device.
 - The initial sync may take a while.
-- Resolve any Apple Account or iCloud errors on your devices (e.g., sign-in prompts).
+- Resolve any Apple Account or iCloud errors on your devices (like sign-in prompts).
 - Ensure Low Power Mode is not enabled on the devices. It can cause iCloud to delay syncing.
 - Ensure you are on the latest operating system version and app version.
 - On iOS, ensure the app is not disabled in “Settings › Apple Account › iCloud › Apps Using iCloud”.
@@ -301,7 +301,7 @@ You can try:
 
 If a diagnostic reports `loginwindow` as using Secure Input, this is a known macOS bug. Lock your screen with ++Control+Command+Q++, then unlock it. Do not try to quit `loginwindow`.
 
-The issue often occurs when an app requests Secure Input while in the background, causing it to get “stuck” in secure mode. See the [guide to fix keyboard shortcuts that stopped working](/guides/fix-keyboard-shortcuts-not-working-mac).
+The issue often occurs when an app requests Secure Input while in the background, causing it to get “stuck” in secure mode. See the [guide to fix keyboard shortcuts that stopped working](guide:fix-keyboard-shortcuts-not-working-mac).
 
 [More about Secure Input ›](https://espanso.org/docs/troubleshooting/secure-input/)
 
@@ -357,13 +357,13 @@ First, quit the app.
 
 Copy the following, open the Terminal app, paste it into the Terminal window, replace `<app-name>` with the name of the app, and then press the ++Return++ key:
 
-```sh
+```console
 osascript -e 'id of app "<app-name>"'
 ```
 
 Example:
 
-```sh
+```console
 osascript -e 'id of app "Dato"'
 ```
 
@@ -371,13 +371,13 @@ You now have the app’s identifier.
 
 Next, copy the following, and paste it into the Terminal window, replace `<app-identifier>` with the app’s identifier, and then press the ++Return++ key:
 
-```sh
+```console
 tccutil reset All <app-identifier>
 ```
 
 Example:
 
-```sh
+```console
 tccutil reset All com.sindresorhus.Dato
 ```
 
@@ -417,17 +417,16 @@ iOS: In the app, tap the “Share App” button (usually found in settings), tri
 
 ### How can I send you a crash report for one of your apps? {#crash-report}
 
-**macOS - simple**
+**Mac, with App Buddy**
 
-Select the app in [App Buddy](/app-buddy) and click “Copy to Downloads” in the “Crash Reports” section.
+Select the app in [App Buddy](/app-buddy) and click “Copy to Downloads” in the “Crash Reports” section. Then attach the files to the [feedback form](/feedback).
 
-**macOS - manual**
-- Open Finder
-- Select `Go to Folder…` from the `Go` menu
+**Mac, without App Buddy**
+- In Finder, choose “Go › Go to Folder…” (++Shift+Command+G++).
 - Enter: `~/Library/Logs/DiagnosticReports`
-- In the resulting list, select all files that start with the app name, ZIP them, and [send me](/feedback)
+- Attach the files that start with the name of the app to the [feedback form](/feedback). They do not need to be in a ZIP file.
 
-**iOS**
+**iPhone and iPad**
 - In the Settings app, go to “Privacy & Security › Analytics & Improvements › Analytics Data”
 - Tap the first item that starts with the app name
 	- If no app report exists, send the most recent `JetsamEvent`, which shows system memory issues.
@@ -467,7 +466,7 @@ Select the app in [App Buddy](/app-buddy) and click “Sample Process”.
 
 You can do it with my [App Buddy](/app-buddy) app.
 
-If you prefer using the command-line, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md#command-line)
+If you prefer using the command line, [see this guide.](https://github.com/sindresorhus/guides/blob/main/backup-app-settings.md#command-line)
 
 ### Do your apps support Shortcuts? {#shortcuts}
 
@@ -489,7 +488,7 @@ To listen to such notifications, you could use the “Wait for Distributed Notif
 
 To get the bundle identifier of an app, run the following in the Terminal app:
 
-```sh
+```console
 osascript -e 'id of app "AppName"'
 ```
 
@@ -605,9 +604,3 @@ I am not available for hire.
 ### Can I acquire your app? {#acquire}
 
 No. I make apps because I enjoy it. Your money is of no interest to me.
-
-### My question is not answered here {#more-questions}
-
-[Ask me.](/contact)
-
-*You could also try to [ask my AI bot](https://chatgpt.com/g/g-df0ZoBF9N-sindregpt).*

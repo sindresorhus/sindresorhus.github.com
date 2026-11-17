@@ -4,7 +4,7 @@ import SiteKit
 /**
 A button that copies a text, like an email address or a link, and shows a checkmark instead of its title for a moment. It is hidden until its script finds that the browser can copy.
 
-The text is the `text` attribute of the element, which the script reads on click, so another script can change it, like Appdle does with the result.
+The text is the `text` attribute of the element, which the script reads on click, so another script can change it.
 */
 struct CopyButton: ScriptedElement {
 	static let script = ElementScript()

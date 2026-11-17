@@ -7,10 +7,10 @@ The IDs that a script finds elements by. A component declares the IDs of its ele
 
 ```swift
 enum IDs: String, ScriptIDSet {
-	case restart = "appdle-restart"
+	case toggle = "example-toggle"
 }
 
-button(.id(IDs.restart)) {}
+button(.id(IDs.toggle)) {}
 ```
 
 As the two kinds are different types, an ID cannot be used as a data attribute, or the opposite. Refer to an ID with `id`, like `.for(IDs.name.id)`, or `'#\#(IDs.wall.id)'` in an inline script, not with `rawValue`.

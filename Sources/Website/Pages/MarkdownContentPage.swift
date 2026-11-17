@@ -7,14 +7,14 @@ A page written in Markdown, like `/donate`. The about page is ``AboutPage``.
 */
 struct MarkdownContentPage: Page {
 	let page: MarkdownPage
-	let project: Project
+	let content: SiteContent
 
 	var path: RoutePath {
 		page.path
 	}
 
 	var socialImage: SocialImage {
-		.card(OpenGraphCard(page: self, project: project))
+		.card(OpenGraphCard(page: self, project: content.project))
 	}
 
 	var sitemapEntry: SitemapEntry {
@@ -23,6 +23,13 @@ struct MarkdownContentPage: Page {
 
 	var metadata: PageMetadata {
 		page.metadata
+	}
+
+	/**
+	The titles of its sections, like “Black Friday” on the discounts page.
+	*/
+	var searchKeywords: [String] {
+		page.markdown.headings.filter { $0.level == .h2 }.map(\.text)
 	}
 
 	var body: some HTML {

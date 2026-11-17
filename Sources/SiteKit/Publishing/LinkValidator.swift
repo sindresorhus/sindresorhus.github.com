@@ -109,16 +109,9 @@ public struct LinkValidator: Sendable {
 	*/
 	public func brokenLinks(in routes: [Route], published: PublishedSite, additionalLinks: [RoutePath: [String]] = [:]) async -> [BrokenLink] {
 		let files = published.files
-		let previousPages = Self.previousPages.withLock { $0 }
 
 		// The IDs of every page, to check fragments in links to other pages. A page that did not change since the previous check of the process, like in a rebuild of `website serve`, which changes a few pages, is not read again.
-		let pages = await routes.filter { $0.outputFile.description.hasSuffix(".html") }.concurrentMap { route -> LinkedPage? in
-			guard let html = published.routeFiles[route.outputFile] else {
-				return nil
-			}
-
-			return previousPages[html].map { LinkedPage(route: route, reading: $0) } ?? LinkedPage(route: route, html: html)
-		}.compactMap { $0 }
+		let pages = await linkedPages(in: routes, published: published)
 
 		Self.previousPages.withLock { previousPages in
 			previousPages = pages.keyed(by: \.html)
@@ -150,9 +143,86 @@ public struct LinkValidator: Sendable {
 	}
 
 	/**
+	The pages of the sitemap that no other page links to, sorted, like a page whose last link was removed, so a visitor never finds it, and a search engine only from the sitemap. A link of a page to itself, like its canonical URL, does not count, and neither does a link to a redirect to the page.
+
+	- Parameter published: What ``Publisher/publish(_:)`` published.
+	*/
+	public func unlinkedPages(in routes: [Route], published: PublishedSite) async -> [RoutePath] {
+		let files = published.files
+		let sitemapPages = routes.filter { $0.sitemapEntry != nil }
+		let pagePathsByFile = Dictionary(sitemapPages.map { ($0.outputFile, $0.path) }, uniquingKeysWith: { first, _ in first })
+
+		let pages = await linkedPages(in: routes.filter { route in
+			if case .redirect = route.output {
+				return false
+			}
+			return true
+		}, published: published)
+
+		let linkedPaths = await pages.concurrentMap { page -> Set<RoutePath> in
+			let route = page.route
+			let base = route.path.absoluteURL(site: site)
+			var paths = Set<RoutePath>()
+
+			for (link, kind) in page.links {
+				guard
+					kind == .navigation,
+					let resolved = internalURL(for: link, relativeTo: base),
+					let target = resolved.path(percentEncoded: true).servedFileCandidates.first(where: files.contains),
+					let path = pagePathsByFile[target],
+					path != route.path
+				else {
+					continue
+				}
+
+				paths.insert(path)
+			}
+
+			return paths
+		}
+		.reduce(into: Set<RoutePath>()) { $0.formUnion($1) }
+
+		return sitemapPages
+			.map(\.path)
+			.filter { !linkedPaths.contains($0) }
+			.sorted(using: KeyPathComparator(\.description, comparator: String.StandardComparator.lexical))
+	}
+
+	/**
 	The pages of the previous check of the process, by their HTML, so a rebuild of `website serve` only reads the pages that changed. Only the pages of the previous check are kept, so the memory does not grow with each rebuild.
 	*/
 	private static let previousPages = Mutex<[Data: LinkedPage]>([:])
+
+	/**
+	Reads the published HTML routes, reusing parsed links and IDs from the previous check when the bytes match.
+	*/
+	private func linkedPages(in routes: [Route], published: PublishedSite) async -> [LinkedPage] {
+		let previousPages = Self.previousPages.withLock { $0 }
+		return await routes.filter { $0.outputFile.description.hasSuffix(".html") }.concurrentMap { route -> LinkedPage? in
+			guard let html = published.routeFiles[route.outputFile] else {
+				return nil
+			}
+
+			return previousPages[html].map { LinkedPage(route: route, reading: $0) } ?? LinkedPage(route: route, html: html)
+		}.compactMap { $0 }
+	}
+
+	/**
+	Resolves a link on this site that the web server can serve.
+	*/
+	private func internalURL(for link: String, relativeTo base: URL) -> URL? {
+		guard
+			!link.hasPrefix("//"),
+			let url = URL(string: link, relativeTo: base)?.absoluteURL,
+			url.host == site.url.host,
+			let scheme = url.scheme?.lowercased(),
+			scheme == "http" || scheme == "https"
+		else {
+			return nil
+		}
+
+		return url
+	}
 
 	private func brokenLinks(
 		on page: LinkedPage,
@@ -181,12 +251,7 @@ public struct LinkValidator: Sendable {
 		let links = page.links + additionalLinks.map { (link: $0, kind: LinkedPage.LinkKind.navigation) }
 
 		for (link, kind) in links {
-			guard
-				!link.hasPrefix("//"),
-				let resolved = URL(string: link, relativeTo: base)?.absoluteURL,
-				resolved.host == site.url.host,
-				resolved.scheme?.hasPrefix("http") == true
-			else {
+			guard let resolved = internalURL(for: link, relativeTo: base) else {
 				continue
 			}
 

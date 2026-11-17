@@ -10,6 +10,38 @@ import TestSupport
 
 struct DomainValueTests {
 	@Test
+	func `app store stories retain their validated URL when constructed and decoded`() async throws {
+		let url = #URL("https://apps.apple.com/story/id1547490016")
+		#expect(try AppStoreStory(validating: url).url == url)
+
+		let app = try await App(frontmatter: "appStoreStory: '\(url.absoluteString)'")
+		#expect(app.frontmatter.appStoreStory?.url == url)
+	}
+
+	@Test(arguments: [
+		"http://apps.apple.com/story/id1547490016",
+		"https://example.com/story/id1547490016",
+		"https://apps.apple.com/us/story/id1547490016",
+		"https://apps.apple.com/app/id1547490016",
+		"https://apps.apple.com/story/id",
+		"https://apps.apple.com/story/id1547490016/other",
+		"/story/id1547490016",
+	])
+	func `app store stories reject invalid URLs and report the frontmatter line`(value: String) async throws {
+		let url = try #require(URL(string: value))
+		#expect(throws: ContentError.self) {
+			try AppStoreStory(validating: url)
+		}
+
+		let errors = try await #require(throws: ContentErrors.self) {
+			try await App(frontmatter: "appStoreStory: '\(value)'")
+		}
+		#expect(errors.errors.count == 1)
+		#expect(errors.errors.first?.line?.rawValue == 6)
+		#expect(errors.errors.first?.reason.hasPrefix("Invalid `appStoreStory`:") == true)
+	}
+
+	@Test
 	func `guide screenshot numbers retain their validated scalar value`() async throws {
 		let guide = try await Guide(markdown: Guide.testMarkdown(frontmatter: "screenshot: {number: 2, description: 'The result'}"), slug: "how-to-test")
 		let number = try #require(guide.frontmatter.screenshot?.number)
@@ -157,9 +189,12 @@ struct DomainValueTests {
 			let title: String
 			let names: [String]
 			let iconURL: RoutePath
+			let url: LinkDestination
 			let faqURL: LinkDestination?
 			let repositoryURL: URL?
 			let olderVersions = [String]()
+			let isOnMac: Bool
+			let newestOSVersions: String
 		}
 
 		let encoder = JSONEncoder()
@@ -169,7 +204,7 @@ struct DomainValueTests {
 			let app = try await App(frontmatter: frontmatter)
 			let data = try #require(FeedbackData(listings: [AppListing(app: app)]).apps.first)
 			let repository: AbsoluteURL? = data.repositoryURL
-			let plain = PlainAppData(title: data.title, names: data.names, iconURL: data.iconURL, faqURL: data.faqURL, repositoryURL: repository?.value)
+			let plain = PlainAppData(title: data.title, names: data.names, iconURL: data.iconURL, url: data.url, faqURL: data.faqURL, repositoryURL: repository?.value, isOnMac: data.isOnMac, newestOSVersions: data.newestOSVersions)
 
 			#expect(repository == app.repositoryURL)
 			#expect(try encoder.encode(data) == encoder.encode(plain))
@@ -181,7 +216,7 @@ struct DomainValueTests {
 		var statistics = NPMStatistics()
 		statistics.search = .complete(total: 1, packages: [NPMStatistics.Package(name: "chalk", version: "6", description: "Terminal styling", date: .now, weeklyDownloads: 42, dependentCount: nil, repository: #repository("chalk/chalk"))])
 		let repository = try GitHubRepository(json: #"{"name":"awesome","full_name":"sindresorhus/awesome","html_url":"https://github.com/sindresorhus/awesome","description":"Awesome lists","created_at":"2026-01-01T00:00:00Z","archived":false,"fork":false,"stargazers_count":123}"#)
-		let account = GitHub.Account(repositoryCount: 1, followerCount: 0, starCount: 123, maintenance: GitHub.Maintenance(closedIssueCount: 0, mergedPullRequestCount: 0), repositories: [repository])
+		let account = GitHub.Account(repositoryCount: 1, followerCount: 0, starCount: 123, maintenance: GitHub.Maintenance(closedIssueCount: 0, mergedPullRequestCount: 0), appleReportCount: 0, repositories: [repository])
 		let content = SiteContent.test(gitHubAccount: account, npmStatistics: statistics)
 		let routes = Site(content: content).textFileRoutes
 
@@ -376,8 +411,8 @@ struct DomainValueTests {
 		let guide = try await Guide(markdown: Guide.testMarkdown(), slug: "how-to-test")
 		let app = try await App()
 		let other = try await App(title: "Other", slug: "other")
-		let content = SiteContent.test(apps: [other, app], guides: [guide], resolvedGuides: [try #require(Guide.Resolved(guide: guide, apps: [app]))])
-		#expect(GuidePage(guide: try #require(content.resolvedGuides.first), content: content).feedbackApp?.slug == app.slug)
+		let content = SiteContent.test(apps: [other, app], guides: [try #require(Guide.Resolved(guide: guide, apps: [app]))])
+		#expect(GuidePage(guide: try #require(content.guides.first), content: content).feedbackApp?.slug == app.slug)
 	}
 
 	@Test(arguments: [
@@ -409,6 +444,18 @@ struct DomainValueTests {
 		#expect(publicationDay < later.publicationDate)
 		#expect([earlier, later].sorted(using: App.sortOrder).map(\.slug) == ["later", "earlier"])
 		#expect(String(decoding: try JSONEncoder().encode(publicationDay), as: UTF8.self) == #""2026-01-01""#)
+	}
+
+	@Test
+	func `a guide about the iPhone is about the app on the iPhone only, unless its title names the Mac`() async throws {
+		func guide(title: String, topic: String) async throws -> Guide {
+			try await Guide(markdown: "---\ntitle: '\(title)'\ndescription: 'A guide.'\npublicationDate: 2026-01-01\ntopic: '\(topic)'\napps: ['test']\n---\n\n\(Guide.testBody)")
+		}
+
+		#expect(try await guide(title: "How to Blur a Photo on iPhone", topic: "iphone").isAboutIPhoneOnly)
+		#expect(try await guide(title: "How to Put Text on the iPhone Lock Screen", topic: "lock-screen-and-home-screen").isAboutIPhoneOnly)
+		#expect(try await !guide(title: "How to Lock Your Mac from iPhone", topic: "iphone").isAboutIPhoneOnly)
+		#expect(try await !guide(title: "How to Blur a Photo", topic: "mac").isAboutIPhoneOnly)
 	}
 
 	@Test
@@ -504,7 +551,7 @@ struct DomainValueTests {
 		#expect(Guide.Resolved(guide: screenshotGuide, apps: [app]) == nil)
 
 		// The number counts from 1, so the second screenshot is not the first, like for several guides.
-		let randomNumber = try #require(try await SiteContent.website.resolvedGuides.first { $0.guide.slug == "random-number-iphone" })
+		let randomNumber = try #require(try await SiteContent.website.guides.first { $0.guide.slug == "random-number-iphone" })
 		#expect(randomNumber.screenshot?.asset.path == #path("/randa/screenshot2.jpg"))
 	}
 
@@ -581,7 +628,9 @@ struct DomainValueTests {
 		#expect(email.contains(#"aria-describedby="email-hint email-error email-warning""#))
 		#expect(message.contains(#"aria-describedby="message-error""#))
 		#expect(html.contains(#"id="email-warning" role="status""#))
-		#expect(html.contains("</textarea><faq-suggestions"))
+		// The error is directly below the field, and the accessory is below the error.
+		#expect(html.contains(#"</textarea><p id="message-error""#))
+		#expect(html.contains("</p><faq-suggestions"))
 	}
 	@Test(arguments: [Double.leastNonzeroMagnitude, 0.01, 1, Double.greatestFiniteMagnitude])
 	func `running statistics retain positive finite rates without integer conversion`(rate: Double) {
@@ -724,6 +773,9 @@ struct DomainValueTests {
 		function elementForFragment(hash) {
 			return document.getElementById(hash.slice(1));
 		}
+		function partList() {
+			return [];
+		}
 		var document = {
 			getElementById() {
 				return {
@@ -738,8 +790,8 @@ struct DomainValueTests {
 			}
 		};
 		class HTMLElement {
-			querySelector() {
-				return undefined;
+			closest() {
+				return null;
 			}
 			addEventListener(name, listener) {
 				this.listener = listener;
@@ -751,7 +803,7 @@ struct DomainValueTests {
 			}
 		};
 		""")
-		// The import loads the shared helpers of `dom.js`, which a plain script cannot load, so the context above has a stand-in for `elementForFragment`. The tested paths do not call the others.
+		// The import loads the shared helpers of `dom.js`, which a plain script cannot load, so the context above has stand-ins for `elementForFragment` and `partList`. The tested paths do not call the others.
 		context.evaluateScript(source.split(separator: "\n").filter { !$0.hasPrefix("import ") }.joined(separator: "\n"))
 		context.evaluateScript("""
 		const element = new Element();
@@ -778,23 +830,32 @@ struct DomainValueTests {
 		#expect(context.objectForKeyedSubscript("focused").toInt32() == 1)
 	}
 
+	/**
+	The page of a post shows only the month that it was published, and an update is in its text, so the dates of the head and of the structured data are the day that it was published, not the last commit of its file.
+	*/
 	@Test
-	func `published article projections share the same modification day`() async throws {
-		let post = try await BlogPost(markdown: "---\ntitle: 'Article'\npublicationDate: 2026-01-01\n---\nBody", slug: "article")
-		let metadata = PageMetadata(article: post, title: post.title, description: post.description)
-		let schema = Schema.Article(document: post, type: .blogPosting, title: post.title, description: post.description, images: [])
-		guard case .article(let published, let modified, _) = metadata.kind else {
+	func `a blog post is modified on the day it was published, in the head and in the structured data`() throws {
+		var file = try MarkdownFile(contents: "---\ntitle: 'Article'\npublicationDate: 2026-01-01\n---\nBody", url: URL(filePath: "/content/blog/article.md"))
+		// A later commit, like one that only changed the frontmatter.
+		file.lastCommitDate = try Date("2026-11-03T12:00:00Z", strategy: .iso8601)
+		let post = try BlogPost(file: file.decoded(), project: .empty)
+		#expect(post.lastModified.description == "2026-11-03")
+
+		let page = BlogPostPage(
+			post: post,
+			content: SiteContent.test(posts: [post])
+		)
+		guard case .article(let published, let modified, _) = page.metadata.kind else {
 			Issue.record("An article must carry its publication dates.")
 			return
 		}
 		#expect(published == post.publicationDate)
-		#expect(modified == post.lastModified)
-		#expect(schema.datePublished == published)
-		#expect(schema.dateModified == modified)
-		#expect(schema.url == post.path.absoluteURL)
-		let json = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(schema)) as? [String: Any])
-		#expect(json["datePublished"] as? String == "2026-01-01")
-		#expect(json["dateModified"] as? String == "2026-01-01")
+		#expect(modified == post.publicationDate)
+
+		let html = try page.renderedHTML()
+		#expect(html.contains(#"<meta property="article:modified_time" content="2026-01-01">"#))
+		#expect(html.contains(#""datePublished":"2026-01-01""#))
+		#expect(html.contains(#""dateModified":"2026-01-01""#))
 	}
 
 	@Test(arguments: [
@@ -854,10 +915,10 @@ extension DomainValueTests {
 	@Test
 	func `frontmatter declaration order preserves the editorial wire key order`() {
 		#expect(App.formattingKeys.map(\.stringValue) == [
-			"isDraft", "isUnlisted", "isArchived", "title", "subtitle", "description", "publicationDate", "platforms", "minimumOSVersion", "isPaid", "isMenuBarApp", "appStoreID", "setappID", "gumroad", "gitHubDownload", "testFlightURL", "repositoryURL", "releasesRepository", "downloadCount", "hasSentry", "hasNoNetworkAccess", "script", "categories", "links", "overflowLinks", "redirectURL", "redirectFrom", "feedbackNames", "nonAppStoreVersion", "trial", "announcement", "sharedQuestions", "olderVersions", "pressQuotes", "privacyNote", "feedbackNote",
+			"isDraft", "isUnlisted", "isArchived", "title", "subtitle", "description", "publicationDate", "platforms", "minimumOSVersion", "downloadedModelSize", "isPaid", "isMenuBarApp", "appStoreID", "setappID", "gumroad", "gitHubDownload", "testFlightURL", "repositoryURL", "releasesRepository", "downloadCount", "hasSentry", "hasNoNetworkAccess", "script", "categories", "relatedApps", "links", "overflowLinks", "redirectURL", "redirectFrom", "feedbackNames", "nonAppStoreVersion", "trial", "announcement", "sharedQuestions", "olderVersions", "pressQuotes", "appStoreStory", "privacyNote", "feedbackNote",
 		])
 		#expect(BlogPost.formattingKeys.map(\.stringValue) == ["isDraft", "isUnlisted", "title", "description", "publicationDate", "tags", "redirectURL", "redirectFrom"])
-		#expect(Guide.formattingKeys.map(\.stringValue) == ["isDraft", "title", "description", "publicationDate", "topic", "isForWindowsUsers", "apps", "redirectFrom", "screenshot"])
+		#expect(Guide.formattingKeys.map(\.stringValue) == ["isDraft", "title", "description", "publicationDate", "topic", "isForWindowsUsers", "isForNewMacOwners", "shortcut", "apps", "redirectFrom", "screenshot"])
 		#expect(MarkdownPage.formattingKeys.isEmpty)
 	}
 
@@ -1058,9 +1119,9 @@ extension DomainValueTests {
 		let app = try await App()
 		#expect(guide.quickAnswerLinkError(to: app) == nil)
 		let resolved = try #require(Guide.Resolved(guide: guide, apps: [app]))
-		#expect(resolved.parts.before.html.contains("Open Test."))
-		#expect(!resolved.parts.before.html.contains("Use the built-in way."))
-		#expect(resolved.parts.after.html.contains("Use the built-in way."))
+		#expect(resolved.parts.before.html.rawValue.contains("Open Test."))
+		#expect(!resolved.parts.before.html.rawValue.contains("Use the built-in way."))
+		#expect(resolved.parts.after.html.rawValue.contains("Use the built-in way."))
 	}
 
 	@Test

@@ -457,7 +457,7 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The content of a template is not in the element, so `this.parts` (and `parts(this)` of `dom.js`) throws for a part that is only inside a template, and `clone()` of `scripted-element.js` copies a template part, so it throws for another part. The parts are checked against the markup that the pages render, for the direct forms of ``usedParts(in:)``. A part that a script finds itself with `data-part="name"`, or in a copy with `parts(item)`, like in a script that extends `HTMLElement`, is not read through `this.parts`.
+	The content of a template is not in the element, so `this.parts` (and `parts(this)` of `dom.js`) throws for a part that is only inside a template, and `clone()` of `scripted-element.js` copies a template part, so it throws for another part. The parts are checked against the markup that the pages render, for the direct forms of ``usedParts(in:)``. A part that a script finds itself with `data-part="name"` or `partList()` of `dom.js`, or in a copy with `parts(item)`, like in a script that extends `HTMLElement`, is not read through `this.parts`.
 	*/
 	@Test
 	func `every clone copies a template part, and no script reads a part of a template through this.parts`() async throws {
@@ -472,7 +472,7 @@ struct ScriptedElementTests {
 			let templates = markup.templates[element.tagName] ?? []
 			let templateOnlyParts = markup.onlyInTemplates[element.tagName] ?? []
 			// The used parts without the lines of the copies and the parts that the script finds itself are the parts that it reads in `this.parts`.
-			let partsReadThroughThisParts = Self.usedParts(in: script.replacing(/^.*\.clone\('\w+'\).*$|data-part="\w+"/.anchorsMatchLineEndings(), with: "").replacing(Self.copiedPartReads, with: ""))
+			let partsReadThroughThisParts = Self.usedParts(in: script.replacing(/^.*\.clone\('\w+'\).*$|data-part="\w+"|partList\([^,()]+,\s*'\w+'\)/.anchorsMatchLineEndings(), with: "").replacing(Self.copiedPartReads, with: ""))
 			cloneCount += clonedTemplates.count
 			templateOnlyPartCount += templateOnlyParts.count
 
@@ -1014,7 +1014,7 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The app picker of the feedback page and Appdle compare names without case, accents, spaces, and punctuation, and find the closest name for a typo, with at most one edit for each 4 characters.
+	The app picker of the feedback page compares names without case, accents, spaces, and punctuation, and finds the closest name for a typo, with at most one edit for each 4 characters.
 	*/
 	@Test(.enabled(if: Self.checksScripts, "Install Node.js to run the name matcher."))
 	func `the name matcher finds a name without its spaces and punctuation, and with a typo`() throws {
@@ -1081,9 +1081,11 @@ struct ScriptedElementTests {
 					},
 				},
 				parts: element => element.parts,
+				partList: (element, name) => element.partLists[name],
 				searchKey,
 				filterByWords,
 				history,
+				URL,
 				document: {
 					createTreeWalker(node) {
 						let visited = false;
@@ -1131,6 +1133,7 @@ struct ScriptedElementTests {
 			});
 			const filter = control();
 			const showMore = control();
+			const npmSearch = {hidden: true, href: 'https://www.npmjs.com/search?q=maintainer%3Asindresorhus'};
 			const rows = Array.from({length: 45}, (_, index) => ({
 				hidden: false,
 				parts: {
@@ -1159,6 +1162,7 @@ struct ScriptedElementTests {
 				filter,
 				showMore,
 				status: {textContent: ''},
+				npmSearch,
 				list: {
 					append(...appendedRows) {
 						orderedRows.splice(0, orderedRows.length, ...appendedRows);
@@ -1166,7 +1170,7 @@ struct ScriptedElementTests {
 				},
 			};
 			element.getAttribute = name => name === 'page-size' ? '20' : null;
-			element.querySelectorAll = () => rows;
+			element.partLists = {row: rows};
 			element.connectedCallback();
 			const visible = () => orderedRows.filter(row => !row.hidden);
 			assert.equal(visible().length, 20);
@@ -1179,9 +1183,9 @@ struct ScriptedElementTests {
 			// A reload shows as many rows again.
 			assert.equal(history.state.npmVisibleCount, 40);
 			const restoredElement = new Component();
-			restoredElement.parts = {filter: control(), showMore: control(), status: {textContent: ''}, list: element.parts.list};
+			restoredElement.parts = {filter: control(), showMore: control(), status: {textContent: ''}, npmSearch, list: element.parts.list};
 			restoredElement.getAttribute = element.getAttribute;
-			restoredElement.querySelectorAll = () => rows;
+			restoredElement.partLists = {row: rows};
 			restoredElement.connectedCallback();
 			assert.equal(visible().length, 40);
 			assert.equal(restoredElement.parts.showMore.textContent, 'Show 5 more');
@@ -1210,7 +1214,10 @@ struct ScriptedElementTests {
 			filter.value = 'no match';
 			filter.listeners.input();
 			assert.equal(visible().length, 0);
-			assert.match(element.parts.status.textContent, /No package matches/);
+			assert.match(element.parts.status.textContent, /No package of the list matches/);
+			// The search on npm keeps the maintainer and adds the words of the filter.
+			assert.equal(npmSearch.hidden, false);
+			assert.equal(npmSearch.href, 'https://www.npmjs.com/search?q=maintainer%3Asindresorhus+no+match');
 			// A typo shows the package with the closest name, and Enter opens the first package that shows.
 			filter.value = 'pakcage-42';
 			filter.listeners.input();
@@ -1297,6 +1304,7 @@ struct ScriptedElementTests {
 				Audio,
 				HTMLDetailsElement: class {},
 				console: {log() {}},
+				history: {state: null, replaceState() {}},
 				document: {
 					querySelector() {},
 					addEventListener(type, callback) {
@@ -1306,6 +1314,8 @@ struct ScriptedElementTests {
 					},
 				},
 				window: {addEventListener() {}},
+				// A Mac, so the links to System Settings stay links.
+				isMac: true,
 				matchMedia: () => ({matches: false}),
 				finePointer: {matches: false},
 				elementForFragment() {},
@@ -1775,7 +1785,7 @@ struct ScriptedElementTests {
 	}
 
 	/**
-	The parts that a script uses directly: `this.parts.screen`, `const {screen, status} = this.parts;` (also with `screen: name`), the same with `parts(this)` of `dom.js`, like `const {panel, list} = parts(this);`, the parts of a copy with `parts()` (``copiedPartReads``), like `parts(item).link`, and `data-part="key"`, like in `querySelectorAll('[data-part="key"]')` for a list of the same part. Not `game.parts.filter` or `const {width} = this.parts.canvas`, which are not parts. A function that gets `this.parts`, like `setUpNapster(this, this.parts)`, counts when it destructures them in its parameters, like `const setUpNapster = (napster, {search: searchForm, query}) =>`. When it reads them in its body, they are only checked when it runs.
+	The parts that a script uses directly: `this.parts.screen`, `const {screen, status} = this.parts;` (also with `screen: name`), the same with `parts(this)` of `dom.js`, like `const {panel, list} = parts(this);`, the parts of a copy with `parts()` (``copiedPartReads``), like `parts(item).link`, `data-part="key"`, like in `querySelectorAll('[data-part="key"]')`, and `partList()` of `dom.js`, like `partList(this, 'row')`, for a list of the same part. Not `game.parts.filter` or `const {width} = this.parts.canvas`, which are not parts. A function that gets `this.parts`, like `setUpNapster(this, this.parts)`, counts when it destructures them in its parameters, like `const setUpNapster = (napster, {search: searchForm, query}) =>`. When it reads them in its body, they are only checked when it runs.
 
 	The word boundaries are simple, as the default Unicode ones treat `this.parts.odds` as one word. A pattern starts with `(?:^|\W)` instead of a word boundary, which is about three times as slow, as it is checked at every character of the scripts.
 	*/
@@ -1788,7 +1798,9 @@ struct ScriptedElementTests {
 			match.1.map { names(in: $0) } ?? match.2.map { [String($0)] } ?? []
 		}
 
-		let selected = script.matches(of: /data-part="(\w+)"/).map { String($0.1) }
+		let selected = script.matches(of: /data-part="(\w+)"|(?:^|\W)partList\([^,()]+,\s*'(\w+)'\)/).compactMap { match in
+			(match.1 ?? match.2).map(String.init)
+		}
 
 		let setUpFunctions = Set(script.matches(of: /(?:^|\W)(\w+)\(this,\s*this\.parts\)/).map { String($0.1) })
 		let parameters = script.matches(of: /(?:^|\W)const (\w+) = \(\s*\w+\s*,\s*\{([\w\s,:]+)\}\s*\)\s*=>/)
@@ -2036,7 +2048,7 @@ extension ScriptedElementTests {
 						frames.delete(frame);
 					},
 				});
-				vm.runInContext(fs.readFileSync('public/scripts/webgl.js', 'utf8').replace('export function', 'function'), context);
+				vm.runInContext(fs.readFileSync('public/scripts/webgl.js', 'utf8').replaceAll('export function', 'function'), context);
 				vm.runInContext(fs.readFileSync(`public/scripts/${name}.js`, 'utf8').replace(/^import .*\n/gm, ''), context);
 				resized();
 				intersected([{isIntersecting: true}]);
@@ -2631,8 +2643,9 @@ extension ScriptedElementTests {
 				getAttribute(name) {
 					return page[name.slice('share-'.length)];
 				}
-				querySelector() {
-					return this.shareOption;
+				// The share option, as the only part of the menu (`partList(this, 'share')`).
+				querySelectorAll() {
+					return this.shareOption ? [Object.assign(this.shareOption, {parentElement: this, getAttribute: () => 'share'})] : [];
 				}
 				closest() {
 					return this.popover;
@@ -2780,7 +2793,7 @@ extension ScriptedElementTests {
 		import fs from 'node:fs';
 		import vm from 'node:vm';
 
-		const context = vm.createContext({matchMedia: () => ({matches: false}), document: {prerendering: false}});
+		const context = vm.createContext({matchMedia: () => ({matches: false}), navigator: {platform: 'MacIntel', maxTouchPoints: 0}, document: {prerendering: false}});
 		vm.runInContext(fs.readFileSync('public/scripts/dom.js', 'utf8').replace(/^export /gm, ''), context);
 		const parts = vm.runInContext('parts', context);
 		const descendants = [];

@@ -69,11 +69,11 @@ It’s a macOS app for the [gifski encoder](https://gif.ski), which uses [pngqua
 
 **Features**
 
-- Trim and crop the video, and set the exact dimensions
+- Trim and crop the video, and set the exact dimensions <guide:crop-video-mac>
 - Change the speed and the frame rate, up to 50 FPS
-- Loop the GIF, bounce it back and forth, or add a delay between the loops
+- Loop the GIF, bounce it back and forth, or add a delay between the loops <guide:make-boomerang-gif-mac>
 - See a preview before you convert
-- Save the trimmed and cropped clip, at the speed you set, as a video without sound with “File › Export as Video…” (++Command+E++) on Mac
+- Save the trimmed and cropped clip, at the speed you set, as a video without sound with “File › Export as Video…” (++Command+E++) on Mac <guide:speed-up-video-mac>
 - Make smaller GIFs with the quality slider
 - Convert video to GIF from the Share menu, the Services menu, or the Shortcuts app
 

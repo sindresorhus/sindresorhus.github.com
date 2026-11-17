@@ -225,21 +225,6 @@ enum Schema {
 	protocol Object: Encodable {}
 
 	struct Person: Object {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case id = "@id"
-			case name
-			case givenName
-			case familyName
-			case alternateName
-			case url
-			case image
-			case jobTitle
-			case description
-			case sameAs
-			case knowsAbout
-		}
-
 		let type = "Person"
 
 		/**
@@ -268,19 +253,6 @@ enum Schema {
 	An article, like a blog post or a guide. The dates are days, like `2026-10-05`.
 	*/
 	struct Article: Object {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case headline
-			case description
-			case url
-			case datePublished
-			case dateModified
-			case author
-			case image
-			case keywords
-			case about
-		}
-
 		/**
 		The schema.org type, like `Article` for a guide and `BlogPosting` for a post.
 		*/
@@ -314,10 +286,6 @@ enum Schema {
 	A reference to an object with an `@id` in the structured data of another page, like the app of a guide.
 	*/
 	struct Reference: Encodable {
-		private enum CodingKeys: String, CodingKey {
-			case id = "@id"
-		}
-
 		let id: URL
 	}
 
@@ -325,25 +293,19 @@ enum Schema {
 	A page about one person, like an about page.
 	*/
 	struct ProfilePage: Object {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case mainEntity
-		}
-
 		let type = "ProfilePage"
 		let mainEntity: Person
+
+		/**
+		The day that the page last changed. `nil` when it is not known, like in a test without git.
+		*/
+		var dateModified: SOML.Date?
 	}
 
 	/**
 	The site, for the site name in search results.
 	*/
 	struct WebSite: Object {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case name
-			case url
-		}
-
 		let type = "WebSite"
 		let name: String
 		let url: URL
@@ -353,30 +315,6 @@ enum Schema {
 	An app. The type is `MobileApplication` for an app that does not run on the Mac.
 	*/
 	struct SoftwareApplication: Object {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case id = "@id"
-			case name
-			case description
-			case url
-			case applicationCategory
-			case operatingSystem
-			case author
-			case datePublished
-			case dateModified
-			case image
-			case screenshot
-			case downloadUrl
-			case softwareVersion
-			case softwareRequirements
-			case releaseNotes
-			case fileSize
-			case sameAs
-			case offers
-			case aggregateRating
-			case review
-		}
-
 		/**
 		The schema.org type of the app, based on its platforms.
 		*/
@@ -438,7 +376,7 @@ enum Schema {
 		var releaseNotes: URL?
 
 		/**
-		The download size with its unit, like “19.2 MB”, as a number alone is read as kilobytes.
+		The download size with its unit, as a number alone is read as kilobytes, like the page shows it (``AppListing/fileSizeTexts``): “6 MB”, or “2.87 GB on Mac, 1.84 GB on iPhone and iPad” for an app on Mac and iPhone.
 		*/
 		var fileSize: String?
 
@@ -450,18 +388,36 @@ enum Schema {
 		var offers: Offer?
 		var aggregateRating: AggregateRating?
 		var review: [Review]?
+
+		/**
+		The demo videos of the app, like the one of Text Lens.
+		*/
+		var video: [VideoObject]?
+	}
+
+	/**
+	A demo video of an app, so search engines can show it in video results. Google needs the name, the thumbnail, and the upload date.
+	*/
+	struct VideoObject: Encodable {
+		let type = "VideoObject"
+
+		/**
+		The name, like “Text Lens demo”.
+		*/
+		let name: String
+
+		let description: String
+
+		/**
+		The poster of the video.
+		*/
+		let thumbnailUrl: URL
+
+		let contentUrl: URL
+		let uploadDate: SOML.Date
 	}
 
 	struct Offer: Encodable {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case availability
-			case url
-			case seller
-			case price
-			case priceCurrency
-		}
-
 		let type = "Offer"
 		let availability = "https://schema.org/InStock"
 		let url: URL
@@ -478,14 +434,6 @@ enum Schema {
 	}
 
 	struct AggregateRating: Encodable {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case ratingValue
-			case bestRating
-			case worstRating
-			case ratingCount
-		}
-
 		let type = "AggregateRating"
 		let ratingValue: Double
 
@@ -519,30 +467,20 @@ enum Schema {
 	}
 
 	struct Review: Encodable {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case author
-			case datePublished
-			case name
-			case reviewBody
-			case reviewRating
-		}
-
 		let type = "Review"
 		let author: Person
 		let datePublished: SOML.Date
-		let name: String
+
+		/**
+		The title, which a review on Gumroad does not have.
+		*/
+		let name: String?
+
 		let reviewBody: String
 		let reviewRating: Rating
 	}
 
 	struct Rating: Encodable {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case ratingValue
-			case bestRating
-		}
-
 		let type = "Rating"
 		let ratingValue: ReviewStars
 		let bestRating = 5
@@ -552,22 +490,7 @@ enum Schema {
 	A list of links to the pages of its items, like the apps of the apps page. Each item is only its position and URL, as each page has the full structured data of its item, which Google asks for on such a summary page.
 	*/
 	struct ItemList: Object {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case name
-			case description
-			case url
-			case numberOfItems
-			case itemListElement
-		}
-
 		struct ListItem: Encodable {
-			private enum CodingKeys: String, CodingKey {
-				case type = "@type"
-				case position
-				case url
-			}
-
 			let type = "ListItem"
 			let position: Int
 			let url: URL
@@ -595,22 +518,10 @@ enum Schema {
 	}
 
 	/**
-	The trail of links that a page shows above its title, like “Back to Command X” on a guide, which search results can show instead of the path of the URL. The last item is the page itself, without a URL, so Google uses the URL of the page.
+	The trail of links that a page shows, like “Back to Command X” above the title of a guide, or the breadcrumb of the footer (``Page/parents``), like “Apps › Supercharge › Release Notes”, which search results can show instead of the path of the URL. The last item is the page itself, without a URL, so Google uses the URL of the page.
 	*/
 	struct BreadcrumbList: Object {
-		private enum CodingKeys: String, CodingKey {
-			case type = "@type"
-			case itemListElement
-		}
-
 		struct ListItem: Encodable {
-			private enum CodingKeys: String, CodingKey {
-				case type = "@type"
-				case position
-				case name
-				case item
-			}
-
 			let type = "ListItem"
 			let position: Int
 			let name: String
@@ -647,8 +558,8 @@ extension JSONScript {
 A schema.org object at the top level of structured data, with the `@context` next to its own keys, as only the top level has it.
 */
 private struct SchemaTopLevel<Value: Schema.Object>: Encodable {
-	private enum CodingKeys: String, CodingKey {
-		case context = "@context"
+	private enum CodingKeys: CodingKey {
+		case context
 	}
 
 	let value: Value
@@ -663,7 +574,7 @@ private struct SchemaTopLevel<Value: Schema.Object>: Encodable {
 
 extension Schema.SoftwareApplication {
 	/**
-	An app, with the version and the size from the App Store or the appcast (``AppListing/version`` and ``AppListing/fileSize``), and the price and the eligible rating that the page shows (``AppListing/price`` and ``AppListing/rating(at:)``), as Google treats a rating that the page does not show as spam. A free app that is downloaded from its own site, like from GitHub, gets an offer with the price 0.
+	An app, with the version and the size from the App Store or the appcast (``AppListing/version`` and ``AppListing/fileSizeTexts``, like the page, without the model that the app downloads), the demo videos, and the price and the eligible rating that the page shows (``AppListing/price`` and ``AppListing/rating(at:)``), as Google treats a rating that the page does not show as spam. A free app that is downloaded from its own site, like from GitHub, gets an offer with the price 0.
 
 	The reviews are only included when there is a rating, as Google requires an `aggregateRating` with reviews (“Multiple reviews without aggregateRating object”). The rating is not computed from the reviews, as they are only the newest five-star ones. They are the reviews that the app page shows (``AppListing/newestReviews``).
 	*/
@@ -686,10 +597,10 @@ extension Schema.SoftwareApplication {
 		)
 
 		screenshot = app.screenshotURLs.nilIfEmpty
-		softwareRequirements = listing.minimumVersionsByPlatform
+		softwareRequirements = listing.requirement?.descriptionByPlatform
 		releaseNotes = app.releaseNotes?.path.absoluteURL
 		dateModified = listing.currentVersionDate
-		fileSize = listing.fileSize?.formatted(.siteFileSize)
+		fileSize = listing.fileSizeTexts.nilIfEmpty?.joined(separator: ", ")
 		// The plain pages of the stores, not the Setapp link, as it is a referral link, and not the Gumroad link, as it opens the checkout.
 		sameAs = [app.appStoreURL, app.purchase.gumroad?.id.url, app.frontmatter.setappID?.pageURL, app.frontmatter.repositoryURL?.value].compactMap(\.self).nilIfEmpty
 
@@ -713,6 +624,20 @@ extension Schema.SoftwareApplication {
 			offers = app.isArchived ? nil : listing.price.map { Schema.Offer(url: offerURL, seller: .authorName, price: $0) }
 		}
 
+		// A video without its date, like in a test without git, is left out, as Google needs the date.
+		video = app.media.compactMap(\.video).compactMap { asset in
+			asset.uploadDate.map { date in
+				Schema.VideoObject(
+					name: app.demoVideoTitle,
+					description: app.subtitle,
+					thumbnailUrl: asset.poster.absoluteURL,
+					contentUrl: asset.path.absoluteURL,
+					uploadDate: SOML.Date(date)
+				)
+			}
+		}
+		.nilIfEmpty
+
 		if let rating = listing.rating(at: buildDate) {
 			aggregateRating = Schema.AggregateRating(rating: rating)
 			review = listing.newestReviews.map(Schema.Review.init).nilIfEmpty
@@ -722,14 +647,14 @@ extension Schema.SoftwareApplication {
 
 extension Schema.Review {
 	/**
-	A review from the App Store.
+	A review from the App Store or Gumroad.
 	*/
-	init(_ review: AppStoreReview) {
+	init(_ review: StoreReview) {
 		self.init(
 			author: Schema.Person(name: review.author),
 			datePublished: SOML.Date(review.date),
-			name: review.title,
-			reviewBody: review.text,
+			name: review.displayTitle,
+			reviewBody: review.displayText,
 			reviewRating: Schema.Rating(ratingValue: review.rating)
 		)
 	}
@@ -760,54 +685,83 @@ extension CGImage {
 	/**
 	The most common vivid color of the image, like the blue of a blue app icon, written as hex, like `#1e88e5`. `nil` when the image has almost no vivid colors, like a gray icon.
 
-	The image is scaled down, and the colors of the opaque, saturated pixels are grouped by hue. The color is the average of the largest group, where more saturated and brighter pixels count more.
+	The color is the average of the largest hue group of the vivid pixels (``vividHues``), when that group is more than 8% of the image.
 	*/
 	var accentColor: Color? {
-		struct HueGroup {
-			var weight = 0.0
-			var red = 0.0
-			var green = 0.0
-			var blue = 0.0
-		}
-
-		let side = 32
-
 		guard
-			let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
-			let context = CGContext(
-				data: nil,
-				width: side,
-				height: side,
-				bitsPerComponent: 8,
-				bytesPerRow: side * 4,
-				space: colorSpace,
-				bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-			)
+			let hues = vividHues,
+			hues.largest.weight / Double(hues.opaqueCount) > 0.08
 		else {
 			return nil
 		}
 
-		context.interpolationQuality = .medium
-		context.draw(
-			self,
-			in: CGRect(
-				x: 0,
-				y: 0,
-				width: side,
-				height: side
-			)
-		)
+		return hues.largest.color
+	}
 
-		guard let data = context.data else {
+	/**
+	The color of the glow below an icon in a row of icons, like on a category page of the apps: the largest hue group, like ``accentColor``, but counted among the colored pixels only, so a white icon with a colored glyph and a colorful icon get a color too. `nil` when less than 3% of the image has color, like a gray or white icon, or when no hue leads, like a rainbow. The accent of the app pages stays ``accentColor``.
+	*/
+	var glowColor: Color? {
+		guard
+			let hues = vividHues,
+			Double(hues.coloredCount) / Double(hues.opaqueCount) >= 0.03,
+			hues.largest.weight / Double(hues.coloredCount) >= 0.2
+		else {
 			return nil
 		}
 
-		let pixels = data.bindMemory(to: UInt8.self, capacity: side * side * 4)
+		return hues.largest.color
+	}
+
+	/**
+	The largest group by hue (one of 12) of the opaque, saturated pixels of a 32 × 32 copy of the image, where more saturated and brighter pixels count more, with the number of opaque pixels and of colored pixels. `nil` when the image cannot be drawn or has no colored pixels.
+	*/
+	private var vividHues: (largest: HueGroup, opaqueCount: Int, coloredCount: Int)? {
+		let side = 32
+		let bytesPerPixel = 4
+		let bytesPerRow = side * bytesPerPixel
+		var pixels = [UInt8](repeating: 0, count: side * bytesPerRow)
+
+		guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else {
+			return nil
+		}
+
+		let drewImage = pixels.withUnsafeMutableBytes { buffer in
+			guard let context = CGContext(
+				data: buffer.baseAddress,
+				width: side,
+				height: side,
+				bitsPerComponent: 8,
+				bytesPerRow: bytesPerRow,
+				space: colorSpace,
+				bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+			) else {
+				return false
+			}
+
+			context.interpolationQuality = .medium
+			context.draw(
+				self,
+				in: CGRect(
+					x: 0,
+					y: 0,
+					width: side,
+					height: side
+				)
+			)
+			return true
+		}
+
+		guard drewImage else {
+			return nil
+		}
+
 		var groups = [HueGroup](repeating: HueGroup(), count: 12)
 		var opaqueCount = 0
+		var coloredCount = 0
 
-		for index in 0..<(side * side) {
-			let alpha = Double(pixels[index * 4 + 3]) / 255
+		for offset in stride(from: 0, to: pixels.count, by: bytesPerPixel) {
+			let alpha = Double(pixels[offset + 3]) / 255
 
 			guard alpha > 0.9 else {
 				continue
@@ -816,9 +770,9 @@ extension CGImage {
 			opaqueCount += 1
 
 			// The pixels are premultiplied by their alpha.
-			let red = Double(pixels[index * 4]) / 255 / alpha
-			let green = Double(pixels[index * 4 + 1]) / 255 / alpha
-			let blue = Double(pixels[index * 4 + 2]) / 255 / alpha
+			let red = Double(pixels[offset]) / 255 / alpha
+			let green = Double(pixels[offset + 1]) / 255 / alpha
+			let blue = Double(pixels[offset + 2]) / 255 / alpha
 			let maximum = max(red, green, blue)
 			let minimum = min(red, green, blue)
 			let saturation = maximum > 0 ? (maximum - minimum) / maximum : 0
@@ -840,6 +794,7 @@ extension CGImage {
 				((red - green) / delta + 4) / 6
 			}
 
+			coloredCount += 1
 			let group = Int(((hue < 0 ? hue + 1 : hue) * 12).rounded(.down)) % 12
 			let weight = saturation * maximum
 			groups[group].weight += weight
@@ -850,18 +805,34 @@ extension CGImage {
 
 		guard
 			let largest = groups.sorted(using: KeyPathComparator(\HueGroup.weight, order: .reverse)).first,
-			opaqueCount > 0,
-			largest.weight / Double(opaqueCount) > 0.08
+			coloredCount > 0
 		else {
 			return nil
 		}
 
+		return (largest, opaqueCount, coloredCount)
+	}
+}
+
+/**
+The pixels of one hue of an image (``CGImage/accentColor``), with their colors summed by weight.
+*/
+private struct HueGroup {
+	var weight = 0.0
+	var red = 0.0
+	var green = 0.0
+	var blue = 0.0
+
+	/**
+	The average color, as hex, like `#1e88e5`.
+	*/
+	var color: Color {
 		func hex(_ value: Double) -> String {
-			let byte = min(max(Int((value / largest.weight * 255).rounded()), 0), 255)
+			let byte = min(max(Int((value / weight * 255).rounded()), 0), 255)
 			return (byte < 16 ? "0" : "") + String(byte, radix: 16)
 		}
 
-		return Color(raw: "#\(hex(largest.red))\(hex(largest.green))\(hex(largest.blue))")
+		return Color(raw: "#\(hex(red))\(hex(green))\(hex(blue))")
 	}
 }
 

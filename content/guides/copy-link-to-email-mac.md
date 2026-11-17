@@ -9,13 +9,13 @@ apps: [
 ---
 
 @QuickAnswer {
-	[Supercharge](../apps/supercharge/index.md) copies a link to an email in Mail: select the message, and press a keyboard shortcut, like ++Option+C++. Paste the link in Notes, Reminders, or a document, and click it to open the message in Mail. Without an app, share the message to Reminders, which adds a link back to the message.
+	[Supercharge](/supercharge) copies a link to an email in Mail: select the message, and press a keyboard shortcut, like ++Option+C++. Paste the link in Notes, Reminders, or a document, and click it to open the message in Mail. [Without an app](#without-an-app), share the message to Reminders, which adds a link back to the message.
 }
 
 ## With Supercharge
 
 @Steps {
-1. Open the settings of [Supercharge](../apps/supercharge/index.md), and click “Tweaks”.
+1. Open the settings of [Supercharge](/supercharge), and click “Tweaks”.
 1. In the “Mail” section, choose a keyboard shortcut for “Copy message link”: ++Control+C++, ++Option+C++, or ++Option+Shift+C++.
 1. In Mail, select one or more messages, and press the shortcut. You can also click the Supercharge icon in the menu bar, and choose “Copy Message Link”, which shows while Mail is in front.
 1. The first time, allow Supercharge to control Mail.

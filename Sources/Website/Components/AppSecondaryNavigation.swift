@@ -16,7 +16,8 @@ struct AppSecondaryNavigation: ScriptedElement {
 	let hasGuides: Bool
 
 	var content: some HTML {
-		a(.href(app.url)) {
+		// Goes up to the hero of the page, like the title of a navigation bar, so a tap does not load the page again, which would close the answers that the visitor opened. The bar is only on the app page.
+		a(.href(.fragment(AppHero.IDs.hero.id))) {
 			AppIcon(decorative: app, size: 32)
 
 			span(.notTranslated) {
@@ -82,14 +83,7 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.position(.absolute)
 					.inset(.zero)
 					.hstack(alignment: .center, justification: .spaceBetween)
-					.filter(.opacity(0))
-					.visibility(false)
-					.transition(.filter, .visibility, timing: SiteHeader.navigationSwap)
-					.when(ancestorHas: Hooks.appHeroScrolledAway) {
-						$0
-							.filter(.opacity(1))
-							.visibility(true)
-					}
+					.navigationSwap(isShownWhileScrolledAway: true)
 					.pageWidth()
 					.padding(.rootEm(0.75))
 					.color(.gray(600), dark: .gray(200))
@@ -111,15 +105,17 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.padding(vertical: .rootEm(0.25), horizontal: .rootEm(0.5))
 					.margin(vertical: .rootEm(-0.25), horizontal: .rootEm(-0.5))
 					.focusFill()
-					// On phones, the name never pushes the “Get” button out. Where the name does not fit next to the icon, like a long name on a narrow phone or with large text, it wraps to a second line, which the identity clips, so only the icon shows. The link keeps the name as its label. The maximum height is the icon and the padding above and below it, and the space between the lines is as large, so no part of a second line shows, also with large text, as the icon has a size in pixels.
-					.below(.tablet) {
+					// Below laptops, the name never pushes the “Get” button or the section links out. Where the name does not fit next to the icon, like a long name on a narrow phone, a long name next to many section links on a tablet, or with large text, it wraps to a second line, which the identity clips, so only the icon shows. The link keeps the name as its label. The maximum height is the icon and the padding above and below it, and the space between the lines is as large, so no part of a second line shows, also with large text, as the icon has a size in pixels.
+					.below(.laptop) {
 						$0
 							.flexShrink(1)
 							.frame(minWidth: .zero, maxHeight: .rootEm(2.5))
 							.flexWrap()
 							.gap(row: .rootEm(2.5))
 							.overflow(.hidden)
-							.allowsHitTesting(true)
+					}
+					.below(.tablet) {
+						$0.allowsHitTesting(true)
 					}
 			case .name:
 				Style()
@@ -127,20 +123,19 @@ struct AppSecondaryNavigation: ScriptedElement {
 					.textStyle(.lead, weight: .bold)
 					.textWrap(.nowrap)
 					.color(.primaryText)
-					// Between tablets and laptops, the section links need the space.
-					.media(.from(.tablet) && .below(.laptop)) {
-						$0.hidden()
-					}
-					// Whole or not at all on phones (``identity``).
-					.below(.tablet) {
+					// Whole or not at all below laptops (``identity``). Between tablets and laptops, a name that leaves less space than the margin before the first section link wraps out, so it does not look cramped next to the links.
+					.below(.laptop) {
 						$0.flexShrink(0)
+					}
+					.media(.from(.tablet) && .below(.laptop)) {
+						$0.margin(.trailing, .rootEm(1))
 					}
 			case .link:
 				// Pills like the site navigation, with the section in view in a tint of the accent of the app.
 				Style()
 					.hstack(alignment: .center)
 					.textWrap(.nowrap)
-					.navigationPill(currentFill: Color.pageAccent.opacity(0.16))
+					.navigationPill(currentFill: .currentSectionFill)
 					.hidden(below: .tablet)
 			case .overflow:
 				Style()

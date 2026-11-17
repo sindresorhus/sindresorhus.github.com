@@ -13,17 +13,44 @@ struct DownloadOptions: HTML {
 	*/
 	var appStorePlacement = App.AppStorePlacement.downloadButton
 
+	/**
+	The dialog of the page with the trial card, which the “Free Trial” button opens over the page, like on the app page (``AppHero/trialDialogID``). Without it, the button links to the trial section of the app page, like in a guide.
+	*/
+	var trialDialogID: ElementID?
+
+	/**
+	Whether the “Free Trial” button is shown, when the app has a trial. A guide about the iPhone leaves out a trial that is only for the Mac (``App/Trial/isMacOnly``).
+	*/
+	var showsTrial = true
+
+	/**
+	Whether the options are at the top of the page, like in the hero of an app page, so the badges load with a high priority, before the other images, and the ways to get the app do not show last on a slow connection.
+	*/
+	var isAboveFold = false
+
 	var body: some HTML<HTMLTag.div> {
 		div {
-			for option in app.downloadOptions(appStorePlacement: appStorePlacement) {
-				OptionLink(option: option)
+			for option in options {
+				OptionLink(option: option, trialDialogID: trialDialogID, isAboveFold: isAboveFold)
 			}
 		}
 		.style(Styles.root)
 	}
 
+	private var options: [DownloadOption] {
+		app.downloadOptions(appStorePlacement: appStorePlacement).filter { option in
+			guard case .trial = option else {
+				return true
+			}
+
+			return showsTrial
+		}
+	}
+
 	private struct OptionLink: HTML {
 		let option: DownloadOption
+		let trialDialogID: ElementID?
+		let isAboveFold: Bool
 
 		// A switch, so a new kind of option does not compile until it has its look.
 		var body: some HTML {
@@ -42,7 +69,14 @@ struct DownloadOptions: HTML {
 				// Secondary, like “Free Trial”, so the store or the purchase stays the strongest action.
 				buttonLink("Source Code", destination: option.url, fill: .secondary)
 			case .trial:
-				buttonLink("Free Trial", destination: option.url, fill: .secondary)
+				if let trialDialogID {
+					button(.type(.button), .popoverTarget(trialDialogID)) {
+						"Free Trial"
+					}
+					.buttonStyle(.secondary, size: .large)
+				} else {
+					buttonLink("Free Trial", destination: option.url, fill: .secondary)
+				}
 			}
 		}
 
@@ -62,6 +96,7 @@ struct DownloadOptions: HTML {
 					.height(60),
 					.alt(badge.label)
 				)
+					.attributes(.fetchPriority(.high), when: isAboveFold)
 					.style(Styles.badgeImage)
 			}
 			.style(Styles.badge)

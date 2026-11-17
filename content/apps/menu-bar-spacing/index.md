@@ -10,6 +10,9 @@ gitHubDownload: {
 	file: 'Menu.Bar.Spacing.zip'
 }
 downloadCount: 39000
+relatedApps: [
+	'spaced'
+]
 olderVersions: [
 	{
 		version: '1.1.0'
@@ -45,16 +48,14 @@ With a single run, the app applies changes permanently, allowing you to fit more
 
 The app includes a Shortcuts action, enabling automated spacing adjustments for various scenarios.
 
-**The app only needs to be run once to set the spacing and can then be uninstalled. The settings persist.**
+> [!NOTE]
+> The app only needs to run once to set the spacing. Then you can uninstall it, and the settings stay.
 
 This app can potentially replace Bartender/Ice for some users. It also lets you fit more of my [menu bar apps](/apps/menu-bar) in your menu bar.
 
-> [!TIP]
-> You may also like my [Spaced](/spaced) app for grouping menu bar items.
-
 ## Frequently Asked Questions {#faq}
 
-### I can already do this from the command-line, why should I use this app? {#i-can-already-do-this-from-the-command-line-why-should-i-use-this-app}
+### I can already do this from the command line, why should I use this app? {#i-can-already-do-this-from-the-command-line-why-should-i-use-this-app}
 
 This app makes it simpler and it also makes it possible to see the changes without having to restart your computer first.
 

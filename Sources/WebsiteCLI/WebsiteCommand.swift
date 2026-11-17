@@ -403,7 +403,7 @@ extension WebsiteCommand {
 
 			// A check loads no drafts, so it would print “No warnings.” for a draft, also for a changed one. Only the preview has them.
 			let draftFiles = (shownFilesOfArguments ?? []).filter { url in
-				(try? MarkdownFile(url: url.pathExtension == "md" ? url : url.appending(path: "index.md")))?.isDraft == true
+				(try? MarkdownFile(url: url.isMarkdownFile ? url : url.pageBundleIndex))?.isDraft == true
 			}
 
 			for file in draftFiles {

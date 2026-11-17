@@ -9,14 +9,14 @@ apps: [
 ---
 
 @QuickAnswer {
-	In the Shortcuts app, run the “Get Device Details (Extended)” action of [Actions](../apps/actions/index.md). It shows how long the iPhone or the Mac has been on, with and without the time in sleep. On a Mac, you can also run `uptime` in Terminal.
+	In the Shortcuts app, run the “Get Device Details (Extended)” action of [Actions](/actions). It shows how long the iPhone or the Mac has been on, with and without the time in sleep. On a Mac, you can also run `uptime` in Terminal.
 }
 
 ## With Actions
 
 @Steps {
-1. Install [Actions](../apps/actions/index.md), and open it one time.
-1. In the Shortcuts app, make a new shortcut, and add the “Get Device Details (Extended)” action.
+1. Install [Actions](/actions), and open it one time.
+1. In the Shortcuts app, make a new shortcut, and add the [“Get Device Details (Extended)”](/actions#:~:text=Get%20Device%20Details%20%28Extended%29) action.
 1. Add the “Show Content” action, and run the shortcut.
 }
 
